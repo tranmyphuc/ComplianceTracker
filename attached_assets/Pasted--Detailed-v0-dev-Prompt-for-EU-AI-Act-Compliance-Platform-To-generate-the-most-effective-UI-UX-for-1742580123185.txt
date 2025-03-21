@@ -1,0 +1,249 @@
+# Detailed v0.dev Prompt for EU AI Act Compliance Platform
+
+To generate the most effective UI/UX for your EU AI Act Compliance Platform through v0.dev, here's a comprehensive prompt you can use. Copy and paste this prompt to v0.dev, adjusting any specific details as needed:
+
+```
+Create a modern, professional web application UI for an EU AI Act Compliance Platform. The platform helps organizations manage AI regulatory compliance with an intuitive, data-rich interface. Please design the Executive Dashboard screen with the following specifications:
+
+The Executive Dashboard should include:
+
+1. A clean header with:
+   - Company logo on the left
+   - Navigation menu with items: Dashboard, AI Inventory, Risk Assessment, Documentation, Training, Tasks, Reports, Settings
+   - User profile dropdown in the top-right
+   - A global search bar
+   - A prominent "AI Assistant" button that opens the chatbot interface
+
+2. A KPI section at the top with four metric cards showing:
+   - Total AI Systems (38) with a subtle up arrow indicating growth
+   - High-Risk Systems (12) with a warning icon
+   - Documentation Completeness (76%) with a circular progress indicator
+   - Training Completion (82%) with a circular progress indicator
+   Each card should have the metric name, value, change indicator, and a subtle icon
+
+3. A main content area with:
+   - A donut chart showing "Systems by Risk Level" with segments for High Risk (red), Limited Risk (amber), and Minimal Risk (green)
+   - A horizontal bar chart showing "Compliance by Department" with different departments and their compliance percentage
+   - A timeline visualization showing regulatory deadlines (Aug 2025, Feb 2026, Aug 2026) with the organization's progress markers
+
+4. A right sidebar containing:
+   - "Critical Alerts" section with 3 alert items showing high-priority issues
+   - "Recent Activity" feed showing the latest 5 compliance actions taken
+   - "Upcoming Deadlines" section with the next 3 dates
+
+5. A bottom section with:
+   - "High-Risk Systems Overview" table showing the top 5 high-risk systems with columns for Name, Department, Risk Score, Documentation Status, and Training Status
+   - Action buttons for detailed reports
+
+Use a professional color scheme with blue as the primary color, clean white backgrounds, and clear visual hierarchy. The design should be data-focused but approachable, with subtle shadows and rounded corners for UI elements. Include interactive elements like hover states and dropdown menus where appropriate.
+
+The dashboard should feel comprehensive yet uncluttered, providing executives with key compliance insights at a glance.
+```
+
+After you receive the Executive Dashboard design, you can request additional screens by using similar detailed prompts. Here's how to structure your follow-up requests for other key screens:
+
+## For the AI System Inventory Screen
+
+```
+Design the AI System Inventory screen for the EU AI Act Compliance Platform with:
+
+1. A data table showing AI systems with columns for:
+   - System Name (with icon representing type)
+   - Vendor/Provider
+   - Department
+   - Risk Level (with color-coded badges: red for High, amber for Limited, green for Minimal)
+   - Compliance Status (with progress indicator)
+   - Implementation Date
+   - Last Assessment Date
+   - Actions (dropdown menu)
+
+2. Above the table, include:
+   - A prominent "Register New System" button
+   - Advanced filtering options (expandable panel)
+   - Quick filters for Risk Level and Department
+   - Bulk action dropdown
+   - View toggle (table/card view)
+   - Search bar with type-ahead functionality
+
+3. Pagination controls below the table
+4. Option to customize visible columns
+5. Row hover state with subtle highlight
+6. Sorting indicators on column headers
+
+Use the same style as the previous dashboard, maintaining design consistency.
+```
+
+## For the System Registration with AI Assistance
+
+```
+Design a System Registration form with AI assistance for the EU AI Act Compliance Platform showing:
+
+1. A multi-step wizard with progress tracker showing steps:
+   - Basic Information (active)
+   - System Purpose
+   - Technical Details
+   - Ownership & Access
+   - Documentation
+
+2. For the Basic Information step, include:
+   - System Name field
+   - Vendor/Provider field with typeahead
+   - Version field
+   - Implementation Date picker
+   - System Status dropdown
+
+3. On the right side, show an AI Assistant panel with:
+   - Document upload area with "Extract Information" button
+   - A chat-like interface showing AI suggestions
+   - "AI has extracted the following information:" message
+   - Field suggestions with "Apply" buttons
+   - Confidence score for each suggestion
+
+4. At the bottom of the form:
+   - Save Draft button
+   - Back button (disabled on first step)
+   - Continue button
+
+5. Show some fields already filled with AI-suggested information, with subtle highlighting to indicate AI-populated fields
+
+Include the same header and navigation as the previous screens for consistency.
+```
+
+## For the Risk Assessment Wizard
+
+```
+Design the Risk Assessment Wizard for the EU AI Act Compliance Platform focusing on the Prohibited Use screening step:
+
+1. Include the standard header and a clear wizard progress tracker showing:
+   - System Selection (completed)
+   - Prohibited Use Screening (active)
+   - High-Risk Category Evaluation
+   - Risk Parameter Assessment
+   - Evidence Collection
+   - Gap Analysis
+   - Action Planning
+
+2. The main content area should show:
+   - A clear explanation of prohibited use cases under the EU AI Act
+   - The first screening question: "Does the system implement social scoring that leads to detrimental or unfavorable treatment of persons or groups?" with Yes/No radio buttons
+   - An information tooltip explaining the question in more detail
+   - A text area for justification/notes
+   - Regulatory reference with an expandable panel showing the exact legal text
+
+3. On the right side, include:
+   - System context panel showing key information about the system being assessed
+   - AI guidance panel offering explanations and examples relevant to the current question
+   - Quick reference links to applicable regulations
+
+4. At the bottom:
+   - Previous button
+   - Save Draft button
+   - Next Question button
+
+Use clear visual indicators to distinguish between different types of content (questions, guidance, regulatory text).
+```
+
+## For Document Creator with AI Suggestions
+
+```
+Design the Document Creator interface for the EU AI Act Compliance Platform with AI assistance:
+
+1. Show a split interface with:
+   - Document editor on the left (approximately 70% width)
+   - AI Assistant panel on the right (approximately 30% width)
+
+2. The document editor should include:
+   - Document title field at the top
+   - Template-based structure with section headings
+   - Rich text formatting toolbar
+   - Current section: "3.2 Human Oversight Mechanisms" with partially completed content
+   - Progress indicator showing section completion status
+   - Section navigation sidebar on the far left
+
+3. The AI Assistant panel should show:
+   - "AI Suggestions" header
+   - Current suggestion: "Based on your system description, consider adding these human oversight mechanisms:" followed by 3 bullet points of specific suggestions
+   - "Insert" and "Modify" buttons below the suggestion
+   - Previous suggestions in a collapsed/minimized state
+   - "Ask Assistant" text input field at the bottom
+   - "Analyze Document" and "Suggest Improvements" buttons
+
+4. Below the main content, include:
+   - Document metadata (Last saved, Version, Author)
+   - Action buttons (Save Draft, Preview, Submit for Review)
+
+Show a realistic document being created with professional compliance content relevant to human oversight requirements under the EU AI Act.
+```
+
+## For EU AI Act Knowledge Center
+
+```
+Design the EU AI Act Knowledge Center for the compliance platform with:
+
+1. A header with search functionality prominently featured
+2. Left sidebar navigation with categories:
+   - Regulatory Text (selected)
+   - Implementation Guides
+   - Case Studies
+   - Templates
+   - FAQ
+   - Expert Commentary
+
+3. Main content area showing:
+   - Breadcrumb navigation: "EU AI Act > Title II > Article 6 > Paragraph 3"
+   - Article heading and full regulatory text in a clean, readable format
+   - Paragraph numbering and proper formatting
+   - Interactive references (highlighted terms that expand with definitions)
+   - Bookmark and annotation tools
+
+4. Right sidebar showing:
+   - "AI Explanation" panel with simplified explanation of the current article
+   - "Related Articles" list with quick links
+   - "Implementation Notes" with practical guidance
+   - "Ask AI" button to prompt questions about this regulation
+
+5. Bottom section with:
+   - Previous/Next article navigation
+   - Related templates or documents
+   - User feedback mechanism ("Was this helpful?")
+
+Use a slightly different color scheme that distinguishes this knowledge base from the operational parts of the platform while maintaining brand consistency.
+```
+
+## For the Intelligent Chatbot Interface
+
+```
+Design the Intelligent AI Assistant interface for the EU AI Act Compliance Platform:
+
+1. Show the assistant as an expandable panel that overlays on the main interface:
+   - Minimized state as a floating button in the bottom right
+   - Expanded state covering approximately 30% of the screen width
+   - Header with "AI Compliance Assistant" title and minimize/close buttons
+
+2. The expanded chatbot should include:
+   - A conversation history showing 3-4 previous interactions
+   - Clear visual distinction between user messages and AI responses
+   - The latest AI response showing formatted text with:
+     * A heading "About High-Risk AI Classification"
+     * Bullet points explaining key criteria
+     * A regulatory reference block
+     * A small table comparing requirements
+   - The response should demonstrate rich formatting capabilities
+
+3. At the bottom of the panel:
+   - Input field with placeholder "Ask anything about EU AI Act compliance..."
+   - Send button
+   - Attachment/screenshot button
+   - Options menu with:
+     * "New conversation" option
+     * "Export conversation" option
+     * "Switch context" option
+
+4. Show context awareness with:
+   - A subtle indicator showing "Context: Risk Assessment for HR Candidate Tool"
+   - Suggestion chips for follow-up questions relevant to the current conversation
+
+Design the chatbot to feel deeply integrated with the application while being unobtrusive when not in active use.
+```
+
+Remember to request one screen at a time from v0.dev, and be specific about design elements, functionality, and the data you want displayed. After receiving each design, you can refine your requests based on what you see and gradually build up your complete UI/UX design system.
