@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { BrainIcon, Sparkles, Upload, Bot, PencilIcon, SparklesIcon } from 'lucide-react';
+import { useLocation } from 'wouter';
+import { BrainIcon, Upload, PencilIcon, SparklesIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import RegistrationGuide from './registration-guide';
@@ -52,8 +52,9 @@ const initialFormData = {
   trainingDataDescription: ''
 };
 
-const SystemRegistration: React.FC = () => {
-  const navigate = useNavigate();
+export const SystemRegistration: React.FC = () => {
+  const [_, setLocation] = useLocation();
+  const { toast } = useToast();
   const [formData, setFormData] = useState(initialFormData);
   const [currentStep, setCurrentStep] = useState(1);
   const [sghAsiaAiInProgress, setSghAsiaAiInProgress] = useState(false);
@@ -313,7 +314,7 @@ const SystemRegistration: React.FC = () => {
           description: "The AI system has been registered successfully.",
         });
         
-        navigate('/dashboard');
+        setLocation('/dashboard');
       } else {
         const errorData = await response.json();
         toast({
@@ -364,7 +365,7 @@ const SystemRegistration: React.FC = () => {
                 <DialogHeader>
                   <DialogTitle className="flex items-center justify-between">
                     <span>AI-Assisted System Registration</span>
-                    <span className="text-xs text-blue-600 font-normal">Powered by DeepSeek AI</span>
+                    <span className="text-xs text-blue-600 font-normal">Powered by SGH ASIA AI</span>
                   </DialogTitle>
                   <DialogDescription>
                     Our AI will analyze your information and suggest fields based on available information.
@@ -421,7 +422,7 @@ const SystemRegistration: React.FC = () => {
                       {extractionInProgress && (
                         <div className="space-y-2">
                           <Progress value={extractionProgress} className="h-2" />
-                          <p className="text-xs text-center text-neutral-500">DeepSeek AI is analyzing the document...</p>
+                          <p className="text-xs text-center text-neutral-500">SGH ASIA AI is analyzing the document...</p>
                         </div>
                       )}
                     </div>
@@ -759,7 +760,7 @@ const SystemRegistration: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <Bot className="mr-2 h-4 w-4" />
+                    <SparklesIcon className="mr-2 h-4 w-4" />
                     Analyze with SGH AI
                   </>
                 )}
@@ -773,5 +774,3 @@ const SystemRegistration: React.FC = () => {
     </div>
   );
 };
-
-export default SystemRegistration;
