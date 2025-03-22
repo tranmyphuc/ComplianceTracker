@@ -753,6 +753,93 @@ export const SystemRegistration: React.FC = () => {
     }
   };
 
+  // Handle file upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setUploadedFile(files[0]);
+    }
+  };
+
+  // Extract data from uploaded file
+  const extractFromFile = () => {
+    if (!uploadedFile) {
+      toast({
+        title: "Error",
+        description: "Please upload a file first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setExtractionInProgress(true);
+    setAiExtractionStatus('extracting');
+
+    // Simulate file processing progress
+    const progressInterval = setInterval(() => {
+      setExtractionProgress(prev => {
+        const newProgress = prev + (Math.random() * 10);
+        return newProgress >= 95 ? 95 : newProgress;
+      });
+    }, 300);
+
+    // In a real implementation, this would send the file to an API
+    // For now, simulate file processing
+    setTimeout(() => {
+      clearInterval(progressInterval);
+      setExtractionProgress(100);
+
+      // Generate mock results based on filename
+      const mockResults = {
+        name: uploadedFile.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "),
+        description: `This AI system was extracted from the uploaded documentation. It appears to be a ${
+          uploadedFile.name.toLowerCase().includes("chatbot") 
+            ? "conversational AI system" 
+            : "machine learning model for data analysis"
+        }.`,
+        vendor: "Extracted from documentation",
+        version: "1.0",
+        department: "IT",
+        purpose: "Automatically extracted from documentation. Please review and update.",
+        riskLevel: "Limited",
+        confidenceScore: 65
+      };
+
+      setAiResults(mockResults);
+      setConfidenceScore(65);
+      setAiExtractionStatus('success');
+
+      setTimeout(() => {
+        setExtractionProgress(0);
+        setExtractionInProgress(false);
+      }, 1000);
+    }, 3000);
+  };
+
+  // Apply a specific field from AI results
+  const applyField = (field: string) => {
+    if (aiResults && aiResults[field]) {
+      setFormData(prev => ({ ...prev, [field]: aiResults[field] }));
+
+      // Clear validation errors and missing fields for this field
+      if (validationErrors[field]) {
+        setValidationErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+
+        // Also update missingFields list
+        setMissingFields(prev => prev.filter(item => item !== field));
+      }
+
+      toast({
+        title: "Field Applied",
+        description: `${field.charAt(0).toUpperCase() + field.slice(1)} field has been updated`,
+      });
+    }
+  };
+
   // Check if there's a quick recommendation for the current system description
   useEffect(() => {
     if (formData.description && formData.description.length > 20) {
@@ -766,6 +853,153 @@ export const SystemRegistration: React.FC = () => {
       }
     }
   }, [formData.description]);
+
+  // AI-powered suggestions from name or description
+  const getAiSuggestions = async () => {
+    const systemDescription = formData.name || formData.description || aiTextInput;
+    if (!systemDescription || systemDescription.trim().length < 5) {
+      toast({
+        variant: "destructive",
+        title: "Input Required",
+        description: "Please provide a more detailed system name or description (at least 5 characters) to generate accurate suggestions.",
+      });
+      return;
+    }
+
+    console.log("Generating suggestions for:", systemDescription);
+
+    setExtractionInProgress(true);
+    setAiExtractionStatus('extracting');
+
+    // Simulate progress for better UX
+    const progressInterval = setInterval(() => {
+      setExtractionProgress(prev => {
+        const newProgress = prev + (Math.random() * 15);
+        return newProgress >= 95 ? 95 : newProgress;
+      });
+    }, 500);
+
+    try {
+      const response = await fetch('/api/suggest/system', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name || aiTextInput,
+          description: formData.description || aiTextInput
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const results = await response.json();
+      clearInterval(progressInterval);
+      setExtractionProgress(100);
+      setAiResults(results);
+      setConfidenceScore(results.confidenceScore || 75);
+      setAiExtractionStatus('success');
+
+      // If we received suggestions, show a success message
+      if (results) {
+        toast({
+          title: "AI Suggestions Generated",
+          description: "AI suggestions have been generated based on your input.",
+        });
+      }
+
+      setTimeout(() => {
+        setExtractionProgress(0);
+        setExtractionInProgress(false);
+      }, 1000);
+    } catch (error) {
+      console.error('Error getting AI suggestions:', error);
+      clearInterval(progressInterval);
+      setExtractionProgress(0);
+      setAiExtractionStatus('error');
+      setExtractionInProgress(false);
+
+      toast({
+        title: "Suggestion Failed",
+        description: "There was an error generating AI suggestions. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Apply all AI suggestions to form
+  const applyAllResults = () => {
+    if (!aiResults) return;
+
+    const newFormData = { ...formData };
+
+    // Apply each field from AI results if present
+    const fields = [
+      'name', 'vendor', 'version', 'department', 'purpose',
+      'aiCapabilities', 'trainingDatasets', 'outputTypes',
+      'usageContext', 'potentialImpact', 'riskLevel'
+    ];
+
+    // Track which required fields are now filled
+    const filledRequiredFields: string[] = [];
+
+    fields.forEach(field => {
+      if (aiResults[field]) {
+        newFormData[field as keyof typeof newFormData] = aiResults[field];
+
+        // If this is a required field, add it to our tracking array
+        if (['name', 'description', 'purpose', 'vendor', 'department', 'riskLevel'].includes(field)) {
+          filledRequiredFields.push(field);
+        }
+      }
+    });
+
+    // Handle special fields
+    if (aiResults.capabilities) {
+      newFormData.aiCapabilities = aiResults.capabilities;
+    }
+
+    if (aiResults.dataSources) {
+      newFormData.trainingDatasets = aiResults.dataSources;
+    }
+
+    // Set risk level if available
+    if (aiResults.riskClassification) {
+      newFormData.riskLevel = aiResults.riskClassification;
+
+      // Add risk level to filled fields if it's one of the required fields
+      if (!filledRequiredFields.includes('riskLevel')) {
+        filledRequiredFields.push('riskLevel');
+      }
+    }
+
+    setFormData(newFormData);
+
+    // Clear validation errors for fields that are now filled
+    if (filledRequiredFields.length > 0) {
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        filledRequiredFields.forEach(field => {
+          delete newErrors[field];
+        });
+        return newErrors;
+      });
+
+      // Also update missingFields
+      setMissingFields(prev => 
+        prev.filter(field => !filledRequiredFields.includes(field))
+      );
+    }
+
+    setAiModalOpen(false);
+
+    toast({
+      title: "All Fields Applied",
+      description: "All suggested fields have been applied to the form",
+    });
+  };
 
   return (
     <div className="max-w-4xl mx-auto pb-16">
@@ -782,6 +1016,190 @@ export const SystemRegistration: React.FC = () => {
           </Button>
         </div>
       )}
+
+      {/* AI Auto-fill Dialog */}
+      <Dialog open={aiModalOpen} onOpenChange={setAiModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>SGH ASIA AI Auto-fill</DialogTitle>
+            <DialogDescription>
+              Let our AI analyze system details and auto-fill form fields for you
+            </DialogDescription>
+          </DialogHeader>
+
+          <Tabs value={aiTab} onValueChange={setAiTab} className="mt-2">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="input">Text Input</TabsTrigger>
+              <TabsTrigger value="upload">File Upload</TabsTrigger>
+            </TabsList>
+            <TabsContent value="input" className="space-y-4 py-4">
+              <div className="space-y-4">
+                <div className="grid gap-3">
+                  <Label htmlFor="aiTextInput">Enter AI System Description</Label>
+                  <Textarea
+                    id="aiTextInput"
+                    className="min-h-[120px]"
+                    placeholder="Enter a detailed description of the AI system you want to register..."
+                    value={aiTextInput}
+                    onChange={(e) => setAiTextInput(e.target.value)}
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={getAiSuggestions} 
+                    disabled={extractionInProgress || aiTextInput.length < 5}
+                  >
+                    {extractionInProgress ? (
+                      <>
+                        <SparklesIcon className="mr-2 h-4 w-4 animate-pulse" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <SparklesIcon className="mr-2 h-4 w-4" />
+                        Generate Suggestions
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="upload" className="space-y-4 py-4">
+              <div className="space-y-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="fileUpload">Upload System Documentation</Label>
+                  <div 
+                    className="border-2 border-dashed rounded-md p-6 text-center cursor-pointer hover:bg-neutral-50"
+                    onClick={() => document.getElementById('fileUpload')?.click()}
+                  >
+                    <UploadIcon className="h-8 w-8 mx-auto mb-2 text-neutral-400" />
+                    <p className="text-sm text-neutral-600">Click to upload or drag and drop</p>
+                    <p className="text-xs text-neutral-400 mt-1">PDF, DOC, TXT (max 5MB)</p>
+                    <input 
+                      type="file" 
+                      id="fileUpload" 
+                      className="hidden"
+                      accept=".pdf,.doc,.docx,.txt"
+                      onChange={handleFileUpload}
+                    />
+                  </div>
+                  {uploadedFile && (
+                    <div className="flex items-center gap-2 mt-2 p-2 bg-primary/5 rounded-md">
+                      <FileTextIcon className="h-4 w-4 text-primary" />
+                      <span className="text-sm truncate flex-1">{uploadedFile.name}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setUploadedFile(null)}
+                        className="h-6 w-6 p-0"
+                      >
+                        <XIcon className="h-4 w-4" />
+                        <span className="sr-only">Remove</span>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={extractFromFile}
+                    disabled={!uploadedFile || extractionInProgress}
+                  >
+                    {extractionInProgress ? (
+                      <>
+                        <SparklesIcon className="mr-2 h-4 w-4 animate-pulse" />
+                        Extracting...
+                      </>
+                    ) : (
+                      <>
+                        <SparklesIcon className="mr-2 h-4 w-4" />
+                        Extract From File
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          {extractionInProgress && (
+            <div className="space-y-3 py-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">
+                  {aiExtractionStatus === 'extracting' ? 'Processing...' : 'Completed'}
+                </span>
+                <span className="text-sm text-neutral-500">{Math.round(extractionProgress)}%</span>
+              </div>
+              <Progress value={extractionProgress} />
+            </div>
+          )}
+
+          {aiResults && aiExtractionStatus === 'success' && (
+            <div className="space-y-4 pt-2">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <CheckIcon className="h-4 w-4 text-green-600 mr-2" />
+                  <span className="text-sm font-medium">System Details Extracted</span>
+                </div>
+                <Badge variant="outline" className="bg-blue-50">
+                  {confidenceScore}% Confidence
+                </Badge>
+              </div>
+
+              <div className="border rounded-md divide-y">
+                {Object.entries(aiResults)
+                  .filter(([key]) => key !== 'confidenceScore' && typeof aiResults[key] !== 'object')
+                  .map(([key, value]) => (
+                    <div key={key} className="flex items-center justify-between p-2 hover:bg-neutral-50">
+                      <div>
+                        <span className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                        <p className="text-xs text-neutral-500 mt-1 truncate max-w-[300px]">
+                          {typeof value === 'string' ? value : JSON.stringify(value)}
+                        </p>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8"
+                        onClick={() => applyField(key)}
+                      >
+                        Apply
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {aiExtractionStatus === 'error' && (
+            <div className="rounded-md bg-red-50 p-4 my-4">
+              <div className="flex">
+                <AlertCircleIcon className="h-5 w-5 text-red-400" />
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">Extraction Failed</h3>
+                  <div className="mt-2 text-sm text-red-700">
+                    <p>There was an error extracting information. Please try again or enter details manually.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setAiModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={applyAllResults}
+              disabled={!aiResults || aiExtractionStatus !== 'success'}
+            >
+              Apply All Fields
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Card className="border-primary/20">
         <CardHeader>
