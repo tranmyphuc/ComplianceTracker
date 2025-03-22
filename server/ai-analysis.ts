@@ -77,7 +77,7 @@ export async function callDeepSeekApi(prompt: string): Promise<string> {
  * Simulate DeepSeek API response for local development
  * This provides consistent responses for development and testing
  */
-function simulateDeepSeekResponse(prompt: string): string {
+function simulateDeepSeekResponse(prompt: string, detectedSystemType?: string): string {
   // Extract relevant parts from the prompt to simulate intelligent responses
   const lowercasePrompt = prompt.toLowerCase();
 
@@ -100,6 +100,7 @@ function simulateDeepSeekResponse(prompt: string): string {
     }
 
     console.log("Processing system description for analysis:", description);
+    console.log("Detected system type:", detectedSystemType);
 
     // Define different types of AI systems to analyze
     const systemTypes = {
@@ -232,6 +233,11 @@ function simulateDeepSeekResponse(prompt: string): string {
       console.log(`Searching for keywords in: "${textToSearch}"`);
       
       const matchCount = system.keywords.reduce((count, keyword) => {
+        // Give highest priority to exact matches with the input prompt
+        if (lowercasePrompt.trim() === keyword) {
+          console.log(`Found EXACT PROMPT MATCH for keyword: ${keyword}`);
+          return count + 10; // Highest weight for exact prompt matches
+        }
         // Check for exact matches with word boundaries to avoid partial matches
         if (new RegExp(`\\b${keyword}\\b`, 'i').test(textToSearch)) {
           console.log(`Found exact match for keyword: ${keyword}`);
