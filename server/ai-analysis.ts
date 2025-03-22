@@ -7,7 +7,7 @@ import {handleError} from './error-handling'; // Assuming handleError is defined
 
 // DeepSeek API configuration
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+const DEEPSEEK_API_URL = 'https://api.deepseek.ai/v1/chat/completions';
 
 interface DeepSeekResponse {
   choices: {
@@ -32,8 +32,7 @@ export async function callDeepSeekApi(prompt: string): Promise<string> {
 
     try {
       // Try the real API first
-      const DEEPSEEK_API_URL = 'https://api.deepseek.ai/v1/chat/completions';
-      
+      // Use the defined API URL
       const response = await fetch(DEEPSEEK_API_URL, {
         method: 'POST',
         headers: {
@@ -113,6 +112,28 @@ function simulateDeepSeekResponse(prompt: string): string {
         purpose: "An advanced AI language model designed for complex reasoning, code generation, and natural language processing tasks with high accuracy and contextual understanding.",
         capabilities: "Advanced Natural Language Processing, Code Generation, Reasoning, Context Understanding, Content Creation",
         dataSources: "Research Papers, Code Repositories, Internet Content, Technical Documentation",
+        riskLevel: "Limited"
+      },
+      gemini: {
+        keywords: ['gemini', 'gemini ai', 'gemini pro', 'google ai', 'bard', 'google gemini'],
+        name: "Google Gemini",
+        vendor: "Google LLC",
+        version: "2024.1",
+        department: "Information Technology",
+        purpose: "A multimodal AI system capable of understanding and processing text, images, and code with advanced reasoning capabilities across different types of information.",
+        capabilities: "Multimodal Processing, Natural Language Processing, Code Generation, Visual Understanding, Problem Solving",
+        dataSources: "Web Content, Images, Code Repositories, Scientific Papers, Academic Research",
+        riskLevel: "Limited"
+      },
+      claude: {
+        keywords: ['claude', 'claude ai', 'anthropic', 'claude sonnet', 'claude haiku', 'anthropic ai'],
+        name: "Claude AI Assistant",
+        vendor: "Anthropic PBC",
+        version: "3.0",
+        department: "Customer Support",
+        purpose: "A conversational AI assistant designed with an emphasis on helpfulness, harmlessness, and honesty to provide safe and reliable information and assistance.",
+        capabilities: "Natural Language Processing, Content Generation, Safety-Aligned Responses, Multimodal Understanding",
+        dataSources: "Web Text, Academic Publications, Professional Documentation, Dialogue Data",
         riskLevel: "Limited"
       },
       copilot: {
@@ -328,6 +349,10 @@ function simulateDeepSeekResponse(prompt: string): string {
       return 'The EU AI Act works through a risk-based approach. Systems are classified based on their potential harm, with strict requirements for high-risk AI and prohibitions for unacceptable risk systems. Compliance involves documentation, risk assessment, and ongoing monitoring. Could you specify what aspect of compliance you need help with?';
     } else if (lowercasePrompt.includes('deepseek')) {
       return 'DeepSeek AI is an advanced large language model developed by SGH ASIA. Under the EU AI Act, it would likely be classified as a general-purpose AI system with transparency requirements. As it evolves, its specific classification could change based on use cases and deployment contexts. The EU AI Act requires clear documentation of capabilities, limitations, and potential risks for such systems.';
+    } else if (lowercasePrompt.includes('gemini')) {
+      return 'Google\'s Gemini AI is a multimodal large language model that can process text, code, audio, and images. Under the EU AI Act, it would likely be classified as a general-purpose AI system with transparency requirements. When used in certain high-risk domains like healthcare or employment, additional compliance measures would be necessary. Organizations using Gemini would need to conduct risk assessments and ensure proper documentation based on their specific use cases.';  
+    } else if (lowercasePrompt.includes('claude')) {
+      return 'Anthropic\'s Claude AI is a large language model designed with constitutional AI principles. Under the EU AI Act, it would likely be classified as a general-purpose AI system with transparency requirements. Its classification could change depending on specific implementations, particularly if used in high-risk domains. Organizations implementing Claude would need to document its capabilities, limitations, and safety measures in compliance with the EU AI Act\'s transparency requirements.';
     } else if (lowercasePrompt.includes('sgh')) {
       return 'SGH ASIA is a leader in AI compliance solutions, specializing in helping organizations navigate the complex requirements of regulations like the EU AI Act. Our AI systems are designed with compliance in mind, following principles of transparency, fairness, and accountability that align with global AI governance frameworks.';
     } else if (lowercasePrompt.includes('high-risk')) {
