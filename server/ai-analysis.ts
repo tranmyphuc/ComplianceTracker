@@ -197,39 +197,26 @@ function simulateDeepSeekResponse(prompt: string): string {
     let matchedSystem = systemTypes.default;
     let highestMatchCount = 0;
     
-    // Priority override: If "deepseek" is directly in the prompt, prioritize it
-    if (lowercasePrompt.includes('deepseek')) {
-      matchedSystem = systemTypes.deepseek;
-      highestMatchCount = 10; // Give a very high score to ensure it's selected
-      console.log(`Priority match detected for type: deepseek, Keywords: ${systemTypes.deepseek.keywords.join(', ')}`);
-    } 
-    // Priority override: If "sgh" is directly in the prompt, prioritize it
-    else if (lowercasePrompt.includes('sgh')) {
-      matchedSystem = systemTypes.deepseek;
-      highestMatchCount = 10; // Give a very high score to ensure it's selected
-      console.log(`Priority match detected for type: sgh asia ai, Keywords: ${systemTypes.deepseek.keywords.join(', ')}`);
-    }
-    // Otherwise, use the standard matching algorithm
-    else {
-      for (const [type, system] of Object.entries(systemTypes)) {
-        if (type === 'default') continue;
-  
-        // Enhanced matching logic that looks at both the prompt and description
-        const matchCount = system.keywords.reduce((count, keyword) => {
-          // Check for exact matches with word boundaries to avoid partial matches
-          if (new RegExp(`\\b${keyword}\\b`, 'i').test(lowercasePrompt)) {
-            return count + 2; // Give higher weight to exact matches
-          }
-          // Also check for includes for more fuzzy matching
-          return count + (lowercasePrompt.includes(keyword) ? 1 : 0);
-        }, 0);
-  
-        console.log(`System type: ${type}, Match count: ${matchCount}, Keywords: ${system.keywords.join(', ')}`);
-  
-        if (matchCount > highestMatchCount) {
-          matchedSystem = system;
-          highestMatchCount = matchCount;
+    // Use standard keyword matching algorithm for all inputs
+    for (const [type, system] of Object.entries(systemTypes)) {
+      if (type === 'default') continue;
+
+      // Use the input as entered by the user for matching without prioritization
+      // Enhanced matching logic that looks at the prompt
+      const matchCount = system.keywords.reduce((count, keyword) => {
+        // Check for exact matches with word boundaries to avoid partial matches
+        if (new RegExp(`\\b${keyword}\\b`, 'i').test(lowercasePrompt)) {
+          return count + 2; // Give higher weight to exact matches
         }
+        // Also check for includes for more fuzzy matching
+        return count + (lowercasePrompt.includes(keyword) ? 1 : 0);
+      }, 0);
+
+      console.log(`System type: ${type}, Match count: ${matchCount}, Keywords: ${system.keywords.join(', ')}`);
+
+      if (matchCount > highestMatchCount) {
+        matchedSystem = system;
+        highestMatchCount = matchCount;
       }
     }
 
