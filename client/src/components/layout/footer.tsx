@@ -20,7 +20,7 @@ export function Footer() {
         </div>
       </div>
       <div className="text-xs text-neutral-400 mt-2">
-        This web app built by IT Infra and Security Department
+        Developed and maintained by the Information Technology & Security Division
       </div>
     </footer>
   );
