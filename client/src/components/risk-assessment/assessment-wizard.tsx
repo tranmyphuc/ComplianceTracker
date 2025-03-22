@@ -958,23 +958,28 @@ export function AssessmentWizard() {
                             {detailedRiskParameters.riskFactors?.map((factor: any, index: number) => (
                               <div key={index} className="border rounded p-3 bg-slate-50">
                                 <div className="font-medium text-sm">{factor.name}</div>
+                                {factor.euAiActArticle && (
+                                  <div className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded inline-block mt-1">
+                                    Article {factor.euAiActArticle}
+                                  </div>
+                                )}
                                 <div className="flex items-center mt-1">
                                   <div 
                                     className={`h-2 flex-grow rounded-full ${
                                       factor.score > 70 
-                                        ? 'bg-red-300' 
+                                        ? 'bg-green-300' 
                                         : factor.score > 30 
                                           ? 'bg-amber-300' 
-                                          : 'bg-green-300'
+                                          : 'bg-red-300'
                                     }`}
                                   >
                                     <div 
                                       className={`h-2 rounded-full ${
                                         factor.score > 70 
-                                          ? 'bg-red-500' 
+                                          ? 'bg-green-500' 
                                           : factor.score > 30 
                                             ? 'bg-amber-500' 
-                                            : 'bg-green-500'
+                                            : 'bg-red-500'
                                       }`}
                                       style={{ width: `${factor.score}%` }}
                                     ></div>

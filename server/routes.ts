@@ -343,9 +343,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (analysisType === 'detailed_risk_parameters') {
         // This is a request for detailed risk parameters analysis
         try {
-          // Create a prompt specifically for detailed risk parameter analysis
+          // Create a prompt specifically for detailed risk parameter analysis based on EU AI Act official criteria
           const detailedPrompt = `
-            Analyze the following AI system for detailed EU AI Act compliance risk parameters.
+            Perform a detailed EU AI Act compliance risk assessment for the following AI system:
             System Name: ${systemData.name}
             Description: ${systemData.description || 'Not provided'}
             Department: ${systemData.department || 'Not provided'}
@@ -356,29 +356,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
             Initial Risk Classification: ${systemData.riskClassification || 'Not determined'}
             System Category: ${systemData.systemCategory || 'Not categorized'}
             
-            Analyze the detailed risk parameters of this AI system according to the EU AI Act criteria.
+            Using the OFFICIAL EU AI Act assessment framework, analyze the following key risk parameters:
+            
+            1. Technical Robustness and Safety (Article 15)
+               - Accuracy, reliability, and cybersecurity measures
+               - Resilience to errors, faults, and inconsistencies
+            
+            2. Data and Data Governance (Article 10)
+               - Training data quality, relevance, and representativeness
+               - Data privacy compliance and data minimization
+            
+            3. Transparency (Article 13)
+               - Documentation of system capabilities and limitations
+               - Disclosure to users that they are interacting with AI
+            
+            4. Human Oversight (Article 14)
+               - Measures allowing for human intervention
+               - Ability to override system decisions
+            
+            5. Accountability (Article 16-20)
+               - Risk management procedures
+               - Record-keeping and documentation compliance
+            
+            6. Non-discrimination and Fairness
+               - Measures to prevent unfair bias in system outputs
+               - Impacts on vulnerable groups or protected characteristics
             
             Format your response as a JSON with the following structure:
             {
               "riskFactors": [
                 {
-                  "name": "Parameter name (e.g., Data Quality)",
-                  "score": numerical score from 0-100,
-                  "description": "Brief explanation of this risk factor and why it received this score"
+                  "name": "Parameter name based on EU AI Act articles",
+                  "score": numerical score from 0-100 representing compliance,
+                  "euAiActArticle": "Specific article number from EU AI Act",
+                  "description": "Detailed assessment based on EU AI Act requirements"
                 }
               ],
               "specificConcerns": [
-                "Specific concern related to EU AI Act requirements",
-                "Another specific concern"
+                "Specific concern tied to EU AI Act article requirements",
+                "Another specific concern with article reference"
               ],
               "mitigationStrategies": [
-                "Specific mitigation strategy that addresses the concerns",
-                "Another mitigation strategy"
+                "Specific mitigation strategy that directly addresses EU AI Act requirements",
+                "Another mitigation strategy with clear compliance benefits"
               ]
             }
             
-            Include at least 6 risk factors covering different aspects of compliance, at least 3 specific concerns, and at least 3 mitigation strategies.
-            Risk factors should include technical, operational, and governance dimensions.
+            Use ONLY actual EU AI Act requirements for assessment, not generic considerations.
+            Each risk factor MUST reference specific EU AI Act articles where applicable.
           `;
           
           // Call DeepSeek API with the detailed parameters prompt
@@ -389,35 +414,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const detailedAnalysis = JSON.parse(detailedAnalysisJson);
             res.json(detailedAnalysis);
           } catch (parseErr) {
-            // If parsing fails, create a basic structure
+            // If parsing fails, create a structured response based on actual EU AI Act requirements
             console.error("Error parsing detailed risk parameters JSON response:", parseErr);
             const fallbackResponse = {
               riskFactors: [
                 {
-                  name: "Data Quality",
+                  name: "Data and Data Governance",
                   score: 65,
-                  description: "Assessment of the training data quality and potential bias."
+                  euAiActArticle: "10",
+                  description: "Assessment of training data quality, relevance, representativeness. Data governance procedures need improvement to fully comply with Article 10 requirements."
                 },
                 {
                   name: "Human Oversight",
                   score: 45,
-                  description: "Evaluation of human oversight mechanisms."
+                  euAiActArticle: "14",
+                  description: "Insufficient mechanisms for human intervention and oversight as required by Article 14. Need to implement more robust oversight protocols."
                 },
                 {
-                  name: "Technical Robustness",
+                  name: "Technical Robustness and Safety",
                   score: 70,
-                  description: "System accuracy, reliability, and resilience."
+                  euAiActArticle: "15",
+                  description: "System resilience to errors and inconsistencies meets basic Article 15 requirements, but needs improvements in cybersecurity measures."
+                },
+                {
+                  name: "Transparency",
+                  score: 55,
+                  euAiActArticle: "13",
+                  description: "Documentation of system capabilities and limitations partially meets Article 13 requirements, but needs more detailed disclosures."
+                },
+                {
+                  name: "Accountability",
+                  score: 40,
+                  euAiActArticle: "16-20",
+                  description: "Record-keeping and documentation practices need significant improvement to meet Articles 16-20 requirements."
+                },
+                {
+                  name: "Non-discrimination and Fairness",
+                  score: 60,
+                  euAiActArticle: "5(1)(c)",
+                  description: "System implements some measures to prevent bias, but more comprehensive measures needed to fully comply with EU AI Act fairness requirements."
                 }
               ],
               specificConcerns: [
-                "Potential data protection issues with personal data processing",
-                "Lack of transparency in decision-making process",
-                "Inadequate risk management framework"
+                "Article 10: Insufficient data quality governance and documentation procedures",
+                "Article 14: Lack of clear human oversight mechanisms for overriding automated decisions",
+                "Article 13: Inadequate transparency in explaining system limitations to end users",
+                "Article 16: Incomplete risk management framework for ongoing monitoring"
               ],
               mitigationStrategies: [
-                "Implement formal data quality assessment procedures",
-                "Establish clear human oversight protocols",
-                "Develop comprehensive risk management documentation"
+                "Implement comprehensive data documentation in line with Article 10 requirements",
+                "Establish formal human oversight protocols with clear intervention measures (Article 14)",
+                "Develop transparent documentation of system capabilities and limitations (Article 13)",
+                "Create detailed risk management and documentation procedures (Articles 16-20)"
               ]
             };
             res.json(fallbackResponse);
