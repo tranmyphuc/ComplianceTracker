@@ -12,6 +12,7 @@ import RiskAssessment from "@/pages/risk-assessment";
 import Documentation from "@/pages/documentation";
 import RegisterSystem from "@/pages/register-system";
 import KnowledgeCenter from "@/pages/knowledge-center";
+import Reports from "@/pages/reports";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -50,7 +51,7 @@ function Router() {
       <Route path="/knowledge-center" component={KnowledgeCenter} />
       <Route path="/compliance" component={Documentation} />
       <Route path="/governance" component={Dashboard} />
-      <Route path="/reports" component={Documentation} />
+      <Route path="/reports" component={Reports} />
       <Route path="/profile" component={Dashboard} />
       <Route path="/settings" component={Dashboard} />
       <Route component={NotFound} />

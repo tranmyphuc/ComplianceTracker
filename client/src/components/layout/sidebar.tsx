@@ -15,6 +15,8 @@ import {
   BrainIcon,
   SparklesIcon,
   XIcon,
+  FileText,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -130,19 +132,29 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             <p className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Compliance</p>
           </div>
 
-            <NavLink to="/risk-assessment/guides" className={({isActive}) => 
-              isActive ? activeNavClass : inactiveNavClass
-            }>
-              <FileText className="h-5 w-5" />
+            <Link 
+              href="/risk-assessment/guides"
+              className={cn(
+                "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+                isActive("/risk-assessment/guides") && "bg-primary/10 text-primary font-medium"
+              )}
+              onClick={handleItemClick}
+            >
+              <FileText className="h-5 w-5 mr-3 flex-shrink-0" />
               <span>Risk Assessment Guides</span>
-            </NavLink>
+            </Link>
             
-            <NavLink to="/documentation/risk-assessment" className={({isActive}) => 
-              isActive ? activeNavClass : inactiveNavClass
-            }>
-              <BookOpen className="h-5 w-5" />
+            <Link
+              href="/documentation/risk-assessment"
+              className={cn(
+                "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+                isActive("/documentation/risk-assessment") && "bg-primary/10 text-primary font-medium"
+              )}
+              onClick={handleItemClick}
+            >
+              <BookOpen className="h-5 w-5 mr-3 flex-shrink-0" />
               <span>Full Documentation</span>
-            </NavLink>
+            </Link>
 
 
           <Link 
