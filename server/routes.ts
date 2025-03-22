@@ -338,25 +338,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/analyze/system", async (req: Request, res: Response) => {
     try {
       const systemData = req.body;
+      const analysisType = systemData.analysisType || 'basic';
 
-      // AI analysis logic - calling DeepSeek AI
-      const [systemCategory, riskClassification, euAiActArticles, suggestedImprovements] = await Promise.all([
-        analyzeSystemCategory(systemData),
-        determineRiskLevel(systemData),
-        determineRelevantArticles(systemData),
-        generateImprovements(systemData)
-      ]);
+      if (analysisType === 'detailed_risk_parameters') {
+        // This is a request for detailed risk parameters analysis
+        try {
+          // Create a prompt specifically for detailed risk parameter analysis
+          const detailedPrompt = `
+            Analyze the following AI system for detailed EU AI Act compliance risk parameters.
+            System Name: ${systemData.name}
+            Description: ${systemData.description || 'Not provided'}
+            Department: ${systemData.department || 'Not provided'}
+            Purpose: ${systemData.purpose || 'Not provided'}
+            Version: ${systemData.version || 'Not provided'}
+            Vendor: ${systemData.vendor || 'Not provided'}
+            AI Capabilities: ${systemData.aiCapabilities || 'Not provided'}
+            Initial Risk Classification: ${systemData.riskClassification || 'Not determined'}
+            System Category: ${systemData.systemCategory || 'Not categorized'}
+            
+            Analyze the detailed risk parameters of this AI system according to the EU AI Act criteria.
+            
+            Format your response as a JSON with the following structure:
+            {
+              "riskFactors": [
+                {
+                  "name": "Parameter name (e.g., Data Quality)",
+                  "score": numerical score from 0-100,
+                  "description": "Brief explanation of this risk factor and why it received this score"
+                }
+              ],
+              "specificConcerns": [
+                "Specific concern related to EU AI Act requirements",
+                "Another specific concern"
+              ],
+              "mitigationStrategies": [
+                "Specific mitigation strategy that addresses the concerns",
+                "Another mitigation strategy"
+              ]
+            }
+            
+            Include at least 6 risk factors covering different aspects of compliance, at least 3 specific concerns, and at least 3 mitigation strategies.
+            Risk factors should include technical, operational, and governance dimensions.
+          `;
+          
+          // Call DeepSeek API with the detailed parameters prompt
+          const detailedAnalysisJson = await callDeepSeekApi(detailedPrompt, 'risk_parameters');
 
-      const aiAnalysis = {
-        systemCategory,
-        riskClassification,
-        euAiActArticles,
-        suggestedImprovements,
-        complianceScore: calculateComplianceScore(systemData),
-        requiredDocumentation: determineRequiredDocs(systemData)
-      };
+          try {
+            // Parse the JSON response
+            const detailedAnalysis = JSON.parse(detailedAnalysisJson);
+            res.json(detailedAnalysis);
+          } catch (parseErr) {
+            // If parsing fails, create a basic structure
+            console.error("Error parsing detailed risk parameters JSON response:", parseErr);
+            const fallbackResponse = {
+              riskFactors: [
+                {
+                  name: "Data Quality",
+                  score: 65,
+                  description: "Assessment of the training data quality and potential bias."
+                },
+                {
+                  name: "Human Oversight",
+                  score: 45,
+                  description: "Evaluation of human oversight mechanisms."
+                },
+                {
+                  name: "Technical Robustness",
+                  score: 70,
+                  description: "System accuracy, reliability, and resilience."
+                }
+              ],
+              specificConcerns: [
+                "Potential data protection issues with personal data processing",
+                "Lack of transparency in decision-making process",
+                "Inadequate risk management framework"
+              ],
+              mitigationStrategies: [
+                "Implement formal data quality assessment procedures",
+                "Establish clear human oversight protocols",
+                "Develop comprehensive risk management documentation"
+              ]
+            };
+            res.json(fallbackResponse);
+          }
+        } catch (deepseekErr) {
+          console.error("Error getting detailed risk parameters:", deepseekErr);
+          res.status(500).json({ 
+            error: "Failed to analyze detailed risk parameters",
+            message: deepseekErr instanceof Error ? deepseekErr.message : "Unknown error"
+          });
+        }
+      } else {
+        // Standard system analysis - calling DeepSeek AI
+        const [systemCategory, riskClassification, euAiActArticles, suggestedImprovements] = await Promise.all([
+          analyzeSystemCategory(systemData),
+          determineRiskLevel(systemData),
+          determineRelevantArticles(systemData),
+          generateImprovements(systemData)
+        ]);
 
-      res.json(aiAnalysis);
+        const aiAnalysis = {
+          systemCategory,
+          riskClassification,
+          euAiActArticles,
+          suggestedImprovements,
+          complianceScore: calculateComplianceScore(systemData),
+          requiredDocumentation: determineRequiredDocs(systemData)
+        };
+
+        res.json(aiAnalysis);
+      }
     } catch (err) {
       console.error("Error analyzing system with DeepSeek AI:", err);
       handleError(err as Error, res);

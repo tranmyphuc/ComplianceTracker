@@ -178,6 +178,7 @@ export function AssessmentWizard() {
   const runAIAnalysis = async () => {
     setAiAnalysisLoading(true);
     setAiAnalysisResults(null);
+    setDetailedRiskParameters(null);
 
     try {
       // Use manually entered data if no system is selected
@@ -210,6 +211,7 @@ export function AssessmentWizard() {
         return;
       }
       
+      // Step 1: Get basic system analysis
       const response = await fetch('/api/analyze/system', {
         method: 'POST',
         headers: {
@@ -224,6 +226,35 @@ export function AssessmentWizard() {
 
       const data = await response.json();
       setAiAnalysisResults(data);
+      
+      // Step 2: Request detailed risk parameters analysis
+      try {
+        // Create a more focused risk analysis prompt for detailed evaluation of risk parameters
+        const riskParametersData = {
+          ...systemData,
+          riskClassification: data.riskClassification, // Include the initially determined risk level
+          systemCategory: data.systemCategory, // Include the initially determined category
+          
+          // Request specialized risk parameters analysis
+          analysisType: 'detailed_risk_parameters'
+        };
+        
+        const riskParamsResponse = await fetch('/api/analyze/system', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(riskParametersData)
+        });
+        
+        if (riskParamsResponse.ok) {
+          const detailedData = await riskParamsResponse.json();
+          setDetailedRiskParameters(detailedData);
+        }
+      } catch (paramError) {
+        console.error("Error getting detailed risk parameters:", paramError);
+        // We don't show error toast for this since we already have the basic analysis
+      }
       
       toast({
         title: "AI Analysis Complete",
@@ -759,6 +790,28 @@ export function AssessmentWizard() {
                       </div>
                     </div>
                     
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="vendor">Vendor/Developer</Label>
+                        <Input 
+                          id="vendor" 
+                          placeholder="e.g., OpenAI, In-house" 
+                          value={manualSystemInput.vendor}
+                          onChange={(e) => setManualSystemInput({...manualSystemInput, vendor: e.target.value})}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="version">Version</Label>
+                        <Input 
+                          id="version" 
+                          placeholder="e.g., 1.0, 2023.1" 
+                          value={manualSystemInput.version}
+                          onChange={(e) => setManualSystemInput({...manualSystemInput, version: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    
                     <div className="space-y-2">
                       <Label htmlFor="purpose">Primary Purpose</Label>
                       <Textarea 
@@ -766,6 +819,16 @@ export function AssessmentWizard() {
                         placeholder="Describe the main purpose and functionality of this AI system..." 
                         value={manualSystemInput.purpose}
                         onChange={(e) => setManualSystemInput({...manualSystemInput, purpose: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="aiCapabilities">AI Capabilities</Label>
+                      <Textarea 
+                        id="aiCapabilities" 
+                        placeholder="List the key AI capabilities (e.g., natural language processing, image recognition, predictive analytics...)" 
+                        value={manualSystemInput.aiCapabilities}
+                        onChange={(e) => setManualSystemInput({...manualSystemInput, aiCapabilities: e.target.value})}
                       />
                     </div>
                     
@@ -885,6 +948,76 @@ export function AssessmentWizard() {
                     </div>
                   </div>
                   
+                  {/* Detailed Risk Parameters Section */}
+                  {detailedRiskParameters && (
+                    <div className="space-y-3">
+                      <h4 className="font-medium">Detailed Risk Parameters</h4>
+                      <div className="border rounded-md p-3">
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            {detailedRiskParameters.riskFactors?.map((factor: any, index: number) => (
+                              <div key={index} className="border rounded p-3 bg-slate-50">
+                                <div className="font-medium text-sm">{factor.name}</div>
+                                <div className="flex items-center mt-1">
+                                  <div 
+                                    className={`h-2 flex-grow rounded-full ${
+                                      factor.score > 70 
+                                        ? 'bg-red-300' 
+                                        : factor.score > 30 
+                                          ? 'bg-amber-300' 
+                                          : 'bg-green-300'
+                                    }`}
+                                  >
+                                    <div 
+                                      className={`h-2 rounded-full ${
+                                        factor.score > 70 
+                                          ? 'bg-red-500' 
+                                          : factor.score > 30 
+                                            ? 'bg-amber-500' 
+                                            : 'bg-green-500'
+                                      }`}
+                                      style={{ width: `${factor.score}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className="ml-2 text-xs font-medium">{factor.score}%</span>
+                                </div>
+                                <p className="text-xs mt-2 text-neutral-600">{factor.description}</p>
+                              </div>
+                            ))}
+                          </div>
+
+                          {detailedRiskParameters.specificConcerns && (
+                            <div className="border-t pt-3 mt-3">
+                              <h5 className="font-medium text-sm mb-2">Specific EU AI Act Concerns</h5>
+                              <ul className="space-y-1">
+                                {detailedRiskParameters.specificConcerns.map((concern: string, index: number) => (
+                                  <li key={index} className="text-sm flex items-start gap-2">
+                                    <AlertTriangleIcon className="h-4 w-4 text-amber-500 mt-0.5" />
+                                    <span>{concern}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {detailedRiskParameters.mitigationStrategies && (
+                            <div className="border-t pt-3 mt-3">
+                              <h5 className="font-medium text-sm mb-2">Risk Mitigation Strategies</h5>
+                              <ul className="space-y-1">
+                                {detailedRiskParameters.mitigationStrategies.map((strategy: string, index: number) => (
+                                  <li key={index} className="text-sm flex items-start gap-2">
+                                    <CheckCircleIcon className="h-4 w-4 text-green-500 mt-0.5" />
+                                    <span>{strategy}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex justify-between">
                     <Button 
                       className="gap-2" 
@@ -893,7 +1026,10 @@ export function AssessmentWizard() {
                       <PlusCircleIcon className="h-4 w-4" />
                       Register this System
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => setAiAnalysisResults(null)}>
+                    <Button variant="outline" size="sm" onClick={() => {
+                      setAiAnalysisResults(null);
+                      setDetailedRiskParameters(null);
+                    }}>
                       Reset Analysis
                     </Button>
                   </div>
