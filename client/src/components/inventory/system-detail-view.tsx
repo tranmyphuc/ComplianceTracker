@@ -245,24 +245,24 @@ export function SystemDetailView({ systemId, onBack }: SystemDetailViewProps) {
   const systemData: SafeAiSystem = {
     // Start with all default properties from mockSystem
     ...mockSystem,
-    // Override with any properties from the API response
-    ...system,
-    // Ensure all array properties exist
-    capabilities: system?.capabilities || mockSystem.capabilities,
-    dataSources: system?.dataSources || mockSystem.dataSources,
-    upcomingDeadlines: system?.upcomingDeadlines || mockSystem.upcomingDeadlines,
-    complianceIssues: system?.complianceIssues || mockSystem.complianceIssues,
-    documents: system?.documents || mockSystem.documents,
-    integrations: system?.integrations || mockSystem.integrations,
-    changeHistory: system?.changeHistory || mockSystem.changeHistory,
+    // Override with any properties from the API response that exist
+    ...(system ? system : {}),
+    // Ensure all array properties exist and are not null
+    capabilities: system?.capabilities || mockSystem.capabilities || [],
+    dataSources: system?.dataSources || mockSystem.dataSources || [],
+    upcomingDeadlines: system?.upcomingDeadlines || mockSystem.upcomingDeadlines || [],
+    complianceIssues: system?.complianceIssues || mockSystem.complianceIssues || [],
+    documents: system?.documents || mockSystem.documents || [],
+    integrations: system?.integrations || mockSystem.integrations || [],
+    changeHistory: system?.changeHistory || mockSystem.changeHistory || [],
     // Ensure complianceStatus exists with all required fields
     complianceStatus: {
-      docCompleteness: system?.complianceStatus?.docCompleteness || mockSystem.complianceStatus.docCompleteness,
-      trainingCompleteness: system?.complianceStatus?.trainingCompleteness || mockSystem.complianceStatus.trainingCompleteness,
-      testingCompleteness: system?.complianceStatus?.testingCompleteness || mockSystem.complianceStatus.testingCompleteness,
-      oversightCompleteness: system?.complianceStatus?.oversightCompleteness || mockSystem.complianceStatus.oversightCompleteness,
-      riskManagementCompleteness: system?.complianceStatus?.riskManagementCompleteness || mockSystem.complianceStatus.riskManagementCompleteness,
-      overallCompleteness: system?.complianceStatus?.overallCompleteness || mockSystem.complianceStatus.overallCompleteness
+      docCompleteness: system?.complianceStatus?.docCompleteness ?? mockSystem.complianceStatus.docCompleteness,
+      trainingCompleteness: system?.complianceStatus?.trainingCompleteness ?? mockSystem.complianceStatus.trainingCompleteness,
+      testingCompleteness: system?.complianceStatus?.testingCompleteness ?? mockSystem.complianceStatus.testingCompleteness,
+      oversightCompleteness: system?.complianceStatus?.oversightCompleteness ?? mockSystem.complianceStatus.oversightCompleteness,
+      riskManagementCompleteness: system?.complianceStatus?.riskManagementCompleteness ?? mockSystem.complianceStatus.riskManagementCompleteness,
+      overallCompleteness: system?.complianceStatus?.overallCompleteness ?? mockSystem.complianceStatus.overallCompleteness
     }
   };
   
