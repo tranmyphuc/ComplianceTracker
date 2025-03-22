@@ -157,6 +157,9 @@ export const SystemRegistration: React.FC = () => {
         delete newErrors[name];
         return newErrors;
       });
+      
+      // Also update missingFields to remove this field
+      setMissingFields(prev => prev.filter(field => field !== name));
     }
   };
 
@@ -171,6 +174,9 @@ export const SystemRegistration: React.FC = () => {
         delete newErrors[name];
         return newErrors;
       });
+      
+      // Also update missingFields to remove this field
+      setMissingFields(prev => prev.filter(field => field !== name));
     }
   };
 
@@ -282,6 +288,18 @@ export const SystemRegistration: React.FC = () => {
           ...prev,
           riskLevel: results.riskClassification
         }));
+        
+        // Clear validation errors for risk level if it was previously missing
+        if (validationErrors.riskLevel) {
+          setValidationErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.riskLevel;
+            return newErrors;
+          });
+          
+          // Also update missingFields
+          setMissingFields(prev => prev.filter(field => field !== 'riskLevel'));
+        }
       }
       
       toast({
@@ -361,6 +379,18 @@ export const SystemRegistration: React.FC = () => {
     if (aiResults && aiResults[field]) {
       setFormData(prev => ({ ...prev, [field]: aiResults[field] }));
       
+      // Clear validation errors and missing fields for this field
+      if (validationErrors[field]) {
+        setValidationErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+        
+        // Also update missingFields list
+        setMissingFields(prev => prev.filter(item => item !== field));
+      }
+      
       toast({
         title: "Field Applied",
         description: `${field.charAt(0).toUpperCase() + field.slice(1)} field has been updated`,
@@ -381,9 +411,17 @@ export const SystemRegistration: React.FC = () => {
       'usageContext', 'potentialImpact', 'riskLevel'
     ];
     
+    // Track which required fields are now filled
+    const filledRequiredFields: string[] = [];
+    
     fields.forEach(field => {
       if (aiResults[field]) {
         newFormData[field as keyof typeof newFormData] = aiResults[field];
+        
+        // If this is a required field, add it to our tracking array
+        if (['name', 'description', 'purpose', 'vendor', 'department', 'riskLevel'].includes(field)) {
+          filledRequiredFields.push(field);
+        }
       }
     });
     
@@ -399,9 +437,31 @@ export const SystemRegistration: React.FC = () => {
     // Set risk level if available
     if (aiResults.riskClassification) {
       newFormData.riskLevel = aiResults.riskClassification;
+      
+      // Add risk level to filled fields if it's one of the required fields
+      if (!filledRequiredFields.includes('riskLevel')) {
+        filledRequiredFields.push('riskLevel');
+      }
     }
     
     setFormData(newFormData);
+    
+    // Clear validation errors for fields that are now filled
+    if (filledRequiredFields.length > 0) {
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        filledRequiredFields.forEach(field => {
+          delete newErrors[field];
+        });
+        return newErrors;
+      });
+      
+      // Also update missingFields
+      setMissingFields(prev => 
+        prev.filter(field => !filledRequiredFields.includes(field))
+      );
+    }
+    
     setAiModalOpen(false);
     
     toast({
@@ -446,6 +506,22 @@ export const SystemRegistration: React.FC = () => {
       description: system.description,
       // Other fields would be filled here in a real implementation
     }));
+    
+    // Clear validation errors for fields that are now filled
+    const filledFields = ['name', 'vendor', 'description'];
+    
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      filledFields.forEach(field => {
+        delete newErrors[field];
+      });
+      return newErrors;
+    });
+    
+    // Also update missingFields
+    setMissingFields(prev => 
+      prev.filter(field => !filledFields.includes(field))
+    );
     
     setShowSimilarSystems(false);
     
