@@ -676,34 +676,4 @@ export async function handleChatbotQuery(req: Request, res: Response) {
   }
 }
 
-// AI-powered system suggestion from name or description
-  app.post("/api/suggest/system", async (req: Request, res: Response) => {
-    try {
-      const { name, description } = req.body;
-
-      if (!name && !description) {
-        return res.status(400).json({ message: "Either name or description is required" });
-      }
-
-      // Validate input length
-      const input = name || description;
-      if (input.trim().length < 5) {
-        return res.status(400).json({ 
-          message: "Input too short. Please provide a more detailed name or description (at least 5 characters)." 
-        });
-      }
-
-      // Log the input for debugging
-      console.log("AI suggestion request:", { name, description });
-
-      const prompt = `Generate suggestions for an AI system based on the following information:
-        Name: ${name || ''}
-        Description: ${description || ''}
-      `;
-
-      const response = await callDeepSeekApi(prompt);
-      res.json({ suggestions: response });
-    } catch (error) {
-      handleError(error, res);
-    }
-  });
+// AI-powered system suggestion functionality is now handled in routes.ts
