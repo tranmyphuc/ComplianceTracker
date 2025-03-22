@@ -12,10 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { HelpCircleIcon, AlertTriangleIcon, ArrowRightIcon, ArrowLeftIcon, SaveIcon, CheckCircleIcon, XCircleIcon, InfoIcon } from "lucide-react";
+import { useLocation } from "wouter";
+import { HelpCircleIcon, AlertTriangleIcon, ArrowRightIcon, ArrowLeftIcon, SaveIcon, CheckCircleIcon, XCircleIcon, InfoIcon, PlusCircleIcon } from "lucide-react";
 
 export function AssessmentWizard() {
   const { toast } = useToast();
+  const [_, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState("system-selection");
   const [selectedSystem, setSelectedSystem] = useState<string | null>(null);
   const [prohibitedAnswers, setProhibitedAnswers] = useState({
@@ -136,6 +138,31 @@ export function AssessmentWizard() {
     toast({
       title: "Assessment completed",
       description: "Your risk assessment has been submitted successfully",
+    });
+  };
+  
+  const handleRegisterSystem = () => {
+    if (!aiAnalysisResults) return;
+    
+    // Store system data in localStorage to pre-fill registration form
+    const systemToRegister = {
+      name: selectedSystem ? getSelectedSystem()?.name : manualSystemInput.name,
+      department: selectedSystem ? getSelectedSystem()?.department : manualSystemInput.department,
+      description: selectedSystem ? getSelectedSystem()?.description : manualSystemInput.description,
+      purpose: selectedSystem ? getSelectedSystem()?.purpose : manualSystemInput.purpose,
+      riskLevel: aiAnalysisResults.riskClassification || "Unknown",
+      systemCategory: aiAnalysisResults.systemCategory || "",
+      complianceScore: aiAnalysisResults.complianceScore || 0
+    };
+    
+    localStorage.setItem('systemToRegister', JSON.stringify(systemToRegister));
+    
+    // Navigate to the register system page
+    navigate('/register-system');
+    
+    toast({
+      title: "Registration form opened",
+      description: "The registration form has been pre-filled with your analyzed system data",
     });
   };
 
@@ -851,7 +878,14 @@ export function AssessmentWizard() {
                     </div>
                   </div>
                   
-                  <div className="flex justify-end">
+                  <div className="flex justify-between">
+                    <Button 
+                      className="gap-2" 
+                      onClick={handleRegisterSystem}
+                    >
+                      <PlusCircleIcon className="h-4 w-4" />
+                      Register this System
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => setAiAnalysisResults(null)}>
                       Reset Analysis
                     </Button>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +80,55 @@ export function SystemRegistration() {
   const [extractionInProgress, setExtractionInProgress] = useState(false);
   const [extractionResults, setExtractionResults] = useState<any>(null);
   const [confidence, setConfidence] = useState(0);
+  const [systemLoadedFromAssessment, setSystemLoadedFromAssessment] = useState(false);
+
+  // Load system data from risk assessment if available
+  useEffect(() => {
+    try {
+      const savedSystem = localStorage.getItem('systemToRegister');
+      if (savedSystem) {
+        const systemData = JSON.parse(savedSystem);
+        
+        // Update form data with the loaded system
+        setFormData(prev => ({
+          ...prev,
+          name: systemData.name || prev.name,
+          description: systemData.description || prev.description,
+          purpose: systemData.purpose || prev.purpose,
+          department: systemData.department || prev.department,
+          riskLevel: systemData.riskLevel || prev.riskLevel
+        }));
+        
+        // Mark the first tab as complete
+        setRegistrationProgress(prev => ({
+          ...prev,
+          basic: true
+        }));
+        
+        // Set flag that system was loaded from assessment
+        setSystemLoadedFromAssessment(true);
+        
+        // Show simulated AI results based on loaded data
+        setSghAsiaAiResults({
+          systemCategory: systemData.systemCategory || "General Purpose System",
+          riskClassification: systemData.riskLevel || "Limited",
+          complianceScore: systemData.complianceScore || 65,
+          euAiActArticles: ["Article 10", "Article 13", "Article 15"],
+          suggestedImprovements: [
+            "Complete technical documentation with detailed model information",
+            "Implement formal risk management procedures",
+            "Establish clear human oversight mechanisms",
+            "Create comprehensive data governance policies"
+          ]
+        });
+        
+        // Once loaded, remove from localStorage to prevent confusion on next visit
+        localStorage.removeItem('systemToRegister');
+      }
+    } catch (error) {
+      console.error("Error loading system data from assessment:", error);
+    }
+  }, []);
 
   // Handle file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
