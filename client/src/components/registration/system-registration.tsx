@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { FileTextIcon, SparklesIcon, BrainIcon, UploadIcon, BotIcon, SearchIcon, CheckIcon, FileIcon, ShieldAlertIcon, AlertCircleIcon } from "lucide-react";
+import { FileTextIcon, SparklesIcon, BrainIcon, UploadIcon, BotIcon, SearchIcon, CheckIcon, FileIcon, ShieldAlertIcon, AlertCircleIcon, Globe, LinkIcon, PenIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -667,7 +667,7 @@ export const SystemRegistration: React.FC = () => {
             SGH ASIA AI-Powered System Registration
           </CardTitle>
           <CardDescription>
-            Use AI assistance to accurately classify and register your AI systems according to EU AI Act requirements
+            Our AI will analyze your information and suggest fields based on available information.
           </CardDescription>
         </CardHeader>
         <CardContent>
