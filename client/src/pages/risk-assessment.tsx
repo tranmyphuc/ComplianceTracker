@@ -30,3 +30,19 @@ export default function RiskAssessment() {
     </div>
   );
 }
+import { RiskAssessmentWizard } from "@/components/risk-assessment/risk-assessment-wizard";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { useRouter } from "next/router";
+
+export default function RiskAssessmentPage() {
+  const router = useRouter();
+  const { systemId } = router.query;
+  
+  return (
+    <DashboardLayout>
+      <div className="container mx-auto py-6">
+        <RiskAssessmentWizard systemId={systemId as string} />
+      </div>
+    </DashboardLayout>
+  );
+}

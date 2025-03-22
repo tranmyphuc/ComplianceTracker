@@ -45,6 +45,7 @@ import {
   analyzeRegulatoryImpact,
   subscribeToUpdates
 } from './regulatory-updates';
+import { analyzeSystemRisk, analyzeProhibitedUse, generateRiskReport, analyzeComplianceGaps } from './risk-assessment';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -65,20 +66,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userData = registerSchema.parse(req.body);
       const existingUser = await storage.getUserByEmail(userData.email);
-      
+
       if (existingUser) {
         return res.status(409).json({ message: "User already exists" });
       }
-      
+
       // Get UID from the request body if present (from Firebase auth)
       // Otherwise generate a mock UID for testing
       const uid = req.body.uid || `user_${Date.now()}`;
-      
+
       const newUser = await storage.createUser({
         ...userData,
         uid,
       });
-      
+
       res.status(201).json({ 
         id: newUser.id,
         uid: newUser.uid,
@@ -97,17 +98,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const loginData = loginSchema.parse(req.body);
       const user = await storage.getUserByEmail(loginData.email);
-      
+
       if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
-      
+
       // In a real app, we would verify the password hash here
       // For now, we do a simple password comparison
       if (user.password !== loginData.password) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
-      
+
       res.status(200).json({ 
         id: user.id,
         uid: user.uid,
@@ -146,11 +147,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const system = await storage.getAiSystem(id);
-      
+
       if (!system) {
         return res.status(404).json({ message: "System not found" });
       }
-      
+
       res.json(system);
     } catch (err) {
       handleError(err as Error, res);
@@ -161,13 +162,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Preprocess dates before validation
       const requestData = {...req.body};
-      
+
       // Handle implementation date
       if (requestData.implementationDate) {
         if (typeof requestData.implementationDate === 'string') {
           try {
             requestData.implementationDate = new Date(requestData.implementationDate);
-            
+
             // Check if date is valid
             if (isNaN(requestData.implementationDate.getTime())) {
               // If invalid date, set to null
@@ -181,13 +182,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         requestData.implementationDate = null;
       }
-      
+
       // Handle last assessment date
       if (requestData.lastAssessmentDate) {
         if (typeof requestData.lastAssessmentDate === 'string') {
           try {
             requestData.lastAssessmentDate = new Date(requestData.lastAssessmentDate);
-            
+
             // Check if date is valid
             if (isNaN(requestData.lastAssessmentDate.getTime())) {
               // If invalid date, set to null
@@ -201,16 +202,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         requestData.lastAssessmentDate = null;
       }
-      
+
       // Log the preprocessed data for debugging
       console.log('Preprocessed data:', {
         implementationDate: requestData.implementationDate,
         lastAssessmentDate: requestData.lastAssessmentDate
       });
-      
+
       const systemData = insertAiSystemSchema.parse(requestData);
       const newSystem = await storage.createAiSystem(systemData);
-      
+
       // Create activity for system creation
       await storage.createActivity({
         type: "system_created",
@@ -220,7 +221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date(),
         metadata: { systemName: newSystem.name }
       });
-      
+
       res.status(201).json(newSystem);
     } catch (err) {
       console.error("System registration error:", err);
@@ -232,13 +233,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const requestData = {...req.body};
-      
+
       // Handle implementation date
       if (requestData.implementationDate) {
         if (typeof requestData.implementationDate === 'string') {
           try {
             requestData.implementationDate = new Date(requestData.implementationDate);
-            
+
             // Check if date is valid
             if (isNaN(requestData.implementationDate.getTime())) {
               // If invalid date, set to null
@@ -250,13 +251,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       }
-      
+
       // Handle last assessment date
       if (requestData.lastAssessmentDate) {
         if (typeof requestData.lastAssessmentDate === 'string') {
           try {
             requestData.lastAssessmentDate = new Date(requestData.lastAssessmentDate);
-            
+
             // Check if date is valid
             if (isNaN(requestData.lastAssessmentDate.getTime())) {
               // If invalid date, set to null
@@ -268,13 +269,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       }
-      
+
       const updatedSystem = await storage.updateAiSystem(id, requestData);
-      
+
       if (!updatedSystem) {
         return res.status(404).json({ message: "System not found" });
       }
-      
+
       // Create activity for system update
       await storage.createActivity({
         type: "system_updated",
@@ -284,7 +285,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date(),
         metadata: { systemName: updatedSystem.name }
       });
-      
+
       res.json(updatedSystem);
     } catch (err) {
       handleError(err as Error, res);
@@ -337,7 +338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/analyze/system", async (req: Request, res: Response) => {
     try {
       const systemData = req.body;
-      
+
       // AI analysis logic - calling DeepSeek AI
       const [systemCategory, riskClassification, euAiActArticles, suggestedImprovements] = await Promise.all([
         analyzeSystemCategory(systemData),
@@ -345,7 +346,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         determineRelevantArticles(systemData),
         generateImprovements(systemData)
       ]);
-      
+
       const aiAnalysis = {
         systemCategory,
         riskClassification,
@@ -354,39 +355,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         complianceScore: calculateComplianceScore(systemData),
         requiredDocumentation: determineRequiredDocs(systemData)
       };
-      
+
       res.json(aiAnalysis);
     } catch (err) {
       console.error("Error analyzing system with DeepSeek AI:", err);
       handleError(err as Error, res);
     }
   });
-  
+
   // AI-powered system suggestion from name or description
   app.post("/api/suggest/system", async (req: Request, res: Response) => {
     try {
       const { name, description } = req.body;
-      
+
       if (!name && !description) {
         return res.status(400).json({ message: "Either name or description is required" });
       }
-      
+
       // Log the input for debugging
       console.log("AI suggestion request:", { name, description });
-      
+
       const prompt = `
         You are an EU AI Act compliance expert. Based on the following information about an AI system,
         generate comprehensive suggestions for all registration fields.
-        
+
         ${name ? `System Name: ${name}` : ''}
         ${description ? `Description: ${description}` : ''}
-        
+
         IMPORTANT: If the system name contains "Microsoft Copilot" or "Copilot", it refers to Microsoft's AI assistant 
         that integrates with Microsoft 365 and provides coding assistance, content generation, and analysis.
-        
+
         Identify the specific AI system that best matches the provided name/description. 
         Do not default to generic systems unless absolutely necessary.
-        
+
         Provide suggestions for the following fields:
         - name (keep the original name if provided, otherwise suggest an appropriate name)
         - vendor (the company that develops this specific AI system)
@@ -399,30 +400,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         - usageContext (where and how this system is used)
         - potentialImpact (potential impacts on individuals and society)
         - riskLevel (according to EU AI Act: Unacceptable, High, Limited, Minimal)
-        
+
         Output your answer in JSON format with all these fields and a 'confidenceScore' value from 0-100.
       `;
-      
+
       const response = await callDeepSeekApi(prompt);
       let suggestions;
-      
+
       try {
         suggestions = JSON.parse(response);
       } catch (error) {
         console.error("Error parsing DeepSeek response:", error);
         return res.status(500).json({ message: "Failed to parse AI suggestions" });
       }
-      
+
       // Also analyze risk level and articles
       const [riskClassification, euAiActArticles] = await Promise.all([
         determineRiskLevel(suggestions),
         determineRelevantArticles(suggestions)
       ]);
-      
+
       // Add to suggestions
       suggestions.riskClassification = riskClassification;
       suggestions.euAiActArticles = euAiActArticles;
-      
+
       res.json(suggestions);
     } catch (err) {
       console.error("Error generating system suggestions:", err);
@@ -465,11 +466,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const resolvedAlert = await storage.resolveAlert(id);
-      
+
       if (!resolvedAlert) {
         return res.status(404).json({ message: "Alert not found" });
       }
-      
+
       res.json(resolvedAlert);
     } catch (err) {
       handleError(err as Error, res);
@@ -523,17 +524,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const documentData = req.body;
       const updatedDocument = await storage.updateDocument(id, documentData);
-      
+
       if (!updatedDocument) {
         return res.status(404).json({ message: "Document not found" });
       }
-      
+
       res.json(updatedDocument);
     } catch (err) {
       handleError(err as Error, res);
     }
   });
-  
+
   // Chatbot endpoint using DeepSeek AI
   app.post("/api/chatbot/query", handleChatbotQuery);
 
@@ -543,33 +544,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const systems = await storage.getAllAiSystems();
       const highRiskSystems = systems.filter(system => system.riskLevel === "High");
       const departments = await storage.getAllDepartments();
-      
+
       // Calculate aggregated metrics
       const totalSystems = systems.length;
       const totalHighRisk = highRiskSystems.length;
-      
+
       // Average document and training completeness
       const docCompleteness = systems.length > 0 
         ? Math.round(systems.reduce((sum, sys) => sum + (sys.docCompleteness || 0), 0) / systems.length) 
         : 0;
-        
+
       const trainingCompleteness = systems.length > 0 
         ? Math.round(systems.reduce((sum, sys) => sum + (sys.trainingCompleteness || 0), 0) / systems.length) 
         : 0;
-      
+
       // Risk level distribution
       const riskDistribution = {
         high: systems.filter(s => s.riskLevel === "High").length,
         limited: systems.filter(s => s.riskLevel === "Limited").length,
         minimal: systems.filter(s => s.riskLevel === "Minimal").length,
       };
-      
+
       // Department compliance
       const departmentCompliance = departments.map(dept => ({
         name: dept.name,
         complianceScore: dept.complianceScore
       }));
-      
+
       res.json({
         totalSystems,
         highRiskSystems: totalHighRisk,
@@ -610,18 +611,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/documents/generate", async (req: Request, res: Response) => {
     try {
       const { system, documentType, companyName, additionalDetails } = req.body;
-      
+
       if (!system || !documentType || !companyName) {
         return res.status(400).json({ message: "Missing required parameters" });
       }
-      
+
       const document = await generateDocument({
         system,
         documentType,
         companyName,
         additionalDetails
       });
-      
+
       res.json({ document });
     } catch (err) {
       handleError(err as Error, res);
@@ -652,11 +653,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/regulatory/updates/:id", async (req: Request, res: Response) => {
     try {
       const update = getUpdateById(req.params.id);
-      
+
       if (!update) {
         return res.status(404).json({ message: "Regulatory update not found" });
       }
-      
+
       res.json(update);
     } catch (err) {
       handleError(err as Error, res);
@@ -666,11 +667,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/regulatory/impact", async (req: Request, res: Response) => {
     try {
       const { updateId, systemIds } = req.body;
-      
+
       if (!updateId || !systemIds) {
         return res.status(400).json({ message: "Missing required parameters" });
       }
-      
+
       const impact = await analyzeRegulatoryImpact(updateId, systemIds);
       res.json(impact);
     } catch (err) {
@@ -681,11 +682,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/regulatory/subscribe", (req: Request, res: Response) => {
     try {
       const { email, updateTypes } = req.body;
-      
+
       if (!email || !updateTypes) {
         return res.status(400).json({ message: "Missing required parameters" });
       }
-      
+
       const success = subscribeToUpdates(email, updateTypes);
       res.json({ success });
     } catch (err) {
@@ -710,11 +711,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/monitoring/configure", async (req: Request, res: Response) => {
     try {
       const { systemId, config } = req.body;
-      
+
       if (!systemId || !config) {
         return res.status(400).json({ message: "Missing required parameters" });
       }
-      
+
       const success = await configureMonitoring(systemId, config);
       res.json({ success });
     } catch (err) {
@@ -725,11 +726,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/monitoring/check", async (req: Request, res: Response) => {
     try {
       const { systemId, config } = req.body;
-      
+
       if (!systemId) {
         return res.status(400).json({ message: "Missing required parameters" });
       }
-      
+
       const result = await performMonitoringCheck(systemId, config);
       res.json(result);
     } catch (err) {
@@ -760,11 +761,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/reports/generate", async (req: Request, res: Response) => {
     try {
       const { type, systemIds, options } = req.body;
-      
+
       if (!type || !systemIds) {
         return res.status(400).json({ message: "Missing required parameters" });
       }
-      
+
       const report = await generateReport(type, systemIds, options);
       res.json(report);
     } catch (err) {
@@ -775,17 +776,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/reports/export", async (req: Request, res: Response) => {
     try {
       const { report, format } = req.body;
-      
+
       if (!report || !format) {
         return res.status(400).json({ message: "Missing required parameters" });
       }
-      
+
       const exportedReport = await exportReport(report, format);
-      
+
       if (format === 'json') {
         return res.json(JSON.parse(exportedReport as string));
       }
-      
+
       // For other formats, we would set appropriate headers and send the file
       // This is a simplified implementation
       res.json({ data: "Export successful", format });
@@ -816,11 +817,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/knowledge/articles/:id", (req: Request, res: Response) => {
     try {
       const article = getArticleById(req.params.id);
-      
+
       if (!article) {
         return res.status(404).json({ message: "Article not found" });
       }
-      
+
       res.json(article);
     } catch (err) {
       handleError(err as Error, res);
@@ -830,11 +831,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/knowledge/search", (req: Request, res: Response) => {
     try {
       const query = req.query.q as string;
-      
+
       if (!query) {
         return res.status(400).json({ message: "Missing search query" });
       }
-      
+
       const results = searchKnowledgeBase(query);
       res.json(results);
     } catch (err) {
@@ -845,17 +846,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/knowledge/ask", async (req: Request, res: Response) => {
     try {
       const { question } = req.body;
-      
+
       if (!question) {
         return res.status(400).json({ message: "Missing question" });
       }
-      
+
       const answer = await askComplianceAI(question);
       res.json({ question, answer });
     } catch (err) {
       handleError(err as Error, res);
     }
   });
+
+  //Risk Assessment Endpoints
+  app.get('/api/risk-assessment/:systemId', analyzeSystemRisk);
+  app.get('/api/risk-assessment/:systemId/prohibited', analyzeProhibitedUse);
+  app.get('/api/risk-assessment/:systemId/report', generateRiskReport);
+  app.get('/api/risk-assessment/:systemId/gaps', analyzeComplianceGaps);
+
+  // AI Analysis endpoints
+  app.post('/api/analyze-system-category', async (req: Request, res: Response) => {
+    try {
+      const { system } = req.body;
+
+      const category = await analyzeSystemCategory(system);
+      res.json({ category });
+    } catch (error) {
+      handleError(error, res);
+    }
+  });
+
 
   // Initialize continuous monitoring system
   initializeMonitoring().catch(err => console.error('Error initializing monitoring:', err));
