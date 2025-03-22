@@ -423,10 +423,8 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(alerts)
-      .where(and(
-        eq(alerts.severity, "Critical"),
-        isNull(alerts.resolvedAt)
-      ))
+      .where(eq(alerts.severity, "Critical"))
+      .where(eq(alerts.isResolved, false))
       .orderBy(desc(alerts.createdAt))
       .limit(limit);
   }
@@ -443,7 +441,7 @@ export class DatabaseStorage implements IStorage {
   async resolveAlert(id: number): Promise<Alert | undefined> {
     const result = await db
       .update(alerts)
-      .set({ resolvedAt: new Date() })
+      .set({ isResolved: true })
       .where(eq(alerts.id, id))
       .returning();
     return result[0];
@@ -454,11 +452,8 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(deadlines)
-      .where(and(
-        sql`${deadlines.dueDate} >= CURRENT_DATE`,
-        eq(deadlines.completed, false)
-      ))
-      .orderBy(deadlines.dueDate)
+      .where(sql`${deadlines.date} >= CURRENT_DATE`)
+      .orderBy(deadlines.date)
       .limit(limit);
   }
 
