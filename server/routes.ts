@@ -37,11 +37,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(409).json({ message: "User already exists" });
       }
       
-      // In a real app, we would hash the password here
-      // For this exercise, we'll just simulate Firebase authentication
+      // Get UID from the request body if present (from Firebase auth)
+      // Otherwise generate a mock UID for testing
+      const uid = req.body.uid || `user_${Date.now()}`;
+      
       const newUser = await storage.createUser({
         ...userData,
-        uid: `user_${Date.now()}`, // simulate Firebase UID
+        uid,
       });
       
       res.status(201).json({ 

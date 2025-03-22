@@ -1,11 +1,13 @@
+#!/usr/bin/env node
+
 // Register admin account script for EU AI Act Compliance Platform
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import fetch from "node-fetch";
-import { config } from "dotenv";
+import dotenv from "dotenv";
 
 // Load environment variables from .env file
-config();
+dotenv.config();
 
 // Firebase configuration
 const firebaseConfig = {
@@ -19,6 +21,19 @@ const firebaseConfig = {
 
 async function createAdminAccount() {
   try {
+    // Debug Firebase configuration
+    console.log("Firebase Configuration:", {
+      apiKey: firebaseConfig.apiKey ? "***" : "NOT SET",
+      authDomain: firebaseConfig.authDomain,
+      projectId: firebaseConfig.projectId,
+      storageBucket: firebaseConfig.storageBucket,
+      appId: firebaseConfig.appId ? "***" : "NOT SET",
+    });
+    
+    if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId) {
+      throw new Error("Firebase configuration is incomplete. Make sure all required environment variables are set.");
+    }
+    
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -47,29 +62,47 @@ async function createAdminAccount() {
     console.log("Firebase profile updated");
     
     // Register in the backend
-    const apiResponse = await fetch("http://localhost:5000/api/auth/register", {
+    const apiUrl = "http://localhost:5000/api/auth/register";
+    console.log(`Registering user in backend: ${apiUrl}`);
+    
+    // Create the backend registration payload
+    // Note: registerSchema expects: username, email, password, displayName?, department?, role?
+    // We also pass the Firebase UID which will be extracted separately in the API
+    const apiResponse = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        uid: user.uid,
-        email: email,
+        uid: user.uid, // Pass Firebase UID for the backend
         username: username,
+        email: email,
+        password: password,
         displayName: displayName,
         department: department,
-        role: role,
-        password: password
+        role: role
       })
     });
     
     if (!apiResponse.ok) {
-      const errorData = await apiResponse.json();
+      let errorData = {};
+      try {
+        errorData = await apiResponse.json();
+      } catch (e) {
+        console.error("Failed to parse error response:", e);
+        errorData = { error: apiResponse.statusText };
+      }
       console.error("Backend registration failed:", errorData);
-      throw new Error("Backend registration failed");
+      throw new Error(`Backend registration failed: ${apiResponse.status} ${apiResponse.statusText}`);
     }
     
-    const userData = await apiResponse.json();
+    let userData = {};
+    try {
+      userData = await apiResponse.json();
+    } catch (e) {
+      console.warn("Failed to parse user data response:", e);
+      userData = { message: "User likely created but couldn't parse response" };
+    }
     console.log("Admin account created successfully in backend:", userData);
     
     console.log(`
@@ -91,6 +124,12 @@ You can now login to the application with these credentials.
     
     if (error.code === "auth/email-already-in-use") {
       console.log("The email address is already in use. The admin account might already exist.");
+    } else if (error.code === "auth/invalid-api-key") {
+      console.error("Firebase API key is invalid. Please check your environment variables.");
+    } else if (error.code === "auth/invalid-project-id") {
+      console.error("Firebase Project ID is invalid. Please check your environment variables.");
+    } else {
+      console.error("Detailed error:", error.message || error);
     }
   }
 }
