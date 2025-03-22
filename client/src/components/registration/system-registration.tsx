@@ -1,24 +1,39 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { 
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { RegistrationGuide } from "./registration-guide";
+import {
   AlertTriangleIcon,
-  ArrowRightIcon, 
-  BrainIcon, 
+  ArrowRightIcon,
+  BrainIcon,
   CheckIcon,
-  ChevronRightIcon, 
-  ClipboardCheckIcon, 
-  DatabaseIcon, 
-  FileIcon, 
-  InfoIcon, 
+  ChevronRightIcon,
+  ClipboardCheckIcon,
+  DatabaseIcon,
+  FileIcon,
+  InfoIcon,
   PencilIcon,
-  SaveIcon, 
+  SaveIcon,
   SearchIcon,
   ShieldIcon,
   SparklesIcon,
@@ -28,6 +43,13 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+
 
 export function SystemRegistration() {
   const [activeTab, setActiveTab] = useState("basic");
@@ -88,7 +110,7 @@ export function SystemRegistration() {
       const savedSystem = localStorage.getItem('systemToRegister');
       if (savedSystem) {
         const systemData = JSON.parse(savedSystem);
-        
+
         // Update form data with the loaded system
         setFormData(prev => ({
           ...prev,
@@ -98,16 +120,16 @@ export function SystemRegistration() {
           department: systemData.department || prev.department,
           riskLevel: systemData.riskLevel || prev.riskLevel
         }));
-        
+
         // Mark the first tab as complete
         setRegistrationProgress(prev => ({
           ...prev,
           basic: true
         }));
-        
+
         // Set flag that system was loaded from assessment
         setSystemLoadedFromAssessment(true);
-        
+
         // Show simulated AI results based on loaded data
         setSghAsiaAiResults({
           systemCategory: systemData.systemCategory || "General Purpose System",
@@ -121,7 +143,7 @@ export function SystemRegistration() {
             "Create comprehensive data governance policies"
           ]
         });
-        
+
         // Once loaded, remove from localStorage to prevent confusion on next visit
         localStorage.removeItem('systemToRegister');
       }
@@ -185,12 +207,12 @@ export function SystemRegistration() {
       // Handle error appropriately, e.g., display an error message to the user
     }
   };
-  
+
   // Extract information from the document using DeepSeek AI
   const extractInformation = async () => {
     setExtractionInProgress(true);
     setExtractionProgress(0);
-    
+
     // Simulate progress for demo purposes
     const interval = setInterval(() => {
       setExtractionProgress(prev => {
@@ -201,14 +223,14 @@ export function SystemRegistration() {
         return prev + 5;
       });
     }, 100);
-    
+
     try {
       setTimeout(() => {
         // Simulate AI extraction results
         clearInterval(interval);
         setExtractionProgress(100);
         setConfidence(92);
-        
+
         const results = {
           systemName: "HR Candidate Evaluation Tool v3",
           vendor: "TalentAI Inc.",
@@ -225,7 +247,7 @@ export function SystemRegistration() {
           complianceConsiderations: "Based on system description, this is identified as a potential high-risk system under EU AI Act Article 6.2 (Employment/worker management)",
           documentationRequirements: ["Technical Documentation", "Risk Assessment", "Human Oversight Protocol", "Data Governance Documentation"]
         };
-        
+
         setExtractionResults(results);
         setExtractionInProgress(false);
       }, 2500);
@@ -235,12 +257,12 @@ export function SystemRegistration() {
       setExtractionInProgress(false);
     }
   };
-  
+
   // Extract information from text description using DeepSeek AI
   const analyzeDescription = async () => {
     setExtractionInProgress(true);
     setExtractionProgress(0);
-    
+
     // Simulate progress for demo purposes
     const interval = setInterval(() => {
       setExtractionProgress(prev => {
@@ -251,14 +273,14 @@ export function SystemRegistration() {
         return prev + 8;
       });
     }, 100);
-    
+
     try {
       setTimeout(() => {
         // Simulate AI extraction results
         clearInterval(interval);
         setExtractionProgress(100);
         setConfidence(88);
-        
+
         const results = {
           systemName: "TalentAI's Candidate Evaluation System",
           vendor: "TalentAI",
@@ -275,7 +297,7 @@ export function SystemRegistration() {
           complianceConsiderations: "Likely High-Risk (Employment Category) under EU AI Act",
           documentationRequirements: ["Technical Documentation", "Risk Assessment", "Human Oversight Protocol"]
         };
-        
+
         setExtractionResults(results);
         setExtractionInProgress(false);
       }, 1500);
@@ -285,7 +307,7 @@ export function SystemRegistration() {
       setExtractionInProgress(false);
     }
   };
-  
+
   // Apply a single extracted field to the form
   const applyField = (field: string, value: any) => {
     setFormData(prev => ({
@@ -293,11 +315,11 @@ export function SystemRegistration() {
       [field]: value
     }));
   };
-  
+
   // Apply all extracted information to the form
   const applyAllFields = () => {
     if (!extractionResults) return;
-    
+
     setFormData(prev => ({
       ...prev,
       name: extractionResults.systemName || prev.name,
@@ -310,9 +332,9 @@ export function SystemRegistration() {
       implementationDate: extractionResults.implementationDate || prev.implementationDate,
       riskLevel: extractionResults.riskClassification || prev.riskLevel
     }));
-    
+
     setShowAiModal(false);
-    
+
     // Show toast notification (simulated)
     console.log("All fields applied successfully");
   };
@@ -341,6 +363,7 @@ export function SystemRegistration() {
 
   return (
     <div className="space-y-6">
+      <RegistrationGuide /> {/* Added RegistrationGuide component here */}
       <Card className="border-neutral-200 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-xl flex items-center">

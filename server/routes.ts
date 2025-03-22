@@ -379,55 +379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Chatbot endpoint using DeepSeek AI
-  app.post("/api/chatbot/query", async (req: Request, res: Response) => {
-    try {
-      const { query } = req.body;
-      
-      if (!query || typeof query !== 'string') {
-        return res.status(400).json({ message: "Invalid query parameter" });
-      }
-      
-      // Construct a context-specific prompt for EU AI Act compliance
-      const prompt = `You are an expert SGH ASIA AI assistant specializing in EU AI Act compliance. 
-        You provide clear, accurate, and helpful responses to questions about AI regulation, 
-        compliance requirements, risk assessment, and implementation strategies.
-        
-        User question: ${query}
-        
-        Please provide a detailed and helpful response based on your knowledge of the EU AI Act.`;
-      
-      // Call DeepSeek API through our wrapper
-      const aiResponse = await callDeepSeekApi(prompt);
-      
-      // Log the interaction for audit purposes
-      console.log(`Chatbot Query: "${query.substring(0, 100)}${query.length > 100 ? '...' : ''}"`);
-      
-      // Format the response - handle both JSON and plain text responses
-      let formattedResponse = aiResponse;
-      try {
-        // If the response is valid JSON, try to extract a meaningful field
-        const parsedResponse = JSON.parse(aiResponse);
-        if (parsedResponse.response) {
-          formattedResponse = parsedResponse.response;
-        } else if (parsedResponse.riskLevel && parsedResponse.justification) {
-          formattedResponse = `Risk Level: ${parsedResponse.riskLevel}\n\n${parsedResponse.justification}`;
-        } else if (parsedResponse.category) {
-          formattedResponse = `Category: ${parsedResponse.category}`;
-        } else if (parsedResponse.articles) {
-          formattedResponse = `Relevant Articles: ${parsedResponse.articles.join(', ')}\n\n${parsedResponse.explanation || ''}`;
-        } else if (parsedResponse.improvements) {
-          formattedResponse = `Suggested Improvements:\n- ${parsedResponse.improvements.join('\n- ')}`;
-        }
-      } catch (e) {
-        // The response is already a string, not JSON, so use it as is
-      }
-      
-      return res.json({ response: formattedResponse });
-    } catch (err) {
-      console.error("Error handling chatbot query:", err);
-      handleError(err as Error, res);
-    }
-  });
+  app.post("/api/chatbot/query", handleChatbotQuery);
 
   // Dashboard summary
   app.get("/api/dashboard/summary", async (_req: Request, res: Response) => {

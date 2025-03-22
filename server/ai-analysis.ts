@@ -2,6 +2,7 @@ import type { AiSystem } from '@shared/schema';
 import fetch from 'node-fetch';
 import {Request, Response} from 'express';
 import {storage} from './storage'; // Assuming storage is defined elsewhere
+import {handleError} from './error-handling'; // Assuming handleError is defined elsewhere
 
 
 // DeepSeek API configuration
@@ -353,5 +354,108 @@ export async function analyzeSystemCompliance(systemId: string): Promise<any> {
   }
 }
 
-// Chatbot endpoint functionality is moved to routes.ts to maintain better organization
-// This file contains only AI analysis helper functions
+/**
+ * Chatbot endpoint handler using DeepSeek AI
+ * This function should be exported for use in routes.ts
+ */
+export async function handleChatbotQuery(req: Request, res: Response) {
+  try {
+    const { query } = req.body;
+
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({ message: "Invalid query parameter" });
+    }
+
+    // Skip processing for very short queries
+    if (query.trim().length < 3) {
+      return res.json({ 
+        response: "Please provide a more detailed question about EU AI Act compliance so I can assist you better."
+      });
+    }
+
+    // Construct a context-specific prompt with knowledge base information
+    const prompt = `You are an expert SGH ASIA AI assistant specializing in EU AI Act compliance. 
+      You provide clear, accurate, and helpful responses to questions about AI regulation, 
+      compliance requirements, risk assessment, and implementation strategies.
+
+      Here is some key information about the EU AI Act:
+      - The EU AI Act is the world's first comprehensive legal framework for AI
+      - It takes a risk-based approach (Unacceptable, High, Limited, Minimal risk)
+      - High-risk systems require technical documentation, human oversight, and risk management
+      - Limited risk systems have specific transparency obligations
+      - Implementation timeline includes phases over 36 months after entry into force
+
+      User question: ${query}
+
+      Please provide a detailed, helpful, and technically accurate response. Include specific 
+      article references when relevant. Format your answer to be clear and structured.`;
+
+    // Call DeepSeek API through our wrapper
+    const aiResponse = await callDeepSeekApi(prompt);
+
+    // Log the interaction for audit purposes
+    console.log(`Chatbot Query: "${query.substring(0, 100)}${query.length > 100 ? '...' : ''}"`);
+
+    // Enhanced response formatting
+    let formattedResponse = aiResponse;
+    try {
+      // First try to parse as JSON
+      const parsedResponse = JSON.parse(aiResponse);
+
+      // Extract relevant information based on response structure
+      if (parsedResponse.response) {
+        formattedResponse = parsedResponse.response;
+      } else if (parsedResponse.riskLevel && parsedResponse.justification) {
+        formattedResponse = `Risk Level: ${parsedResponse.riskLevel}\n\n${parsedResponse.justification}`;
+      } else if (parsedResponse.category) {
+        formattedResponse = `Category: ${parsedResponse.category}`;
+      } else if (parsedResponse.articles) {
+        formattedResponse = `Relevant Articles: ${parsedResponse.articles.join(', ')}\n\n${parsedResponse.explanation || ''}`;
+      } else if (parsedResponse.improvements) {
+        formattedResponse = `Suggested Improvements:\n- ${parsedResponse.improvements.join('\n- ')}`;
+      } else {
+        // Handle generic JSON response
+        formattedResponse = Object.entries(parsedResponse)
+          .map(([key, value]) => {
+            if (Array.isArray(value)) {
+              return `${key.charAt(0).toUpperCase() + key.slice(1)}:\n- ${value.join('\n- ')}`;
+            } else {
+              return `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`;
+            }
+          })
+          .join('\n\n');
+      }
+    } catch (e) {
+      // Not JSON, format the text response for better readability
+      formattedResponse = aiResponse
+        .replace(/^(\d+\.\s|\-\s|\*\s)/gm, '\n$1') // Add newlines before lists
+        .replace(/(\w|\.|\:)\n(\w)/g, '$1\n\n$2'); // Double newlines between paragraphs
+    }
+
+    // Create an audit record of this interaction
+    try {
+      await storage.createActivity({
+        type: "ai_interaction",
+        description: `AI assistant query: "${query.substring(0, 50)}${query.length > 50 ? '...' : ''}"`,
+        userId: req.body.userId || "system",
+        timestamp: new Date(),
+        metadata: { query, responseLength: formattedResponse.length }
+      });
+      console.log("AI Assistant conversation success:", { 
+        query: query.substring(0, 20), 
+        responseLength: formattedResponse.length 
+      });
+    } catch (auditErr) {
+      console.error("Error logging AI interaction:", auditErr);
+    }
+
+    return res.json({ response: formattedResponse });
+  } catch (err) {
+    console.error("Error handling chatbot query:", err);
+
+    // Provide a graceful fallback
+    return res.json({ 
+      response: "I apologize, but I encountered an issue processing your request. Please try again with a more specific question about EU AI Act compliance." 
+    });
+  }
+}
