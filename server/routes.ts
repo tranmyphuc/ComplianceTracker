@@ -24,6 +24,17 @@ import {
   callDeepSeekApi
 } from "./ai-analysis";
 
+// Import compliance modules
+import { 
+  calculateComprehensiveScore, 
+  generateComplianceRoadmap 
+} from './compliance-scoring';
+import { 
+  generateDocument, 
+  generateDocumentTemplate, 
+  DocumentType 
+} from './document-generation';
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
   const handleError = (err: Error, res: Response) => {
