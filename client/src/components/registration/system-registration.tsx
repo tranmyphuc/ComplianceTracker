@@ -321,11 +321,11 @@ export const SystemRegistration: React.FC = () => {
   // AI-powered suggestions from name or description
   const getAiSuggestions = async () => {
     const systemDescription = formData.name || formData.description || aiTextInput;
-    if (!systemDescription || systemDescription.trim().length < 2) {
+    if (!systemDescription || systemDescription.trim().length < 5) {
       toast({
         variant: "destructive",
         title: "Input Required",
-        description: "Please provide a system name or description to generate suggestions.",
+        description: "Please provide a more detailed system name or description (at least 5 characters) to generate accurate suggestions.",
       });
       return;
     }
@@ -730,7 +730,8 @@ export const SystemRegistration: React.FC = () => {
                     AI-Powered System Registration
                   </DialogTitle>
                   <DialogDescription>
-                    Let our DeepSeek AI analyze your system and suggest appropriate registration details
+                    Let our SGH ASIA AI analyze your system and suggest appropriate registration details. 
+                    Please provide a detailed description of your AI system (at least 5 characters).
                   </DialogDescription>
                 </DialogHeader>
 
