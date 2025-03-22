@@ -34,18 +34,33 @@ export default function Login() {
         await signInWithEmailAndPassword(auth, data.email, data.password);
       } else {
         // Fallback to our backend authentication
-        const response = await apiRequest(
-          "POST",
-          "/api/auth/login",
-          {
-            email: data.email,
-            password: data.password,
+        console.log("Attempting backend login with:", { email: data.email });
+        let response;
+        try {
+          response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              email: data.email,
+              password: data.password
+            })
+          });
+          
+          const responseData = await response.json();
+          console.log("Login response:", { status: response.status, data: responseData });
+          
+          if (!response.ok) {
+            throw new Error(responseData.message || "Authentication failed");
           }
-        );
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Authentication failed");
+          
+          // Set user context with the response data
+          console.log("Login successful:", responseData);
+          // Here you would typically update user context
+        } catch (error) {
+          console.error("Backend login error:", error);
+          throw error;
         }
       }
       

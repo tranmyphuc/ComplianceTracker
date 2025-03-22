@@ -15,14 +15,31 @@ import { useLocation } from "wouter";
 // Create auth context
 import { createContext } from "react";
 
+// Define our own user type that works for both Firebase and backend auth
+export interface AppUser {
+  id?: number;
+  uid: string;
+  email: string;
+  username?: string;
+  displayName?: string;
+  role?: string;
+  department?: string;
+  // Add any Firebase User properties we need to support
+  emailVerified?: boolean;
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
+  setUser: (user: AppUser | null) => void;
+  logout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  setUser: () => {},
+  logout: () => {},
 });
 
 function Router() {
