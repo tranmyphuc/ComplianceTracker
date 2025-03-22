@@ -36,17 +36,83 @@ interface SystemDetailViewProps {
   onBack: () => void;
 }
 
+type SafeAiSystem = {
+  id: number;
+  systemId: string;
+  name: string;
+  description: string;
+  version: string;
+  riskLevel: string;
+  riskScore: number;
+  vendor: string;
+  department: string;
+  owner: string;
+  implementationDate: string | null;
+  lastAssessmentDate: string | null;
+  expectedLifetime: string;
+  maintenanceSchedule: string;
+  deploymentScope: string;
+  primaryPurpose: string;
+  capabilities: string[];
+  dataSources: string[];
+  trainingDataDescription: string;
+  complianceStatus: {
+    docCompleteness: number;
+    trainingCompleteness: number;
+    testingCompleteness: number;
+    oversightCompleteness: number;
+    riskManagementCompleteness: number;
+    overallCompleteness: number;
+  };
+  documents: Array<{
+    id: number;
+    title: string;
+    status: string;
+    lastUpdated: string | null;
+  }>;
+  complianceIssues: Array<{
+    id: number;
+    severity: string;
+    description: string;
+    recommendation: string;
+    dueDate: string;
+    status: string;
+  }>;
+  upcomingDeadlines: Array<{
+    id: number;
+    title: string;
+    dueDate: string;
+    description: string;
+  }>;
+  integrations: Array<{
+    id: number;
+    name: string;
+    type: string;
+    direction: string;
+  }>;
+  changeHistory: Array<{
+    id: number;
+    date: string;
+    type: string;
+    description: string;
+    user: string;
+    impactAssessment: string;
+  }>;
+};
+
 export function SystemDetailView({ systemId, onBack }: SystemDetailViewProps) {
   const [activeTab, setActiveTab] = useState("overview");
   
-  // Fetch system data from the API
-  const { data: system, isLoading, error } = useQuery({
+  // Fetch system data from the API using our SafeAiSystem type
+  const { data: system, isLoading, error } = useQuery<SafeAiSystem>({
     queryKey: [`/api/systems/${systemId}`],
     enabled: !!systemId,
+    retry: 2,
+    refetchOnWindowFocus: false,
   });
   
-  // Mock data for the system details
-  const mockSystem = {
+  // Mock data for the system details as fallback
+  const mockSystem: SafeAiSystem = {
     id: 1,
     systemId: "AI-SYS-001",
     name: "Customer Service AI Assistant",
@@ -174,29 +240,31 @@ export function SystemDetailView({ systemId, onBack }: SystemDetailViewProps) {
     );
   }
 
-  // Process and ensure system data has all required fields and arrays
-  const systemData = system || mockSystem;
-  
-  // Ensure all properties that are mapped over are arrays
-  if (!systemData.capabilities) systemData.capabilities = [];
-  if (!systemData.dataSources) systemData.dataSources = [];
-  if (!systemData.upcomingDeadlines) systemData.upcomingDeadlines = [];
-  if (!systemData.complianceIssues) systemData.complianceIssues = [];
-  if (!systemData.documents) systemData.documents = [];
-  if (!systemData.integrations) systemData.integrations = [];
-  if (!systemData.changeHistory) systemData.changeHistory = [];
-  
-  // Initialize complianceStatus if it doesn't exist
-  if (!systemData.complianceStatus) {
-    systemData.complianceStatus = {
-      docCompleteness: 0,
-      trainingCompleteness: 0,
-      testingCompleteness: 0,
-      oversightCompleteness: 0,
-      riskManagementCompleteness: 0,
-      overallCompleteness: 0
-    };
-  }
+  // Create a properly typed version of the system data by merging with defaults
+  // This ensures all required properties exist with proper types
+  const systemData: SafeAiSystem = {
+    // Start with all default properties from mockSystem
+    ...mockSystem,
+    // Override with any properties from the API response
+    ...system,
+    // Ensure all array properties exist
+    capabilities: system?.capabilities || mockSystem.capabilities,
+    dataSources: system?.dataSources || mockSystem.dataSources,
+    upcomingDeadlines: system?.upcomingDeadlines || mockSystem.upcomingDeadlines,
+    complianceIssues: system?.complianceIssues || mockSystem.complianceIssues,
+    documents: system?.documents || mockSystem.documents,
+    integrations: system?.integrations || mockSystem.integrations,
+    changeHistory: system?.changeHistory || mockSystem.changeHistory,
+    // Ensure complianceStatus exists with all required fields
+    complianceStatus: {
+      docCompleteness: system?.complianceStatus?.docCompleteness || mockSystem.complianceStatus.docCompleteness,
+      trainingCompleteness: system?.complianceStatus?.trainingCompleteness || mockSystem.complianceStatus.trainingCompleteness,
+      testingCompleteness: system?.complianceStatus?.testingCompleteness || mockSystem.complianceStatus.testingCompleteness,
+      oversightCompleteness: system?.complianceStatus?.oversightCompleteness || mockSystem.complianceStatus.oversightCompleteness,
+      riskManagementCompleteness: system?.complianceStatus?.riskManagementCompleteness || mockSystem.complianceStatus.riskManagementCompleteness,
+      overallCompleteness: system?.complianceStatus?.overallCompleteness || mockSystem.complianceStatus.overallCompleteness
+    }
+  };
   
   // Get risk badge styling
   const getRiskBadgeProps = (riskLevel: string) => {

@@ -369,24 +369,18 @@ async function getAIResponse(question: string): Promise<string> {
     // Match keywords in the question to provide relevant fallbacks
     const lowercaseQuestion = question.toLowerCase();
     
-    // Categorize the question
-    if (lowercaseQuestion.includes('high-risk') || lowercaseQuestion.includes('risk')) {
-      return "High-risk AI systems under the EU AI Act include those used in critical infrastructure, education, employment, essential services, law enforcement, migration, and those that can impact fundamental rights. These systems face the most stringent regulatory requirements including risk management, data governance, technical documentation, record keeping, human oversight, accuracy, and cybersecurity measures.";
-    } else if (lowercaseQuestion.includes('document') || lowercaseQuestion.includes('documentation')) {
-      return "The EU AI Act requires comprehensive documentation for high-risk AI systems including: technical specifications, development methods, system architecture, training methodologies, validation procedures, risk assessment reports, human oversight measures, and performance metrics. The documentation must be maintained and updated throughout the system lifecycle.";
-    } else if (lowercaseQuestion.includes('human') || lowercaseQuestion.includes('oversight')) {
-      return "Human oversight documentation should include: 1) A clear description of oversight mechanisms, 2) Details on how humans can monitor, intervene or disable the system, 3) Training requirements for human overseers, and 4) Measures to prevent automation bias. It should demonstrate that human judgment plays a decisive role in system operation.";
-    } else if (lowercaseQuestion.includes('penalty') || lowercaseQuestion.includes('fine') || lowercaseQuestion.includes('enforcement')) {
-      return "The EU AI Act includes substantial penalties for non-compliance. For violations of prohibited AI practices, fines can reach €35 million or 7% of global annual turnover, whichever is higher. For other violations like insufficient risk management or inadequate documentation, penalties can reach €15 million or 3% of global annual turnover.";
-    } else if (lowercaseQuestion.includes('timeline') || lowercaseQuestion.includes('deadline') || lowercaseQuestion.includes('when')) {
-      return "The EU AI Act has a phased implementation timeline: 6 months after entry into force for prohibitions on unacceptable risk AI systems, 12 months for governance bodies establishment, 24 months for codes of practice development, and full application after 36 months. Organizations should plan their compliance roadmap accordingly.";
-    }
+    // Pre-defined response categories
+    const responses = {
+      "requirements": "High-risk AI systems under the EU AI Act include those used in critical infrastructure, education, employment, essential services, law enforcement, migration, and those that can impact fundamental rights. These systems face the most stringent regulatory requirements including risk management, data governance, technical documentation, record keeping, human oversight, accuracy, and cybersecurity measures.",
+      "documentation": "The EU AI Act requires comprehensive documentation for high-risk AI systems including: technical specifications, development methods, system architecture, training methodologies, validation procedures, risk assessment reports, human oversight measures, and performance metrics. The documentation must be maintained and updated throughout the system lifecycle.",
+      "oversight": "Human oversight documentation should include: 1) A clear description of oversight mechanisms, 2) Details on how humans can monitor, intervene or disable the system, 3) Training requirements for human overseers, and 4) Measures to prevent automation bias. It should demonstrate that human judgment plays a decisive role in system operation.",
+      "penalties": "The EU AI Act includes substantial penalties for non-compliance. For violations of prohibited AI practices, fines can reach €35 million or 7% of global annual turnover, whichever is higher. For other violations like insufficient risk management or inadequate documentation, penalties can reach €15 million or 3% of global annual turnover.",
+      "timeline": "The EU AI Act has a phased implementation timeline: 6 months after entry into force for prohibitions on unacceptable risk AI systems, 12 months for governance bodies establishment, 24 months for codes of practice development, and full application after 36 months. Organizations should plan their compliance roadmap accordingly.",
       "exemptions": "Research AI systems developed exclusively for scientific research and development are generally exempt from many requirements of the EU AI Act, provided they're not placed on the market or put into service. However, good practices like risk assessment are still encouraged even for research systems.",
       "period": "The EU AI Act has a phased implementation timeline: 6 months after publication for prohibitions on unacceptable risk AI, 12 months for the AI Office establishment, 24 months for codes of practice, and full application of all provisions after 36 months.",
-      "penalties": "The EU AI Act includes severe penalties for non-compliance, with fines up to €35 million or 7% of global annual turnover, whichever is higher, for the most serious violations. Lesser violations may result in fines up to €15 million or 3% of global annual turnover."
     };
     
-    const lowercaseQuestion = question.toLowerCase();
+    // Match keywords in the question to provide relevant fallbacks
     if (lowercaseQuestion.includes("requirements") && lowercaseQuestion.includes("high-risk")) {
       return responses.requirements;
     } else if (lowercaseQuestion.includes("document") && lowercaseQuestion.includes("human oversight")) {
