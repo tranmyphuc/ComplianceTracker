@@ -13,7 +13,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { HelpCircleIcon, AlertTriangleIcon, ArrowRightIcon, ArrowLeftIcon, SaveIcon, CheckCircleIcon, XCircleIcon, InfoIcon, PlusCircleIcon } from "lucide-react";
+import { 
+  HelpCircleIcon, AlertTriangleIcon, ArrowRightIcon, ArrowLeftIcon, SaveIcon, 
+  CheckCircleIcon, XCircleIcon, InfoIcon, PlusCircleIcon, FileTextIcon, 
+  CheckSquareIcon, CircleIcon, BarChartIcon, ClipboardListIcon, 
+  CalendarClockIcon, UploadIcon 
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export function AssessmentWizard() {
   const { toast } = useToast();
@@ -1058,20 +1065,809 @@ export function AssessmentWizard() {
           </TabsContent>
           
           <TabsContent value="evidence" className="mt-0">
-            <div className="flex items-center justify-center h-48">
-              <p className="text-neutral-500">Evidence Collection section would be implemented here</p>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium">Evidence Collection</h3>
+                <p className="text-sm text-neutral-500">
+                  Collect and document evidence to demonstrate compliance with EU AI Act requirements
+                </p>
+              </div>
+              
+              {selectedSystem && (
+                <div className="bg-neutral-50 p-4 rounded-md border">
+                  <h4 className="font-medium">Selected System</h4>
+                  <div className="text-sm mt-1">
+                    <span className="font-medium">{getSelectedSystem()?.name}</span> • {getSelectedSystem()?.systemId}
+                  </div>
+                  <div className="text-sm text-neutral-500 mt-1">
+                    Department: {getSelectedSystem()?.department}
+                  </div>
+                </div>
+              )}
+              
+              <div className="border rounded-md">
+                <div className="bg-neutral-50 border-b p-4">
+                  <h4 className="font-medium flex items-center">
+                    <FileTextIcon className="h-4 w-4 mr-2 text-primary" />
+                    Required Documentation
+                  </h4>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    Based on the system risk level, the following documentation is required
+                  </p>
+                </div>
+                
+                <div className="p-4 space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {/* Technical Documentation */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium">Technical Documentation</h5>
+                        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Required</Badge>
+                      </div>
+                      <p className="text-sm text-neutral-500">
+                        Documentation that describes the AI system's architecture, algorithms, data requirements, and performance metrics
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <input type="file" id="technical-doc" className="hidden" />
+                        <Button variant="outline" size="sm" asChild>
+                          <label htmlFor="technical-doc" className="cursor-pointer flex items-center gap-2">
+                            <UploadIcon className="h-4 w-4" />
+                            Upload
+                          </label>
+                        </Button>
+                        <span className="text-sm text-neutral-500">No file selected</span>
+                      </div>
+                    </div>
+                    
+                    {/* Risk Assessment */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium">Risk Assessment Report</h5>
+                        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Required</Badge>
+                      </div>
+                      <p className="text-sm text-neutral-500">
+                        Evaluation of potential risks associated with the system's use and corresponding mitigation measures
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <input type="file" id="risk-doc" className="hidden" />
+                        <Button variant="outline" size="sm" asChild>
+                          <label htmlFor="risk-doc" className="cursor-pointer flex items-center gap-2">
+                            <UploadIcon className="h-4 w-4" />
+                            Upload
+                          </label>
+                        </Button>
+                        <span className="text-sm text-neutral-500">No file selected</span>
+                      </div>
+                    </div>
+                    
+                    {/* Data Governance */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium">Data Governance Documentation</h5>
+                        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Required</Badge>
+                      </div>
+                      <p className="text-sm text-neutral-500">
+                        Documentation on data collection, processing, and quality management procedures
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <input type="file" id="data-doc" className="hidden" />
+                        <Button variant="outline" size="sm" asChild>
+                          <label htmlFor="data-doc" className="cursor-pointer flex items-center gap-2">
+                            <UploadIcon className="h-4 w-4" />
+                            Upload
+                          </label>
+                        </Button>
+                        <span className="text-sm text-neutral-500">No file selected</span>
+                      </div>
+                    </div>
+                    
+                    {/* Human Oversight */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium">Human Oversight Protocol</h5>
+                        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Required</Badge>
+                      </div>
+                      <p className="text-sm text-neutral-500">
+                        Documentation describing human oversight mechanisms and intervention procedures
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <input type="file" id="oversight-doc" className="hidden" />
+                        <Button variant="outline" size="sm" asChild>
+                          <label htmlFor="oversight-doc" className="cursor-pointer flex items-center gap-2">
+                            <UploadIcon className="h-4 w-4" />
+                            Upload
+                          </label>
+                        </Button>
+                        <span className="text-sm text-neutral-500">No file selected</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border rounded-md">
+                <div className="bg-neutral-50 border-b p-4">
+                  <h4 className="font-medium flex items-center">
+                    <CheckSquareIcon className="h-4 w-4 mr-2 text-primary" />
+                    Compliance Attestation
+                  </h4>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    Confirm compliance with key EU AI Act requirements
+                  </p>
+                </div>
+                
+                <div className="p-4 space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Checkbox id="attestation-1" />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label htmlFor="attestation-1" className="text-sm font-medium">
+                          Risk Management System (Article 9)
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          We have established and maintain a risk management system for this AI system throughout its lifecycle
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-2">
+                      <Checkbox id="attestation-2" />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label htmlFor="attestation-2" className="text-sm font-medium">
+                          Data and Data Governance (Article 10)
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Training, validation, and testing datasets are subject to appropriate data governance and management practices
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-2">
+                      <Checkbox id="attestation-3" />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label htmlFor="attestation-3" className="text-sm font-medium">
+                          Technical Documentation (Article 11)
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          We maintain up-to-date technical documentation for this AI system
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-2">
+                      <Checkbox id="attestation-4" />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label htmlFor="attestation-4" className="text-sm font-medium">
+                          Record-Keeping (Article 12)
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Automatic logging capabilities are in place for this AI system
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-2">
+                      <Checkbox id="attestation-5" />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label htmlFor="attestation-5" className="text-sm font-medium">
+                          Transparency (Article 13)
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          This AI system is designed to be transparent to users and impacted individuals
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-2">
+                      <Checkbox id="attestation-6" />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label htmlFor="attestation-6" className="text-sm font-medium">
+                          Human Oversight (Article 14)
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Human oversight measures are designed, built into, and can be implemented for this AI system
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </TabsContent>
           
           <TabsContent value="gap-analysis" className="mt-0">
-            <div className="flex items-center justify-center h-48">
-              <p className="text-neutral-500">Gap Analysis section would be implemented here</p>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium">Gap Analysis</h3>
+                <p className="text-sm text-neutral-500">
+                  Identify compliance gaps and prioritize remediation actions
+                </p>
+              </div>
+              
+              {selectedSystem && (
+                <div className="bg-neutral-50 p-4 rounded-md border">
+                  <h4 className="font-medium">Selected System</h4>
+                  <div className="text-sm mt-1">
+                    <span className="font-medium">{getSelectedSystem()?.name}</span> • {getSelectedSystem()?.systemId}
+                  </div>
+                  <div className="text-sm text-neutral-500 mt-1">
+                    Department: {getSelectedSystem()?.department}
+                  </div>
+                </div>
+              )}
+              
+              <div className="border rounded-md">
+                <div className="bg-neutral-50 border-b p-4">
+                  <h4 className="font-medium flex items-center">
+                    <AlertTriangleIcon className="h-4 w-4 mr-2 text-amber-500" />
+                    Compliance Gaps
+                  </h4>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    The following gaps have been identified based on risk assessment and evidence review
+                  </p>
+                </div>
+                
+                <div className="p-4 space-y-4">
+                  <div className="space-y-4">
+                    {/* Data Governance Gap */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium flex items-center">
+                          <CircleIcon className="h-2 w-2 mr-2 fill-red-500" />
+                          Data Governance Gap
+                        </h5>
+                        <Badge className="bg-red-100 text-red-700 hover:bg-red-100">High Priority</Badge>
+                      </div>
+                      <p className="text-sm text-neutral-600">
+                        Insufficient documentation of training data sources and quality assurance measures
+                      </p>
+                      <div className="bg-neutral-50 p-3 rounded-md">
+                        <h6 className="text-xs font-medium text-neutral-700 mb-1">EU AI Act Reference</h6>
+                        <p className="text-xs text-neutral-600">
+                          Article 10: Training, validation and testing data sets shall be relevant, representative, 
+                          and free of errors and complete. They shall have the appropriate statistical properties.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Transparency Gap */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium flex items-center">
+                          <CircleIcon className="h-2 w-2 mr-2 fill-amber-500" />
+                          Transparency Gap
+                        </h5>
+                        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Medium Priority</Badge>
+                      </div>
+                      <p className="text-sm text-neutral-600">
+                        System does not adequately inform users that they are interacting with an AI system
+                      </p>
+                      <div className="bg-neutral-50 p-3 rounded-md">
+                        <h6 className="text-xs font-medium text-neutral-700 mb-1">EU AI Act Reference</h6>
+                        <p className="text-xs text-neutral-600">
+                          Article 13: High-risk AI systems shall be designed and developed in such a way that they 
+                          are sufficiently transparent to enable users to interpret the system's output.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Human Oversight Gap */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium flex items-center">
+                          <CircleIcon className="h-2 w-2 mr-2 fill-red-500" />
+                          Human Oversight Gap
+                        </h5>
+                        <Badge className="bg-red-100 text-red-700 hover:bg-red-100">High Priority</Badge>
+                      </div>
+                      <p className="text-sm text-neutral-600">
+                        No formal human oversight protocol or measures to implement human-in-the-loop validation
+                      </p>
+                      <div className="bg-neutral-50 p-3 rounded-md">
+                        <h6 className="text-xs font-medium text-neutral-700 mb-1">EU AI Act Reference</h6>
+                        <p className="text-xs text-neutral-600">
+                          Article 14: High-risk AI systems shall be designed and developed in such a way that they can be 
+                          effectively overseen by natural persons during the period in which the AI system is in use.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Risk Management Gap */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium flex items-center">
+                          <CircleIcon className="h-2 w-2 mr-2 fill-amber-500" />
+                          Risk Management Gap
+                        </h5>
+                        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Medium Priority</Badge>
+                      </div>
+                      <p className="text-sm text-neutral-600">
+                        Incomplete risk management system for continuous monitoring and system lifecycle management
+                      </p>
+                      <div className="bg-neutral-50 p-3 rounded-md">
+                        <h6 className="text-xs font-medium text-neutral-700 mb-1">EU AI Act Reference</h6>
+                        <p className="text-xs text-neutral-600">
+                          Article 9: A risk management system shall be established, implemented, documented and maintained for high-risk AI systems.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border rounded-md">
+                <div className="bg-neutral-50 border-b p-4">
+                  <h4 className="font-medium flex items-center">
+                    <BarChartIcon className="h-4 w-4 mr-2 text-primary" />
+                    Compliance Summary
+                  </h4>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    Overall compliance status by EU AI Act requirement area
+                  </p>
+                </div>
+                
+                <div className="p-4 space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {/* Data Governance */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Data Governance (Article 10)</span>
+                        <span className="text-sm text-neutral-500">40%</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-neutral-100">
+                        <div className="h-2 rounded-full bg-red-500" style={{ width: '40%' }}></div>
+                      </div>
+                    </div>
+                    
+                    {/* Technical Documentation */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Technical Documentation (Article 11)</span>
+                        <span className="text-sm text-neutral-500">65%</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-neutral-100">
+                        <div className="h-2 rounded-full bg-amber-500" style={{ width: '65%' }}></div>
+                      </div>
+                    </div>
+                    
+                    {/* Record-Keeping */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Record-Keeping (Article 12)</span>
+                        <span className="text-sm text-neutral-500">75%</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-neutral-100">
+                        <div className="h-2 rounded-full bg-green-500" style={{ width: '75%' }}></div>
+                      </div>
+                    </div>
+                    
+                    {/* Transparency */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Transparency (Article 13)</span>
+                        <span className="text-sm text-neutral-500">50%</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-neutral-100">
+                        <div className="h-2 rounded-full bg-amber-500" style={{ width: '50%' }}></div>
+                      </div>
+                    </div>
+                    
+                    {/* Human Oversight */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Human Oversight (Article 14)</span>
+                        <span className="text-sm text-neutral-500">35%</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-neutral-100">
+                        <div className="h-2 rounded-full bg-red-500" style={{ width: '35%' }}></div>
+                      </div>
+                    </div>
+                    
+                    {/* Technical Robustness */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Technical Robustness (Article 15)</span>
+                        <span className="text-sm text-neutral-500">70%</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-neutral-100">
+                        <div className="h-2 rounded-full bg-green-500" style={{ width: '70%' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </TabsContent>
           
           <TabsContent value="action-plan" className="mt-0">
-            <div className="flex items-center justify-center h-48">
-              <p className="text-neutral-500">Action Planning section would be implemented here</p>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium">Action Plan</h3>
+                <p className="text-sm text-neutral-500">
+                  Define actions to address compliance gaps and assign responsibilities
+                </p>
+              </div>
+              
+              {selectedSystem && (
+                <div className="bg-neutral-50 p-4 rounded-md border">
+                  <h4 className="font-medium">Selected System</h4>
+                  <div className="text-sm mt-1">
+                    <span className="font-medium">{getSelectedSystem()?.name}</span> • {getSelectedSystem()?.systemId}
+                  </div>
+                  <div className="text-sm text-neutral-500 mt-1">
+                    Department: {getSelectedSystem()?.department}
+                  </div>
+                </div>
+              )}
+              
+              <div className="border rounded-md">
+                <div className="bg-neutral-50 border-b p-4">
+                  <h4 className="font-medium flex items-center">
+                    <ClipboardListIcon className="h-4 w-4 mr-2 text-primary" />
+                    Remediation Actions
+                  </h4>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    Actions to address identified compliance gaps
+                  </p>
+                </div>
+                
+                <div className="p-4 space-y-4">
+                  <div className="space-y-4">
+                    {/* Action 1 */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium">Data Governance Documentation</h5>
+                        <Badge className="bg-red-100 text-red-700 hover:bg-red-100">High Priority</Badge>
+                      </div>
+                      
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Description</h6>
+                          <p className="text-sm text-neutral-600">
+                            Develop comprehensive documentation on data sources, data quality assessment, and data governance processes
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">EU AI Act Reference</h6>
+                          <p className="text-sm text-neutral-600">
+                            Article 10 - Data and Data Governance
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid gap-3 md:grid-cols-3">
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Responsible</h6>
+                          <Select>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select person" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="john">John Smith</SelectItem>
+                              <SelectItem value="sarah">Sarah Johnson</SelectItem>
+                              <SelectItem value="michael">Michael Williams</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Due Date</h6>
+                          <input
+                            type="date"
+                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Status</h6>
+                          <Select defaultValue="not-started">
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="not-started">Not Started</SelectItem>
+                              <SelectItem value="in-progress">In Progress</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Action 2 */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium">Human Oversight Protocol</h5>
+                        <Badge className="bg-red-100 text-red-700 hover:bg-red-100">High Priority</Badge>
+                      </div>
+                      
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Description</h6>
+                          <p className="text-sm text-neutral-600">
+                            Develop and implement formal protocol for human oversight including monitoring, intervention procedures, and training
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">EU AI Act Reference</h6>
+                          <p className="text-sm text-neutral-600">
+                            Article 14 - Human Oversight
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid gap-3 md:grid-cols-3">
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Responsible</h6>
+                          <Select>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select person" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="john">John Smith</SelectItem>
+                              <SelectItem value="sarah">Sarah Johnson</SelectItem>
+                              <SelectItem value="michael">Michael Williams</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Due Date</h6>
+                          <input
+                            type="date"
+                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Status</h6>
+                          <Select defaultValue="not-started">
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="not-started">Not Started</SelectItem>
+                              <SelectItem value="in-progress">In Progress</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Action 3 */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium">Transparency Enhancements</h5>
+                        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Medium Priority</Badge>
+                      </div>
+                      
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Description</h6>
+                          <p className="text-sm text-neutral-600">
+                            Implement clear UI indicators and explanations that users are interacting with an AI system
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">EU AI Act Reference</h6>
+                          <p className="text-sm text-neutral-600">
+                            Article 13 - Transparency and Provision of Information to Users
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid gap-3 md:grid-cols-3">
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Responsible</h6>
+                          <Select>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select person" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="john">John Smith</SelectItem>
+                              <SelectItem value="sarah">Sarah Johnson</SelectItem>
+                              <SelectItem value="michael">Michael Williams</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Due Date</h6>
+                          <input
+                            type="date"
+                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Status</h6>
+                          <Select defaultValue="not-started">
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="not-started">Not Started</SelectItem>
+                              <SelectItem value="in-progress">In Progress</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Action 4 */}
+                    <div className="border rounded-md p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-medium">Risk Management System</h5>
+                        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Medium Priority</Badge>
+                      </div>
+                      
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Description</h6>
+                          <p className="text-sm text-neutral-600">
+                            Establish comprehensive risk management system with continuous monitoring and assessment
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">EU AI Act Reference</h6>
+                          <p className="text-sm text-neutral-600">
+                            Article 9 - Risk Management System
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid gap-3 md:grid-cols-3">
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Responsible</h6>
+                          <Select>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select person" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="john">John Smith</SelectItem>
+                              <SelectItem value="sarah">Sarah Johnson</SelectItem>
+                              <SelectItem value="michael">Michael Williams</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Due Date</h6>
+                          <input
+                            type="date"
+                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                        
+                        <div>
+                          <h6 className="text-xs font-medium text-neutral-700 mb-1">Status</h6>
+                          <Select defaultValue="not-started">
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="not-started">Not Started</SelectItem>
+                              <SelectItem value="in-progress">In Progress</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border rounded-md">
+                <div className="bg-neutral-50 border-b p-4">
+                  <h4 className="font-medium flex items-center">
+                    <CalendarClockIcon className="h-4 w-4 mr-2 text-primary" />
+                    Implementation Timeline
+                  </h4>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    Scheduled timeline for implementing remediation actions
+                  </p>
+                </div>
+                
+                <div className="p-4">
+                  <div className="relative">
+                    {/* Timeline */}
+                    <div className="absolute top-0 bottom-0 left-7 w-0.5 bg-neutral-200"></div>
+                    
+                    <div className="space-y-8">
+                      {/* Month 1 */}
+                      <div className="relative pl-16">
+                        <div className="absolute left-0 flex items-center justify-center w-14 h-14 rounded-full bg-primary text-white">
+                          <span className="font-medium">M1</span>
+                        </div>
+                        
+                        <div className="pt-3">
+                          <h5 className="text-lg font-medium mb-3">Month 1: Initial Documentation</h5>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-2">
+                              <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
+                              <span>Complete initial data governance documentation</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
+                              <span>Draft human oversight protocol</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
+                              <span>Establish risk management framework</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      {/* Month 2 */}
+                      <div className="relative pl-16">
+                        <div className="absolute left-0 flex items-center justify-center w-14 h-14 rounded-full bg-primary/80 text-white">
+                          <span className="font-medium">M2</span>
+                        </div>
+                        
+                        <div className="pt-3">
+                          <h5 className="text-lg font-medium mb-3">Month 2: Implementation</h5>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-2">
+                              <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
+                              <span>Implement transparency enhancements in UI</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
+                              <span>Deploy human oversight training program</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
+                              <span>Begin data quality assessment processes</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      {/* Month 3 */}
+                      <div className="relative pl-16">
+                        <div className="absolute left-0 flex items-center justify-center w-14 h-14 rounded-full bg-primary/60 text-white">
+                          <span className="font-medium">M3</span>
+                        </div>
+                        
+                        <div className="pt-3">
+                          <h5 className="text-lg font-medium mb-3">Month 3: Review & Validation</h5>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-2">
+                              <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
+                              <span>Complete internal compliance review</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
+                              <span>Validate and test human oversight procedures</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
+                              <span>Finalize all compliance documentation</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <h4 className="font-medium">Assessment Summary</h4>
+                <Textarea 
+                  placeholder="Enter a summary of the assessment findings and actions..." 
+                  className="min-h-[120px]"
+                  defaultValue="The AI system has been assessed against EU AI Act requirements with several compliance gaps identified in key areas. The most critical gaps are in data governance and human oversight, which require immediate attention. A comprehensive action plan has been developed with assigned responsibilities and deadlines to address all identified issues within the next three months."
+                />
+              </div>
             </div>
           </TabsContent>
         </CardContent>
