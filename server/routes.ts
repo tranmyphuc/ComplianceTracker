@@ -47,6 +47,7 @@ import {
   subscribeToUpdates
 } from './regulatory-updates';
 import { analyzeSystemRisk, analyzeProhibitedUse, generateRiskReport, analyzeComplianceGaps } from './risk-assessment';
+import { getTrainingModules, getModuleContent, trackTrainingProgress, getUserProgress } from './training-module';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
