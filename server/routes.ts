@@ -159,7 +159,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/systems", async (req: Request, res: Response) => {
     try {
-      const systemData = insertAiSystemSchema.parse(req.body);
+      // Preprocess dates before validation
+      const requestData = {...req.body};
+      
+      // Convert date strings to Date objects
+      if (requestData.implementationDate && typeof requestData.implementationDate === 'string') {
+        requestData.implementationDate = new Date(requestData.implementationDate);
+      }
+      
+      if (requestData.lastAssessmentDate && typeof requestData.lastAssessmentDate === 'string') {
+        requestData.lastAssessmentDate = new Date(requestData.lastAssessmentDate);
+      }
+      
+      const systemData = insertAiSystemSchema.parse(requestData);
       const newSystem = await storage.createAiSystem(systemData);
       
       // Create activity for system creation
@@ -174,6 +186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(newSystem);
     } catch (err) {
+      console.error("System registration error:", err);
       handleError(err as Error, res);
     }
   });

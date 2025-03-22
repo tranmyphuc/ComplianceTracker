@@ -209,6 +209,8 @@ export const SystemRegistration: React.FC = () => {
       dataToSubmit.systemId = `AI-SYS-${Math.floor(1000 + Math.random() * 9000)}`;
     }
     
+    // We'll let the server handle date conversion
+    
     try {
       // Submit data to backend
       const response = await fetch('/api/systems', {
