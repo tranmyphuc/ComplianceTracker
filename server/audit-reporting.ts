@@ -1,12 +1,5 @@
-
-// Define report types
-export enum ReportType {
-  COMPLIANCE_SUMMARY = "compliance_summary",
-  RISK_ASSESSMENT = "risk_assessment",
-  AUDIT_TRAIL = "audit_trail",
-  INCIDENT_REPORT = "incident_report",
-  REGULATORY_PREPARATION = "regulatory_preparation"
-}
+import type { AiSystem } from '@shared/schema';
+import { storage } from './storage';
 
 // Store audit records
 const auditRecords: Record<string, any[]> = {};
@@ -412,30 +405,6 @@ async function generateRegulatoryPreparation(systemIds: string[], options: any):
 }
 
 
-import type { AiSystem } from '@shared/schema';
-import { storage } from './storage';
-
-// Audit record interface
-export interface AuditRecord {
-  id: string;
-  systemId: string;
-  timestamp: Date;
-  eventType: 'assessment' | 'document_update' | 'configuration_change' | 'approval' | 'review';
-  user: string;
-  description: string;
-  details: Record<string, any>;
-}
-
-// Report type definitions
-export enum ReportType {
-  COMPLIANCE_SUMMARY = 'compliance_summary',
-  RISK_ASSESSMENT = 'risk_assessment',
-  DOCUMENTATION_STATUS = 'documentation_status',
-  REGULATORY_ALIGNMENT = 'regulatory_alignment',
-  AUDIT_HISTORY = 'audit_history',
-  CONFORMITY_ASSESSMENT = 'conformity_assessment'
-}
-
 // Report interface
 export interface Report {
   id: string;
@@ -448,46 +417,6 @@ export interface Report {
   content: Record<string, any>;
   exportFormats: ('pdf' | 'csv' | 'json')[];
 }
-
-/**
- * Create an audit record
- */
-export async function createAuditRecord(record: Omit<AuditRecord, 'id'>): Promise<AuditRecord> {
-  try {
-    const id = `audit_${Date.now()}`;
-    const auditRecord = { ...record, id };
-    
-    // In a production environment, this would save to the database
-    console.log('Created audit record:', auditRecord);
-    
-    return auditRecord;
-  } catch (error) {
-    console.error('Error creating audit record:', error);
-    throw error;
-  }
-}
-
-/**
- * Get audit records for a system
- */
-export async function getAuditRecords(systemId: string): Promise<AuditRecord[]> {
-  try {
-    // In a production environment, this would fetch from the database
-    return [];
-  } catch (error) {
-    console.error('Error getting audit records:', error);
-    return [];
-  }
-}
-
-/**
- * Generate a report
- */
-export async function generateReport(
-  type: ReportType, 
-  systemIds: string[], 
-  options?: Record<string, any>
-): Promise<Report> {
   try {
     // Build report based on type
     let title = '';

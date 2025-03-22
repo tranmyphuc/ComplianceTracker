@@ -29,11 +29,43 @@ import {
   calculateComprehensiveScore, 
   generateComplianceRoadmap 
 } from './compliance-scoring';
+import { performComplianceAssessment } from './advanced-compliance-assessment';
+import { initializeMonitoring, performMonitoringCheck, configureMonitoring } from './continuous-monitoring';
+import { createAuditRecord, getAuditRecords, generateReport, exportReport, ReportType } from './audit-reporting';
+import { getAllArticles, getArticlesByCategory, getArticleById, searchKnowledgeBase, askComplianceAI } from './knowledge-base';
 import { 
   generateDocument, 
   generateDocumentTemplate, 
   DocumentType 
-} from './document-generation';
+} from './document-generator';
+import {
+  getRecentUpdates,
+  getUpdateById,
+  analyzeRegulatoryImpact,
+  subscribeToUpdates
+} from './regulatory-updates';
+import { 
+  performComplianceAssessment 
+} from './advanced-compliance-assessment';
+import { 
+  initializeMonitoring, 
+  performMonitoringCheck, 
+  configureMonitoring 
+} from './continuous-monitoring';
+import { 
+  createAuditRecord, 
+  getAuditRecords, 
+  generateReport, 
+  exportReport, 
+  ReportType 
+} from './audit-reporting';
+import { 
+  getAllArticles, 
+  getArticlesByCategory, 
+  getArticleById, 
+  searchKnowledgeBase, 
+  askComplianceAI 
+} from './knowledge-base';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -465,22 +497,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Import modules
-  import { 
-    calculateComprehensiveScore, 
-    generateComplianceRoadmap 
-  } from './compliance-scoring';
-  import { 
-    generateDocument, 
-    generateDocumentTemplate, 
-    DocumentType 
-  } from './document-generator';
-  import {
-    getRecentUpdates,
-    getUpdateById,
-    analyzeRegulatoryImpact,
-    subscribeToUpdates
-  } from './regulatory-updates';
+  // Use imported modules
 
   // Enhanced compliance scoring routes
   app.post("/api/compliance/score", async (req: Request, res: Response) => {
@@ -590,32 +607,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Import advanced compliance features
-  import { 
-    performComplianceAssessment 
-  } from './advanced-compliance-assessment';
-  
-  import { 
-    initializeMonitoring, 
-    performMonitoringCheck, 
-    configureMonitoring 
-  } from './continuous-monitoring';
-  
-  import { 
-    createAuditRecord, 
-    getAuditRecords, 
-    generateReport, 
-    exportReport, 
-    ReportType 
-  } from './audit-reporting';
-  
-  import { 
-    getAllArticles, 
-    getArticlesByCategory, 
-    getArticleById, 
-    searchKnowledgeBase, 
-    askComplianceAI 
-  } from './knowledge-base';
+  // Advanced compliance features
 
   // Advanced compliance assessment routes
   app.post("/api/compliance/assessment", async (req: Request, res: Response) => {
