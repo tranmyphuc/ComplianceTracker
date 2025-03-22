@@ -13,6 +13,34 @@ import { TrainingModules } from "@/components/training/training-modules";
 import { BookOpen, CheckCircle, ChevronLeft, FileText, GraduationCap, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
+// Type definitions
+interface TrainingModule {
+  id: string;
+  title: string;
+  description: string;
+  estimated_time: string;
+  topics: string[];
+  role_relevance: {
+    decision_maker: string;
+    developer: string;
+    operator: string;
+    user: string;
+  };
+}
+
+interface ModuleContent {
+  title: string;
+  sections: {
+    title: string;
+    content: string;
+  }[];
+  assessments: {
+    question: string;
+    options: string[];
+    correctAnswer: string;
+  }[];
+}
+
 export default function Training() {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -30,39 +58,47 @@ export default function Training() {
   // Fetch all training modules
   const { data: modules, isLoading: isLoadingModules } = useQuery({
     queryKey: ['/api/training/modules'],
-    queryFn: () => apiRequest('/api/training/modules', {
-      method: 'GET'
-    }),
+    queryFn: async () => {
+      const response = await apiRequest('/api/training/modules');
+      return response as TrainingModule[];
+    },
   });
 
   // Fetch user progress
   const { data: userProgress = {}, isLoading: isLoadingProgress } = useQuery({
     queryKey: ['/api/training/progress', user?.uid],
-    queryFn: () => apiRequest('/api/training/progress', {
-      method: 'GET',
-      params: { userId: user?.uid }
-    }),
+    queryFn: async () => {
+      const response = await apiRequest('/api/training/progress', {
+        params: { userId: user?.uid }
+      });
+      return response as Record<string, { completion: number }>;
+    },
     enabled: !!user?.uid
   });
 
   // Fetch specific module content when a module is selected
   const { data: moduleContent, isLoading: isLoadingContent } = useQuery({
     queryKey: ['/api/training/modules', selectedModuleId, user?.role],
-    queryFn: () => apiRequest(`/api/training/modules/${selectedModuleId}?role=${user?.role || 'user'}`),
+    queryFn: async () => {
+      const response = await apiRequest(`/api/training/modules/${selectedModuleId}?role=${user?.role || 'user'}`);
+      return response as ModuleContent;
+    },
     enabled: !!selectedModuleId
   });
 
   // Update progress mutation
   const updateProgressMutation = useMutation({
-    mutationFn: (data: { moduleId: string; completion: number }) => 
-      apiRequest('/api/training/progress', {
+    mutationFn: async (data: { moduleId: string; completion: number }) => {
+      const response = await apiRequest('/api/training/progress', {
         method: 'POST',
         body: {
           moduleId: data.moduleId,
           userId: user?.uid,
           completion: data.completion
         }
-      }),
+      });
+      return response;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/training/progress'] });
     },

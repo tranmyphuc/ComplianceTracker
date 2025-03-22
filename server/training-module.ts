@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { storage } from './storage';
-import { trainingModules } from '../shared/schema';
+import { trainingModules, trainingProgress } from '../shared/schema';
 import { db } from './db';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 export interface TrainingModule {
   id: string;
@@ -428,8 +428,10 @@ export async function trackTrainingProgress(req: Request, res: Response) {
     const existingProgress = await db
       .select()
       .from(trainingProgress)
-      .where(eq(trainingProgress.userId, userId))
-      .where(eq(trainingProgress.moduleId, moduleId))
+      .where(and(
+        eq(trainingProgress.userId, userId),
+        eq(trainingProgress.moduleId, moduleId)
+      ))
       .limit(1);
     
     if (existingProgress && existingProgress.length > 0) {
