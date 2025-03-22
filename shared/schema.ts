@@ -83,6 +83,25 @@ export const documents = pgTable("documents", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const riskAssessments = pgTable("risk_assessments", {
+  id: serial("id").primaryKey(),
+  assessmentId: text("assessment_id").notNull().unique(),
+  systemId: text("system_id").references(() => aiSystems.systemId).notNull(),
+  assessmentDate: timestamp("assessment_date").defaultNow(),
+  status: text("status").default("completed").notNull(),
+  riskLevel: text("risk_level").notNull(),
+  riskScore: integer("risk_score"),
+  systemCategory: text("system_category"),
+  prohibitedUseChecks: jsonb("prohibited_use_checks"),
+  euAiActArticles: jsonb("eu_ai_act_articles"),
+  complianceGaps: jsonb("compliance_gaps"),
+  remediationActions: jsonb("remediation_actions"),
+  evidenceDocuments: jsonb("evidence_documents"),
+  summaryNotes: text("summary_notes"),
+  createdBy: text("created_by").references(() => users.uid),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });
 export const insertAiSystemSchema = createInsertSchema(aiSystems).omit({ id: true });
@@ -91,6 +110,7 @@ export const insertActivitySchema = createInsertSchema(activities).omit({ id: tr
 export const insertAlertSchema = createInsertSchema(alerts).omit({ id: true });
 export const insertDeadlineSchema = createInsertSchema(deadlines).omit({ id: true });
 export const insertDocumentSchema = createInsertSchema(documents).omit({ id: true });
+export const insertRiskAssessmentSchema = createInsertSchema(riskAssessments).omit({ id: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -113,6 +133,9 @@ export type InsertDeadline = z.infer<typeof insertDeadlineSchema>;
 
 export type Document = typeof documents.$inferSelect;
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
+
+export type RiskAssessment = typeof riskAssessments.$inferSelect;
+export type InsertRiskAssessment = z.infer<typeof insertRiskAssessmentSchema>;
 
 // Specialized schemas for the API
 export const loginSchema = z.object({

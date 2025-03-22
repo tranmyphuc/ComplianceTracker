@@ -5,7 +5,8 @@ import {
   activities, type Activity, type InsertActivity,
   alerts, type Alert, type InsertAlert,
   deadlines, type Deadline, type InsertDeadline,
-  documents, type Document, type InsertDocument
+  documents, type Document, type InsertDocument,
+  riskAssessments, type RiskAssessment, type InsertRiskAssessment
 } from "@shared/schema";
 
 // Implement storage interface with CRUD operations
@@ -48,6 +49,13 @@ export interface IStorage {
   getDocumentsForSystem(systemId: string): Promise<Document[]>;
   createDocument(document: InsertDocument): Promise<Document>;
   updateDocument(id: number, document: Partial<Document>): Promise<Document | undefined>;
+  
+  // Risk Assessment operations
+  getRiskAssessment(id: number): Promise<RiskAssessment | undefined>;
+  getRiskAssessmentByAssessmentId(assessmentId: string): Promise<RiskAssessment | undefined>;
+  getRiskAssessmentsForSystem(systemId: string): Promise<RiskAssessment[]>;
+  createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment>;
+  updateRiskAssessment(id: number, assessment: Partial<RiskAssessment>): Promise<RiskAssessment | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -58,6 +66,7 @@ export class MemStorage implements IStorage {
   private alerts: Map<number, Alert>;
   private deadlines: Map<number, Deadline>;
   private documents: Map<number, Document>;
+  private riskAssessments: Map<number, RiskAssessment>;
   
   private userIdCounter: number;
   private systemIdCounter: number;
@@ -66,6 +75,7 @@ export class MemStorage implements IStorage {
   private alertIdCounter: number;
   private deadlineIdCounter: number;
   private documentIdCounter: number;
+  private riskAssessmentIdCounter: number;
 
   constructor() {
     this.users = new Map();
