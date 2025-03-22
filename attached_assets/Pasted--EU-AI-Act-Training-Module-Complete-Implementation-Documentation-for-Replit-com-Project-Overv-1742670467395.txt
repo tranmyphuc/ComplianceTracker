@@ -1,0 +1,2369 @@
+# EU AI Act Training Module - Complete Implementation Documentation for Replit.com
+
+## Project Overview
+
+This document provides comprehensive implementation details for building a complete EU AI Act training and compliance platform on Replit.com. The application incorporates interactive learning modules, compliance assessment tools, documentation generators, and role-specific content to support organizations in understanding and implementing the EU AI Act requirements.
+
+## Technical Implementation Structure
+
+### Project File Structure
+
+```
+eu-ai-act-training/
+├── main.py                 # Application entry point
+├── static/                 # Static assets
+│   ├── css/
+│   │   ├── main.css        # Main stylesheet
+│   │   └── dashboard.css   # Dashboard styles
+│   ├── js/
+│   │   ├── risk-tool.js    # Risk assessment functionality
+│   │   ├── doc-gen.js      # Documentation generator
+│   │   └── modules.js      # Module navigation
+│   └── images/
+│       ├── risk-pyramid.png
+│       ├── decision-tree.svg
+│       └── compliance-icons/
+├── templates/
+│   ├── base.html           # Base template
+│   ├── index.html          # Landing page
+│   ├── dashboard.html      # User dashboard
+│   ├── modules/            # Training module templates
+│   │   ├── module1.html    # Introduction module
+│   │   ├── module2.html    # Risk classification
+│   │   └── module3.html    # Technical requirements
+│   └── tools/
+│       ├── risk-assessment.html
+│       ├── doc-generator.html
+│       └── compliance-checker.html
+├── modules/
+│   ├── __init__.py
+│   ├── risk_assessment.py  # Risk assessment logic
+│   ├── documentation.py    # Documentation generation
+│   ├── user_management.py  # User roles and progress
+│   └── content.py          # Training content management
+├── data/
+│   ├── regulations.json    # Regulatory content
+│   ├── assessment_questions.json
+│   ├── doc_templates.json
+│   └── user_roles.json     # Role definitions
+└── requirements.txt        # Dependencies
+```
+
+### Core Application Files
+
+#### `main.py`
+
+```python
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+import json
+import os
+import markdown
+from modules.risk_assessment import assess_risk
+from modules.documentation import generate_documentation
+from modules.user_management import get_user_role, track_progress
+from modules.content import get_module_content
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'eu-ai-act-training-default-key')
+
+# User role simulation - in production, this would connect to authentication system
+ROLES = {
+    "decision_maker": "Level 1: AI Strategic Decision-Maker",
+    "developer": "Level 2: AI System Developer",
+    "operator": "Level 3: AI System Operator",
+    "user": "Level 4: AI System User"
+}
+
+@app.route('/')
+def index():
+    return render_template('index.html', roles=ROLES)
+
+@app.route('/set-role/<role>')
+def set_role(role):
+    if role in ROLES:
+        session['user_role'] = role
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('index'))
+
+@app.route('/dashboard')
+def dashboard():
+    user_role = session.get('user_role', 'user')
+    modules = get_recommended_modules(user_role)
+    return render_template('dashboard.html', 
+                          role=ROLES.get(user_role, "User"),
+                          modules=modules)
+
+@app.route('/module/<module_id>')
+def module(module_id):
+    user_role = session.get('user_role', 'user')
+    content = get_module_content(module_id, user_role)
+    if not content:
+        return redirect(url_for('dashboard'))
+    return render_template(f'modules/module{module_id}.html', content=content)
+
+@app.route('/tools/risk-assessment')
+def risk_assessment_tool():
+    return render_template('tools/risk-assessment.html')
+
+@app.route('/api/assess-risk', methods=['POST'])
+def api_assess_risk():
+    data = request.json
+    result = assess_risk(data)
+    return jsonify(result)
+
+@app.route('/tools/documentation-generator')
+def documentation_generator():
+    return render_template('tools/doc-generator.html')
+
+@app.route('/api/generate-documentation', methods=['POST'])
+def api_generate_documentation():
+    data = request.json
+    result = generate_documentation(data)
+    return jsonify(result)
+
+@app.route('/api/track-progress', methods=['POST'])
+def api_track_progress():
+    user_role = session.get('user_role', 'user')
+    module_id = request.json.get('module_id')
+    completion = request.json.get('completion', 0)
+    result = track_progress(user_role, module_id, completion)
+    return jsonify(result)
+
+def get_recommended_modules(user_role):
+    # Returns modules relevant to the user's role
+    all_modules = [
+        {"id": 1, "title": "EU AI Act Introduction", "completion": 0},
+        {"id": 2, "title": "Risk Classification System", "completion": 0},
+        {"id": 3, "title": "Technical Requirements", "completion": 0},
+        {"id": 4, "title": "Documentation Requirements", "completion": 0},
+        {"id": 5, "title": "Governance Framework", "completion": 0},
+        {"id": 6, "title": "Implementation Case Studies", "completion": 0}
+    ]
+    
+    # Filter or prioritize based on role
+    if user_role == "decision_maker":
+        return all_modules
+    elif user_role == "developer":
+        return [m for m in all_modules if m["id"] in [1, 2, 3, 4, 6]]
+    elif user_role == "operator":
+        return [m for m in all_modules if m["id"] in [1, 2, 3, 6]]
+    else:  # basic user
+        return [m for m in all_modules if m["id"] in [1, 2]]
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080, debug=True)
+```
+
+#### `modules/risk_assessment.py`
+
+```python
+import json
+import os
+
+# Load risk criteria from data file
+def load_risk_criteria():
+    try:
+        with open('data/regulations.json', 'r') as f:
+            data = json.load(f)
+            return data.get('risk_criteria', {})
+    except:
+        # Fallback default criteria if file not available
+        return {
+            "prohibited": [
+                "social_scoring",
+                "exploit_vulnerabilities", 
+                "subliminal_manipulation",
+                "real_time_biometric_public"
+            ],
+            "high_risk_domains": [
+                "education",
+                "employment",
+                "essential_services",
+                "law_enforcement",
+                "migration_asylum",
+                "justice_administration",
+                "critical_infrastructure"
+            ]
+        }
+
+def assess_risk(data):
+    """
+    Assess AI system risk category based on provided characteristics
+    
+    Args:
+        data (dict): System characteristics to evaluate
+        
+    Returns:
+        dict: Risk assessment result with category and requirements
+    """
+    criteria = load_risk_criteria()
+    
+    # Check for prohibited practices
+    for criterion in criteria.get("prohibited", []):
+        if data.get(criterion, False):
+            return {
+                "risk_category": "PROHIBITED",
+                "details": f"System implements prohibited practice: {criterion.replace('_', ' ')}",
+                "compliance_action": "Redesign required - this practice is not permitted under the EU AI Act",
+                "requirements": ["system_redesign"],
+                "color_code": "#E53935"  # Red
+            }
+    
+    # Check if safety component
+    if data.get("safety_component", False):
+        return {
+            "risk_category": "HIGH_RISK",
+            "details": "System is a safety component of a regulated product",
+            "compliance_action": "Full compliance with all technical requirements needed",
+            "requirements": get_high_risk_requirements(),
+            "color_code": "#FF9800"  # Orange
+        }
+    
+    # Check if in high-risk domain
+    for domain in criteria.get("high_risk_domains", []):
+        if data.get(domain, False):
+            return {
+                "risk_category": "HIGH_RISK",
+                "details": f"System operates in high-risk domain: {domain.replace('_', ' ')}",
+                "compliance_action": "Full compliance with all technical requirements needed",
+                "requirements": get_high_risk_requirements(),
+                "color_code": "#FF9800"  # Orange
+            }
+    
+    # Check for limited risk (transparency requirements)
+    if (data.get("human_interaction", False) or 
+        data.get("emotion_recognition", False) or 
+        data.get("biometric_categorization", False) or
+        data.get("content_generation", False)):
+        return {
+            "risk_category": "LIMITED_RISK",
+            "details": "System requires transparency measures",
+            "compliance_action": "Implement transparency requirements (disclosure, notification)",
+            "requirements": ["transparency_notification", "user_awareness"],
+            "color_code": "#4CAF50"  # Green
+        }
+    
+    # Default minimal risk
+    return {
+        "risk_category": "MINIMAL_RISK",
+        "details": "System does not fall into higher risk categories",
+        "compliance_action": "Voluntary code of conduct recommended",
+        "requirements": ["voluntary_compliance"],
+        "color_code": "#2196F3"  # Blue
+    }
+
+def get_high_risk_requirements():
+    """Returns the list of compliance requirements for high-risk systems"""
+    return [
+        "risk_management_system",
+        "data_governance",
+        "technical_documentation",
+        "record_keeping",
+        "transparency",
+        "human_oversight",
+        "accuracy_robustness",
+        "conformity_assessment"
+    ]
+```
+
+#### `modules/documentation.py`
+
+```python
+import json
+import datetime
+import os
+import markdown
+
+def load_templates():
+    """Load documentation templates from data file"""
+    try:
+        with open('data/doc_templates.json', 'r') as f:
+            return json.load(f)
+    except:
+        # Default minimal template if file not available
+        return {
+            "high_risk": {
+                "sections": [
+                    "general_description",
+                    "risk_management",
+                    "data_governance",
+                    "technical_documentation",
+                    "record_keeping",
+                    "transparency",
+                    "human_oversight",
+                    "accuracy_robustness"
+                ]
+            },
+            "limited_risk": {
+                "sections": [
+                    "general_description",
+                    "transparency"
+                ]
+            },
+            "minimal_risk": {
+                "sections": [
+                    "general_description",
+                    "voluntary_measures"
+                ]
+            }
+        }
+
+def generate_documentation(data):
+    """
+    Generate appropriate documentation based on system characteristics
+    
+    Args:
+        data (dict): System information including risk category
+        
+    Returns:
+        dict: Documentation structure with sections
+    """
+    templates = load_templates()
+    risk_category = data.get("risk_category", "minimal_risk").lower()
+    
+    # Get template for the risk category
+    template = templates.get(risk_category, templates.get("minimal_risk"))
+    
+    documentation = {
+        "system_name": data.get("name", "Unnamed AI System"),
+        "version": data.get("version", "1.0"),
+        "generated_date": datetime.datetime.now().strftime("%Y-%m-%d"),
+        "risk_category": risk_category.upper(),
+        "provider": data.get("provider", ""),
+        "sections": {}
+    }
+    
+    # Generate each required section
+    for section in template.get("sections", []):
+        documentation["sections"][section] = generate_section(section, data)
+    
+    # Format as markdown
+    markdown_doc = convert_to_markdown(documentation)
+    
+    return {
+        "documentation": documentation,
+        "markdown": markdown_doc
+    }
+
+def generate_section(section_name, data):
+    """Generate content for a specific documentation section"""
+    if section_name == "general_description":
+        return {
+            "title": "General Description",
+            "content": {
+                "purpose": data.get("purpose", ""),
+                "intended_use": data.get("intended_use", ""),
+                "version": data.get("version", "1.0"),
+                "provider_details": data.get("provider", "")
+            }
+        }
+    elif section_name == "risk_management":
+        return {
+            "title": "Risk Management System",
+            "content": {
+                "methodology": "Iterative process of risk identification, analysis, and mitigation",
+                "identified_risks": data.get("identified_risks", []),
+                "mitigation_measures": data.get("mitigation_measures", []),
+                "residual_risks": "To be assessed",
+                "monitoring_plan": "Continuous monitoring implementation required"
+            }
+        }
+    elif section_name == "data_governance":
+        return {
+            "title": "Data Governance",
+            "content": {
+                "training_data": data.get("training_data_description", ""),
+                "data_preprocessing": "Please specify preprocessing techniques used",
+                "data_quality": "Please specify data quality assurance measures",
+                "bias_mitigation": "Please specify bias identification and mitigation methods"
+            }
+        }
+    # Additional sections would be implemented similarly
+    # This is a simplified version - full implementation would include all sections
+    
+    # Default for any unimplemented section
+    return {
+        "title": section_name.replace("_", " ").title(),
+        "content": {
+            "note": "Please complete this section with relevant information"
+        }
+    }
+
+def convert_to_markdown(documentation):
+    """Convert the documentation structure to markdown format"""
+    md = f"# {documentation['system_name']} - Technical Documentation\n\n"
+    md += f"**Version:** {documentation['version']}  \n"
+    md += f"**Generated:** {documentation['generated_date']}  \n"
+    md += f"**Risk Category:** {documentation['risk_category']}  \n"
+    md += f"**Provider:** {documentation['provider']}  \n\n"
+    
+    for section_name, section in documentation['sections'].items():
+        md += f"## {section['title']}\n\n"
+        
+        for key, value in section['content'].items():
+            if isinstance(value, list):
+                md += f"### {key.replace('_', ' ').title()}\n\n"
+                if value:
+                    for item in value:
+                        md += f"- {item}\n"
+                else:
+                    md += "*No items specified*\n"
+                md += "\n"
+            else:
+                md += f"### {key.replace('_', ' ').title()}\n\n"
+                md += f"{value or '*Not specified*'}\n\n"
+    
+    return md
+```
+
+#### `modules/user_management.py`
+
+```python
+import json
+import os
+from datetime import datetime
+
+# In a production environment, this would connect to a database
+# For Replit demo, we'll use a simple file-based approach
+
+def get_user_data_file():
+    """Get the path to the user data file, creating directory if needed"""
+    data_dir = os.path.join(os.getcwd(), 'data')
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    return os.path.join(data_dir, 'user_progress.json')
+
+def load_user_data():
+    """Load user progress data from file"""
+    file_path = get_user_data_file()
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_user_data(data):
+    """Save user progress data to file"""
+    file_path = get_user_data_file()
+    with open(file_path, 'w') as f:
+        json.dump(data, f)
+
+def get_user_role(user_id):
+    """
+    Get user role from user ID
+    
+    In a real implementation, this would query a user database
+    """
+    # Simplified role assignment for demo
+    roles = {
+        "decision_maker": "Level 1: AI Strategic Decision-Maker",
+        "developer": "Level 2: AI System Developer",
+        "operator": "Level 3: AI System Operator", 
+        "user": "Level 4: AI System User"
+    }
+    
+    # Default to basic user
+    return roles.get(user_id, roles["user"])
+
+def track_progress(user_id, module_id, completion_percentage):
+    """
+    Track user progress through training modules
+    
+    Args:
+        user_id: User identifier
+        module_id: Module identifier
+        completion_percentage: Percentage completed (0-100)
+        
+    Returns:
+        dict: Updated progress information
+    """
+    data = load_user_data()
+    
+    # Initialize user if not exists
+    if user_id not in data:
+        data[user_id] = {
+            "modules": {},
+            "last_activity": datetime.now().isoformat()
+        }
+    
+    # Update module progress
+    data[user_id]["modules"][str(module_id)] = {
+        "completion": min(100, max(0, completion_percentage)),
+        "last_updated": datetime.now().isoformat()
+    }
+    
+    data[user_id]["last_activity"] = datetime.now().isoformat()
+    
+    # Save updated data
+    save_user_data(data)
+    
+    return {
+        "user_id": user_id,
+        "module_id": module_id,
+        "completion": completion_percentage,
+        "status": "updated"
+    }
+
+def get_user_progress(user_id):
+    """Get progress for all modules for a user"""
+    data = load_user_data()
+    if user_id in data:
+        return data[user_id].get("modules", {})
+    return {}
+
+def get_role_specific_content(role, content_type):
+    """
+    Get role-specific content variations
+    
+    Args:
+        role: User role identifier
+        content_type: Type of content requested
+        
+    Returns:
+        dict: Role-appropriate content
+    """
+    # This would typically load from a database or content files
+    role_content = {
+        "decision_maker": {
+            "focus": "strategic compliance and governance",
+            "depth": "high-level overview with governance focus"
+        },
+        "developer": {
+            "focus": "technical implementation details",
+            "depth": "in-depth technical requirements"
+        },
+        "operator": {
+            "focus": "day-to-day operation and monitoring",
+            "depth": "operational procedures and oversight"
+        },
+        "user": {
+            "focus": "basic awareness and proper usage",
+            "depth": "simplified overview and guidelines"
+        }
+    }
+    
+    # Default to user level if role not found
+    return role_content.get(role, role_content["user"])
+```
+
+#### `modules/content.py`
+
+```python
+import json
+import os
+import markdown
+
+def load_module_content():
+    """Load module content from data files"""
+    try:
+        with open('data/module_content.json', 'r') as f:
+            return json.load(f)
+    except:
+        # Return empty structure if file not found
+        return {}
+
+def get_module_content(module_id, user_role="user"):
+    """
+    Get content for a specific module, tailored to user role
+    
+    Args:
+        module_id: Module identifier
+        user_role: User role for content targeting
+        
+    Returns:
+        dict: Module content structure
+    """
+    # Convert to string if needed
+    module_id = str(module_id)
+    
+    # Load all content
+    all_content = load_module_content()
+    
+    # If module doesn't exist, return empty
+    if module_id not in all_content:
+        return None
+    
+    module_content = all_content[module_id]
+    
+    # Get role-specific content or fallback to default
+    role_content = module_content.get("roles", {}).get(user_role)
+    if not role_content:
+        role_content = module_content.get("default", {})
+    
+    # Convert markdown content to HTML
+    if "content" in role_content and isinstance(role_content["content"], str):
+        role_content["content_html"] = markdown.markdown(role_content["content"])
+    
+    # Add module ID to the content
+    role_content["module_id"] = module_id
+    
+    return role_content
+
+def get_module_list():
+    """Get list of all available modules"""
+    all_content = load_module_content()
+    modules = []
+    
+    for module_id, content in all_content.items():
+        modules.append({
+            "id": module_id,
+            "title": content.get("title", f"Module {module_id}"),
+            "description": content.get("description", ""),
+            "estimated_time": content.get("estimated_time", "")
+        })
+    
+    # Sort by module ID
+    modules.sort(key=lambda x: x["id"])
+    
+    return modules
+```
+
+### HTML Templates
+
+#### `templates/base.html`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EU AI Act Training Platform{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">EU AI Act Training</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Tools
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('risk_assessment_tool') }}">Risk Assessment</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('documentation_generator') }}">Documentation Generator</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    {% if session.get('user_role') %}
+                    <li class="nav-item">
+                        <span class="nav-link">Role: {{ session.get('user_role', 'user').replace('_', ' ').title() }}</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer mt-5 py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">EU AI Act Training Platform - Built on Replit.com</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/modules.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+```
+
+#### `templates/index.html`
+
+```html
+{% extends "base.html" %}
+
+{% block title %}EU AI Act Training Platform - Welcome{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow">
+            <div class="card-body">
+                <h1 class="card-title text-center mb-4">EU AI Act Training Platform</h1>
+                
+                <div class="alert alert-info">
+                    <p class="mb-0">This platform provides comprehensive training and tools for understanding and implementing compliance with the EU AI Act.</p>
+                </div>
+                
+                <div class="row mt-5">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h3 class="card-title">What is the EU AI Act?</h3>
+                                <p>The EU AI Act is the world's first comprehensive legal framework specifically regulating artificial intelligence systems. It establishes a risk-based approach that categorizes AI applications based on their potential risk level.</p>
+                                <p>The regulation aims to ensure AI systems used in the EU are safe, transparent, traceable, non-discriminatory and environmentally friendly.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h3 class="card-title">Select Your Role</h3>
+                                <p>Choose your role to receive personalized training content:</p>
+                                
+                                <div class="list-group mt-3">
+                                    {% for role_id, role_name in roles.items() %}
+                                    <a href="{{ url_for('set_role', role=role_id) }}" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ role_name }}</h5>
+                                        </div>
+                                        <p class="mb-1">{{ get_role_description(role_id) }}</p>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title">Interactive Tools</h3>
+                                <p>This platform includes tools to help you implement the EU AI Act requirements:</p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Risk Assessment Tool</h5>
+                                                <p>Determine which risk category your AI system falls into and identify applicable requirements.</p>
+                                                <a href="{{ url_for('risk_assessment_tool') }}" class="btn btn-primary">Use Tool</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Documentation Generator</h5>
+                                                <p>Generate compliant technical documentation templates based on your system characteristics.</p>
+                                                <a href="{{ url_for('documentation_generator') }}" class="btn btn-primary">Use Tool</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function get_role_description(role) {
+        const descriptions = {
+            'decision_maker': 'Strategic decision-making, governance framework, and compliance oversight.',
+            'developer': 'Technical implementation of AI systems, development practices, and technical requirements.',
+            'operator': 'Day-to-day operation, monitoring, and oversight of AI systems.',
+            'user': 'Using AI systems and understanding basic requirements and limitations.'
+        };
+        return descriptions[role] || 'General understanding of EU AI Act requirements.';
+    }
+</script>
+{% endblock %}
+```
+
+#### `templates/dashboard.html`
+
+```html
+{% extends "base.html" %}
+
+{% block title %}EU AI Act Training - Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Your Profile</h5>
+                <p><strong>Role:</strong> {{ role }}</p>
+                <p><strong>Overall Progress:</strong></p>
+                <div class="progress mb-3">
+                    <div class="progress-bar" role="progressbar" style="width: {{ overall_progress|default(0) }}%;" 
+                        aria-valuenow="{{ overall_progress|default(0) }}" aria-valuemin="0" aria-valuemax="100">
+                        {{ overall_progress|default(0) }}%
+                    </div>
+                </div>
+                <p class="mt-3"><a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-primary">Change Role</a></p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Quick Tools</h5>
+                <div class="list-group">
+                    <a href="{{ url_for('risk_assessment_tool') }}" class="list-group-item list-group-item-action">
+                        Risk Assessment Tool
+                    </a>
+                    <a href="{{ url_for('documentation_generator') }}" class="list-group-item list-group-item-action">
+                        Documentation Generator
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Training Modules</h3>
+                <p>Complete these modules to understand EU AI Act requirements for your role.</p>
+                
+                <div class="module-list">
+                    {% for module in modules %}
+                    <div class="card mb-3 module-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="card-title">{{ module.title }}</h5>
+                                <span class="badge {{ get_completion_badge_class(module.completion) }}">
+                                    {{ module.completion|default(0) }}% Complete
+                                </span>
+                            </div>
+                            
+                            <div class="progress mb-3">
+                                <div class="progress-bar" role="progressbar" 
+                                    style="width: {{ module.completion|default(0) }}%;" 
+                                    aria-valuenow="{{ module.completion|default(0) }}" 
+                                    aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                            
+                            <p class="card-text">{{ module.description|default('') }}</p>
+                            <p><small class="text-muted">Estimated time: {{ module.estimated_time|default('15-30 minutes') }}</small></p>
+                            
+                            <a href="{{ url_for('module', module_id=module.id) }}" class="btn btn-primary">
+                                {% if module.completion|default(0) > 0 %}Continue{% else %}Start{% endif %}
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Resources</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">EU AI Act Text</h5>
+                                <p>Access the full regulatory text and official guidance.</p>
+                                <a href="#" class="btn btn-outline-primary">Access</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Implementation Checklists</h5>
+                                <p>Role-specific checklists for implementation steps.</p>
+                                <a href="#" class="btn btn-outline-primary">Download</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function get_completion_badge_class(completion) {
+        completion = completion || 0;
+        if (completion >= 100) return 'bg-success';
+        if (completion >= 50) return 'bg-warning';
+        return 'bg-secondary';
+    }
+</script>
+{% endblock %}
+```
+
+#### `templates/tools/risk-assessment.html`
+
+```html
+{% extends "base.html" %}
+
+{% block title %}EU AI Act - Risk Assessment Tool{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">AI System Risk Assessment Tool</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <p>This tool helps determine your AI system's risk category under the EU AI Act and identifies applicable requirements.</p>
+                </div>
+                
+                <form id="risk-assessment-form">
+                    <h4 class="mb-3">System Information</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="system-name" class="form-label">System Name</label>
+                                <input type="text" id="system-name" name="name" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="system-purpose" class="form-label">Primary Purpose</label>
+                                <input type="text" id="system-purpose" name="purpose" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mb-3">Prohibited Practices Check</h4>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="social-scoring" name="social_scoring">
+                            <label class="form-check-label" for="social-scoring">
+                                Social scoring/evaluation of individuals
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="exploit-vulnerabilities" name="exploit_vulnerabilities">
+                            <label class="form-check-label" for="exploit-vulnerabilities">
+                                Exploitation of vulnerabilities of specific groups
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="subliminal-manipulation" name="subliminal_manipulation">
+                            <label class="form-check-label" for="subliminal-manipulation">
+                                Subliminal manipulation techniques
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="biometric-public" name="real_time_biometric_public">
+                            <label class="form-check-label" for="biometric-public">
+                                Real-time remote biometric identification in publicly accessible spaces
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mb-3">High-Risk Domain Check</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="safety-component" name="safety_component">
+                                <label class="form-check-label" for="safety-component">
+                                    Safety component of regulated product
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="education" name="education">
+                                <label class="form-check-label" for="education">
+                                    Education and vocational training
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="employment" name="employment">
+                                <label class="form-check-label" for="employment">
+                                    Employment, worker management, or self-employment
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="essential-services" name="essential_services">
+                                <label class="form-check-label" for="essential-services">
+                                    Access to essential services
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="law-enforcement" name="law_enforcement">
+                                <label class="form-check-label" for="law-enforcement">
+                                    Law enforcement
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="migration" name="migration_asylum">
+                                <label class="form-check-label" for="migration">
+                                    Migration, asylum and border control
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="justice" name="justice_administration">
+                                <label class="form-check-label" for="justice">
+                                    Administration of justice and democratic processes
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="critical-infrastructure" name="critical_infrastructure">
+                                <label class="form-check-label" for="critical-infrastructure">
+                                    Critical infrastructure management
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mb-3">Limited Risk Check</h4>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="human-interaction" name="human_interaction">
+                            <label class="form-check-label" for="human-interaction">
+                                Human interaction (chatbots, virtual assistants)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="emotion-recognition" name="emotion_recognition">
+                            <label class="form-check-label" for="emotion-recognition">
+                                Emotion recognition system
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="biometric-categorization" name="biometric_categorization">
+                            <label class="form-check-label" for="biometric-categorization">
+                                Biometric categorization system
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="content-generation" name="content_generation">
+                            <label class="form-check-label" for="content-generation">
+                                AI-generated or manipulated content (deepfakes)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Assess Risk Category</button>
+                    </div>
+                </form>
+                
+                <div id="results-container" class="mt-5 d-none">
+                    <h3 class="mb-3">Assessment Results</h3>
+                    <div class="card">
+                        <div class="card-header" id="result-header">
+                            <h4 class="mb-0" id="risk-category">Risk Category</h4>
+                        </div>
+                        <div class="card-body">
+                            <p id="risk-details">Details will appear here</p>
+                            
+                            <h5>Required Compliance Actions</h5>
+                            <p id="compliance-action">Actions will appear here</p>
+                            
+                            <div id="requirements-section">
+                                <h5>Technical Requirements</h5>
+                                <ul id="requirements-list" class="list-group">
+                                    <!-- Requirements will be populated here -->
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <button id="save-assessment" class="btn btn-success">Save Assessment</button>
+                                <button id="generate-doc" class="btn btn-outline-primary">Generate Documentation Template</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/risk-tool.js') }}"></script>
+{% endblock %}
+```
+
+### JavaScript Implementation
+
+#### `static/js/risk-tool.js`
+
+```javascript
+document.addEventListener('DOMContentLoaded', function() {
+    const assessmentForm = document.getElementById('risk-assessment-form');
+    const resultsContainer = document.getElementById('results-container');
+    const riskCategory = document.getElementById('risk-category');
+    const riskDetails = document.getElementById('risk-details');
+    const complianceAction = document.getElementById('compliance-action');
+    const requirementsList = document.getElementById('requirements-list');
+    const resultHeader = document.getElementById('result-header');
+    const saveAssessmentBtn = document.getElementById('save-assessment');
+    const generateDocBtn = document.getElementById('generate-doc');
+    
+    const requirementsDescriptions = {
+        'risk_management_system': 'Implement a risk management system with continuous iterative process',
+        'data_governance': 'Establish data governance measures for training, validation and testing data',
+        'technical_documentation': 'Maintain comprehensive technical documentation',
+        'record_keeping': 'Enable logging capabilities for traceability',
+        'transparency': 'Provide clear information to users about AI capabilities and limitations',
+        'human_oversight': 'Implement human oversight measures',
+        'accuracy_robustness': 'Ensure appropriate accuracy, robustness and cybersecurity',
+        'conformity_assessment': 'Complete conformity assessment before placing on market',
+        'transparency_notification': 'Notify users they are interacting with an AI system',
+        'user_awareness': 'Ensure users are aware of synthetic content generation',
+        'voluntary_compliance': 'Consider voluntary application of code of conduct',
+        'system_redesign': 'Redesign system to eliminate prohibited elements'
+    };
+
+    assessmentForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        // Convert form data to JSON
+        const formData = new FormData(assessmentForm);
+        const jsonData = {};
+        
+        for (const [key, value] of formData.entries()) {
+            if (value === 'on') {
+                jsonData[key] = true;
+            } else {
+                jsonData[key] = value;
+            }
+        }
+        
+        // Send to backend for assessment
+        fetch('/api/assess-risk', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jsonData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Display results
+            resultsContainer.classList.remove('d-none');
+            
+            // Set risk category and details
+            riskCategory.textContent = data.risk_category;
+            riskDetails.textContent = data.details;
+            complianceAction.textContent = data.compliance_action;
+            
+            // Style header based on risk level
+            resultHeader.style.backgroundColor = data.color_code;
+            resultHeader.style.color = '#ffffff';
+            
+            // Clear and populate requirements list
+            requirementsList.innerHTML = '';
+            
+            if (data.requirements && data.requirements.length > 0) {
+                data.requirements.forEach(req => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'list-group-item';
+                    listItem.textContent = requirementsDescriptions[req] || req;
+                    requirementsList.appendChild(listItem);
+                });
+            } else {
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item';
+                listItem.textContent = 'No specific technical requirements identified';
+                requirementsList.appendChild(listItem);
+            }
+            
+            // Store assessment results for potential save or document generation
+            window.assessmentResults = {
+                ...data,
+                system_name: jsonData.name,
+                purpose: jsonData.purpose
+            };
+            
+            // Scroll to results
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(error => {
+            console.error('Error during risk assessment:', error);
+            alert('An error occurred during assessment. Please try again.');
+        });
+    });
+    
+    // Save assessment functionality
+    saveAssessmentBtn.addEventListener('click', function() {
+        if (!window.assessmentResults) return;
+        
+        const assessmentData = JSON.stringify(window.assessmentResults, null, 2);
+        const blob = new Blob([assessmentData], { type: 'application/json' });
+        
+        // Create download link
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `risk-assessment-${window.assessmentResults.system_name || 'unnamed'}.json`;
+        link.click();
+        
+        // Clean up
+        URL.revokeObjectURL(link.href);
+    });
+    
+    // Generate documentation template
+    generateDocBtn.addEventListener('click', function() {
+        if (!window.assessmentResults) return;
+        
+        // Redirect to documentation generator with assessment data
+        const queryParams = new URLSearchParams({
+            name: window.assessmentResults.system_name || '',
+            purpose: window.assessmentResults.purpose || '',
+            risk_category: window.assessmentResults.risk_category || '',
+        }).toString();
+        
+        window.location.href = `/tools/documentation-generator?${queryParams}`;
+    });
+});
+```
+
+#### `static/js/doc-gen.js`
+
+```javascript
+document.addEventListener('DOMContentLoaded', function() {
+    const docForm = document.getElementById('documentation-form');
+    const resultsContainer = document.getElementById('documentation-results');
+    const markdownContent = document.getElementById('markdown-content');
+    const downloadBtn = document.getElementById('download-markdown');
+    
+    // Populate form with query parameters if present
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('name')) {
+        document.getElementById('system-name').value = urlParams.get('name');
+    }
+    if (urlParams.has('purpose')) {
+        document.getElementById('system-purpose').value = urlParams.get('purpose');
+    }
+    if (urlParams.has('risk_category')) {
+        const riskCategory = urlParams.get('risk_category');
+        const riskSelect = document.getElementById('risk-category');
+        
+        // Find and select the matching option
+        for (let i = 0; i < riskSelect.options.length; i++) {
+            if (riskSelect.options[i].value.toUpperCase() === riskCategory) {
+                riskSelect.selectedIndex = i;
+                break;
+            }
+        }
+        
+        // Trigger change event to update form sections
+        updateFormSections();
+    }
+    
+    // Risk category change handler
+    document.getElementById('risk-category').addEventListener('change', updateFormSections);
+    
+    function updateFormSections() {
+        const riskCategory = document.getElementById('risk-category').value.toLowerCase();
+        const highRiskSections = document.getElementById('high-risk-sections');
+        const limitedRiskSections = document.getElementById('limited-risk-sections');
+        
+        // Show/hide sections based on risk category
+        if (riskCategory === 'high_risk') {
+            highRiskSections.classList.remove('d-none');
+            limitedRiskSections.classList.remove('d-none');
+        } else if (riskCategory === 'limited_risk') {
+            highRiskSections.classList.add('d-none');
+            limitedRiskSections.classList.remove('d-none');
+        } else {
+            highRiskSections.classList.add('d-none');
+            limitedRiskSections.classList.add('d-none');
+        }
+    }
+    
+    // Form submission
+    docForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        // Convert form data to JSON
+        const formData = new FormData(docForm);
+        const jsonData = {};
+        
+        for (const [key, value] of formData.entries()) {
+            // Handle arrays (multiple checkboxes with same name)
+            if (key.endsWith('[]')) {
+                const baseKey = key.slice(0, -2);
+                if (!jsonData[baseKey]) {
+                    jsonData[baseKey] = [];
+                }
+                jsonData[baseKey].push(value);
+            } else {
+                jsonData[key] = value;
+            }
+        }
+        
+        // Send to backend for processing
+        fetch('/api/generate-documentation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jsonData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Display results
+            resultsContainer.classList.remove('d-none');
+            
+            // Set markdown content
+            markdownContent.textContent = data.markdown;
+            
+            // Store for download
+            window.generatedDoc = {
+                markdown: data.markdown,
+                system_name: jsonData.name || 'unnamed-system'
+            };
+            
+            // Scroll to results
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(error => {
+            console.error('Error generating documentation:', error);
+            alert('An error occurred while generating documentation. Please try again.');
+        });
+    });
+    
+    // Download functionality
+    downloadBtn.addEventListener('click', function() {
+        if (!window.generatedDoc) return;
+        
+        const blob = new Blob([window.generatedDoc.markdown], { type: 'text/markdown' });
+        
+        // Create download link
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${window.generatedDoc.system_name}-documentation.md`;
+        link.click();
+        
+        // Clean up
+        URL.revokeObjectURL(link.href);
+    });
+    
+    // Initialize sections visibility
+    updateFormSections();
+});
+```
+
+## Training Content Implementation
+
+The training material is structured into six core modules, each targeting specific aspects of EU AI Act compliance. Here I'll provide detailed content for two essential modules:
+
+### Module 1: EU AI Act Introduction
+
+```json
+// data/module_content.json excerpt
+{
+  "1": {
+    "title": "EU AI Act Introduction",
+    "description": "Introduction to the EU AI Act, its scope, and key provisions",
+    "estimated_time": "20-30 minutes",
+    "default": {
+      "content": "# Introduction to the EU AI Act\n\nThe EU AI Act represents the world's first comprehensive legislative framework specifically designed to regulate artificial intelligence. This module provides an overview of the regulation, its objectives, and key provisions.\n\n## Regulatory Context\n\nThe EU AI Act is part of a broader European strategy on AI, which aims to foster innovation while ensuring AI systems are safe, legal, and aligned with European values. It complements other regulations such as:\n\n- General Data Protection Regulation (GDPR)\n- Digital Services Act (DSA)\n- Digital Markets Act (DMA)\n- Product Safety Regulations\n\n## Core Principles\n\nThe EU AI Act is built around several key principles:\n\n- **Risk-based approach**: Regulatory requirements are proportionate to the risk level of AI applications\n- **Fundamental rights protection**: Safeguarding individuals from potential AI-related harms\n- **Legal certainty**: Providing clear rules for developers, deployers, and users of AI\n- **Innovation support**: Encouraging development while ensuring safety\n- **Harmonization**: Creating a unified framework across the EU\n\n## Scope and Applicability\n\nThe regulation applies to:\n\n- Providers placing AI systems on the EU market, regardless of their location\n- Users of AI systems located within the EU\n- Providers and users outside the EU where the output is used in the EU\n\nThe definition of AI under the Act is broader than many technical definitions, covering software systems that generate outputs based on machine learning, logic, statistical, or knowledge-based approaches.\n\n## Risk Categories\n\nThe EU AI Act categorizes AI systems into four risk levels:\n\n1. **Unacceptable risk** (Prohibited): AI applications that pose a clear threat to safety, livelihoods, or rights of people\n2. **High risk**: Applications in sensitive areas or with significant potential impact\n3. **Limited risk**: Systems with specific transparency obligations\n4. **Minimal risk**: All other AI systems\n\nEach category has different regulatory requirements, which we'll explore in further modules.\n\n## Enforcement Mechanisms\n\nThe regulation establishes a multi-layered enforcement structure:\n\n- **EU AI Board**: Coordination across member states\n- **National Authorities**: Primary enforcement responsibility\n- **Market Surveillance**: Monitoring compliance\n- **Penalties**: Significant fines for non-compliance\n\n## Implementation Timeline\n\nThe EU AI Act follows a phased implementation approach:\n\n- Official adoption: 2023-2024\n- Entry into force: 20 days after publication\n- Implementation of prohibited practices: 6 months after entry into force\n- Implementation of transparency obligations: 1 year after entry into force\n- Full implementation of high-risk requirements: 2 years after entry into force\n\nThis gradual approach allows organizations time to adapt their systems and processes to meet the new requirements.",
+      "quiz": [
+        {
+          "question": "Which of the following best describes the EU AI Act's approach to regulation?",
+          "options": [
+            "It bans all AI systems considered harmful",
+            "It takes a risk-based approach with different requirements based on risk level",
+            "It imposes the same requirements on all AI systems",
+            "It only regulates AI systems developed within the EU"
+          ],
+          "correct": 1
+        },
+        {
+          "question": "Which of the following AI applications would likely be classified as prohibited under the EU AI Act?",
+          "options": [
+            "A recommendation system for online shopping",
+            "An AI-based medical diagnosis support tool",
+            "A social scoring system evaluating citizens' trustworthiness",
+            "A facial recognition system used for unlocking smartphones"
+          ],
+          "correct": 2
+        }
+      ]
+    },
+    "roles": {
+      "decision_maker": {
+        "content": "# Introduction to the EU AI Act\n\n## Strategic Overview for Decision-Makers\n\nThe EU AI Act represents the world's first comprehensive legislative framework specifically designed to regulate artificial intelligence. As a strategic decision-maker, understanding this regulation is essential for governance, risk management, and compliance planning.\n\n## Strategic Implications\n\nThe EU AI Act has several key implications for organizational leadership:\n\n- **Governance requirements**: Need for AI governance structures and oversight mechanisms\n- **Compliance investments**: Resource allocation for technical and organizational measures\n- **Risk management**: Integration with enterprise risk frameworks\n- **Market access**: Requirements for accessing the EU market\n- **Documentation**: Comprehensive documentation and evidence collection\n- **Liability considerations**: Potential legal and financial exposure\n\n## Core Principles\n\nThe EU AI Act is built around several key principles:\n\n- **Risk-based approach**: Regulatory requirements are proportionate to the risk level of AI applications\n- **Fundamental rights protection**: Safeguarding individuals from potential AI-related harms\n- **Legal certainty**: Providing clear rules for developers, deployers, and users of AI\n- **Innovation support**: Encouraging development while ensuring safety\n- **Harmonization**: Creating a unified framework across the EU\n\n## Organizational Responsibilities\n\nAs an AI strategic decision-maker, you'll need to ensure:\n\n1. **AI Inventory**: Complete visibility of all AI systems in use or development\n2. **Risk Classification**: Processes to classify AI systems according to the regulation\n3. **Governance Structure**: Clear roles and responsibilities for AI oversight\n4. **Compliance Program**: Comprehensive approach to meeting requirements\n5. **Supplier Management**: Ensuring third-party AI components meet standards\n6. **Documentation**: Systems for maintaining required evidence\n7. **Reporting Mechanisms**: Processes for incident reporting and regulatory communication\n\n## Penalties for Non-Compliance\n\nThe regulatory framework includes significant penalties:\n\n- Up to €35 million or 7% of global annual turnover for prohibited AI practices\n- Up to €15 million or 3% of global annual turnover for other violations\n- Up to €7.5 million or 1.5% of global annual turnover for providing incorrect information\n\n## Strategic Planning Considerations\n\n- **Board-level oversight**: AI risks should be reviewed at the highest level\n- **Cross-functional teams**: Compliance requires coordination across legal, technical, and business functions\n- **Budgeting**: Allocate resources for technical measures, documentation, and human oversight\n- **Training**: Ensure decision-makers understand regulatory requirements\n- **Policy development**: Create and maintain AI governance policies\n\nThis strategic overview provides context for further detailed modules on specific compliance requirements.",
+        "quiz": [
+          {
+            "question": "What should be a strategic priority for organizations under the EU AI Act?",
+            "options": [
+              "Eliminating all AI systems to avoid compliance requirements",
+              "Establishing a comprehensive AI inventory and risk classification system",
+              "Moving AI operations outside the EU jurisdiction",
+              "Focusing only on technical documentation"
+            ],
+            "correct": 1
+          },
+          {
+            "question": "What is the maximum penalty for deploying a prohibited AI practice under the EU AI Act?",
+            "options": [
+              "€1 million or 1% of global annual turnover",
+              "€7.5 million or 1.5% of global annual turnover",
+              "€15 million or 3% of global annual turnover",
+              "€35 million or 7% of global annual turnover"
+            ],
+            "correct": 3
+          }
+        ]
+      },
+      "developer": {
+        "content": "# Introduction to the EU AI Act\n\n## Technical Overview for Developers\n\nThe EU AI Act represents the world's first comprehensive legislative framework specifically designed to regulate artificial intelligence. As a developer of AI systems, understanding the technical implications is essential for creating compliant systems.\n\n## Technical Requirements Overview\n\nFor high-risk AI systems, the regulation mandates several technical measures:\n\n- **Risk Management System**: Continuous iterative process throughout the lifecycle\n- **Data Governance**: Quality criteria and bias examination for training, validation, and testing data\n- **Technical Documentation**: Detailed technical specifications and development processes\n- **Record Keeping**: Automatic recording of events (logging) during operation\n- **Transparency**: Clear information about capabilities and limitations\n- **Human Oversight**: Technical measures enabling human monitoring and intervention\n- **Accuracy and Robustness**: Appropriate levels of accuracy, robustness, and cybersecurity\n\n## Development Process Implications\n\nThe EU AI Act will require changes to development processes:\n\n- **Design Phase**: Risk assessment and requirements analysis\n- **Development**: Implementation of technical safeguards\n- **Testing**: Verification of compliance with requirements\n- **Documentation**: Detailed technical documentation throughout\n- **Deployment**: Ensuring monitoring and logging capabilities\n- **Maintenance**: Continuous updates and compliance verification\n\n## Key Technical Definitions\n\nThe regulation includes technical definitions that developers should understand:\n\n- **AI System**: Software developed with techniques like machine learning, logic/knowledge-based approaches, or statistical approaches\n- **High-Risk System**: Systems used in specified domains or as safety components\n- **Conformity Assessment**: Process to demonstrate compliance with requirements\n- **Post-Market Monitoring**: Systematic data collection and analysis after deployment\n\n## Development Documentation Requirements\n\nDevelopers must maintain detailed documentation including:\n\n1. General description of the AI system\n2. Detailed architecture and design specifications\n3. Description of system elements and development process\n4. Data requirements and data governance\n5. Validation and testing methodologies\n6. Risk management measures\n7. Changes made during lifecycle\n\n## Technical Safeguards Implementation\n\nDevelopers should implement technical safeguards including:\n\n- Data quality checks and bias testing tools\n- Comprehensive logging mechanisms\n- Accuracy metrics and testing frameworks\n- Human oversight interfaces\n- Security by design principles\n- Explainability features\n\nThis technical overview provides context for further detailed modules on specific implementation requirements for developers.",
+        "quiz": [
+          {
+            "question": "What technical measure is required for logging in high-risk AI systems?",
+            "options": [
+              "Manually recording all system interactions",
+              "Automatic recording of events during operation",
+              "Submitting monthly reports to authorities",
+              "Using only open-source logging frameworks"
+            ],
+            "correct": 1
+          },
+          {
+            "question": "What should developers implement during the design phase of AI systems under the EU AI Act?",
+            "options": [
+              "Final documentation only",
+              "Marketing materials",
+              "Risk assessment and requirements analysis",
+              "Post-market monitoring only"
+            ],
+            "correct": 2
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### Module 2: Risk Classification System
+
+```json
+// data/module_content.json excerpt
+{
+  "2": {
+    "title": "Risk Classification System",
+    "description": "Understanding the risk-based approach and determining AI system risk categories",
+    "estimated_time": "25-35 minutes",
+    "default": {
+      "content": "# Risk Classification System\n\nThe EU AI Act adopts a risk-based approach to regulation, with different requirements applicable depending on the risk category of an AI system. This module explains the classification system and how to determine which category applies to your AI systems.\n\n## The Risk Pyramid\n\nThe EU AI Act establishes a four-tier risk pyramid:\n\n1. **Unacceptable Risk (Prohibited Practices)**\n   - AI systems deemed to pose unacceptable risks to people's safety, livelihoods, or rights\n   - These practices are prohibited outright\n\n2. **High-Risk AI Systems**\n   - AI applications with significant potential impact on health, safety, or fundamental rights\n   - Subject to strict requirements before market placement\n\n3. **Limited Risk AI Systems**\n   - Systems with specific transparency obligations\n   - Users must be informed they are interacting with AI\n\n4. **Minimal Risk AI Systems**\n   - All other AI systems not falling into higher categories\n   - Minimal or no requirements beyond existing law\n   - Voluntary codes of practice encouraged\n\n## Prohibited AI Practices\n\nThe following AI practices are prohibited under the regulation:\n\n- **Social scoring systems**: AI systems used by public authorities for evaluating or classifying individuals based on social behavior or personal characteristics\n\n- **Exploitation of vulnerabilities**: Systems that exploit vulnerabilities of specific groups of persons due to their age, disability, or social/economic situation\n\n- **Subliminal manipulation**: AI techniques that deploy subliminal components to materially distort behavior in harmful ways\n\n- **Real-time remote biometric identification**: Use in publicly accessible spaces for law enforcement purposes (with limited exceptions)\n\n## High-Risk AI Systems\n\nHigh-risk AI systems fall into two main categories:\n\n1. **AI systems used as safety components of products**\n   - Subject to third-party conformity assessment under existing product regulations\n   - Examples: AI safety features in medical devices, vehicles, machinery\n\n2. **Standalone AI systems in specified high-risk areas (Annex III)**\n   - Critical infrastructure and essential services\n   - Education and vocational training\n   - Employment, worker management, and access to self-employment\n   - Access to essential private and public services\n   - Law enforcement\n   - Migration, asylum, and border control management\n   - Administration of justice and democratic processes\n\n## Limited Risk Systems\n\nSystems that create transparency obligations include:\n\n- AI systems interacting with humans (chatbots, virtual assistants)\n- Emotion recognition systems\n- Biometric categorization systems\n- AI-generated or manipulated content (deepfakes)\n\nFor these systems, users must be informed they are interacting with an AI system or that content has been artificially generated or manipulated.\n\n## Classification Methodology\n\nTo determine the risk category of your AI system, follow these steps:\n\n1. Check if the system implements any prohibited practice\n2. Determine if the system is a safety component of a regulated product\n3. Check if the system is used in one of the high-risk areas listed in Annex III\n4. Assess if transparency obligations apply\n5. If none of the above apply, the system falls into the minimal risk category\n\n## Documentation of Classification\n\nOrganizations should document their classification process, including:\n\n- Description of the AI system's purpose and functionality\n- Analysis against prohibited practices criteria\n- Assessment of high-risk classification criteria\n- Justification for the assigned risk category\n- Periodic review and update of the classification\n\nThis documentation is important for demonstrating compliance and making informed decisions about applicable requirements.",
+      "quiz": [
+        {
+          "question": "How many risk categories does the EU AI Act establish?",
+          "options": [
+            "Two",
+            "Three",
+            "Four",
+            "Five"
+          ],
+          "correct": 2
+        },
+        {
+          "question": "Which of the following is NOT a prohibited AI practice under the EU AI Act?",
+          "options": [
+            "Social scoring systems by public authorities",
+            "Exploitation of vulnerabilities of specific groups",
+            "Medical diagnosis systems used in hospitals",
+            "Real-time remote biometric identification in public spaces"
+          ],
+          "correct": 2
+        }
+      ]
+    },
+    "roles": {
+      "decision_maker": {
+        "content": "# Risk Classification System\n\n## Strategic Guidance for Decision-Makers\n\nThe EU AI Act's risk-based approach requires strategic decisions about AI system development, acquisition, and deployment. As a decision-maker, you need to understand the classification framework to guide organizational policy and resource allocation.\n\n## Governance Implications of Risk Classification\n\nEach risk category carries different governance requirements:\n\n1. **Prohibited Practices**\n   - Governance action: Implement screening procedures to prevent development or acquisition\n   - Requires clear red lines in AI governance policies\n   - May necessitate immediate discontinuation of certain systems\n\n2. **High-Risk Systems**\n   - Governance action: Establish comprehensive compliance programs\n   - Requires significant resource allocation for technical measures\n   - Demands executive oversight and regular reporting\n   - Necessitates conformity assessment before deployment\n\n3. **Limited Risk Systems**\n   - Governance action: Ensure transparency mechanisms\n   - Requires lighter compliance measures\n   - Needs clear disclosure policies\n\n4. **Minimal Risk Systems**\n   - Governance action: Consider voluntary codes of conduct\n   - Monitor for changes in classification or regulatory interpretations\n\n## Organizational Classification Process\n\nAs a strategic decision-maker, you should establish:\n\n1. **Classification Committee**: Cross-functional team responsible for risk assessments\n2. **Classification Policy**: Clear criteria and process for assessing AI systems\n3. **Inventory Management**: Complete register of all AI systems and their classifications\n4. **Review Process**: Regular review of classifications in light of changing uses or regulatory guidance\n5. **Escalation Procedures**: Process for resolving classification disputes or ambiguities\n\n## Strategic Risk Considerations\n\nWhen evaluating AI systems, consider:\n\n- **Risk Tolerance**: Organizational approach to regulatory compliance risk\n- **Borderline Cases**: Conservative approach for systems near category boundaries\n- **Documentation Standards**: Evidence preservation for compliance demonstration\n- **Third-Party AI**: Supplier assessment and contractual requirements\n- **Global Deployment**: Implications for systems used across jurisdictions\n\n## Executive Decision Framework\n\nFor executive decision-making, implement a structured approach:\n\n1. **Initial Screening**: Quick assessment to identify obvious prohibited practices\n2. **Detailed Assessment**: Thorough analysis against classification criteria\n3. **Impact Analysis**: Resource and timeline implications of requirements\n4. **Strategic Decision**: Proceed, modify, or abandon based on assessment\n5. **Implementation Plan**: Compliance roadmap for approved systems\n\nThis strategic framework ensures consistent classification decisions and appropriate resource allocation for compliance activities.",
+        "quiz": [
+          {
+            "question": "What organizational structure should decision-makers establish for managing AI classification?",
+            "options": [
+              "A single compliance officer with exclusive responsibility",
+              "Technical team only",
+              "Legal team only",
+              "Cross-functional classification committee"
+            ],
+            "correct": 3
+          },
+          {
+            "question": "What approach should organizations take with borderline classification cases?",
+            "options": [
+              "Always classify as minimal risk to reduce compliance burden",
+              "Take a conservative approach, potentially classifying in the higher risk category",
+              "Ignore classification requirements until regulatory enforcement",
+              "Classify based solely on competitor approaches"
+            ],
+            "correct": 1
+          }
+        ]
+      },
+      "developer": {
+        "content": "# Risk Classification System\n\n## Technical Implementation Guide for Developers\n\nThe EU AI Act's risk-based approach has significant implications for technical design, development, and documentation. As a developer, understanding how to implement appropriate safeguards based on risk classification is essential.\n\n## Technical Indicators of Risk Categories\n\nRecognize technical characteristics that may indicate specific risk categories:\n\n1. **Prohibited Practices Indicators**\n   - Processing of social behavior data for scoring purposes\n   - Targeting vulnerable populations with manipulative techniques\n   - Implementation of subliminal processing without transparency\n   - Real-time biometric identification capabilities in public contexts\n\n2. **High-Risk Indicators**\n   - Integration with critical infrastructure systems\n   - Automated decision-making affecting individual rights or access\n   - Biometric identification or categorization capabilities\n   - Predictive systems for resource allocation in essential services\n   - Tools for evaluating people in employment, education, or legal contexts\n\n3. **Limited Risk Indicators**\n   - Human-machine interaction capabilities (conversational AI)\n   - Emotion detection algorithms\n   - Content generation or manipulation features\n   - Biometric categorization functionalities\n\n## Technical Risk Assessment Implementation\n\nImplement technical processes for risk assessment:\n\n1. **System Architecture Documentation**: Map all system components and data flows\n2. **Functionality Testing**: Validate actual capabilities against prohibited categories\n3. **Impact Analysis**: Technical assessment of potential negative outcomes\n4. **Domain Analysis**: Map functions against regulated domains in Annex III\n5. **Intended Purpose Documentation**: Clear definition of system boundaries and use cases\n\n## Development Practices by Risk Category\n\n### For High-Risk Systems\n\n- Implement comprehensive logging mechanisms\n- Develop testing suites for accuracy, robustness, and bias\n- Create technical documentation that meets all requirements\n- Build interfaces for effective human oversight\n- Implement strong data governance controls\n- Design risk management monitoring capabilities\n\n### For Limited Risk Systems\n\n- Create clear disclosure mechanisms in user interfaces\n- Implement watermarking for synthetic content\n- Develop transparent AI interaction indicators\n- Document transparency implementation\n\n### For All Systems\n\n- Maintain development versioning and change management\n- Implement impact assessment early in development\n- Create automated testing for classification-related features\n- Document technical design decisions\n\n## Technical Documentation for Classification\n\nDevelop classification documentation including:\n\n- System specifications and capabilities\n- Technical architecture diagrams\n- Data processing details\n- Assessment against classification criteria\n- Testing results related to prohibited practices\n- Integration points with regulated domains or products\n\nThis technical guidance ensures development practices align with regulatory requirements based on risk classification.",
+        "quiz": [
+          {
+            "question": "What technical feature should developers implement for high-risk AI systems but not for minimal risk systems?",
+            "options": [
+              "Basic user interface",
+              "Comprehensive logging mechanisms",
+              "Installation instructions",
+              "Programming language selection"
+            ],
+            "correct": 1
+          },
+          {
+            "question": "What technical documentation should developers maintain for risk classification purposes?",
+            "options": [
+              "Marketing materials only",
+              "User testimonials",
+              "System specifications and assessment against classification criteria",
+              "Only financial cost analysis"
+            ],
+            "correct": 2
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+## Data Files and Templates
+
+### `data/regulations.json`
+
+```json
+{
+  "risk_criteria": {
+    "prohibited": [
+      "social_scoring",
+      "exploit_vulnerabilities", 
+      "subliminal_manipulation",
+      "real_time_biometric_public"
+    ],
+    "high_risk_domains": [
+      "education",
+      "employment",
+      "essential_services",
+      "law_enforcement",
+      "migration_asylum",
+      "justice_administration",
+      "critical_infrastructure"
+    ],
+    "limited_risk_indicators": [
+      "human_interaction",
+      "emotion_recognition",
+      "biometric_categorization",
+      "content_generation"
+    ]
+  },
+  "technical_requirements": {
+    "high_risk": [
+      {
+        "id": "risk_management_system",
+        "name": "Risk Management System",
+        "description": "Continuous iterative process throughout lifecycle",
+        "key_elements": [
+          "Risk identification and analysis",
+          "Risk estimation and evaluation",
+          "Adoption of mitigation measures",
+          "Evaluation of residual risk",
+          "Documentation of all components"
+        ]
+      },
+      {
+        "id": "data_governance",
+        "name": "Data Governance",
+        "description": "Appropriate data governance and management practices",
+        "key_elements": [
+          "Data quality criteria",
+          "Relevant data preparation processing",
+          "Examination for biases",
+          "Identification of data gaps or shortcomings",
+          "Data protection and security measures"
+        ]
+      },
+      {
+        "id": "technical_documentation",
+        "name": "Technical Documentation",
+        "description": "Documentation demonstrating compliance with requirements",
+        "key_elements": [
+          "General description of the system",
+          "Detailed architecture",
+          "Design specifications",
+          "Development process",
+          "Testing and validation procedures"
+        ]
+      },
+      {
+        "id": "record_keeping",
+        "name": "Record Keeping",
+        "description": "Automatic recording of events (logging)",
+        "key_elements": [
+          "Functionality for recording events",
+          "Traceability of system operation",
+          "Appropriate logging level and detail",
+          "Secure log storage",
+          "Access controls for logs"
+        ]
+      },
+      {
+        "id": "transparency",
+        "name": "Transparency",
+        "description": "Information provision to users",
+        "key_elements": [
+          "Identity of provider",
+          "Capabilities and limitations",
+          "Intended purpose",
+          "Performance specifications",
+          "Human oversight measures"
+        ]
+      },
+      {
+        "id": "human_oversight",
+        "name": "Human Oversight",
+        "description": "Effective human oversight measures",
+        "key_elements": [
+          "Human-machine interface tools",
+          "Oversight procedures",
+          "Human intervention mechanisms",
+          "Real-time monitoring capabilities",
+          "Override functionality"
+        ]
+      },
+      {
+        "id": "accuracy_robustness",
+        "name": "Accuracy and Robustness",
+        "description": "Appropriate level of accuracy, robustness, and cybersecurity",
+        "key_elements": [
+          "Performance metrics",
+          "Accuracy measures",
+          "Resilience to errors and inconsistencies",
+          "Protection against manipulation",
+          "Security mechanisms"
+        ]
+      }
+    ],
+    "limited_risk": [
+      {
+        "id": "transparency_notification",
+        "name": "Transparency Notification",
+        "description": "Notify users they are interacting with an AI system",
+        "key_elements": [
+          "Clear disclosure in user interface",
+          "Appropriate timing of notification",
+          "Understandable language",
+          "Accessibility considerations"
+        ]
+      },
+      {
+        "id": "content_disclosure",
+        "name": "AI-Generated Content Disclosure",
+        "description": "Disclose that content is artificially generated or manipulated",
+        "key_elements": [
+          "Watermarking where applicable",
+          "Clear labeling of synthetic content",
+          "Appropriate disclosure mechanisms",
+          "Metadata inclusion where possible"
+        ]
+      }
+    ]
+  },
+  "conformity_assessment": {
+    "procedures": [
+      {
+        "name": "Internal Control",
+        "applicable_to": "High-risk AI systems except those in Annex III",
+        "description": "Self-assessment performed by the provider"
+      },
+      {
+        "name": "Third-Party Assessment",
+        "applicable_to": "Specific high-risk AI systems listed in Annex III",
+        "description": "Assessment by a notified body"
+      }
+    ],
+    "documentation_requirements": [
+      "EU declaration of conformity",
+      "Technical documentation",
+      "Quality management system documentation",
+      "Risk management documentation",
+      "Post-market monitoring plan"
+    ]
+  }
+}
+```
+
+### `data/doc_templates.json`
+
+```json
+{
+  "high_risk": {
+    "sections": [
+      "general_description",
+      "risk_management",
+      "data_governance",
+      "technical_documentation",
+      "record_keeping",
+      "transparency",
+      "human_oversight",
+      "accuracy_robustness"
+    ],
+    "templates": {
+      "general_description": "# 1. General Description\n\n## 1.1 System Purpose\n[Provide a clear description of the AI system's purpose, including its intended objectives and functions.]\n\n## 1.2 Intended Use\n[Describe the specific contexts, environments, and use cases for which the system is designed.]\n\n## 1.3 Limitations\n[Specify known limitations, constraints, and scenarios where the system should not be used.]\n\n## 1.4 Target Users\n[Identify the intended users, their expected expertise level, and usage patterns.]\n\n## 1.5 Provider Information\n- **Provider Name**: [Legal name of the provider]\n- **Address**: [Provider's registered address]\n- **Contact Information**: [Email, phone number, website]\n- **Authorized Representative**: [If applicable]",
+      "risk_management": "# 2. Risk Management System\n\n## 2.1 Risk Management Process\n[Describe the iterative risk management process implemented for this AI system.]\n\n## 2.2 Risk Identification\n\n### 2.2.1 Identified Risks\n[List and describe all identified risks, including:\n- Risks to health and safety\n- Risks to fundamental rights\n- Technical risks\n- Operational risks]\n\n### 2.2.2 Risk Analysis Methodology\n[Explain the methodology used to identify and analyze risks.]\n\n## 2.3 Risk Estimation\n[Detail the estimation of risk likelihood and severity.]\n\n## 2.4 Risk Evaluation\n[Explain how risks are evaluated against established criteria.]\n\n## 2.5 Risk Mitigation Measures\n[For each identified risk, document:\n- Mitigation measures implemented\n- Expected effectiveness\n- Implementation evidence]\n\n## 2.6 Residual Risk Assessment\n[Assess remaining risks after mitigation measures.]\n\n## 2.7 Continuous Monitoring\n[Describe processes for ongoing risk monitoring and reassessment.]",
+      "data_governance": "# 3. Data Governance\n\n## 3.1 Data Requirements\n[Specify the data needs and characteristics required for the system.]\n\n## 3.2 Training Data\n\n### 3.2.1 Data Sources\n[Describe the sources of training data.]\n\n### 3.2.2 Data Collection Methodology\n[Explain how training data was collected.]\n\n### 3.2.3 Data Characteristics\n[Detail the characteristics, format, and structure of training data.]\n\n## 3.3 Data Preparation and Processing\n[Document all preprocessing steps applied to the data.]\n\n## 3.4 Data Quality Measures\n\n### 3.4.1 Quality Criteria\n[List the quality criteria applied to the data.]\n\n### 3.4.2 Quality Assurance Process\n[Describe processes for ensuring data quality.]\n\n## 3.5 Bias Examination\n\n### 3.5.1 Bias Identification Methodology\n[Explain the approach used to identify potential biases.]\n\n### 3.5.2 Identified Biases\n[Document any biases identified in the data.]\n\n### 3.5.3 Bias Mitigation Measures\n[Detail the steps taken to address identified biases.]\n\n## 3.6 Data Protection and Security\n[Describe measures implemented to ensure data protection and security.]",
+      "technical_documentation": "# 4. Technical Documentation\n\n## 4.1 System Architecture\n[Provide detailed architecture diagrams and descriptions of the AI system.]\n\n## 4.2 Development Process\n[Document the development methodology, including:\n- Development stages\n- Version control\n- Testing protocols\n- Quality assurance measures]\n\n## 4.3 Design Specifications\n[Detail the system design specifications, including:\n- Algorithms used\n- Model architecture\n- Hyperparameters\n- Feature engineering\n- Learning approaches]\n\n## 4.4 Performance Metrics\n[Specify the key performance indicators and metrics used to evaluate the system.]\n\n## 4.5 Validation Approach\n[Describe the validation methodology and results.]\n\n## 4.6 Testing Results\n[Document comprehensive testing results, including:\n- Accuracy testing\n- Robustness testing\n- Bias testing\n- Performance testing]\n\n## 4.7 Changes and Updates\n[Track all significant changes to the system throughout its lifecycle.]",
+      "record_keeping": "# 5. Record-Keeping Capabilities\n\n## 5.1 Logging System Design\n[Describe the logging system architecture and components.]\n\n## 5.2 Logged Events\n[Specify which events and operations are automatically recorded, including:\n- Input data\n- System outputs\n- User interactions\n- System decisions\n- Error states]\n\n## 5.3 Log Format and Content\n[Detail the structure, format, and content of log records.]\n\n## 5.4 Log Storage and Retention\n[Explain log storage mechanisms and retention periods.]\n\n## 5.5 Log Security\n[Document security measures protecting log integrity and confidentiality.]\n\n## 5.6 Log Access Controls\n[Describe access control mechanisms for logs.]\n\n## 5.7 Log Analysis Capabilities\n[Explain capabilities for analyzing and extracting insights from logs.]",
+      "transparency": "# 6. Transparency Information\n\n## 6.1 System Information\n[Document information provided to users about the system, including:\n- Provider identity\n- System purpose\n- Version information\n- Performance specifications]\n\n## 6.2 Capabilities and Limitations\n[Detail disclosed capabilities and limitations of the system.]\n\n## 6.3 User Instructions\n[Provide user instructions, including:\n- Proper use guidelines\n- Misuse prevention\n- Interpretation of outputs\n- Known limitations]\n\n## 6.4 Disclosure Mechanisms\n[Describe how information is conveyed to users.]\n\n## 6.5 Performance Information\n[Explain how performance characteristics are communicated.]\n\n## 6.6 Updates and Changes\n[Detail how users are informed about system updates and changes.]",
+      "human_oversight": "# 7. Human Oversight Measures\n\n## 7.1 Oversight Design\n[Describe the overall approach to human oversight.]\n\n## 7.2 Human-Machine Interface\n[Document the interfaces designed for human oversight.]\n\n## 7.3 Oversight Personnel\n[Specify requirements for oversight personnel, including:\n- Qualifications\n- Training\n- Responsibilities]\n\n## 7.4 Oversight Procedures\n[Detail procedures for effective oversight, including:\n- Monitoring protocols\n- Review processes\n- Intervention triggers]\n\n## 7.5 Intervention Mechanisms\n[Document mechanisms allowing human intervention, including:\n- Override capabilities\n- System halting\n- Decision modification]\n\n## 7.6 Oversight Effectiveness Monitoring\n[Explain how the effectiveness of human oversight is evaluated.]",
+      "accuracy_robustness": "# 8. Accuracy and Robustness\n\n## 8.1 Accuracy Specifications\n[Document accuracy levels and performance metrics.]\n\n## 8.2 Accuracy Testing\n[Detail the testing methodology and results for accuracy assessment.]\n\n## 8.3 Robustness Measures\n[Describe measures implemented to ensure robustness, including:\n- Error handling\n- Resilience to unexpected inputs\n- Consistency of operation\n- Graceful degradation]\n\n## 8.4 Robustness Testing\n[Document testing methodology and results for robustness.]\n\n## 8.5 Cybersecurity Measures\n[Detail security measures protecting against attacks and manipulation.]\n\n## 8.6 Security Testing\n[Describe security testing protocols and results.]"
+    }
+  },
+  "limited_risk": {
+    "sections": [
+      "general_description",
+      "transparency"
+    ],
+    "templates": {
+      "general_description": "# 1. General Description\n\n## 1.1 System Purpose\n[Provide a clear description of the AI system's purpose, including its intended objectives and functions.]\n\n## 1.2 Intended Use\n[Describe the specific contexts, environments, and use cases for which the system is designed.]\n\n## 1.3 Limitations\n[Specify known limitations, constraints, and scenarios where the system should not be used.]\n\n## 1.4 Target Users\n[Identify the intended users, their expected expertise level, and usage patterns.]\n\n## 1.5 Provider Information\n- **Provider Name**: [Legal name of the provider]\n- **Address**: [Provider's registered address]\n- **Contact Information**: [Email, phone number, website]\n- **Authorized Representative**: [If applicable]",
+      "transparency": "# 2. Transparency Information\n\n## 2.1 Disclosure Implementation\n[Describe how users are informed they are interacting with an AI system.]\n\n## 2.2 Disclosure Timing\n[Explain when in the user journey the disclosure is presented.]\n\n## 2.3 Disclosure Content\n[Detail the specific information provided in the disclosure.]\n\n## 2.4 Accessibility Considerations\n[Document how the disclosure is made accessible to all users.]\n\n## 2.5 Content Marking Mechanisms\n[For generated or manipulated content, describe marking or watermarking approaches.]\n\n## 2.6 User Instructions\n[Provide any additional instructions or information given to users.]"
+    }
+  },
+  "minimal_risk": {
+    "sections": [
+      "general_description",
+      "voluntary_measures"
+    ],
+    "templates": {
+      "general_description": "# 1. General Description\n\n## 1.1 System Purpose\n[Provide a clear description of the AI system's purpose, including its intended objectives and functions.]\n\n## 1.2 Intended Use\n[Describe the specific contexts, environments, and use cases for which the system is designed.]\n\n## 1.3 Limitations\n[Specify known limitations, constraints, and scenarios where the system should not be used.]\n\n## 1.4 Target Users\n[Identify the intended users, their expected expertise level, and usage patterns.]\n\n## 1.5 Provider Information\n- **Provider Name**: [Legal name of the provider]\n- **Address**: [Provider's registered address]\n- **Contact Information**: [Email, phone number, website]\n- **Authorized Representative**: [If applicable]",
+      "voluntary_measures": "# 2. Voluntary Compliance Measures\n\n## 2.1 Code of Conduct\n[Describe any voluntary codes of conduct the system adheres to.]\n\n## 2.2 Voluntary Transparency\n[Document any voluntary transparency measures implemented.]\n\n## 2.3 Ethical Guidelines\n[Detail any ethical guidelines followed in development and operation.]\n\n## 2.4 Voluntary Testing\n[Describe any testing beyond mandatory requirements.]\n\n## 2.5 User Support\n[Document support provided to users.]\n\n## 2.6 Continuous Improvement\n[Explain processes for ongoing improvement and enhancement.]"
+    }
+  }
+}
+```
+
+### `data/user_roles.json`
+
+```json
+{
+  "roles": {
+    "decision_maker": {
+      "name": "Level 1: AI Strategic Decision-Maker",
+      "description": "Senior executives, compliance officers, and governance leaders responsible for strategic decisions on AI deployment.",
+      "training_focus": "Governance, strategic compliance, and risk management",
+      "required_modules": [1, 2, 3, 4, 5, 6],
+      "tool_access": ["risk_assessment", "documentation_generator", "compliance_dashboard"],
+      "responsibilities": [
+        "Establishing AI governance structures",
+        "Resource allocation for compliance",
+        "Strategic risk management",
+        "Compliance program oversight",
+        "Regulatory communication"
+      ]
+    },
+    "developer": {
+      "name": "Level 2: AI System Developer",
+      "description": "Technical professionals directly involved in AI system design, development, and implementation.",
+      "training_focus": "Technical implementation requirements and development practices",
+      "required_modules": [1, 2, 3, 4, 6],
+      "tool_access": ["risk_assessment", "documentation_generator", "technical_compliance_tools"],
+      "responsibilities": [
+        "Technical requirement implementation",
+        "Documentation creation and maintenance",
+        "Data governance implementation",
+        "Technical testing and validation",
+        "Technical compliance verification"
+      ]
+    },
+    "operator": {
+      "name": "Level 3: AI System Operator",
+      "description": "Staff responsible for day-to-day operation, monitoring, and oversight of AI systems.",
+      "training_focus": "Operational compliance, monitoring, and human oversight",
+      "required_modules": [1, 2, 3, 6],
+      "tool_access": ["monitoring_dashboard", "incident_reporting", "oversight_tools"],
+      "responsibilities": [
+        "System monitoring and operation",
+        "Human oversight implementation",
+        "Record-keeping and logging",
+        "Incident recognition and reporting",
+        "Operational compliance verification"
+      ]
+    },
+    "user": {
+      "name": "Level 4: AI System User",
+      "description": "End users who interact with AI systems or use their outputs.",
+      "training_focus": "Basic awareness, proper usage, and limitation understanding",
+      "required_modules": [1, 2],
+      "tool_access": ["user_guides", "awareness_resources"],
+      "responsibilities": [
+        "Proper system usage",
+        "Recognition of system limitations",
+        "Appropriate interpretation of outputs",
+        "Issue reporting",
+        "Following use guidelines"
+      ]
+    }
+  },
+  "module_recommendations": {
+    "1": ["decision_maker", "developer", "operator", "user"],
+    "2": ["decision_maker", "developer", "operator", "user"],
+    "3": ["decision_maker", "developer", "operator"],
+    "4": ["decision_maker", "developer"],
+    "5": ["decision_maker"],
+    "6": ["decision_maker", "developer", "operator"]
+  }
+}
+```
+
+## Visual Implementation Guidelines
+
+### Risk Classification Pyramid
+
+```html
+<!-- To be implemented in templates/modules/module2.html -->
+<div class="risk-pyramid">
+    <div class="pyramid-level level-1">
+        <div class="level-content">
+            <h3>Prohibited</h3>
+            <p>Unacceptable risk to safety, rights, or livelihoods</p>
+            <ul>
+                <li>Social scoring systems</li>
+                <li>Exploitation of vulnerabilities</li>
+                <li>Subliminal manipulation</li>
+                <li>Real-time biometric ID in public spaces</li>
+            </ul>
+        </div>
+    </div>
+    <div class="pyramid-level level-2">
+        <div class="level-content">
+            <h3>High-Risk</h3>
+            <p>Significant impact on health, safety, or rights</p>
+            <ul>
+                <li>Safety components of products</li>
+                <li>Critical infrastructure</li>
+                <li>Education & employment</li>
+                <li>Essential services</li>
+                <li>Law enforcement & justice</li>
+            </ul>
+        </div>
+    </div>
+    <div class="pyramid-level level-3">
+        <div class="level-content">
+            <h3>Limited Risk</h3>
+            <p>Transparency obligations</p>
+            <ul>
+                <li>Chatbots & virtual assistants</li>
+                <li>Emotion recognition</li>
+                <li>Biometric categorization</li>
+                <li>AI-generated content (deepfakes)</li>
+            </ul>
+        </div>
+    </div>
+    <div class="pyramid-level level-4">
+        <div class="level-content">
+            <h3>Minimal Risk</h3>
+            <p>All other AI systems</p>
+            <ul>
+                <li>Voluntary codes of conduct</li>
+                <li>Minimal regulatory requirements</li>
+            </ul>
+        </div>
+    </div>
+</div>
+```
+
+```css
+/* CSS for the risk pyramid - to be included in static/css/main.css */
+.risk-pyramid {
+    width: 100%;
+    max-width: 800px;
+    margin: 30px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pyramid-level {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.level-1 {
+    width: 30%;
+}
+
+.level-2 {
+    width: 50%;
+}
+
+.level-3 {
+    width: 70%;
+}
+
+.level-4 {
+    width: 90%;
+}
+
+.level-content {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 15px;
+    width: 100%;
+}
+
+.level-1 .level-content {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.level-2 .level-content {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+.level-3 .level-content {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+.level-4 .level-content {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.level-content h3 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.level-content ul {
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+```
+
+### Employee Role Matrix Visual
+
+```html
+<!-- To be implemented in appropriate template -->
+<div class="role-matrix">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Employee Category</th>
+                <th>Strategic Compliance</th>
+                <th>Technical Implementation</th>
+                <th>Operational Oversight</th>
+                <th>Awareness Level</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Level 1: Decision-Makers</strong></td>
+                <td class="matrix-level-5">EXTENSIVE</td>
+                <td class="matrix-level-2">OVERVIEW</td>
+                <td class="matrix-level-2">OVERVIEW</td>
+                <td class="matrix-level-5">EXTENSIVE</td>
+            </tr>
+            <tr>
+                <td><strong>Level 2: Developers</strong></td>
+                <td class="matrix-level-3">ADVANCED</td>
+                <td class="matrix-level-5">EXTENSIVE</td>
+                <td class="matrix-level-3">ADVANCED</td>
+                <td class="matrix-level-3">ADVANCED</td>
+            </tr>
+            <tr>
+                <td><strong>Level 3: Operators</strong></td>
+                <td class="matrix-level-2">BASIC</td>
+                <td class="matrix-level-3">ADVANCED</td>
+                <td class="matrix-level-5">EXTENSIVE</td>
+                <td class="matrix-level-2">BASIC</td>
+            </tr>
+            <tr>
+                <td><strong>Level 4: Users</strong></td>
+                <td class="matrix-level-1">AWARENESS</td>
+                <td class="matrix-level-1">AWARENESS</td>
+                <td class="matrix-level-2">BASIC</td>
+                <td class="matrix-level-3">ADVANCED</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+```
+
+```css
+/* CSS for role matrix - to be included in static/css/main.css */
+.role-matrix {
+    margin: 30px 0;
+    overflow-x: auto;
+}
+
+.role-matrix table {
+    min-width: 800px;
+}
+
+.matrix-level-1, .matrix-level-2, .matrix-level-3, .matrix-level-4, .matrix-level-5 {
+    text-align: center;
+    position: relative;
+    font-weight: 500;
+}
+
+.matrix-level-1:before, .matrix-level-2:before, .matrix-level-3:before, 
+.matrix-level-4:before, .matrix-level-5:before {
+    content: "■";
+    display: block;
+    font-size: 10px;
+    margin-bottom: 5px;
+}
+
+.matrix-level-2:before {
+    content: "■■";
+}
+
+.matrix-level-3:before {
+    content: "■■■";
+}
+
+.matrix-level-4:before {
+    content: "■■■■";
+}
+
+.matrix-level-5:before {
+    content: "■■■■■";
+}
+
+.matrix-level-1 {
+    background-color: #f8f9fa;
+}
+
+.matrix-level-2 {
+    background-color: #e9ecef;
+}
+
+.matrix-level-3 {
+    background-color: #dee2e6;
+}
+
+.matrix-level-4 {
+    background-color: #ced4da;
+}
+
+.matrix-level-5 {
+    background-color: #adb5bd;
+}
+```
+
+## CSS and Style Implementation
+
+### `static/css/main.css`
+
+```css
+/* Main stylesheet for EU AI Act Training Platform */
+
+/* Global styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #343a40;
+    background-color: #f5f7fa;
+}
+
+/* Card styling */
+.card {
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.125);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.card-title {
+    color: #2c3e50;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-weight: 600;
+}
+
+/* Module cards */
+.module-card {
+    transition: transform 0.2s;
+}
+
+.module-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Progress bars */
+.progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.progress-bar {
+    background-color: #4285f4;
+}
+
+/* Risk categorization colors */
+.risk-prohibited {
+    background-color: #E53935;
+    color: white;
+}
+
+.risk-high {
+    background-color: #FF9800;
+    color: white;
+}
+
+.risk-limited {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.risk-minimal {
+    background-color: #2196F3;
+    color: white;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #4285f4;
+    border-color: #4285f4;
+}
+
+.btn-primary:hover {
+    background-color: #3367d6;
+    border-color: #3367d6;
+}
+
+/* Form elements */
+.form-label {
+    font-weight: 500;
+}
+
+.form-check {
+    margin-bottom: 8px;
+}
+
+/* Code blocks */
+pre {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 15px;
+    font-size: 14px;
+}
+
+code {
+    color: #e83e8c;
+}
+
+/* Documentation */
+.documentation-section {
+    margin-bottom: 30px;
+}
+
+.documentation-section h3 {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Tool results */
+#results-container {
+    transition: opacity 0.3s;
+}
+
+/* Markdown display */
+.markdown-content {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: auto;
+}
+
+.markdown-content h1 {
+    font-size: 1.8rem;
+    margin-top: 0;
+}
+
+.markdown-content h2 {
+    font-size: 1.5rem;
+    margin-top: 20px;
+}
+
+.markdown-content h3 {
+    font-size: 1.25rem;
+}
+
+/* Footer */
+.footer {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+```
+
+### `static/css/dashboard.css`
+
+```css
+/* Dashboard-specific styles */
+
+/* Progress indicators */
+.module-progress {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.progress-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    position: relative;
+}
+
+.progress-circle-fill {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    clip: rect(0px, 25px, 50px, 0px);
+    background: #4285f4;
+    transform: rotate(0deg);
+}
+
+.progress-value {
+    position: relative;
+    z-index: 2;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Module list */
+.module-list {
+    margin-top: 20px;
+}
+
+/* Role-specific styling */
+.role-icon {
+    width: 40px;
+    height: 40px;
+    background: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.role-decision-maker .role-icon {
+    background: #4285f4;
+    color: white;
+}
+
+.role-developer .role-icon {
+    background: #34a853;
+    color: white;
+}
+
+.role-operator .role-icon {
+    background: #fbbc05;
+    color: white;
+}
+
+.role-user .role-icon {
+    background: #ea4335;
+    color: white;
+}
+
+/* Dashboard statistics */
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Resource links */
+.resource-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-radius: 4px;
+    background: #f8f9fa;
+    margin-bottom: 10px;
+    text-decoration: none;
+    color: #343a40;
+    transition: background 0.2s;
+}
+
+.resource-link:hover {
+    background: #e9ecef;
+    text-decoration: none;
+    color: #343a40;
+}
+
+.resource-link-icon {
+    margin-right: 10px;
+    color: #4285f4;
+}
+```
+
+## Requirements.txt
+
+```
+Flask==2.0.1
+Werkzeug==2.0.1
+Jinja2==3.0.1
+MarkupSafe==2.0.1
+itsdangerous==2.0.1
+click==8.0.1
+markdown==3.3.4
+python-dotenv==0.19.0
+```
+
+This comprehensive documentation provides all the necessary components to build a complete EU AI Act training module on Replit.com, including detailed code for the application, content for training modules, interactive tools, visual elements, and user classification systems.
+
+The implementation follows best practices for web development and provides role-specific content to make the training relevant to different types of employees who need to understand and implement the EU AI Act in their organization.

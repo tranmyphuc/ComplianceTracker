@@ -102,6 +102,31 @@ export const riskAssessments = pgTable("risk_assessments", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const trainingModules = pgTable("training_modules", {
+  id: serial("id").primaryKey(),
+  moduleId: text("module_id").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  estimatedTime: text("estimated_time").notNull(),
+  topics: jsonb("topics").notNull(),
+  roleRelevance: jsonb("role_relevance").notNull(),
+  content: jsonb("content").notNull(),
+  assessments: jsonb("assessments").notNull(),
+  order: integer("order").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const trainingProgress = pgTable("training_progress", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").references(() => users.uid).notNull(),
+  moduleId: text("module_id").references(() => trainingModules.moduleId).notNull(),
+  completion: integer("completion").default(0),
+  assessmentScore: integer("assessment_score"),
+  lastAttemptDate: timestamp("last_attempt_date"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });
 export const insertAiSystemSchema = createInsertSchema(aiSystems).omit({ id: true });
