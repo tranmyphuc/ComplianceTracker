@@ -162,14 +162,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Preprocess dates before validation
       const requestData = {...req.body};
       
-      // Convert date strings to Date objects
-      if (requestData.implementationDate && typeof requestData.implementationDate === 'string') {
-        requestData.implementationDate = new Date(requestData.implementationDate);
+      // Handle implementation date
+      if (requestData.implementationDate) {
+        if (typeof requestData.implementationDate === 'string') {
+          try {
+            requestData.implementationDate = new Date(requestData.implementationDate);
+            
+            // Check if date is valid
+            if (isNaN(requestData.implementationDate.getTime())) {
+              // If invalid date, set to null
+              requestData.implementationDate = null;
+            }
+          } catch (error) {
+            // If date conversion fails, set to null
+            requestData.implementationDate = null;
+          }
+        }
+      } else {
+        requestData.implementationDate = null;
       }
       
-      if (requestData.lastAssessmentDate && typeof requestData.lastAssessmentDate === 'string') {
-        requestData.lastAssessmentDate = new Date(requestData.lastAssessmentDate);
+      // Handle last assessment date
+      if (requestData.lastAssessmentDate) {
+        if (typeof requestData.lastAssessmentDate === 'string') {
+          try {
+            requestData.lastAssessmentDate = new Date(requestData.lastAssessmentDate);
+            
+            // Check if date is valid
+            if (isNaN(requestData.lastAssessmentDate.getTime())) {
+              // If invalid date, set to null
+              requestData.lastAssessmentDate = null;
+            }
+          } catch (error) {
+            // If date conversion fails, set to null
+            requestData.lastAssessmentDate = null;
+          }
+        }
+      } else {
+        requestData.lastAssessmentDate = null;
       }
+      
+      // Log the preprocessed data for debugging
+      console.log('Preprocessed data:', {
+        implementationDate: requestData.implementationDate,
+        lastAssessmentDate: requestData.lastAssessmentDate
+      });
       
       const systemData = insertAiSystemSchema.parse(requestData);
       const newSystem = await storage.createAiSystem(systemData);
@@ -194,8 +231,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/systems/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const systemData = req.body;
-      const updatedSystem = await storage.updateAiSystem(id, systemData);
+      const requestData = {...req.body};
+      
+      // Handle implementation date
+      if (requestData.implementationDate) {
+        if (typeof requestData.implementationDate === 'string') {
+          try {
+            requestData.implementationDate = new Date(requestData.implementationDate);
+            
+            // Check if date is valid
+            if (isNaN(requestData.implementationDate.getTime())) {
+              // If invalid date, set to null
+              requestData.implementationDate = null;
+            }
+          } catch (error) {
+            // If date conversion fails, set to null
+            requestData.implementationDate = null;
+          }
+        }
+      }
+      
+      // Handle last assessment date
+      if (requestData.lastAssessmentDate) {
+        if (typeof requestData.lastAssessmentDate === 'string') {
+          try {
+            requestData.lastAssessmentDate = new Date(requestData.lastAssessmentDate);
+            
+            // Check if date is valid
+            if (isNaN(requestData.lastAssessmentDate.getTime())) {
+              // If invalid date, set to null
+              requestData.lastAssessmentDate = null;
+            }
+          } catch (error) {
+            // If date conversion fails, set to null
+            requestData.lastAssessmentDate = null;
+          }
+        }
+      }
+      
+      const updatedSystem = await storage.updateAiSystem(id, requestData);
       
       if (!updatedSystem) {
         return res.status(404).json({ message: "System not found" });
@@ -205,7 +279,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createActivity({
         type: "system_updated",
         description: `System "${updatedSystem.name}" was updated`,
-        userId: systemData.updatedBy || updatedSystem.createdBy,
+        userId: requestData.updatedBy || updatedSystem.createdBy,
         systemId: updatedSystem.systemId,
         timestamp: new Date(),
         metadata: { systemName: updatedSystem.name }
