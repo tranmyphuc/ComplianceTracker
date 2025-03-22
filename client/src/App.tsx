@@ -8,13 +8,15 @@ import Dashboard from "@/pages/dashboard";
 import Inventory from "@/pages/inventory";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
-import RiskAssessment from "@/pages/risk-assessment";
+import RiskAssessment from "@/pages/risk-assessment"; // Assuming this is the correct path
 import Documentation from "@/pages/documentation";
 import RegisterSystem from "@/pages/register-system";
 import KnowledgeCenter from "@/pages/knowledge-center";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged, getAuth, User } from "firebase/auth";
 import { useLocation } from "wouter";
+import { AuthProvider } from "./components/auth/auth-context"; // Assuming this is the correct path
+import { ToastProvider } from "./components/ui/use-toast"; // Added ToastProvider import.  Path assumed.
 
 // Create auth context
 import { createContext } from "react";
@@ -171,9 +173,13 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <AiAssistantButton />
-      <Toaster />
+      <AuthProvider>
+        <ToastProvider>
+          <Router />
+          <AiAssistantButton />
+          <Toaster />
+        </ToastProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

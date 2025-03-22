@@ -43,11 +43,11 @@ export function Sidebar({ className }: SidebarProps) {
             <HomeIcon className="h-5 w-5 mr-3" />
             <span>Dashboard</span>
           </Link>
-          
+
           <div className="my-1 px-3 py-1.5">
             <p className="text-xs font-medium text-neutral-400 uppercase tracking-wider">AI Systems</p>
           </div>
-          
+
           <Link 
             href="/inventory"
             className={cn(
@@ -58,7 +58,7 @@ export function Sidebar({ className }: SidebarProps) {
             <CpuIcon className="h-5 w-5 mr-3" />
             <span>AI Inventory</span>
           </Link>
-          
+
           <Link 
             href="/register-system"
             className={cn(
@@ -69,7 +69,7 @@ export function Sidebar({ className }: SidebarProps) {
             <BrainIcon className="h-5 w-5 mr-3" />
             <span>Register System</span>
           </Link>
-          
+
           <Link 
             href="/risk-assessment"
             className={cn(
@@ -80,11 +80,11 @@ export function Sidebar({ className }: SidebarProps) {
             <AlertTriangleIcon className="h-5 w-5 mr-3" />
             <span>Risk Assessment</span>
           </Link>
-          
+
           <div className="mt-3 mb-1 px-3 py-1.5">
             <p className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Compliance</p>
           </div>
-          
+
           <Link 
             href="/documentation"
             className={cn(
@@ -95,7 +95,7 @@ export function Sidebar({ className }: SidebarProps) {
             <FileTextIcon className="h-5 w-5 mr-3" />
             <span>Documentation</span>
           </Link>
-          
+
           <Link 
             href="/tasks"
             className={cn(
@@ -106,7 +106,7 @@ export function Sidebar({ className }: SidebarProps) {
             <CheckSquareIcon className="h-5 w-5 mr-3" />
             <span>Tasks</span>
           </Link>
-          
+
           <Link 
             href="/reports"
             className={cn(
@@ -117,7 +117,7 @@ export function Sidebar({ className }: SidebarProps) {
             <BarChartIcon className="h-5 w-5 mr-3" />
             <span>Reports</span>
           </Link>
-          
+
           <div className="pt-4 mt-4 border-t border-neutral-200">
             <Link 
               href="/knowledge-center"
@@ -129,7 +129,7 @@ export function Sidebar({ className }: SidebarProps) {
               <BookOpenIcon className="h-5 w-5 mr-3" />
               <span>Knowledge Center</span>
             </Link>
-            
+
             <Link 
               href="/training"
               className={cn(
@@ -140,7 +140,7 @@ export function Sidebar({ className }: SidebarProps) {
               <AwardIcon className="h-5 w-5 mr-3" />
               <span>Training</span>
             </Link>
-            
+
             <Link 
               href="/settings"
               className={cn(
