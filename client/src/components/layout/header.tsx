@@ -5,11 +5,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { BellIcon, Bot, MenuIcon, SearchIcon } from "lucide-react";
 import { getCurrentUser } from "@/lib/firebase";
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { AiAssistantDialog } from "@/components/ai-assistant/assistant-dialog";
-import { AuthContext } from "../../App";
+import { useAuth } from "@/components/auth/auth-context";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -18,8 +18,8 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const { toast } = useToast();
   const auth = getAuth();
-  // Get the authenticated user from AuthContext (supports both Firebase and development mode)
-  const { user, logout } = useContext(AuthContext);
+  // Get the authenticated user from useAuth hook
+  const { user, logout } = useAuth();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
 
   const handleSignOut = async () => {

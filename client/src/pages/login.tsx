@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useLocation } from "wouter";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AuthForm } from "@/components/auth/auth-form";
 import { getFirebaseAuth } from "@/lib/firebase";
 import { apiRequest } from "@/lib/queryClient";
-import { AuthContext, AppUser } from "../App";
+import { useAuth, AppUser } from "@/components/auth/auth-context";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -14,7 +14,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [useFirebase, setUseFirebase] = useState(true);
-  const { setUser } = useContext(AuthContext);
+  const { setUser } = useAuth();
   
   // Check if Firebase Auth is available
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function Login() {
       department: "Executive"
     };
     
-    // Update AuthContext with the admin user
+    // Update auth with the admin user
     setUser(adminUser);
     
     // Store user in localStorage for persistence
@@ -102,7 +102,7 @@ export default function Login() {
             department: responseData.department
           };
           
-          // Update AuthContext with the user
+          // Update auth with the user
           setUser(user);
           
           // Store user in localStorage for persistence
