@@ -1,4 +1,5 @@
 
+import { lazy } from 'react';
 
 // Documentation components
 export const RiskAssessmentDocumentation = lazy(() => import('@/pages/documentation/risk-assessment'));

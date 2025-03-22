@@ -19,6 +19,7 @@ import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
 import React, { useEffect, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
+import { RiskAssessmentGuides } from "./routes/lazy-imports";
 
 function Router() {
   const { user, loading } = useAuth();
@@ -49,22 +50,11 @@ function Router() {
       <Route path="/inventory" component={Inventory} />
       <Route path="/risk-assessment" component={RiskAssessment} />
       <Route path="/risk-assessment/guides">
-        {() => {
-          const [_, setLocation] = useLocation();
-          return (
-            <div className="container mx-auto py-8 max-w-7xl">
-              <h1 className="text-3xl font-bold">Risk Assessment Guides</h1>
-              <p className="text-muted-foreground">
-                Detailed guides and documentation to help you understand and implement EU AI Act risk assessments
-              </p>
-              <div className="mt-4">
-                <Button onClick={() => setLocation("/documentation/risk-assessment")}>
-                  View Full Documentation
-                </Button>
-              </div>
-            </div>
-          );
-        }}
+        {() => (
+          <Suspense fallback={<div className="p-8 text-center">Loading guide...</div>}>
+            <RiskAssessmentGuides />
+          </Suspense>
+        )}
       </Route>
       <Route path="/documentation" component={Documentation} />
       <Route path="/register-system" component={RegisterSystem} />
