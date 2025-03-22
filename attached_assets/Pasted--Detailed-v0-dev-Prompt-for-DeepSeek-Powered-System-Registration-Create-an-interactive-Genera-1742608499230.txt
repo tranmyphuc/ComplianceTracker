@@ -1,0 +1,163 @@
+# Detailed v0.dev Prompt for DeepSeek-Powered System Registration
+
+```
+Create an interactive "Generate with AI" feature for the EU AI Act Compliance Platform's "Register New AI System" form, powered specifically by DeepSeek AI. This feature helps users quickly populate system information using DeepSeek's document understanding and natural language processing capabilities. Show the feature in action with a detailed modal dialog.
+
+## Main Form Context
+First, show the standard "Register New AI System" form with:
+- The same header and navigation as previously described
+- The multi-step wizard with "Basic Information" as the active step
+- The basic form fields (System Name, Vendor, Version, Department) - mostly empty
+- A prominent "Generate with AI" button with a sparkle/magic wand icon in the upper right of the form area
+
+## AI Generation Modal
+Show the modal dialog that appears when the "Generate with AI" button is clicked:
+
+1. Create a modal overlay with:
+   - Title "AI-Assisted System Registration"
+   - Subtitle "Powered by DeepSeek AI"
+   - DeepSeek logo/icon in the upper right of the modal
+   - Close (X) button in the top-right corner
+
+2. Show three different input options with tabs:
+   - "Upload Documentation" (active tab)
+   - "Enter Description"
+   - "URL/API Endpoint"
+
+3. For the active "Upload Documentation" tab, include:
+   - A prominent file upload area with dashed border
+   - Icon for document upload
+   - Text "Drag & drop system documentation or click to browse"
+   - Supported formats note: "Supported formats: PDF, DOCX, TXT, JSON"
+   - Show that a file has been uploaded: "HRCandidateTool_Documentation.pdf"
+   - "Extract Information" button (primary blue) below the upload area
+   - "Processing..." text with a spinning progress indicator showing DeepSeek is analyzing the document
+
+4. Show a "Results Preview" section below with:
+   - Title "DeepSeek Analysis Results"
+   - A confidence indicator showing "High Confidence (92%)"
+   - A list of extracted fields with the following format:
+     
+     * System Name: "HR Candidate Evaluation Tool v3"
+       - Apply button (to use this value)
+       - Edit button (to modify before applying)
+     
+     * Vendor: "TalentAI Inc."
+       - Apply button
+       - Edit button
+     
+     * Version: "3.2.1"
+       - Apply button
+       - Edit button
+     
+     * Department: "Human Resources"
+       - Apply button
+       - Edit button
+     
+     * System Purpose: "Analyzes candidate resumes and applications to rank job candidates based on skill matching, experience, and qualification criteria. Utilizes natural language processing and supervised machine learning to evaluate candidate fit."
+       - Apply button (with note this will be used in the next step)
+       - Edit button
+   
+     * AI Techniques Used: "Natural Language Processing, Supervised Learning, Ranking Algorithms"
+       - Apply button (with note this will be used in the Technical Details step)
+       - Edit button
+     
+     * Data Types Processed: "Resumes, Job Applications, Job Descriptions, Historical Hiring Data"
+       - Apply button (with note this will be used in the Technical Details step)
+       - Edit button
+
+   - Additional discovered fields with a "Show More" expansion section that reveals:
+     * Integration Points: "HRIS System, Applicant Tracking System"
+     * User Roles: "HR Managers, Recruiters"
+     * Implementation Date: "March 15, 2024"
+
+5. Footer with action buttons:
+   - "Apply All" primary button (to use all extracted information)
+   - "Cancel" text button
+   - Small text: "Extraction powered by DeepSeek API (sk-e3964d43fa6...)"
+
+## Form with Applied Data
+In the background (behind the modal), show the form with some fields already populated with the DeepSeek-generated data, with subtle highlighting or indicators showing AI-populated fields.
+
+## Visual Design Elements
+- Use a clean, modern interface consistent with the rest of the platform
+- Create a visual distinction for DeepSeek-suggested content (with a subtle blue highlight and DeepSeek icon indicator)
+- Show tooltips explaining how DeepSeek's document analysis works
+- Include a small "Powered by DeepSeek AI" badge in the corner of the modal
+
+## Added Intelligence Features
+- Show that DeepSeek has identified potential compliance considerations:
+  * A note stating "Based on system description, DeepSeek has identified this as a potential high-risk system under EU AI Act Article 6.2 (Employment/worker management)"
+  * A recommendation to "Ensure comprehensive documentation of training data sources and bias mitigation strategies"
+  * A suggestion for the next steps in compliance
+- Include an AI-generated compliance readiness score based on the extracted information
+```
+
+## Additional Details for v0.dev - DeepSeek "Enter Description" Tab
+
+```
+Now show the same AI-Assisted System Registration modal powered by DeepSeek, but with the "Enter Description" tab active instead of "Upload Documentation".
+
+In this tab, include:
+1. A large text area with the placeholder "Describe the AI system in your own words..."
+
+2. Show sample text already entered: "We recently implemented TalentAI's candidate evaluation system (version 3.2.1) in our HR department. It uses machine learning to analyze resumes and rank job applicants based on their qualifications, skills, and experience. The system helps our recruitment team identify the most promising candidates more efficiently and reduce time-to-hire. It integrates with our existing applicant tracking system and HRIS."
+
+3. Include an "Analyze with DeepSeek" primary button below the text area
+
+4. Show a processing state with:
+   - "DeepSeek is analyzing your description..." text
+   - A pulsing animation showing DeepSeek's analysis in action
+   - A subtle visualization of how DeepSeek is identifying key entities and relationships
+
+5. Show the "Results Preview" section with DeepSeek-extracted information including:
+   - All basic form fields (System Name, Vendor, Version, Department)
+   - Additional information for later steps (Purpose, Techniques, Data Types)
+   - A section labeled "DeepSeek Insights" showing:
+     * EU AI Act classification prediction: "Likely High-Risk (Employment Category)"
+     * Documentation requirements based on this classification
+     * Suggested human oversight mechanisms based on system purpose
+
+6. Include a section showing how DeepSeek has structured the unstructured text input:
+   - Color-coded highlighting showing what parts of the text were used for which field
+   - Confidence scores for each extracted element
+   - Visual mapping between input text and structured output
+
+7. Add a DeepSeek performance indicator showing:
+   - Response time: "Analysis completed in 1.2s"
+   - Model used: "DeepSeek Analyzer v7.1"
+   - API usage efficiency stats
+```
+
+## DeepSeek Success State Visualization
+
+```
+Show the "Register New AI System" form after the user has applied DeepSeek-generated content. 
+
+1. The modal should now be closed
+
+2. The form fields should be populated with the information extracted by DeepSeek:
+   - System Name: "HR Candidate Evaluation Tool v3"
+   - Vendor: "TalentAI Inc."
+   - Version: "3.2.1"
+   - Department: Dropdown showing "Human Resources" as selected
+
+3. Add specific DeepSeek visual indicators for the populated fields:
+   - Light blue background highlighting
+   - Small DeepSeek logo/icon at the end of each field
+   - Tooltip on hover saying "Generated by DeepSeek AI - Review for accuracy"
+
+4. Show a success toast notification in the upper right with the DeepSeek logo: "DeepSeek AI successfully extracted 4 fields with 92% confidence. Additional information has been saved for later steps."
+
+5. Include a subtle banner at the top of the form saying: "DeepSeek Analysis: This system likely falls under high-risk classification (Employment category). Comprehensive documentation will be required."
+
+6. Add an expandable "DeepSeek Compliance Insights" panel below the form fields that contains:
+   - EU AI Act categorization prediction
+   - Key compliance requirements based on this categorization
+   - Documentation suggestions for later steps in the wizard
+   - A progress indicator showing "12 of 28 required compliance fields pre-populated"
+
+7. Include a small text link below the form: "View DeepSeek Analysis Details" that would expand to show the full extraction report
+```
+
+These detailed prompts should give v0.dev everything needed to create a comprehensive visualization of how the DeepSeek-powered registration feature works within your EU AI Act Compliance Platform. The designs will showcase DeepSeek's specific capabilities in extracting and structuring information from documents and text descriptions, helping users streamline their AI system registration process while providing valuable compliance insights.
