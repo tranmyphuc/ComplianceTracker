@@ -7,6 +7,7 @@ export const users = pgTable("users", {
   uid: text("uid").notNull().unique(),
   username: text("username").notNull(),
   email: text("email").notNull().unique(),
+  password: text("password").notNull(), // Add password field for backend auth
   displayName: text("display_name"),
   role: text("role").default("user"),
   department: text("department"),
