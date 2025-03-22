@@ -39,9 +39,10 @@ interface SystemDetailViewProps {
 export function SystemDetailView({ systemId, onBack }: SystemDetailViewProps) {
   const [activeTab, setActiveTab] = useState("overview");
   
-  // This would normally fetch from the API
+  // Fetch system data from the API
   const { data: system, isLoading, error } = useQuery({
     queryKey: [`/api/systems/${systemId}`],
+    enabled: !!systemId,
   });
   
   // Mock data for the system details
@@ -173,7 +174,29 @@ export function SystemDetailView({ systemId, onBack }: SystemDetailViewProps) {
     );
   }
 
+  // Process and ensure system data has all required fields and arrays
   const systemData = system || mockSystem;
+  
+  // Ensure all properties that are mapped over are arrays
+  if (!systemData.capabilities) systemData.capabilities = [];
+  if (!systemData.dataSources) systemData.dataSources = [];
+  if (!systemData.upcomingDeadlines) systemData.upcomingDeadlines = [];
+  if (!systemData.complianceIssues) systemData.complianceIssues = [];
+  if (!systemData.documents) systemData.documents = [];
+  if (!systemData.integrations) systemData.integrations = [];
+  if (!systemData.changeHistory) systemData.changeHistory = [];
+  
+  // Initialize complianceStatus if it doesn't exist
+  if (!systemData.complianceStatus) {
+    systemData.complianceStatus = {
+      docCompleteness: 0,
+      trainingCompleteness: 0,
+      testingCompleteness: 0,
+      oversightCompleteness: 0,
+      riskManagementCompleteness: 0,
+      overallCompleteness: 0
+    };
+  }
   
   // Get risk badge styling
   const getRiskBadgeProps = (riskLevel: string) => {
