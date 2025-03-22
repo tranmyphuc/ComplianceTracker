@@ -17,7 +17,7 @@ interface DeepSeekResponse {
 /**
  * Call the DeepSeek AI API with a prompt
  */
-async function callDeepSeekApi(prompt: string): Promise<string> {
+export async function callDeepSeekApi(prompt: string): Promise<string> {
   try {
     if (!DEEPSEEK_API_KEY) {
       throw new Error('DeepSeek API key is not configured');

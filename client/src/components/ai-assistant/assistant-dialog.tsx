@@ -38,14 +38,16 @@ export function AiAssistantDialog({ open, onOpenChange }: AiAssistantDialogProps
   const [inputValue, setInputValue] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isProcessing) return;
+    
+    const userQuestion = inputValue;
     
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: inputValue,
+      content: userQuestion,
       timestamp: new Date()
     };
     
@@ -53,18 +55,33 @@ export function AiAssistantDialog({ open, onOpenChange }: AiAssistantDialogProps
     setInputValue("");
     setIsProcessing(true);
     
-    // Simulate AI response (in a real app, this would be an API call)
-    setTimeout(() => {
+    try {
+      // Get response from DeepSeek AI through our backend
+      const aiResponseContent = await getAIResponse(userQuestion);
+      
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: getAIResponse(inputValue),
+        content: aiResponseContent,
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error("Error getting AI response:", error);
+      
+      // Show error message to the user
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "I'm sorry, I'm having trouble connecting to the SGH ASIA AI service. Please try again later.",
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsProcessing(false);
-    }, 1000);
+    }
   };
   
   return (
@@ -222,27 +239,49 @@ export function AiAssistantDialog({ open, onOpenChange }: AiAssistantDialogProps
   );
 }
 
-function getAIResponse(question: string): string {
-  // In a real app, this would be an API call to your AI service
-  const responses = {
-    "requirements": "High-risk AI systems must comply with several requirements including risk assessment and mitigation systems, data governance measures, technical documentation, record-keeping, transparency, human oversight, accuracy, robustness and cybersecurity. These requirements aim to ensure these systems are safe, transparent, and accountable.",
-    "documentation": "Human oversight documentation should include: 1) A clear description of oversight mechanisms, 2) Details on how humans can monitor, intervene or disable the system, 3) Training requirements for human overseers, and 4) Measures to prevent automation bias. It should demonstrate that human judgment plays a decisive role in system operation.",
-    "exemptions": "Research AI systems developed exclusively for scientific research and development are generally exempt from many requirements of the EU AI Act, provided they're not placed on the market or put into service. However, good practices like risk assessment are still encouraged even for research systems.",
-    "period": "The EU AI Act has a phased implementation timeline: 6 months after publication for prohibitions on unacceptable risk AI, 12 months for the AI Office establishment, 24 months for codes of practice, and full application of all provisions after 36 months.",
-    "penalties": "The EU AI Act includes severe penalties for non-compliance, with fines up to €35 million or 7% of global annual turnover, whichever is higher, for the most serious violations. Lesser violations may result in fines up to €15 million or 3% of global annual turnover."
-  };
-  
-  if (question.toLowerCase().includes("requirements") && question.toLowerCase().includes("high-risk")) {
-    return responses.requirements;
-  } else if (question.toLowerCase().includes("document") && question.toLowerCase().includes("human oversight")) {
-    return responses.documentation;
-  } else if (question.toLowerCase().includes("exemptions") && question.toLowerCase().includes("research")) {
-    return responses.exemptions;
-  } else if (question.toLowerCase().includes("transition period") || question.toLowerCase().includes("compliance") && question.toLowerCase().includes("period")) {
-    return responses.period;
-  } else if (question.toLowerCase().includes("penalties") || question.toLowerCase().includes("non-compliance")) {
-    return responses.penalties;
+// Get AI response from DeepSeek AI
+async function getAIResponse(question: string): Promise<string> {
+  try {
+    // Call our backend API that integrates with DeepSeek
+    const response = await fetch('/api/chatbot/query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ query: question })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data.response;
+  } catch (error) {
+    console.error("Error getting AI response:", error);
+    
+    // Fallback responses in case of service disruption
+    const responses = {
+      "requirements": "High-risk AI systems must comply with several requirements including risk assessment and mitigation systems, data governance measures, technical documentation, record-keeping, transparency, human oversight, accuracy, robustness and cybersecurity. These requirements aim to ensure these systems are safe, transparent, and accountable.",
+      "documentation": "Human oversight documentation should include: 1) A clear description of oversight mechanisms, 2) Details on how humans can monitor, intervene or disable the system, 3) Training requirements for human overseers, and 4) Measures to prevent automation bias. It should demonstrate that human judgment plays a decisive role in system operation.",
+      "exemptions": "Research AI systems developed exclusively for scientific research and development are generally exempt from many requirements of the EU AI Act, provided they're not placed on the market or put into service. However, good practices like risk assessment are still encouraged even for research systems.",
+      "period": "The EU AI Act has a phased implementation timeline: 6 months after publication for prohibitions on unacceptable risk AI, 12 months for the AI Office establishment, 24 months for codes of practice, and full application of all provisions after 36 months.",
+      "penalties": "The EU AI Act includes severe penalties for non-compliance, with fines up to €35 million or 7% of global annual turnover, whichever is higher, for the most serious violations. Lesser violations may result in fines up to €15 million or 3% of global annual turnover."
+    };
+    
+    const lowercaseQuestion = question.toLowerCase();
+    if (lowercaseQuestion.includes("requirements") && lowercaseQuestion.includes("high-risk")) {
+      return responses.requirements;
+    } else if (lowercaseQuestion.includes("document") && lowercaseQuestion.includes("human oversight")) {
+      return responses.documentation;
+    } else if (lowercaseQuestion.includes("exemptions") && lowercaseQuestion.includes("research")) {
+      return responses.exemptions;
+    } else if (lowercaseQuestion.includes("transition period") || lowercaseQuestion.includes("compliance") && lowercaseQuestion.includes("period")) {
+      return responses.period;
+    } else if (lowercaseQuestion.includes("penalties") || lowercaseQuestion.includes("non-compliance")) {
+      return responses.penalties;
+    }
+    
+    return "I'm having trouble connecting to the SGH ASIA AI service. For detailed guidance on EU AI Act compliance, please try again later or consult the official EU AI Act documentation.";
   }
-  
-  return "I don't have specific information about that topic yet. For detailed guidance on EU AI Act compliance, I recommend consulting the official EU AI Act documentation or speaking with a compliance expert.";
 }

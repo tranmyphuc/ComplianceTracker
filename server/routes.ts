@@ -12,6 +12,17 @@ import {
   registerSchema,
 } from "@shared/schema";
 import { ZodError } from "zod";
+import { 
+  analyzeSystemCategory, 
+  determineRiskLevel, 
+  determineRelevantArticles, 
+  generateImprovements, 
+  calculateComplianceScore, 
+  determineRequiredDocs,
+  analyzeDocument,
+  analyzeSystemCompliance,
+  callDeepSeekApi
+} from "./ai-analysis";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -218,18 +229,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const systemData = req.body;
       
-      // AI analysis logic
+      // AI analysis logic - calling DeepSeek AI
+      const [systemCategory, riskClassification, euAiActArticles, suggestedImprovements] = await Promise.all([
+        analyzeSystemCategory(systemData),
+        determineRiskLevel(systemData),
+        determineRelevantArticles(systemData),
+        generateImprovements(systemData)
+      ]);
+      
       const aiAnalysis = {
-        systemCategory: analyzeSystemCategory(systemData),
-        riskClassification: determineRiskLevel(systemData),
-        euAiActArticles: determineRelevantArticles(systemData),
-        suggestedImprovements: generateImprovements(systemData),
+        systemCategory,
+        riskClassification,
+        euAiActArticles,
+        suggestedImprovements,
         complianceScore: calculateComplianceScore(systemData),
         requiredDocumentation: determineRequiredDocs(systemData)
       };
       
       res.json(aiAnalysis);
     } catch (err) {
+      console.error("Error analyzing system with DeepSeek AI:", err);
       handleError(err as Error, res);
     }
   });
@@ -334,6 +353,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(updatedDocument);
     } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+  
+  // Chatbot endpoint using DeepSeek AI
+  app.post("/api/chatbot/query", async (req: Request, res: Response) => {
+    try {
+      const { query } = req.body;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: "Invalid query parameter" });
+      }
+      
+      // Construct a context-specific prompt for EU AI Act compliance
+      const prompt = `You are an expert SGH ASIA AI assistant specializing in EU AI Act compliance. 
+        You provide clear, accurate, and helpful responses to questions about AI regulation, 
+        compliance requirements, risk assessment, and implementation strategies.
+        
+        User question: ${query}
+        
+        Please provide a detailed and helpful response based on your knowledge of the EU AI Act.`;
+      
+      // Call DeepSeek API through our wrapper
+      const aiResponse = await callDeepSeekApi(prompt);
+      
+      // Log the interaction for audit purposes
+      console.log(`Chatbot Query: "${query.substring(0, 100)}${query.length > 100 ? '...' : ''}"`);
+      
+      return res.json({ response: aiResponse });
+    } catch (err) {
+      console.error("Error handling chatbot query:", err);
       handleError(err as Error, res);
     }
   });
