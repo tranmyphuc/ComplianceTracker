@@ -374,6 +374,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Log the input for debugging
       console.log("AI suggestion request:", { name, description });
+      
+      // Check for specific AI systems first - this will prioritize certain keywords
+      // to ensure correct identification even when the AI API fails
+      let systemType = null;
+      const inputText = (name || '').toLowerCase();
+      
+      if (inputText.includes('gamma') || inputText.includes('gamma.app')) {
+        systemType = 'gammaApp';
+      } else if (inputText.includes('gemini')) {
+        systemType = 'gemini';
+      } else if (inputText.includes('claude')) {
+        systemType = 'claude';
+      } else if (inputText.includes('deepseek') || inputText.includes('sgh')) {
+        systemType = 'deepseek';
+      }
+      
+      console.log("Pre-detected system type:", systemType);
 
       const prompt = `
         You are an EU AI Act compliance expert. Based on the following information about an AI system,
@@ -382,8 +399,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ${name ? `System Name: ${name}` : ''}
         ${description ? `Description: ${description}` : ''}
 
-        IMPORTANT: If the system name contains "Microsoft Copilot" or "Copilot", it refers to Microsoft's AI assistant 
-        that integrates with Microsoft 365 and provides coding assistance, content generation, and analysis.
+        IMPORTANT: Accurately identify the system based on the keywords in the name and description.
 
         Identify the specific AI system that best matches the provided name/description. 
         Do not default to generic systems unless absolutely necessary.
@@ -404,7 +420,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         Output your answer in JSON format with all these fields and a 'confidenceScore' value from 0-100.
       `;
 
-      const response = await callDeepSeekApi(prompt);
+      // Pass the pre-detected system type to the API call for fallback purposes
+      // Convert null to undefined to match the function signature
+      const response = await callDeepSeekApi(prompt, systemType || undefined);
       let suggestions;
 
       try {
@@ -893,7 +911,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const category = await analyzeSystemCategory(system);
       res.json({ category });
     } catch (error) {
-      handleError(error, res);
+      handleError(error as Error, res);
     }
   });
 
