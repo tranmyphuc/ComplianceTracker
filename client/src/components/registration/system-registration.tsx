@@ -90,7 +90,7 @@ export const SystemRegistration: React.FC = () => {
     });
   };
 
-  // Run the SGH ASIA AI analysis using the DeepSeek API
+  // Run the SGH ASIA AI analysis using the SGH ASIA AI API
   const runSghAsiaAiAnalysis = async () => {
     setSghAsiaAiInProgress(true);
 
@@ -133,7 +133,7 @@ export const SystemRegistration: React.FC = () => {
     }
   };
 
-  // Extract information from the document using DeepSeek AI
+  // Extract information from the document using SGH ASIA AI
   const extractInformation = async () => {
     setExtractionInProgress(true);
     setExtractionProgress(0);
@@ -150,7 +150,7 @@ export const SystemRegistration: React.FC = () => {
     }, 300);
 
     try {
-      // Mock extraction for demo - in production, this would call the DeepSeek API
+      // Mock extraction for demo - in production, this would call the SGH ASIA AI API
       setTimeout(() => {
         clearInterval(progressInterval);
         setExtractionProgress(100);
@@ -214,7 +214,7 @@ export const SystemRegistration: React.FC = () => {
     }, 200);
 
     try {
-      // Mock text analysis for demo - in production, this would call the DeepSeek API
+      // Mock text analysis for demo - in production, this would call the SGH ASIA AI API
       setTimeout(() => {
         clearInterval(progressInterval);
         setExtractionProgress(100);
@@ -450,17 +450,17 @@ export const SystemRegistration: React.FC = () => {
                         {extractionInProgress ? (
                           <>
                             <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin mr-2"></div>
-                            DeepSeek is analyzing...
+                            SGH ASIA AI is analyzing...
                           </>
                         ) : (
-                          <>Analyze with DeepSeek</>
+                          <>Analyze with SGH ASIA AI</>
                         )}
                       </Button>
                       
                       {extractionInProgress && (
                         <div className="space-y-2">
                           <Progress value={extractionProgress} className="h-2" />
-                          <p className="text-xs text-center text-neutral-500">DeepSeek AI is analyzing your description...</p>
+                          <p className="text-xs text-center text-neutral-500">SGH ASIA AI is analyzing your description...</p>
                         </div>
                       )}
                     </div>
@@ -489,7 +489,7 @@ export const SystemRegistration: React.FC = () => {
                 {aiResults && !extractionInProgress && (
                   <div className="mt-6 border rounded-md p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-medium">DeepSeek Analysis Results</h4>
+                      <h4 className="font-medium">SGH ASIA AI Analysis Results</h4>
                       <Badge variant="outline" className="bg-blue-50 text-blue-700">
                         {confidenceScore}% Confidence
                       </Badge>
