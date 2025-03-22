@@ -38,7 +38,10 @@ export default function Training() {
   // Fetch user progress
   const { data: userProgress = {}, isLoading: isLoadingProgress } = useQuery({
     queryKey: ['/api/training/progress', user?.uid],
-    queryFn: () => apiRequest(`/api/training/progress?userId=${user?.uid}`),
+    queryFn: () => apiRequest('/api/training/progress', {
+      method: 'GET',
+      params: { userId: user?.uid }
+    }),
     enabled: !!user?.uid
   });
 
