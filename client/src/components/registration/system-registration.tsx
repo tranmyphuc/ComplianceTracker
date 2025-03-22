@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { FileTextIcon, SparklesIcon, BrainIcon, UploadIcon, BotIcon, SearchIcon, CheckIcon, FileIcon, ShieldAlertIcon, AlertCircleIcon } from "lucide-react";
@@ -149,7 +148,7 @@ export const SystemRegistration: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Clear validation error when field is updated
     if (validationErrors[name]) {
       setValidationErrors(prev => {
@@ -157,7 +156,7 @@ export const SystemRegistration: React.FC = () => {
         delete newErrors[name];
         return newErrors;
       });
-      
+
       // Also update missingFields to remove this field
       setMissingFields(prev => prev.filter(field => field !== name));
     }
@@ -166,7 +165,7 @@ export const SystemRegistration: React.FC = () => {
   // Handle selection changes
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Clear validation error when field is updated
     if (validationErrors[name]) {
       setValidationErrors(prev => {
@@ -174,77 +173,95 @@ export const SystemRegistration: React.FC = () => {
         delete newErrors[name];
         return newErrors;
       });
-      
+
       // Also update missingFields to remove this field
       setMissingFields(prev => prev.filter(field => field !== name));
     }
   };
 
-  // Handle form submission
+  const handleNextStep = () => {
+    if (currentStep < 4) {
+      if (validateCurrentStep()) {
+        setCurrentStep(currentStep + 1);
+      } else {
+        toast({
+          title: "Validation Error",
+          description: `Please complete all required fields in Step ${currentStep}`,
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const validateCurrentStep = () => {
+    const errors: Record<string, string> = {};
+
+    if (currentStep === 1) {
+      if (!formData.name?.trim()) errors.name = "System name is required";
+      if (!formData.vendor?.trim()) errors.vendor = "Vendor name is required";
+      if (!formData.department?.trim()) errors.department = "Department is required";
+    } else if (currentStep === 2) {
+      if (!formData.purpose?.trim()) errors.purpose = "Purpose is required";
+      if (!formData.aiCapabilities?.trim()) errors.aiCapabilities = "AI capabilities are required";
+    } else if (currentStep === 3) {
+      if (!formData.trainingDatasets?.trim()) errors.trainingDatasets = "Training datasets information is required";
+      if (!formData.outputTypes?.trim()) errors.outputTypes = "Output types are required";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateForm = () => {
+    const requiredFields = ['name', 'vendor', 'department', 'purpose', 'riskLevel'];
+    return requiredFields.every(field => !!formData[field]);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate required fields
-    const errors: Record<string, string> = {};
-    const requiredFields = ['name', 'description', 'purpose', 'vendor', 'department', 'riskLevel'];
-    const missing: string[] = [];
-    
-    requiredFields.forEach(field => {
-      if (!formData[field as keyof typeof formData]) {
-        errors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
-        missing.push(field);
-      }
-    });
-    
-    if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
-      setMissingFields(missing);
-      
+
+    if (!validateForm()) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields",
+        description: "Please fill out all required fields",
         variant: "destructive"
       });
-      
       return;
     }
-    
-    // Generate a system ID if not provided
-    const dataToSubmit = { ...formData };
-    if (!dataToSubmit.systemId) {
-      dataToSubmit.systemId = `AI-SYS-${Math.floor(1000 + Math.random() * 9000)}`;
-    }
-    
-    // We'll let the server handle date conversion
-    
+
     try {
-      // Submit data to backend
       const response = await fetch('/api/systems', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(dataToSubmit)
+        body: JSON.stringify(formData)
       });
-      
+
       if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
-      
+
       const result = await response.json();
-      
+
       // Show success message
       toast({
         title: "Success",
         description: `AI System "${result.name}" registered successfully`,
       });
-      
+
       // Reset form and redirect to inventory
       setFormData(initialFormData);
       setLocation('/inventory');
     } catch (error) {
       console.error('Error registering system:', error);
-      
+
       toast({
         title: "Registration Failed",
         description: "There was an error registering your AI system. Please try again.",
@@ -263,9 +280,9 @@ export const SystemRegistration: React.FC = () => {
       });
       return;
     }
-    
+
     setSghAsiaAiInProgress(true);
-    
+
     try {
       const response = await fetch('/api/analyze/system', {
         method: 'POST',
@@ -274,21 +291,21 @@ export const SystemRegistration: React.FC = () => {
         },
         body: JSON.stringify(formData)
       });
-      
+
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-      
+
       const results = await response.json();
       setSghAsiaAiResults(results);
-      
+
       // Update form with AI suggestions
       if (results.riskClassification) {
         setFormData(prev => ({
           ...prev,
           riskLevel: results.riskClassification
         }));
-        
+
         // Clear validation errors for risk level if it was previously missing
         if (validationErrors.riskLevel) {
           setValidationErrors(prev => {
@@ -296,19 +313,19 @@ export const SystemRegistration: React.FC = () => {
             delete newErrors.riskLevel;
             return newErrors;
           });
-          
+
           // Also update missingFields
           setMissingFields(prev => prev.filter(field => field !== 'riskLevel'));
         }
       }
-      
+
       toast({
         title: "Analysis Complete",
         description: "AI analysis of your system has been completed successfully",
       });
     } catch (error) {
       console.error('Error analyzing system:', error);
-      
+
       toast({
         title: "Analysis Failed",
         description: "There was an error analyzing your AI system. Please try again.",
@@ -323,7 +340,7 @@ export const SystemRegistration: React.FC = () => {
   const getAiSuggestions = async () => {
     setExtractionInProgress(true);
     setAiExtractionStatus('extracting');
-    
+
     // Simulate progress for better UX
     const progressInterval = setInterval(() => {
       setExtractionProgress(prev => {
@@ -331,7 +348,7 @@ export const SystemRegistration: React.FC = () => {
         return newProgress >= 95 ? 95 : newProgress;
       });
     }, 500);
-    
+
     try {
       const response = await fetch('/api/suggest/system', {
         method: 'POST',
@@ -343,18 +360,18 @@ export const SystemRegistration: React.FC = () => {
           description: formData.description || aiTextInput
         })
       });
-      
+
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-      
+
       const results = await response.json();
       clearInterval(progressInterval);
       setExtractionProgress(100);
       setAiResults(results);
       setConfidenceScore(results.confidenceScore || 75);
       setAiExtractionStatus('success');
-      
+
       setTimeout(() => {
         setExtractionProgress(0);
         setExtractionInProgress(false);
@@ -365,7 +382,7 @@ export const SystemRegistration: React.FC = () => {
       setExtractionProgress(0);
       setAiExtractionStatus('error');
       setExtractionInProgress(false);
-      
+
       toast({
         title: "Suggestion Failed",
         description: "There was an error generating AI suggestions. Please try again.",
@@ -378,7 +395,7 @@ export const SystemRegistration: React.FC = () => {
   const applyField = (field: string) => {
     if (aiResults && aiResults[field]) {
       setFormData(prev => ({ ...prev, [field]: aiResults[field] }));
-      
+
       // Clear validation errors and missing fields for this field
       if (validationErrors[field]) {
         setValidationErrors(prev => {
@@ -386,11 +403,11 @@ export const SystemRegistration: React.FC = () => {
           delete newErrors[field];
           return newErrors;
         });
-        
+
         // Also update missingFields list
         setMissingFields(prev => prev.filter(item => item !== field));
       }
-      
+
       toast({
         title: "Field Applied",
         description: `${field.charAt(0).toUpperCase() + field.slice(1)} field has been updated`,
@@ -401,51 +418,51 @@ export const SystemRegistration: React.FC = () => {
   // Apply all AI suggestions to form
   const applyAllResults = () => {
     if (!aiResults) return;
-    
+
     const newFormData = { ...formData };
-    
+
     // Apply each field from AI results if present
     const fields = [
       'name', 'vendor', 'version', 'department', 'purpose',
       'aiCapabilities', 'trainingDatasets', 'outputTypes',
       'usageContext', 'potentialImpact', 'riskLevel'
     ];
-    
+
     // Track which required fields are now filled
     const filledRequiredFields: string[] = [];
-    
+
     fields.forEach(field => {
       if (aiResults[field]) {
         newFormData[field as keyof typeof newFormData] = aiResults[field];
-        
+
         // If this is a required field, add it to our tracking array
         if (['name', 'description', 'purpose', 'vendor', 'department', 'riskLevel'].includes(field)) {
           filledRequiredFields.push(field);
         }
       }
     });
-    
+
     // Handle special fields
     if (aiResults.capabilities) {
       newFormData.aiCapabilities = aiResults.capabilities;
     }
-    
+
     if (aiResults.dataSources) {
       newFormData.trainingDatasets = aiResults.dataSources;
     }
-    
+
     // Set risk level if available
     if (aiResults.riskClassification) {
       newFormData.riskLevel = aiResults.riskClassification;
-      
+
       // Add risk level to filled fields if it's one of the required fields
       if (!filledRequiredFields.includes('riskLevel')) {
         filledRequiredFields.push('riskLevel');
       }
     }
-    
+
     setFormData(newFormData);
-    
+
     // Clear validation errors for fields that are now filled
     if (filledRequiredFields.length > 0) {
       setValidationErrors(prev => {
@@ -455,15 +472,15 @@ export const SystemRegistration: React.FC = () => {
         });
         return newErrors;
       });
-      
+
       // Also update missingFields
       setMissingFields(prev => 
         prev.filter(field => !filledRequiredFields.includes(field))
       );
     }
-    
+
     setAiModalOpen(false);
-    
+
     toast({
       title: "All Fields Applied",
       description: "All suggested fields have been applied to the form",
@@ -480,16 +497,16 @@ export const SystemRegistration: React.FC = () => {
       });
       return;
     }
-    
+
     // In a real implementation, this would call an API
     // For now, simulate a search based on the text
     const searchText = (formData.name + " " + formData.description).toLowerCase();
-    
+
     const results = sampleAiSystems.filter(system => {
       const systemText = (system.name + " " + system.description).toLowerCase();
       return systemText.includes(searchText) || searchText.includes(systemText.substring(0, 10));
     });
-    
+
     setSearchResults(results);
     setShowSimilarSystems(true);
   };
@@ -497,7 +514,7 @@ export const SystemRegistration: React.FC = () => {
   // Select a similar system
   const selectSimilarSystem = (system: any) => {
     setSelectedSystem(system);
-    
+
     // Pre-fill form with selected system data
     setFormData(prev => ({
       ...prev,
@@ -506,10 +523,10 @@ export const SystemRegistration: React.FC = () => {
       description: system.description,
       // Other fields would be filled here in a real implementation
     }));
-    
+
     // Clear validation errors for fields that are now filled
     const filledFields = ['name', 'vendor', 'description'];
-    
+
     setValidationErrors(prev => {
       const newErrors = { ...prev };
       filledFields.forEach(field => {
@@ -517,14 +534,14 @@ export const SystemRegistration: React.FC = () => {
       });
       return newErrors;
     });
-    
+
     // Also update missingFields
     setMissingFields(prev => 
       prev.filter(field => !filledFields.includes(field))
     );
-    
+
     setShowSimilarSystems(false);
-    
+
     toast({
       title: "System Selected",
       description: `${system.name} has been selected as a template`,
@@ -549,10 +566,10 @@ export const SystemRegistration: React.FC = () => {
       });
       return;
     }
-    
+
     setExtractionInProgress(true);
     setAiExtractionStatus('extracting');
-    
+
     // Simulate file processing progress
     const progressInterval = setInterval(() => {
       setExtractionProgress(prev => {
@@ -560,13 +577,13 @@ export const SystemRegistration: React.FC = () => {
         return newProgress >= 95 ? 95 : newProgress;
       });
     }, 300);
-    
+
     // In a real implementation, this would send the file to an API
     // For now, simulate file processing
     setTimeout(() => {
       clearInterval(progressInterval);
       setExtractionProgress(100);
-      
+
       // Generate mock results based on filename
       const mockResults = {
         name: uploadedFile.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "),
@@ -582,11 +599,11 @@ export const SystemRegistration: React.FC = () => {
         riskLevel: "Limited",
         confidenceScore: 65
       };
-      
+
       setAiResults(mockResults);
       setConfidenceScore(65);
       setAiExtractionStatus('success');
-      
+
       setTimeout(() => {
         setExtractionProgress(0);
         setExtractionInProgress(false);
@@ -601,7 +618,7 @@ export const SystemRegistration: React.FC = () => {
       const shouldShowRecommendations = !showSystemRecommendations && 
         !sghAsiaAiResults &&
         !aiResults;
-      
+
       if (shouldShowRecommendations) {
         setShowSystemRecommendations(true);
       }
@@ -629,9 +646,9 @@ export const SystemRegistration: React.FC = () => {
       deploymentScope: formData.deploymentScope || "Production",
       mitigationMeasures: formData.mitigationMeasures || "Human oversight, explainability reports, regular auditing"
     };
-    
+
     setFormData(newData);
-    
+
     toast({
       title: "Form Autofilled",
       description: "Realistic data has been added to empty fields",
@@ -714,14 +731,14 @@ export const SystemRegistration: React.FC = () => {
                     Let our DeepSeek AI analyze your system and suggest appropriate registration details
                   </DialogDescription>
                 </DialogHeader>
-                
+
                 <Tabs defaultValue={aiTab} onValueChange={setAiTab} className="mt-2">
                   <TabsList className="grid grid-cols-3 mb-2">
                     <TabsTrigger value="upload" className="text-xs">Upload Document</TabsTrigger>
                     <TabsTrigger value="text" className="text-xs">Text Input</TabsTrigger>
                     <TabsTrigger value="search" className="text-xs">Similar Systems</TabsTrigger>
                   </TabsList>
-                  
+
                   <TabsContent value="upload" className="space-y-4">
                     <div className="border-2 border-dashed border-neutral-200 rounded-lg p-6 text-center">
                       <UploadIcon className="h-8 w-8 mx-auto text-neutral-400 mb-2" />
@@ -750,7 +767,7 @@ export const SystemRegistration: React.FC = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     {uploadedFile && (
                       <div className="space-y-4">
                         <Button 
@@ -771,7 +788,7 @@ export const SystemRegistration: React.FC = () => {
                             </>
                           )}
                         </Button>
-                        
+
                         {extractionInProgress && (
                           <div className="space-y-2">
                             <Progress value={extractionProgress} className="h-2" />
@@ -786,7 +803,7 @@ export const SystemRegistration: React.FC = () => {
                       </div>
                     )}
                   </TabsContent>
-                  
+
                   <TabsContent value="text" className="space-y-4">
                     <div>
                       <Label htmlFor="ai-text-input">System Description</Label>
@@ -798,7 +815,7 @@ export const SystemRegistration: React.FC = () => {
                         className="min-h-[120px] mt-1"
                       />
                     </div>
-                    
+
                     <Button 
                       type="button" 
                       onClick={getAiSuggestions}
@@ -817,7 +834,7 @@ export const SystemRegistration: React.FC = () => {
                         </>
                       )}
                     </Button>
-                    
+
                     {extractionInProgress && (
                       <div className="space-y-2">
                         <Progress value={extractionProgress} className="h-2" />
@@ -830,7 +847,7 @@ export const SystemRegistration: React.FC = () => {
                       </div>
                     )}
                   </TabsContent>
-                  
+
                   <TabsContent value="search" className="space-y-4">
                     <div>
                       <Label htmlFor="search-input">Search for Similar Systems</Label>
@@ -860,7 +877,7 @@ export const SystemRegistration: React.FC = () => {
                         </Button>
                       </div>
                     </div>
-                    
+
                     <div className="border rounded-lg overflow-hidden">
                       <div className="px-3 py-2 bg-neutral-50 border-b text-xs font-medium">
                         Similar AI Systems
@@ -896,7 +913,7 @@ export const SystemRegistration: React.FC = () => {
                     </div>
                   </TabsContent>
                 </Tabs>
-                
+
                 {aiResults && (
                   <div className="mt-4 space-y-4">
                     <div className="flex items-center justify-between">
@@ -912,13 +929,13 @@ export const SystemRegistration: React.FC = () => {
                         </Badge>
                       </div>
                     </div>
-                    
+
                     <div className="border rounded-lg overflow-hidden">
                       <div className="grid grid-cols-2 divide-x divide-y">
                         {Object.entries(aiResults).map(([key, value]) => {
                           // Skip some fields
                           if (['confidenceScore', 'riskClassification', 'euAiActArticles'].includes(key)) return null;
-                          
+
                           return (
                             <div key={key} className="p-3 relative group">
                               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -940,7 +957,7 @@ export const SystemRegistration: React.FC = () => {
                         })}
                       </div>
                     </div>
-                    
+
                     {aiResults.riskClassification && (
                       <div className="flex items-center space-x-2 p-3 bg-neutral-50 rounded-lg">
                         <ShieldAlertIcon className={`h-5 w-5 ${
@@ -958,7 +975,7 @@ export const SystemRegistration: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {aiResults.euAiActArticles && (
                       <div className="p-3 bg-neutral-50 rounded-lg">
                         <h4 className="text-sm font-medium mb-1">Relevant EU AI Act Articles</h4>
@@ -973,7 +990,7 @@ export const SystemRegistration: React.FC = () => {
                     )}
                   </div>
                 )}
-                
+
                 <DialogFooter className="gap-2 mt-6">
                   <Button 
                     variant="outline"
@@ -991,7 +1008,7 @@ export const SystemRegistration: React.FC = () => {
               </DialogContent>
             </Dialog>
           </div>
-          
+
           {missingFields.length > 0 && (
             <Alert variant="destructive" className="mb-6">
               <AlertCircleIcon className="h-4 w-4" />
@@ -1008,404 +1025,229 @@ export const SystemRegistration: React.FC = () => {
               </AlertDescription>
             </Alert>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid gap-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-3">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="name" className={validationErrors.name ? "text-destructive" : ""}>
-                      System Name*
-                    </Label>
-                    {validationErrors.name && (
-                      <span className="text-xs text-destructive">{validationErrors.name}</span>
-                    )}
-                  </div>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="E.g., Customer Service Chatbot"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                    className={`${aiResults && aiResults.name === formData.name ? "bg-blue-50 border-blue-200" : ""} ${validationErrors.name ? "border-destructive" : ""}`}
-                  />
-                </div>
-                
-                <div className="grid gap-3">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="vendor" className={validationErrors.vendor ? "text-destructive" : ""}>
-                      Vendor/Developer*
-                    </Label>
-                    {validationErrors.vendor && (
-                      <span className="text-xs text-destructive">{validationErrors.vendor}</span>
-                    )}
-                  </div>
-                  <Input
-                    id="vendor"
-                    name="vendor"
-                    placeholder="E.g., OpenAI, Google, Internal Team"
-                    value={formData.vendor}
-                    onChange={handleInputChange}
-                    className={`${aiResults && aiResults.vendor === formData.vendor ? "bg-blue-50 border-blue-200" : ""} ${validationErrors.vendor ? "border-destructive" : ""}`}
-                  />
-                </div>
-              </div>
-              
-              <div className="grid gap-3">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="description" className={validationErrors.description ? "text-destructive" : ""}>
-                    System Description*
-                  </Label>
-                  {validationErrors.description && (
-                    <span className="text-xs text-destructive">{validationErrors.description}</span>
-                  )}
-                </div>
-                <Textarea
-                  id="description"
-                  name="description"
-                  placeholder="Describe what the AI system does..."
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  className={`min-h-[80px] ${aiResults && aiResults.description === formData.description ? "bg-blue-50 border-blue-200" : ""} ${validationErrors.description ? "border-destructive" : ""}`}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-3">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="purpose" className={validationErrors.purpose ? "text-destructive" : ""}>
-                      System Purpose*
-                    </Label>
-                    {validationErrors.purpose && (
-                      <span className="text-xs text-destructive">{validationErrors.purpose}</span>
-                    )}
-                  </div>
-                  <Textarea
-                    id="purpose"
-                    name="purpose"
-                    placeholder="What is the intended purpose of this AI system?"
-                    value={formData.purpose}
-                    onChange={handleInputChange}
-                    required
-                    className={`min-h-[80px] ${aiResults && aiResults.purpose === formData.purpose ? "bg-blue-50 border-blue-200" : ""} ${validationErrors.purpose ? "border-destructive" : ""}`}
-                  />
-                </div>
-                
+              {/* Step 1: Basic Information */}
+              {currentStep === 1 && (
                 <div className="space-y-4">
-                  <div className="grid gap-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="department" className={validationErrors.department ? "text-destructive" : ""}>
-                        Department*
-                      </Label>
-                      {validationErrors.department && (
-                        <span className="text-xs text-destructive">{validationErrors.department}</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">System Name <span className="text-red-500">*</span></Label>
+                      <Input 
+                        id="name" 
+                        placeholder="Enter system name" 
+                        value={formData.name || ''} 
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className={validationErrors.name ? "border-red-500" : ""}
+                      />
+                      {validationErrors.name && (
+                        <p className="text-red-500 text-xs mt-1">{validationErrors.name}</p>
                       )}
                     </div>
-                    <Select
-                      value={formData.department}
-                      onValueChange={(value) => handleSelectChange('department', value)}
-                    >
-                      <SelectTrigger id="department" className={validationErrors.department ? "border-destructive" : ""}>
-                        <SelectValue placeholder="Select department" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {departments.map((dept) => (
-                          <SelectItem key={dept.id} value={dept.name}>
-                            {dept.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      <Label htmlFor="vendor">Vendor Name <span className="text-red-500">*</span></Label>
+                      <Input 
+                        id="vendor" 
+                        placeholder="Enter vendor name" 
+                        value={formData.vendor || ''} 
+                        onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
+                        className={validationErrors.vendor ? "border-red-500" : ""}
+                      />
+                      {validationErrors.vendor && (
+                        <p className="text-red-500 text-xs mt-1">{validationErrors.vendor}</p>
+                      )}
+                    </div>
                   </div>
-                  
-                  <div className="grid gap-3">
-                    <Label htmlFor="version">Version</Label>
-                    <Input
-                      id="version"
-                      name="version"
-                      placeholder="E.g., 1.0.0"
-                      value={formData.version}
-                      onChange={handleInputChange}
-                      className={aiResults && aiResults.version === formData.version ? "bg-blue-50 border-blue-200" : ""}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="version">Version</Label>
+                      <Input 
+                        id="version" 
+                        placeholder="e.g., 1.0.0" 
+                        value={formData.version || ''} 
+                        onChange={(e) => setFormData({ ...formData, version: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="department">Department <span className="text-red-500">*</span></Label>
+                      <Select 
+                        value={formData.department || ''}
+                        onValueChange={(value) => setFormData({ ...formData, department: value })}
+                      >
+                        <SelectTrigger id="department" className={validationErrors.department ? "border-red-500" : ""}>
+                          <SelectValue placeholder="Select department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Information Technology">Information Technology</SelectItem>
+                          <SelectItem value="Research and Development">Research and Development</SelectItem>
+                          <SelectItem value="Human Resources">Human Resources</SelectItem>
+                          <SelectItem value="Marketing">Marketing</SelectItem>
+                          <SelectItem value="Customer Service">Customer Service</SelectItem>
+                          <SelectItem value="Operations">Operations</SelectItem>
+                          <SelectItem value="Finance">Finance</SelectItem>
+                          <SelectItem value="Legal">Legal</SelectItem>
+                          <SelectItem value="Business Intelligence">Business Intelligence</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {validationErrors.department && (
+                        <p className="text-red-500 text-xs mt-1">{validationErrors.department}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">System Description</Label>
+                    <Textarea 
+                      id="description" 
+                      placeholder="Provide a brief description of the system" 
+                      value={formData.description || ''} 
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      rows={3}
                     />
                   </div>
                 </div>
-              </div>
-              
-              <Separator />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-3">
-                  <Label htmlFor="aiCapabilities">AI Capabilities</Label>
-                  <Textarea
-                    id="aiCapabilities"
-                    name="aiCapabilities"
-                    placeholder="E.g., Natural language processing, Computer vision, Prediction"
-                    value={formData.aiCapabilities}
-                    onChange={handleInputChange}
-                    className={`min-h-[80px] ${aiResults && aiResults.aiCapabilities === formData.aiCapabilities ? "bg-blue-50 border-blue-200" : ""}`}
-                  />
-                </div>
-                
-                <div className="grid gap-3">
-                  <Label htmlFor="trainingDatasets">Training Datasets</Label>
-                  <Textarea
-                    id="trainingDatasets"
-                    name="trainingDatasets"
-                    placeholder="What data was used to train this system?"
-                    value={formData.trainingDatasets}
-                    onChange={handleInputChange}
-                    className={`min-h-[80px] ${aiResults && aiResults.trainingDatasets === formData.trainingDatasets ? "bg-blue-50 border-blue-200" : ""}`}
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-3">
-                  <Label htmlFor="outputTypes">Output Types</Label>
-                  <Textarea
-                    id="outputTypes"
-                    name="outputTypes"
-                    placeholder="E.g., Text responses, Classifications, Predictions"
-                    value={formData.outputTypes}
-                    onChange={handleInputChange}
-                    className={`min-h-[80px] ${aiResults && aiResults.outputTypes === formData.outputTypes ? "bg-blue-50 border-blue-200" : ""}`}
-                  />
-                </div>
-                
-                <div className="grid gap-3">
-                  <Label htmlFor="usageContext">Usage Context</Label>
-                  <Textarea
-                    id="usageContext"
-                    name="usageContext"
-                    placeholder="In what context is this AI system used?"
-                    value={formData.usageContext}
-                    onChange={handleInputChange}
-                    className={`min-h-[80px] ${aiResults && aiResults.usageContext === formData.usageContext ? "bg-blue-50 border-blue-200" : ""}`}
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-3">
-                  <Label htmlFor="potentialImpact">Potential Impact</Label>
-                  <Textarea
-                    id="potentialImpact"
-                    name="potentialImpact"
-                    placeholder="What impact could this system have on individuals or society?"
-                    value={formData.potentialImpact}
-                    onChange={handleInputChange}
-                    className={`min-h-[80px] ${aiResults && aiResults.potentialImpact === formData.potentialImpact ? "bg-blue-50 border-blue-200" : ""}`}
-                  />
-                </div>
-                
-                <div className="grid gap-3">
-                  <Label htmlFor="mitigationMeasures">Mitigation Measures</Label>
-                  <Textarea
-                    id="mitigationMeasures"
-                    name="mitigationMeasures"
-                    placeholder="What measures are in place to mitigate risks?"
-                    value={formData.mitigationMeasures}
-                    onChange={handleInputChange}
-                    className="min-h-[80px]"
-                  />
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="grid gap-3">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="riskLevel" className={validationErrors.riskLevel ? "text-destructive" : ""}>
-                      Risk Level*
-                    </Label>
-                    {validationErrors.riskLevel && (
-                      <span className="text-xs text-destructive">{validationErrors.riskLevel}</span>
+              )}
+
+              {/* Step 2: System Capabilities */}
+              {currentStep === 2 && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="purpose">Purpose <span className="text-red-500">*</span></Label>
+                    <Textarea 
+                      id="purpose" 
+                      placeholder="What is the main purpose of this AI system?" 
+                      value={formData.purpose || ''} 
+                      onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
+                      rows={3}
+                      className={validationErrors.purpose ? "border-red-500" : ""}
+                    />
+                    {validationErrors.purpose && (
+                      <p className="text-red-500 text-xs mt-1">{validationErrors.purpose}</p>
                     )}
                   </div>
-                  <Select
-                    value={formData.riskLevel}
-                    onValueChange={(value) => handleSelectChange('riskLevel', value)}
-                  >
-                    <SelectTrigger id="riskLevel" className={validationErrors.riskLevel ? "border-destructive" : ""}>
-                      <SelectValue placeholder="Select risk level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {riskLevels.map((level) => (
-                        <SelectItem key={level.id} value={level.name}>
-                          <div className="flex items-center">
-                            <span>{level.name}</span>
-                            <span className="text-xs text-neutral-500 ml-2">({level.description})</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="grid gap-3">
-                  <Label htmlFor="systemId">System ID</Label>
-                  <Input
-                    id="systemId"
-                    name="systemId"
-                    placeholder="Auto-generated if left empty"
-                    value={formData.systemId}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                
-                <div className="grid gap-3">
-                  <Label htmlFor="implementationDate">Implementation Date</Label>
-                  <Input
-                    type="date"
-                    id="implementationDate"
-                    name="implementationDate"
-                    value={formData.implementationDate}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-            </div>
-            
-            {showSystemRecommendations && !sghAsiaAiResults && (
-              <Card className="bg-blue-50 border-blue-200 shadow-none">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center">
-                    <SparklesIcon className="h-4 w-4 mr-2 text-blue-600" />
-                    Recommendations Available
-                  </CardTitle>
-                  <CardDescription className="text-blue-700">
-                    DeepSeek AI has identified possible recommendations for your system
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex justify-between items-center">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="border-blue-300 text-blue-700 h-8 text-xs"
-                      onClick={() => setShowSystemRecommendations(false)}
-                    >
-                      Dismiss
-                    </Button>
-                    <Button 
-                      type="button"
-                      className="h-8 text-xs"
-                      onClick={() => runSghAsiaAiAnalysis()}
-                    >
-                      View Recommendations
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-            
-            {sghAsiaAiResults && (
-              <Card className="border-primary/20 bg-primary/5 shadow-none">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-sm flex items-center">
-                      <BrainIcon className="h-4 w-4 mr-2 text-primary" />
-                      SGH AI Analysis Results
-                    </CardTitle>
-                    <Button 
-                      variant="ghost" 
-                      className="h-6 w-6 p-0" 
-                      onClick={resetAiResults}
-                    >
-                      <span className="sr-only">Close</span>
-                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4">
-                        <path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.8071 2.99385 3.44303 2.99385 3.21848 3.2184C2.99394 3.44295 2.99394 3.80702 3.21848 4.03157L6.6869 7.49999L3.21848 10.9684C2.99394 11.193 2.99394 11.557 3.21848 11.7816C3.44303 12.0061 3.8071 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
-                      </svg>
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div>
-                      <h4 className="text-xs font-medium mb-1">System Category</h4>
-                      <p className="text-sm">{sghAsiaAiResults.systemCategory}</p>
-                      
-                      <h4 className="text-xs font-medium mt-3 mb-1">Risk Classification</h4>
-                      <Badge variant={
-                        sghAsiaAiResults.riskClassification === 'High' ? "destructive" : 
-                        sghAsiaAiResults.riskClassification === 'Limited' ? "secondary" : 
-                        "outline"
-                      }>
-                        {sghAsiaAiResults.riskClassification} Risk
-                      </Badge>
-                      
-                      <h4 className="text-xs font-medium mt-3 mb-1">Relevant EU AI Act Articles</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {sghAsiaAiResults.euAiActArticles.map((article: string, index: number) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {article}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="text-xs font-medium mb-1">Compliance Score</h4>
-                      <div className="flex items-center gap-2">
-                        <Progress value={sghAsiaAiResults.complianceScore} className="h-2 flex-1" />
-                        <span className="text-sm font-medium">{sghAsiaAiResults.complianceScore}%</span>
-                      </div>
-                      
-                      <h4 className="text-xs font-medium mt-3 mb-1">Required Documentation</h4>
-                      <ul className="list-disc list-inside text-sm space-y-1">
-                        {sghAsiaAiResults.requiredDocumentation.map((doc: string, index: number) => (
-                          <li key={index}>{doc}</li>
-                        ))}
-                      </ul>
-                      
-                      <h4 className="text-xs font-medium mt-3 mb-1">Suggested Improvements</h4>
-                      <ul className="list-disc list-inside mt-1 pl-2">
-                        {sghAsiaAiResults.suggestedImprovements.map((item: string, index: number) => (
-                          <li key={index} className="text-sm">{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
 
-            <div className="flex flex-wrap gap-3 justify-between pt-4">
-              <div className="flex gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={() => runSghAsiaAiAnalysis()}
-                  disabled={sghAsiaAiInProgress || !formData.description}
-                >
-                  {sghAsiaAiInProgress ? (
-                    <>
-                      <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin mr-2"></div>
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <SparklesIcon className="mr-2 h-4 w-4" />
-                      Analyze with SGH AI
-                    </>
-                  )}
-                </Button>
-                
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={autofillWithRealisticData}
-                >
-                  <FileTextIcon className="mr-2 h-4 w-4" />
-                  Autofill Details
-                </Button>
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="aiCapabilities">AI Capabilities <span className="text-red-500">*</span></Label>
+                      <Textarea 
+                        id="aiCapabilities" 
+                        placeholder="Describe the AI capabilities (e.g., NLP, computer vision, decision support)" 
+                        value={formData.aiCapabilities || ''} 
+                        onChange={(e) => setFormData({ ...formData, aiCapabilities: e.target.value })}
+                        rows={3}
+                        className={validationErrors.aiCapabilities ? "border-red-500" : ""}
+                      />
+                      {validationErrors.aiCapabilities && (
+                        <p className="text-red-500 text-xs mt-1">{validationErrors.aiCapabilities}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Data & Outputs */}
+              {currentStep === 3 && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="trainingDatasets">Training Datasets <span className="text-red-500">*</span></Label>
+                      <Textarea 
+                        id="trainingDatasets" 
+                        placeholder="Describe the data used to train this system" 
+                        value={formData.trainingDatasets || ''} 
+                        onChange={(e) => setFormData({ ...formData, trainingDatasets: e.target.value })}
+                        rows={3}
+                        className={validationErrors.trainingDatasets ? "border-red-500" : ""}
+                      />
+                      {validationErrors.trainingDatasets && (
+                        <p className="text-red-500 text-xs mt-1">{validationErrors.trainingDatasets}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="outputTypes">Output Types <span className="text-red-500">*</span></Label>
+                      <Textarea 
+                        id="outputTypes" 
+                        placeholder="What outputs does this system produce?" 
+                        value={formData.outputTypes || ''} 
+                        onChange={(e) => setFormData({ ...formData, outputTypes: e.target.value })}
+                        rows={3}
+                        className={validationErrors.outputTypes ? "border-red-500" : ""}
+                      />
+                      {validationErrors.outputTypes && (
+                        <p className="text-red-500 text-xs mt-1">{validationErrors.outputTypes}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="usageContext">Usage Context</Label>
+                      <Textarea 
+                        id="usageContext" 
+                        placeholder="Where and how is this system used?" 
+                        value={formData.usageContext || ''} 
+                        onChange={(e) => setFormData({ ...formData, usageContext: e.target.value })}
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Risk Assessment */}
+              {currentStep === 4 && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="potentialImpact">Potential Impact</Label>
+                      <Textarea 
+                        id="potentialImpact" 
+                        placeholder="What are the potential impacts on individuals or society?" 
+                        value={formData.potentialImpact || ''} 
+                        onChange={(e) => setFormData({ ...formData, potentialImpact: e.target.value })}
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="riskLevel">Risk Level <span className="text-red-500">*</span></Label>
+                    <Select 
+                      value={formData.riskLevel || ''}
+                      onValueChange={(value) => setFormData({ ...formData, riskLevel: value })}
+                    >
+                      <SelectTrigger id="riskLevel" className={validationErrors.riskLevel ? "border-red-500" : ""}>
+                        <SelectValue placeholder="Select risk level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Unacceptable">Unacceptable - Prohibited by the EU AI Act</SelectItem>
+                        <SelectItem value="High">High - Strict requirements under the EU AI Act</SelectItem>
+                        <SelectItem value="Limited">Limited - Transparency obligations apply</SelectItem>
+                        <SelectItem value="Minimal">Minimal - Limited requirements</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {validationErrors.riskLevel && (
+                      <p className="text-red-500 text-xs mt-1">{validationErrors.riskLevel}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end">
+                {currentStep > 1 && (
+                  <Button type="button" onClick={handlePreviousStep} variant="ghost" className="mr-4">Previous</Button>
+                )}
+                {currentStep < 4 ? (
+                  <Button type="button" onClick={handleNextStep}>Next</Button>
+                ) : (
+                  <Button type="submit">Submit</Button>
+                )}
               </div>
-              
-              <Button type="submit">Register System</Button>
             </div>
           </form>
         </CardContent>
