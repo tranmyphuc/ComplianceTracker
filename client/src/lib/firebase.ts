@@ -1,26 +1,31 @@
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { initializeApp, FirebaseApp } from "firebase/app";
+import { getAuth, Auth } from "firebase/auth";
+import { getFirestore, Firestore } from "firebase/firestore";
+import { getStorage, FirebaseStorage } from "firebase/storage";
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyALXq8l1aS-LTHrXpnwjRkZHr6AGzMRbz8",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "eu-ai-act-compliance.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "eu-ai-act-compliance",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "eu-ai-act-compliance.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789012",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789012:web:abcdef1234567890"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
-let app;
-let auth;
-let firestore;
-let storage;
+let app: FirebaseApp | undefined;
+let auth: Auth | undefined;
+let firestore: Firestore | undefined;
+let storage: FirebaseStorage | undefined;
 
 export function initializeFirebase() {
   try {
+    if (!import.meta.env.VITE_FIREBASE_API_KEY) {
+      console.warn("Firebase API key is missing. Firebase will not be initialized.");
+      return;
+    }
+    
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     firestore = getFirestore(app);
@@ -40,5 +45,6 @@ export const getFirebaseStorage = () => storage;
 
 // Helper functions for authentication
 export const getCurrentUser = () => {
-  return getAuth().currentUser;
+  if (!auth) return null;
+  return auth.currentUser;
 };
