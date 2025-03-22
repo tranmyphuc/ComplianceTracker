@@ -737,9 +737,9 @@ export const SystemRegistration: React.FC = () => {
 
                 <Tabs defaultValue={aiTab} onValueChange={setAiTab} className="mt-2">
                   <TabsList className="grid grid-cols-3 mb-2">
-                    <TabsTrigger value="upload" className="text-xs">Upload Document</TabsTrigger>
-                    <TabsTrigger value="text" className="text-xs">Text Input</TabsTrigger>
-                    <TabsTrigger value="search" className="text-xs">Similar Systems</TabsTrigger>
+                    <TabsTrigger value="upload" className="text-xs">Upload Documentation</TabsTrigger>
+                    <TabsTrigger value="text" className="text-xs">Enter Description</TabsTrigger>
+                    <TabsTrigger value="search" className="text-xs">URL/API Endpoint</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="upload" className="space-y-4">
@@ -853,74 +853,56 @@ export const SystemRegistration: React.FC = () => {
 
                   <TabsContent value="search" className="space-y-4">
                     <div>
-                      <Label htmlFor="search-input">Search for Similar Systems</Label>
-                      <div className="flex mt-1">
-                        <Input
-                          id="search-input"
-                          placeholder="Type system name or keywords..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="rounded-r-none"
-                        />
-                        <Button 
-                          type="button" 
-                          variant="default" 
-                          className="rounded-l-none"
-                          onClick={() => {
-                            setSearchResults(
-                              sampleAiSystems.filter(system => 
-                                system.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                system.description.toLowerCase().includes(searchQuery.toLowerCase())
-                              )
-                            );
-                          }}
-                          disabled={!searchQuery || searchQuery.length < 3}
-                        >
-                          <SearchIcon className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <Label htmlFor="api-input">API Endpoint or URL</Label>
+                      <Input
+                        id="api-input"
+                        placeholder="gamma.app"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="mt-1"
+                      />
+                      <p className="text-xs text-neutral-500 mt-1">
+                        Enter API endpoint or URL where your AI system is accessible
+                      </p>
                     </div>
-
-                    <div className="border rounded-lg overflow-hidden">
-                      <div className="px-3 py-2 bg-neutral-50 border-b text-xs font-medium">
-                        Similar AI Systems
+                    
+                    <Button 
+                      type="button" 
+                      onClick={getAiSuggestions}
+                      disabled={!searchQuery || searchQuery.length < 3 || extractionInProgress}
+                      className="w-full"
+                    >
+                      {extractionInProgress ? (
+                        <>
+                          <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin mr-2"></div>
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <SparklesIcon className="h-4 w-4 mr-2" />
+                          Analyze with SGH ASIA AI
+                        </>
+                      )}
+                    </Button>
+                    
+                    {extractionInProgress && (
+                      <div className="space-y-2">
+                        <Progress value={extractionProgress} className="h-2" />
+                        <p className="text-xs text-center text-neutral-500">
+                          {extractionProgress < 100 
+                            ? "Analyzing endpoint and generating suggestions..." 
+                            : "Analysis complete!"
+                          }
+                        </p>
                       </div>
-                      <div className="divide-y max-h-[200px] overflow-y-auto">
-                        {searchResults.length > 0 ? (
-                          searchResults.map((system, index) => (
-                            <div key={index} className="p-3 hover:bg-neutral-50 cursor-pointer transition-colors" onClick={() => selectSimilarSystem(system)}>
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h4 className="text-sm font-medium">{system.name}</h4>
-                                  <p className="text-xs text-neutral-500 mt-1">{system.description}</p>
-                                </div>
-                                <Badge variant={system.type === "High-Risk" ? "destructive" : "secondary"} className="text-[10px] h-5">
-                                  {system.type}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center mt-2 text-xs text-neutral-500">
-                                <span>{system.vendor}</span>
-                              </div>
-                            </div>
-                          ))
-                        ) : searchQuery.length >= 3 ? (
-                          <div className="p-4 text-center text-sm text-neutral-500">
-                            No matching systems found
-                          </div>
-                        ) : (
-                          <div className="p-4 text-center text-sm text-neutral-500">
-                            Enter at least 3 characters to search
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    )}
                   </TabsContent>
                 </Tabs>
 
                 {aiResults && (
-                  <div className="mt4 space-y-4">
+                  <div className="mt-4 space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-medium">AI Suggestions</h3>
+                      <h3 className="text-sm font-medium">SGH ASIA AI Analysis Results</h3>
                       <div className="flex items-center gap-1">
                         <span className="text-xs text-neutral-500">Confidence:</span>
                         <Badge variant={
@@ -934,27 +916,27 @@ export const SystemRegistration: React.FC = () => {
                     </div>
 
                     <div className="border rounded-lg overflow-hidden">
-                      <div className="grid grid-cols-2 divide-x divide-y">
+                      <div className="divide-y">
                         {Object.entries(aiResults).map(([key, value]) => {
                           // Skip some fields
                           if (['confidenceScore', 'riskClassification', 'euAiActArticles'].includes(key)) return null;
 
                           return (
-                            <div key={key} className="p-3 relative group">
-                              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-6 w-6"
-                                  onClick={() => applyField(key)}
-                                >
-                                  <CheckIcon className="h-3 w-3" />
-                                </Button>
+                            <div key={key} className="p-3 relative group flex justify-between items-center">
+                              <div>
+                                <h4 className="text-sm font-medium">
+                                  {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()}:
+                                </h4>
+                                <p className="text-sm text-neutral-600">{value as string}</p>
                               </div>
-                              <h4 className="text-xs font-medium text-neutral-500 mb-1">
-                                {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()}
-                              </h4>
-                              <p className="text-sm line-clamp-2">{value as string}</p>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-8"
+                                onClick={() => applyField(key)}
+                              >
+                                Apply
+                              </Button>
                             </div>
                           );
                         })}
@@ -962,26 +944,37 @@ export const SystemRegistration: React.FC = () => {
                     </div>
 
                     {aiResults.riskClassification && (
-                      <div className="flex items-center space-x-2 p-3 bg-neutral-50 rounded-lg">
-                        <ShieldAlertIcon className={`h-5 w-5 ${
-                          aiResults.riskClassification === 'High' 
-                            ? 'text-red-500' 
-                            : aiResults.riskClassification === 'Limited' 
-                              ? 'text-amber-500' 
-                              : 'text-green-500'
-                        }`} />
-                        <div>
-                          <h4 className="text-sm font-medium">Risk Classification</h4>
-                          <p className="text-xs text-neutral-600">
-                            This system appears to be a <span className="font-medium">{aiResults.riskClassification} Risk</span> system
-                          </p>
+                      <div className="p-3 border rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center space-x-2">
+                            <ShieldAlertIcon className={`h-5 w-5 ${
+                              aiResults.riskClassification === 'High' 
+                                ? 'text-red-500' 
+                                : aiResults.riskClassification === 'Limited' 
+                                  ? 'text-amber-500' 
+                                  : 'text-green-500'
+                            }`} />
+                            <h4 className="text-sm font-medium">Risk Level:</h4>
+                            <span className="font-medium">{aiResults.riskClassification}</span>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8"
+                            onClick={() => applyField('riskLevel')}
+                          >
+                            Apply
+                          </Button>
                         </div>
                       </div>
                     )}
 
                     {aiResults.euAiActArticles && (
-                      <div className="p-3 bg-neutral-50 rounded-lg">
-                        <h4 className="text-sm font-medium mb-1">Relevant EU AI Act Articles</h4>
+                      <div className="p-3 border rounded-lg">
+                        <h4 className="text-sm font-medium mb-1">EU AI Act Classification:</h4>
+                        <p className="text-sm text-neutral-600 mb-2">
+                          Based on the analysis, this appears to be a {aiResults.riskClassification.toLowerCase()} risk system
+                        </p>
                         <div className="flex flex-wrap gap-1">
                           {(aiResults.euAiActArticles as string[]).map((article, idx) => (
                             <Badge key={idx} variant="outline" className="text-[10px]">
@@ -1004,6 +997,7 @@ export const SystemRegistration: React.FC = () => {
                   <Button
                     onClick={applyAllResults}
                     disabled={!aiResults || extractionInProgress}
+                    className="bg-primary"
                   >
                     Apply All
                   </Button>
@@ -1298,7 +1292,7 @@ export const SystemRegistration: React.FC = () => {
                     Recommendations Available
                   </CardTitle>
                   <CardDescription className="text-blue-700">
-                    DeepSeek AI has identified possible recommendations for your system
+                    SGH ASIA AI has identified possible recommendations for your system
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
@@ -1329,7 +1323,7 @@ export const SystemRegistration: React.FC = () => {
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-sm flex items-center">
                       <BrainIcon className="h-4 w-4 mr-2 text-primary" />
-                      SGH AI Analysis Results
+                      SGH ASIA AI Analysis Results
                     </CardTitle>
                     <Button 
                       variant="ghost" 
@@ -1410,7 +1404,7 @@ export const SystemRegistration: React.FC = () => {
                   ) : (
                     <>
                       <SparklesIcon className="mr-2 h-4 w-4" />
-                      Analyze with SGH AI
+                      Analyze with SGH ASIA AI
                     </>
                   )}
                 </Button>

@@ -22,21 +22,17 @@ interface DeepSeekResponse {
  */
 export async function callDeepSeekApi(prompt: string): Promise<string> {
   try {
-    // Check if API key is present, but in development mode we can proceed without it
-  if (!DEEPSEEK_API_KEY && process.env.NODE_ENV !== 'development') {
+    // Check if API key is present
+    if (!DEEPSEEK_API_KEY) {
       throw new Error('DeepSeek API key is not configured');
     }
 
     // For testing purposes, you can log this:
     console.log('Calling DeepSeek API with prompt:', prompt);
 
-    // This simulation is for development testing only
-    // In production, this should be replaced with actual API calls
-    if (process.env.NODE_ENV === 'development') {
-      // Simulate API response for development
-      return simulateDeepSeekResponse(prompt);
-    }
-
+    // Always use the real API since we have the API key
+    const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+    
     const response = await fetch(DEEPSEEK_API_URL, {
       method: 'POST',
       headers: {
