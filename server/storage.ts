@@ -295,4 +295,209 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// DatabaseStorage implementation using Drizzle ORM
+import { db } from "./db";
+import { eq, desc, sql, and, like, or, not, isNull, count } from "drizzle-orm";
+
+export class DatabaseStorage implements IStorage {
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserByUid(uid: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.uid, uid)).limit(1);
+    return result[0];
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    return result[0];
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const newUser = {
+      ...user,
+      createdAt: new Date()
+    };
+    const result = await db.insert(users).values(newUser).returning();
+    return result[0];
+  }
+
+  // AI System operations
+  async getAiSystem(id: number): Promise<AiSystem | undefined> {
+    const result = await db.select().from(aiSystems).where(eq(aiSystems.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAiSystemBySystemId(systemId: string): Promise<AiSystem | undefined> {
+    const result = await db.select().from(aiSystems).where(eq(aiSystems.systemId, systemId)).limit(1);
+    return result[0];
+  }
+
+  async getAllAiSystems(): Promise<AiSystem[]> {
+    return await db.select().from(aiSystems).orderBy(desc(aiSystems.createdAt));
+  }
+
+  async getHighRiskAiSystems(limit: number = 5): Promise<AiSystem[]> {
+    return await db
+      .select()
+      .from(aiSystems)
+      .where(eq(aiSystems.riskLevel, "High Risk"))
+      .orderBy(desc(aiSystems.createdAt))
+      .limit(limit);
+  }
+
+  async createAiSystem(system: InsertAiSystem): Promise<AiSystem> {
+    const newSystem = {
+      ...system,
+      createdAt: new Date()
+    };
+    const result = await db.insert(aiSystems).values(newSystem).returning();
+    return result[0];
+  }
+
+  async updateAiSystem(id: number, system: Partial<AiSystem>): Promise<AiSystem | undefined> {
+    const updatedSystem = {
+      ...system,
+      updatedAt: new Date()
+    };
+    const result = await db
+      .update(aiSystems)
+      .set(updatedSystem)
+      .where(eq(aiSystems.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteAiSystem(id: number): Promise<boolean> {
+    const result = await db.delete(aiSystems).where(eq(aiSystems.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Department operations
+  async getDepartment(id: number): Promise<Department | undefined> {
+    const result = await db.select().from(departments).where(eq(departments.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllDepartments(): Promise<Department[]> {
+    return await db.select().from(departments).orderBy(departments.name);
+  }
+
+  async createDepartment(department: InsertDepartment): Promise<Department> {
+    const result = await db.insert(departments).values(department).returning();
+    return result[0];
+  }
+
+  async updateDepartment(id: number, department: Partial<Department>): Promise<Department | undefined> {
+    const result = await db
+      .update(departments)
+      .set(department)
+      .where(eq(departments.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // Activity operations
+  async getRecentActivities(limit: number = 5): Promise<Activity[]> {
+    return await db
+      .select()
+      .from(activities)
+      .orderBy(desc(activities.timestamp))
+      .limit(limit);
+  }
+
+  async createActivity(activity: InsertActivity): Promise<Activity> {
+    const newActivity = {
+      ...activity,
+      timestamp: new Date()
+    };
+    const result = await db.insert(activities).values(newActivity).returning();
+    return result[0];
+  }
+
+  // Alert operations
+  async getCriticalAlerts(limit: number = 3): Promise<Alert[]> {
+    return await db
+      .select()
+      .from(alerts)
+      .where(and(
+        eq(alerts.severity, "Critical"),
+        isNull(alerts.resolvedAt)
+      ))
+      .orderBy(desc(alerts.createdAt))
+      .limit(limit);
+  }
+
+  async createAlert(alert: InsertAlert): Promise<Alert> {
+    const newAlert = {
+      ...alert,
+      createdAt: new Date()
+    };
+    const result = await db.insert(alerts).values(newAlert).returning();
+    return result[0];
+  }
+
+  async resolveAlert(id: number): Promise<Alert | undefined> {
+    const result = await db
+      .update(alerts)
+      .set({ resolvedAt: new Date() })
+      .where(eq(alerts.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // Deadline operations
+  async getUpcomingDeadlines(limit: number = 3): Promise<Deadline[]> {
+    return await db
+      .select()
+      .from(deadlines)
+      .where(and(
+        sql`${deadlines.dueDate} >= CURRENT_DATE`,
+        eq(deadlines.completed, false)
+      ))
+      .orderBy(deadlines.dueDate)
+      .limit(limit);
+  }
+
+  async createDeadline(deadline: InsertDeadline): Promise<Deadline> {
+    const result = await db.insert(deadlines).values(deadline).returning();
+    return result[0];
+  }
+
+  // Document operations
+  async getDocumentsForSystem(systemId: string): Promise<Document[]> {
+    return await db
+      .select()
+      .from(documents)
+      .where(eq(documents.systemId, systemId))
+      .orderBy(desc(documents.createdAt));
+  }
+
+  async createDocument(document: InsertDocument): Promise<Document> {
+    const newDocument = {
+      ...document,
+      createdAt: new Date()
+    };
+    const result = await db.insert(documents).values(newDocument).returning();
+    return result[0];
+  }
+
+  async updateDocument(id: number, document: Partial<Document>): Promise<Document | undefined> {
+    const updatedDocument = {
+      ...document,
+      updatedAt: new Date()
+    };
+    const result = await db
+      .update(documents)
+      .set(updatedDocument)
+      .where(eq(documents.id, id))
+      .returning();
+    return result[0];
+  }
+}
+
+// Export an instance of the database storage
+export const storage = new DatabaseStorage();
