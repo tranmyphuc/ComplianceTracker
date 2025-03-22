@@ -39,7 +39,7 @@ export function SystemRegistration() {
     potentialImpact: "",
     mitigationMeasures: ""
   });
-  
+
   const [registrationProgress, setRegistrationProgress] = useState<{
     basic: boolean;
     classification: boolean;
@@ -51,10 +51,10 @@ export function SystemRegistration() {
     technical: false,
     impact: false
   });
-  
+
   const [sghAsiaAiInProgress, setSghAsiaAiInProgress] = useState(false);
   const [sghAsiaAiResults, setSghAsiaAiResults] = useState<any>(null);
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({
@@ -62,52 +62,50 @@ export function SystemRegistration() {
       [name]: value
     });
   };
-  
+
   const handleRadioChange = (name: string, value: string) => {
     setFormData({
       ...formData,
       [name]: value
     });
   };
-  
-  const runSghAsiaAiAnalysis = () => {
+
+  const runSghAsiaAiAnalysis = async () => {
     setSghAsiaAiInProgress(true);
-    
-    // Simulate SGH ASIA AI analysis (would be a real API call in production)
-    setTimeout(() => {
-      const results = {
-        systemCategory: "Decision Support System",
-        riskClassification: "High Risk",
-        euAiActArticles: ["Article 6", "Article 9", "Article 10", "Article 13", "Article 14"],
-        suggestedImprovements: [
-          "Add explicit human oversight mechanisms",
-          "Implement audit trails for all decisions",
-          "Document data governance practices in more detail",
-          "Establish clear responsibility chain for system outputs"
-        ],
-        complianceScore: 68,
-        requiredDocumentation: [
-          "Technical Documentation",
-          "Risk Assessment",
-          "Conformity Assessment",
-          "Human Oversight Protocol"
-        ]
-      };
-      
+
+    try {
+      const response = await fetch('/api/analyze/system', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description,
+          purpose: formData.purpose,
+          department: formData.department
+        })
+      });
+
+      const results = await response.json();
       setSghAsiaAiResults(results);
       setSghAsiaAiInProgress(false);
-      
+
       // Auto-fill some form fields based on SGH ASIA AI analysis
       setFormData(prev => ({
         ...prev,
         riskLevel: results.riskClassification
       }));
-    }, 3000);
+    } catch (error) {
+      console.error("Error running AI analysis:", error);
+      setSghAsiaAiInProgress(false);
+      // Handle error appropriately, e.g., display an error message to the user
+    }
   };
-  
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    
+
     // Mark previous sections as complete
     const updatedProgress = {...registrationProgress};
     if (tab === "classification" && formData.name && formData.description && formData.purpose) {
@@ -117,16 +115,16 @@ export function SystemRegistration() {
     } else if (tab === "impact" && formData.aiCapabilities && formData.trainingDatasets) {
       updatedProgress.technical = true;
     }
-    
+
     setRegistrationProgress(updatedProgress);
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submit system registration:", formData);
     // Here you would submit the data to your backend API
   };
-  
+
   return (
     <div className="space-y-6">
       <Card className="border-neutral-200 shadow-sm">
@@ -166,7 +164,7 @@ export function SystemRegistration() {
               )}
             </Button>
           </div>
-          
+
           {sghAsiaAiResults && (
             <Card className="border-primary/20 bg-primary/5 mb-6">
               <CardHeader className="pb-2">
@@ -201,7 +199,7 @@ export function SystemRegistration() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <p className="text-xs text-neutral-500">Applicable EU AI Act Articles</p>
                   <div className="flex flex-wrap gap-1">
@@ -215,7 +213,7 @@ export function SystemRegistration() {
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="mt-3">
                   <p className="text-xs text-neutral-500 mb-1">Suggested Improvements</p>
                   <ul className="text-xs space-y-1">
@@ -236,7 +234,7 @@ export function SystemRegistration() {
               </CardFooter>
             </Card>
           )}
-          
+
           <form onSubmit={handleSubmit}>
             <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
               <TabsList className="grid grid-cols-4">
@@ -273,7 +271,7 @@ export function SystemRegistration() {
                   )}
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="basic" className="space-y-4 pt-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -297,7 +295,7 @@ export function SystemRegistration() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="department">Department</Label>
                   <Input 
@@ -308,7 +306,7 @@ export function SystemRegistration() {
                     onChange={handleInputChange}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="description">System Description</Label>
                   <Textarea 
@@ -320,7 +318,7 @@ export function SystemRegistration() {
                     onChange={handleInputChange}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="purpose">Intended Purpose</Label>
                   <Textarea 
@@ -332,7 +330,7 @@ export function SystemRegistration() {
                     onChange={handleInputChange}
                   />
                 </div>
-                
+
                 <div className="flex justify-end">
                   <Button 
                     type="button" 
@@ -344,7 +342,7 @@ export function SystemRegistration() {
                   </Button>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="classification" className="space-y-4 pt-4">
                 <div className="space-y-3">
                   <Label>Risk Classification</Label>
@@ -376,7 +374,7 @@ export function SystemRegistration() {
                         Systems posing a clear threat to safety, livelihoods, or rights of people.
                       </p>
                     </div>
-                    
+
                     <div 
                       className={`border rounded-md p-3 cursor-pointer ${
                         formData.riskLevel === "High Risk" 
@@ -404,7 +402,7 @@ export function SystemRegistration() {
                         Systems with significant potential to harm health, safety, or fundamental rights.
                       </p>
                     </div>
-                    
+
                     <div 
                       className={`border rounded-md p-3 cursor-pointer ${
                         formData.riskLevel === "Limited Risk" 
@@ -432,7 +430,7 @@ export function SystemRegistration() {
                         Systems requiring transparency measures but with lower risk profile.
                       </p>
                     </div>
-                    
+
                     <div 
                       className={`border rounded-md p-3 cursor-pointer ${
                         formData.riskLevel === "Minimal Risk" 
@@ -461,7 +459,7 @@ export function SystemRegistration() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="p-3 border rounded-md mt-4 bg-blue-50 border-blue-200">
                     <div className="flex items-start">
                       <InfoIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
@@ -474,7 +472,7 @@ export function SystemRegistration() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-between">
                   <Button 
                     type="button"
@@ -493,7 +491,7 @@ export function SystemRegistration() {
                   </Button>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="technical" className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label htmlFor="aiCapabilities">AI Capabilities</Label>
@@ -506,7 +504,7 @@ export function SystemRegistration() {
                     onChange={handleInputChange}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="trainingDatasets">Training Datasets</Label>
                   <Textarea 
@@ -518,7 +516,7 @@ export function SystemRegistration() {
                     onChange={handleInputChange}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="outputTypes">Output Types</Label>
                   <Textarea 
@@ -530,7 +528,7 @@ export function SystemRegistration() {
                     onChange={handleInputChange}
                   />
                 </div>
-                
+
                 <div className="flex justify-between">
                   <Button 
                     type="button"
@@ -549,7 +547,7 @@ export function SystemRegistration() {
                   </Button>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="impact" className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label htmlFor="usageContext">Usage Context</Label>
@@ -562,7 +560,7 @@ export function SystemRegistration() {
                     onChange={handleInputChange}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="potentialImpact">
                     <span className="flex items-center">
@@ -581,7 +579,7 @@ export function SystemRegistration() {
                     onChange={handleInputChange}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="mitigationMeasures">
                     <span className="flex items-center">
@@ -600,7 +598,7 @@ export function SystemRegistration() {
                     onChange={handleInputChange}
                   />
                 </div>
-                
+
                 <div className="flex justify-between">
                   <Button 
                     type="button"

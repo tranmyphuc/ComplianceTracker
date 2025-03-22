@@ -213,6 +213,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Analysis routes
+  app.post("/api/analyze/system", async (req: Request, res: Response) => {
+    try {
+      const systemData = req.body;
+      
+      // AI analysis logic
+      const aiAnalysis = {
+        systemCategory: analyzeSystemCategory(systemData),
+        riskClassification: determineRiskLevel(systemData),
+        euAiActArticles: determineRelevantArticles(systemData),
+        suggestedImprovements: generateImprovements(systemData),
+        complianceScore: calculateComplianceScore(systemData),
+        requiredDocumentation: determineRequiredDocs(systemData)
+      };
+      
+      res.json(aiAnalysis);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.post("/api/analyze/document", async (req: Request, res: Response) => {
+    try {
+      const documentData = req.body;
+      const aiAnalysis = await analyzeDocument(documentData);
+      res.json(aiAnalysis);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.post("/api/analyze/compliance", async (req: Request, res: Response) => {
+    try {
+      const systemId = req.body.systemId;
+      const complianceAnalysis = await analyzeSystemCompliance(systemId);
+      res.json(complianceAnalysis);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+
   app.post("/api/alerts", async (req: Request, res: Response) => {
     try {
       const alertData = insertAlertSchema.parse(req.body);
