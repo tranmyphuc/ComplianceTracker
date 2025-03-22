@@ -7,8 +7,9 @@ import { BellIcon, Bot, MenuIcon, SearchIcon } from "lucide-react";
 import { getCurrentUser } from "@/lib/firebase";
 import { getAuth, signOut } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { AiAssistantDialog } from "@/components/ai-assistant/assistant-dialog";
+import { AuthContext } from "../../App";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -17,12 +18,15 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const { toast } = useToast();
   const auth = getAuth();
-  const user = getCurrentUser();
+  // Get the authenticated user from AuthContext (supports both Firebase and development mode)
+  const { user, logout } = useContext(AuthContext);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      // Use the logout function from AuthContext, which works for both Firebase and development mode
+      logout();
+      
       toast({
         title: "Signed out successfully",
         description: "You have been logged out of your account",
@@ -36,7 +40,7 @@ export function Header({ onMenuClick }: HeaderProps) {
     }
   };
   
-  const getInitials = (displayName: string | null) => {
+  const getInitials = (displayName?: string | null) => {
     if (!displayName) return "U";
     return displayName
       .split(" ")
@@ -48,6 +52,10 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
+      {/* Development Mode Banner */}
+      <div className="bg-green-500 text-white text-center text-xs py-1 font-medium">
+        DEVELOPMENT MODE - Automatically logged in as Admin
+      </div>
       <div className="flex items-center justify-between px-4 py-2 lg:px-6">
         <div className="flex items-center">
           <Button variant="ghost" size="icon" onClick={onMenuClick} className="lg:hidden">
@@ -97,8 +105,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="p-0 h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src={user?.photoURL || ""} alt="User" />
-                  <AvatarFallback>{getInitials(user?.displayName)}</AvatarFallback>
+                  <AvatarFallback>{user ? getInitials(user.displayName) : "U"}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>

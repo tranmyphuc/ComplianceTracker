@@ -50,7 +50,29 @@ function Router() {
 
   // Check local storage for user on mount
   useEffect(() => {
-    // Try to get user from localStorage first
+    // DEVELOPMENT MODE - Auto login with admin
+    // Remove this for production
+    const devModeEnabled = true; // Set to false to disable development mode
+    
+    if (devModeEnabled) {
+      console.log("DEVELOPMENT MODE ACTIVATED: Auto-login with admin user");
+      const adminUser: AppUser = {
+        id: 1,
+        uid: "admin-dev",
+        email: "admin@example.com",
+        username: "admin",
+        displayName: "Admin (Dev Mode)",
+        role: "admin",
+        department: "Executive"
+      };
+      
+      setUser(adminUser);
+      localStorage.setItem('user', JSON.stringify(adminUser));
+      setLoading(false);
+      return;
+    }
+    
+    // Normal flow - Try to get user from localStorage first
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
