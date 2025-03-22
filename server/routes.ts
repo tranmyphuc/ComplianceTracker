@@ -23,6 +23,8 @@ import {
   analyzeSystemCompliance,
   callDeepSeekApi
 } from "./ai-analysis";
+
+// Import compliance modules
 import { 
   calculateComprehensiveScore, 
   generateComplianceRoadmap 
@@ -31,13 +33,7 @@ import {
   generateDocument, 
   generateDocumentTemplate, 
   DocumentType 
-} from './document-generator';
-import {
-  getRecentUpdates,
-  getUpdateById,
-  analyzeRegulatoryImpact,
-  subscribeToUpdates
-} from './regulatory-updates';
+} from './document-generation';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -469,7 +465,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Enhanced compliance scoring and document generation routes
+  // Import modules
+  const { 
+    calculateComprehensiveScore, 
+    generateComplianceRoadmap 
+  } = require('./compliance-scoring');
+  const { 
+    generateDocument, 
+    generateDocumentTemplate, 
+    DocumentType 
+  } = require('./document-generator');
+  const {
+    getRecentUpdates,
+    getUpdateById,
+    analyzeRegulatoryImpact,
+    subscribeToUpdates
+  } = require('./regulatory-updates');
 
   // Enhanced compliance scoring routes
   app.post("/api/compliance/score", async (req: Request, res: Response) => {
@@ -578,6 +589,198 @@ export async function registerRoutes(app: Express): Promise<Server> {
       handleError(err as Error, res);
     }
   });
+
+  // Import advanced compliance features
+  const { 
+    performComplianceAssessment 
+  } = require('./advanced-compliance-assessment');
+  
+  const { 
+    initializeMonitoring, 
+    performMonitoringCheck, 
+    configureMonitoring 
+  } = require('./continuous-monitoring');
+  
+  const { 
+    createAuditRecord, 
+    getAuditRecords, 
+    generateReport, 
+    exportReport, 
+    ReportType 
+  } = require('./audit-reporting');
+  
+  const { 
+    getAllArticles, 
+    getArticlesByCategory, 
+    getArticleById, 
+    searchKnowledgeBase, 
+    askComplianceAI 
+  } = require('./knowledge-base');
+
+  // Advanced compliance assessment routes
+  app.post("/api/compliance/assessment", async (req: Request, res: Response) => {
+    try {
+      const systemData = req.body;
+      const assessment = await performComplianceAssessment(systemData);
+      res.json(assessment);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  // Continuous monitoring routes
+  app.post("/api/monitoring/configure", async (req: Request, res: Response) => {
+    try {
+      const { systemId, config } = req.body;
+      
+      if (!systemId || !config) {
+        return res.status(400).json({ message: "Missing required parameters" });
+      }
+      
+      const success = await configureMonitoring(systemId, config);
+      res.json({ success });
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.post("/api/monitoring/check", async (req: Request, res: Response) => {
+    try {
+      const { systemId, config } = req.body;
+      
+      if (!systemId) {
+        return res.status(400).json({ message: "Missing required parameters" });
+      }
+      
+      const result = await performMonitoringCheck(systemId, config);
+      res.json(result);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  // Audit and reporting routes
+  app.post("/api/audit/record", async (req: Request, res: Response) => {
+    try {
+      const recordData = req.body;
+      const record = await createAuditRecord(recordData);
+      res.status(201).json(record);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.get("/api/audit/records/:systemId", async (req: Request, res: Response) => {
+    try {
+      const records = await getAuditRecords(req.params.systemId);
+      res.json(records);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.post("/api/reports/generate", async (req: Request, res: Response) => {
+    try {
+      const { type, systemIds, options } = req.body;
+      
+      if (!type || !systemIds) {
+        return res.status(400).json({ message: "Missing required parameters" });
+      }
+      
+      const report = await generateReport(type, systemIds, options);
+      res.json(report);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.post("/api/reports/export", async (req: Request, res: Response) => {
+    try {
+      const { report, format } = req.body;
+      
+      if (!report || !format) {
+        return res.status(400).json({ message: "Missing required parameters" });
+      }
+      
+      const exportedReport = await exportReport(report, format);
+      
+      if (format === 'json') {
+        return res.json(JSON.parse(exportedReport as string));
+      }
+      
+      // For other formats, we would set appropriate headers and send the file
+      // This is a simplified implementation
+      res.json({ data: "Export successful", format });
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  // Knowledge base routes
+  app.get("/api/knowledge/articles", (_req: Request, res: Response) => {
+    try {
+      const articles = getAllArticles();
+      res.json(articles);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.get("/api/knowledge/articles/category/:category", (req: Request, res: Response) => {
+    try {
+      const articles = getArticlesByCategory(req.params.category);
+      res.json(articles);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.get("/api/knowledge/articles/:id", (req: Request, res: Response) => {
+    try {
+      const article = getArticleById(req.params.id);
+      
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      
+      res.json(article);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.get("/api/knowledge/search", (req: Request, res: Response) => {
+    try {
+      const query = req.query.q as string;
+      
+      if (!query) {
+        return res.status(400).json({ message: "Missing search query" });
+      }
+      
+      const results = searchKnowledgeBase(query);
+      res.json(results);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.post("/api/knowledge/ask", async (req: Request, res: Response) => {
+    try {
+      const { question } = req.body;
+      
+      if (!question) {
+        return res.status(400).json({ message: "Missing question" });
+      }
+      
+      const answer = await askComplianceAI(question);
+      res.json({ question, answer });
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  // Initialize continuous monitoring system
+  initializeMonitoring().catch(err => console.error('Error initializing monitoring:', err));
 
   // Setup HTTP server
   const httpServer = createServer(app);
