@@ -11,6 +11,9 @@ import {
   BookOpenIcon,
   SettingsIcon,
   HomeIcon,
+  PlusCircleIcon,
+  BrainIcon,
+  SparklesIcon,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -42,6 +45,10 @@ export function Sidebar({ className }: SidebarProps) {
             </a>
           </Link>
           
+          <div className="my-1 px-3 py-1.5">
+            <p className="text-xs font-medium text-neutral-400 uppercase tracking-wider">AI Systems</p>
+          </div>
+          
           <Link href="/inventory">
             <a
               className={cn(
@@ -51,6 +58,18 @@ export function Sidebar({ className }: SidebarProps) {
             >
               <CpuIcon className="h-5 w-5 mr-3" />
               <span>AI Inventory</span>
+            </a>
+          </Link>
+          
+          <Link href="/register-system">
+            <a
+              className={cn(
+                "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+                isActive("/register-system") && "bg-primary/10 text-primary font-medium"
+              )}
+            >
+              <BrainIcon className="h-5 w-5 mr-3" />
+              <span>Register System</span>
             </a>
           </Link>
           
@@ -66,6 +85,10 @@ export function Sidebar({ className }: SidebarProps) {
             </a>
           </Link>
           
+          <div className="mt-3 mb-1 px-3 py-1.5">
+            <p className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Compliance</p>
+          </div>
+          
           <Link href="/documentation">
             <a
               className={cn(
@@ -75,18 +98,6 @@ export function Sidebar({ className }: SidebarProps) {
             >
               <FileTextIcon className="h-5 w-5 mr-3" />
               <span>Documentation</span>
-            </a>
-          </Link>
-          
-          <Link href="/training">
-            <a
-              className={cn(
-                "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-                isActive("/training") && "bg-primary/10 text-primary font-medium"
-              )}
-            >
-              <AwardIcon className="h-5 w-5 mr-3" />
-              <span>Training</span>
             </a>
           </Link>
           
@@ -124,6 +135,18 @@ export function Sidebar({ className }: SidebarProps) {
               >
                 <BookOpenIcon className="h-5 w-5 mr-3" />
                 <span>Knowledge Center</span>
+              </a>
+            </Link>
+            
+            <Link href="/training">
+              <a
+                className={cn(
+                  "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+                  isActive("/training") && "bg-primary/10 text-primary font-medium"
+                )}
+              >
+                <AwardIcon className="h-5 w-5 mr-3" />
+                <span>Training</span>
               </a>
             </Link>
             
