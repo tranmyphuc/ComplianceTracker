@@ -29,6 +29,8 @@ export function AssessmentWizard() {
     emotionRecognition: "",
     predictivePolicing: ""
   });
+  const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
+  const [aiAnalysisResults, setAiAnalysisResults] = useState<any>(null);
 
   const { data: systems, isLoading } = useQuery({
     queryKey: ["/api/systems"],
@@ -136,6 +138,53 @@ export function AssessmentWizard() {
   const getSelectedSystem = () => {
     if (!systems) return null;
     return systems.find((system: any) => system.systemId === selectedSystem);
+  };
+
+  const runAIAnalysis = async () => {
+    if (!selectedSystem) {
+      toast({
+        title: "No system selected",
+        description: "Please select an AI system to run analysis",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setAiAnalysisLoading(true);
+    setAiAnalysisResults(null);
+
+    try {
+      const selectedSystemData = getSelectedSystem();
+      
+      const response = await fetch('/api/analyze/system', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(selectedSystemData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setAiAnalysisResults(data);
+      
+      toast({
+        title: "AI Analysis Complete",
+        description: "SGH ASIA AI has analyzed your system successfully",
+      });
+    } catch (error) {
+      console.error("Error running AI analysis:", error);
+      toast({
+        title: "Analysis Failed",
+        description: error instanceof Error ? error.message : "Failed to analyze system. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setAiAnalysisLoading(false);
+    }
   };
 
   return (
@@ -617,17 +666,142 @@ export function AssessmentWizard() {
                 </p>
               </div>
               
-              <div className="text-neutral-500 text-center py-8">
-                <p>This section would include risk parameter evaluation based on:</p>
-                <ul className="list-disc list-inside text-left max-w-md mx-auto mt-4 space-y-2">
-                  <li>Intended purpose of the system</li>
-                  <li>Technical characteristics</li>
-                  <li>Potential harm to individuals</li>
-                  <li>Autonomy level of the system</li>
-                  <li>Data quality and governance</li>
-                  <li>Human oversight mechanisms</li>
-                </ul>
+              {selectedSystem && (
+                <div className="bg-neutral-50 p-4 rounded-md border">
+                  <h4 className="font-medium">Selected System</h4>
+                  <div className="text-sm mt-1">
+                    <span className="font-medium">{getSelectedSystem()?.name}</span> • {getSelectedSystem()?.systemId}
+                  </div>
+                  <div className="text-sm text-neutral-500 mt-1">
+                    Department: {getSelectedSystem()?.department}
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex justify-center">
+                <Button 
+                  size="lg" 
+                  className="gap-2" 
+                  onClick={runAIAnalysis}
+                  disabled={aiAnalysisLoading}
+                >
+                  {aiAnalysisLoading ? (
+                    <>
+                      <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                      Analyzing with SGH ASIA AI...
+                    </>
+                  ) : (
+                    <>
+                      Run AI Analysis
+                    </>
+                  )}
+                </Button>
               </div>
+              
+              {aiAnalysisResults && (
+                <div className="border rounded-md p-4 space-y-6 mt-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-medium">AI Analysis Results</h3>
+                    <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+                      Compliance Score: {aiAnalysisResults.complianceScore}%
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <h4 className="font-medium">System Classification</h4>
+                      <div className="border rounded-md p-3">
+                        <div className="text-sm text-neutral-700">
+                          <p className="font-medium">Category:</p>
+                          <p>{aiAnalysisResults.systemCategory}</p>
+                        </div>
+                      </div>
+                      
+                      <h4 className="font-medium">Risk Assessment</h4>
+                      <div className="border rounded-md p-3">
+                        <div className="text-sm text-neutral-700">
+                          <p className="font-medium">Risk Level:</p>
+                          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
+                            aiAnalysisResults.riskClassification === 'High' 
+                              ? 'bg-red-100 text-red-800' 
+                              : aiAnalysisResults.riskClassification === 'Limited'
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-green-100 text-green-800'
+                          }`}>
+                            {aiAnalysisResults.riskClassification}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <h4 className="font-medium">Relevant EU AI Act Articles</h4>
+                      <div className="border rounded-md p-3 h-[120px] overflow-y-auto">
+                        <ul className="space-y-1 text-sm">
+                          {aiAnalysisResults.euAiActArticles?.map((article: string, index: number) => (
+                            <li key={index} className="flex items-center gap-2">
+                              <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                              {article}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <h4 className="font-medium">Required Documentation</h4>
+                    <div className="border rounded-md p-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {aiAnalysisResults.requiredDocumentation?.map((doc: string, index: number) => (
+                          <div key={index} className="flex items-center gap-2 text-sm">
+                            <CheckCircleIcon className="h-4 w-4 text-primary" />
+                            {doc}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <h4 className="font-medium">Suggested Improvements</h4>
+                    <div className="border rounded-md p-3">
+                      <div className="space-y-2">
+                        {aiAnalysisResults.suggestedImprovements?.map((improvement: string, index: number) => (
+                          <div key={index} className="flex items-start gap-2 text-sm">
+                            <div className="min-w-4 mt-0.5">
+                              <InfoIcon className="h-4 w-4 text-primary" />
+                            </div>
+                            <p>{improvement}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <Button variant="outline" size="sm" onClick={() => setAiAnalysisResults(null)}>
+                      Reset Analysis
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {!aiAnalysisResults && !aiAnalysisLoading && (
+                <div className="text-neutral-500 text-center py-8">
+                  <p>This section would include risk parameter evaluation based on:</p>
+                  <ul className="list-disc list-inside text-left max-w-md mx-auto mt-4 space-y-2">
+                    <li>Intended purpose of the system</li>
+                    <li>Technical characteristics</li>
+                    <li>Potential harm to individuals</li>
+                    <li>Autonomy level of the system</li>
+                    <li>Data quality and governance</li>
+                    <li>Human oversight mechanisms</li>
+                  </ul>
+                </div>
+              )}
             </div>
           </TabsContent>
           
