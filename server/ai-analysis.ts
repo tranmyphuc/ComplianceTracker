@@ -84,38 +84,154 @@ function simulateDeepSeekResponse(prompt: string): string {
       prompt.split('Description:')[1].split('Provide suggestions')[0].trim() : 
       'Unknown system';
     
-    // Analyze the description to create customized system details
-    const isGammaApp = description.toLowerCase().includes('gamma.app');
-    const isPresentation = isGammaApp || 
-      description.toLowerCase().includes('presentation') || 
-      description.toLowerCase().includes('slide') || 
-      description.toLowerCase().includes('content');
+    console.log("Processing system description for analysis:", description);
     
+    // Define different types of AI systems to analyze
+    const systemTypes = {
+      gammaApp: {
+        keywords: ['gamma.app', 'gamma', 'presentation', 'slide'],
+        name: "Gamma Presentation AI",
+        vendor: "Gamma Software Inc.",
+        version: "2.5.3",
+        department: "Marketing",
+        purpose: "An AI-powered presentation creation tool that automatically generates professional slides, infographics, and dynamic content based on minimal user input.",
+        capabilities: "NLP, Content Generation, Image Recognition, Layout Optimization",
+        dataSources: "Document Templates, Image Libraries, Font Collections, Presentation Examples",
+        riskLevel: "Limited"
+      },
+      chatGpt: {
+        keywords: ['chat gpt', 'chatgpt', 'openai', 'gpt-4', 'gpt-3', 'chatbot', 'conversation'],
+        name: "OpenAI ChatGPT Assistant",
+        vendor: "OpenAI Inc.",
+        version: "4.0",
+        department: "Customer Service",
+        purpose: "A conversational AI assistant that can understand and respond to natural language queries, provide information, assist with tasks, and generate human-like text based on the input it receives.",
+        capabilities: "Natural Language Processing, Context Understanding, Code Generation, Text Summarization, Content Creation",
+        dataSources: "Publicly Available Text Data, Academic Publications, Internet Content, Books",
+        riskLevel: "Limited"
+      },
+      faceRecognition: {
+        keywords: ['face', 'facial', 'recognition', 'biometric', 'identify', 'surveillance'],
+        name: "Facial Recognition System",
+        vendor: "SecureTech Solutions",
+        version: "3.2.1",
+        department: "Security",
+        purpose: "A biometric identification system that analyzes facial features to verify identity or identify individuals from digital images or video frames.",
+        capabilities: "Facial Detection, Feature Extraction, Pattern Recognition, Matching Algorithm",
+        dataSources: "Facial Image Databases, Video Footage, Employee Records",
+        riskLevel: "High"
+      },
+      hrScreening: {
+        keywords: ['hr', 'hiring', 'recruitment', 'candidate', 'resume', 'cv', 'application'],
+        name: "HR Candidate Screening AI",
+        vendor: "TalentAI Inc.",
+        version: "2.1.4",
+        department: "Human Resources",
+        purpose: "An AI system that evaluates job applications by analyzing resumes, cover letters, and application forms to identify candidates that match job requirements.",
+        capabilities: "Document Analysis, Pattern Matching, Ranking Algorithm, Language Processing",
+        dataSources: "Resumes, Applications, Job Descriptions, Historical Hiring Data",
+        riskLevel: "High"
+      },
+      dataAnalytics: {
+        keywords: ['data', 'analytics', 'analysis', 'visualization', 'dashboard', 'insights', 'metrics'],
+        name: "Business Intelligence Analytics Platform",
+        vendor: "DataViz Technologies",
+        version: "4.7.2",
+        department: "Business Intelligence",
+        purpose: "A data analytics platform that processes, analyzes, and visualizes business data to provide actionable insights and support strategic decision-making.",
+        capabilities: "Data Processing, Statistical Analysis, Predictive Modeling, Visual Reporting",
+        dataSources: "Business Transactions, Customer Behavior, Market Trends, Operational Metrics",
+        riskLevel: "Limited"
+      },
+      default: {
+        name: "AI System",
+        vendor: "Tech Solutions Ltd.",
+        version: "1.0.0",
+        department: "Information Technology",
+        purpose: "An artificial intelligence system designed to automate processes and assist with decision-making.",
+        capabilities: "Machine Learning, Data Processing, Pattern Recognition",
+        dataSources: "Structured and Unstructured Data, System Logs, User Inputs",
+        riskLevel: "Limited"
+      }
+    };
+    
+    // Determine the system type based on the description
+    let matchedSystem = systemTypes.default;
+    let highestMatchCount = 0;
+    
+    for (const [type, system] of Object.entries(systemTypes)) {
+      if (type === 'default') continue;
+      
+      const matchCount = system.keywords.reduce((count, keyword) => {
+        return count + (lowercasePrompt.includes(keyword) ? 1 : 0);
+      }, 0);
+      
+      if (matchCount > highestMatchCount) {
+        matchedSystem = system;
+        highestMatchCount = matchCount;
+      }
+    }
+    
+    // If we couldn't match any system specifically, try to make a more intelligent analysis
+    if (highestMatchCount === 0) {
+      // Extract potential keywords from the description for basic analysis
+      const words = description.toLowerCase().split(/\s+/);
+      
+      // Try to determine if this might be a content-related system
+      const contentRelated = words.some(word => 
+        ['content', 'text', 'write', 'writing', 'document', 'article'].includes(word));
+      
+      // Try to determine if this might be an image-related system
+      const imageRelated = words.some(word => 
+        ['image', 'photo', 'picture', 'visual', 'camera'].includes(word));
+      
+      // Try to determine if this might be a decision support system
+      const decisionRelated = words.some(word => 
+        ['decision', 'support', 'predict', 'forecast', 'recommend'].includes(word));
+      
+      if (contentRelated) {
+        matchedSystem = {
+          ...systemTypes.default,
+          name: "Content Management AI",
+          purpose: "An AI system that assists with creating, managing, and optimizing digital content.",
+          capabilities: "Natural Language Processing, Content Generation, Text Analysis",
+          dataSources: "Text Documents, Content Libraries, Style Guides, User Inputs"
+        };
+      } else if (imageRelated) {
+        matchedSystem = {
+          ...systemTypes.default,
+          name: "Image Processing AI",
+          purpose: "An AI system that processes, analyzes, and manipulates digital images.",
+          capabilities: "Computer Vision, Image Recognition, Visual Pattern Analysis",
+          dataSources: "Digital Images, Photo Libraries, Visual Databases"
+        };
+      } else if (decisionRelated) {
+        matchedSystem = {
+          ...systemTypes.default,
+          name: "Decision Support AI",
+          purpose: "An AI system that provides data-driven insights to support decision-making processes.",
+          capabilities: "Data Analysis, Predictive Modeling, Recommendation Engine",
+          dataSources: "Business Data, Historical Trends, User Preferences"
+        };
+      }
+    }
+    
+    const confidenceScore = highestMatchCount > 0 ? 75 + (highestMatchCount * 5) : 70;
+    
+    // Return the result as JSON with the matched system information
     return JSON.stringify({
-      name: isGammaApp ? "Gamma Presentation AI" : "Content Generation Assistant",
-      vendor: isGammaApp ? "Gamma Software Inc." : "AI Creative Solutions Ltd.",
-      version: "2.5.3",
-      department: isPresentation ? "Marketing" : "Customer Service",
-      purpose: isGammaApp ? 
-        "An AI-powered presentation creation tool that automatically generates professional slides, infographics, and dynamic content based on minimal user input." : 
-        "Content generation system that helps users create professional content with AI assistance, including writing, design, and presentation capabilities.",
-      capabilities: isPresentation ? 
-        "NLP, Content Generation, Image Recognition, Layout Optimization" : 
-        "NLP, Intent Recognition, Sentiment Analysis, Content Structuring",
-      dataSources: isPresentation ? 
-        "Document Templates, Image Libraries, Font Collections, Presentation Examples" : 
-        "Customer Conversations, Support Tickets, Knowledge Base Articles",
-      outputTypes: isPresentation ? 
-        "Structured Presentations, Infographics, Animated Slides" : 
-        "Text Content, Recommendations, Formatted Documents",
-      usageContext: isPresentation ? 
-        "Marketing teams, Sales presentations, Executive summaries" : 
-        "Customer support scenarios, Internal documentation",
-      potentialImpact: isPresentation ? 
-        "Improves communication efficiency, Reduces preparation time, Enhances visual presentation quality" : 
-        "Accelerates response times, Standardizes service quality, Reduces manual effort",
-      riskLevel: "Limited",
-      confidenceScore: 85
+      name: matchedSystem.name,
+      vendor: matchedSystem.vendor,
+      version: matchedSystem.version,
+      department: matchedSystem.department,
+      purpose: matchedSystem.purpose,
+      capabilities: matchedSystem.capabilities,
+      dataSources: matchedSystem.dataSources,
+      outputTypes: "Reports, Visualizations, Recommendations, Alerts",
+      usageContext: "Business intelligence, organizational decision-making, operational processes",
+      potentialImpact: "Improved efficiency, enhanced decision quality, resource optimization",
+      riskLevel: matchedSystem.riskLevel,
+      confidenceScore: Math.min(confidenceScore, 95)
     });
   }
   else if (lowercasePrompt.includes('category') || lowercasePrompt.includes('classify')) {

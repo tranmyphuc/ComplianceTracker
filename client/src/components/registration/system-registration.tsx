@@ -243,7 +243,8 @@ export const SystemRegistration: React.FC = () => {
         purpose: result.purpose || aiTextInput.substring(0, 120) + '...',
         aiCapabilities: result.capabilities || 'NLP, Intent Recognition, Sentiment Analysis',
         dataTypes: result.dataSources || 'Customer Conversations, Support Tickets',
-        riskLevel: result.riskLevel || 'Limited'
+        riskLevel: result.riskLevel || 'Limited',
+        confidenceScore: result.confidenceScore || 75
       };
       
       setAiResults(extractedData);
