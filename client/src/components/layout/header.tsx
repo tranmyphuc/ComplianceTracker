@@ -26,7 +26,7 @@ export function Header({ onMenuClick }: HeaderProps) {
     try {
       // Use the logout function from AuthContext, which works for both Firebase and development mode
       logout();
-      
+
       toast({
         title: "Signed out successfully",
         description: "You have been logged out of your account",
@@ -39,7 +39,7 @@ export function Header({ onMenuClick }: HeaderProps) {
       });
     }
   };
-  
+
   const getInitials = (displayName?: string | null) => {
     if (!displayName) return "U";
     return displayName
@@ -61,13 +61,16 @@ export function Header({ onMenuClick }: HeaderProps) {
           <Button variant="ghost" size="icon" onClick={onMenuClick} className="lg:hidden">
             <MenuIcon className="h-5 w-5" />
           </Button>
-          
+
           <div className="flex items-center ml-2 lg:ml-0">
-            <img src="/images/sgh-logo-color.svg" alt="SGH ASIA" className="h-10 w-auto" />
-            <span className="ml-2 text-lg font-semibold hidden">SGH ASIA</span>
+            <div className="font-bold text-lg text-primary">SGH ASIA</div>
+            <span className="font-semibold text-lg">- EU AI Act</span>
+          </div>
+          <div className="hidden sm:block text-sm text-neutral-500 -mt-1">
+            Your trusted partner for AI compliance excellence
           </div>
         </div>
-        
+
         <div className="flex-1 max-w-xl mx-4 hidden md:block">
           <div className="relative">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
@@ -78,13 +81,13 @@ export function Header({ onMenuClick }: HeaderProps) {
             />
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-3">
           <Button variant="ghost" size="icon" className="relative">
             <BellIcon className="h-5 w-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span>
           </Button>
-          
+
           <Button 
             variant="default" 
             className="hidden md:flex items-center"
@@ -94,9 +97,9 @@ export function Header({ onMenuClick }: HeaderProps) {
             <Bot className="mr-1.5 h-4 w-4" />
             AI Assistant
           </Button>
-          
+
           <div className="border-l border-neutral-200 h-8 mx-1 hidden md:block"></div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="p-0 h-9 w-9 rounded-full">
@@ -127,7 +130,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           </DropdownMenu>
         </div>
       </div>
-      
+
       <AiAssistantDialog 
         open={isAssistantOpen} 
         onOpenChange={setIsAssistantOpen} 

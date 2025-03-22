@@ -5,7 +5,8 @@ export function Footer() {
     <footer className="bg-white border-t border-neutral-200 mt-auto py-4 px-6 text-center text-sm text-neutral-500">
       <div className="flex flex-col md:flex-row items-center justify-between">
         <div>
-          &copy; {new Date().getFullYear()} SGH ASIA Ltd. All rights reserved.
+          <span className="font-bold text-primary">SGH ASIA</span>
+          <span className="font-medium">- EU AI Act Compliance</span>
         </div>
         <div className="flex items-center space-x-4 mt-2 md:mt-0">
           <div className="text-xs text-neutral-400 mr-4">
