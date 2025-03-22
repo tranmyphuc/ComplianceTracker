@@ -466,21 +466,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Import modules
-  const { 
+  import { 
     calculateComprehensiveScore, 
     generateComplianceRoadmap 
-  } = require('./compliance-scoring');
-  const { 
+  } from './compliance-scoring';
+  import { 
     generateDocument, 
     generateDocumentTemplate, 
     DocumentType 
-  } = require('./document-generator');
-  const {
+  } from './document-generator';
+  import {
     getRecentUpdates,
     getUpdateById,
     analyzeRegulatoryImpact,
     subscribeToUpdates
-  } = require('./regulatory-updates');
+  } from './regulatory-updates';
 
   // Enhanced compliance scoring routes
   app.post("/api/compliance/score", async (req: Request, res: Response) => {
@@ -591,31 +591,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Import advanced compliance features
-  const { 
+  import { 
     performComplianceAssessment 
-  } = require('./advanced-compliance-assessment');
+  } from './advanced-compliance-assessment';
   
-  const { 
+  import { 
     initializeMonitoring, 
     performMonitoringCheck, 
     configureMonitoring 
-  } = require('./continuous-monitoring');
+  } from './continuous-monitoring';
   
-  const { 
+  import { 
     createAuditRecord, 
     getAuditRecords, 
     generateReport, 
     exportReport, 
     ReportType 
-  } = require('./audit-reporting');
+  } from './audit-reporting';
   
-  const { 
+  import { 
     getAllArticles, 
     getArticlesByCategory, 
     getArticleById, 
     searchKnowledgeBase, 
     askComplianceAI 
-  } = require('./knowledge-base');
+  } from './knowledge-base';
 
   // Advanced compliance assessment routes
   app.post("/api/compliance/assessment", async (req: Request, res: Response) => {

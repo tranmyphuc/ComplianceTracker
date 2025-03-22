@@ -155,6 +155,11 @@ function Router() {
         <Route path="/documentation" component={Documentation} />
         <Route path="/register-system" component={RegisterSystem} />
         <Route path="/knowledge-center" component={KnowledgeCenter} />
+        <Route path="/compliance" component={Documentation} />
+        <Route path="/governance" component={Dashboard} />
+        <Route path="/reports" component={Documentation} />
+        <Route path="/profile" component={Dashboard} />
+        <Route path="/settings" component={Dashboard} />
         <Route component={NotFound} />
       </Switch>
     </AuthContext.Provider>
