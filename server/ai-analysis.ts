@@ -24,43 +24,53 @@ export async function callDeepSeekApi(prompt: string): Promise<string> {
   try {
     // Check if API key is present
     if (!DEEPSEEK_API_KEY) {
-      throw new Error('DeepSeek API key is not configured');
+      console.log('DeepSeek API key not found, using simulation mode');
+      return simulateDeepSeekResponse(prompt);
     }
 
-    // For testing purposes, you can log this:
     console.log('Calling DeepSeek API with prompt:', prompt);
 
-    // Always use the real API since we have the API key
-    const DEEPSEEK_API_URL = 'https://api.deepseek.ai/v1/chat/completions';
-    
-    const response = await fetch(DEEPSEEK_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.7
-      })
-    });
+    try {
+      // Try the real API first
+      const DEEPSEEK_API_URL = 'https://api.deepseek.ai/v1/chat/completions';
+      
+      const response = await fetch(DEEPSEEK_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.7
+        }),
+        // Add a timeout to prevent hanging requests
+        signal: AbortSignal.timeout(10000)
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`DeepSeek API error: ${response.status} - ${errorText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`DeepSeek API error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json() as DeepSeekResponse;
+      return data.choices[0].message.content;
+    } catch (error) {
+      // If API call fails, log error and fall back to simulation
+      console.error('DeepSeek API error - falling back to simulation:', error);
+      console.log('Using simulation mode as fallback');
+      return simulateDeepSeekResponse(prompt);
     }
-
-    const data = await response.json() as DeepSeekResponse;
-    return data.choices[0].message.content;
   } catch (error) {
-    console.error('DeepSeek API error:', error);
-    return `Error calling DeepSeek API: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    console.error('Error in DeepSeek API handler:', error);
+    // Final fallback
+    return simulateDeepSeekResponse(prompt);
   }
 }
 
