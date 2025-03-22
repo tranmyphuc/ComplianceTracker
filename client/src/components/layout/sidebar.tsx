@@ -130,6 +130,21 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             <p className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Compliance</p>
           </div>
 
+            <NavLink to="/risk-assessment/guides" className={({isActive}) => 
+              isActive ? activeNavClass : inactiveNavClass
+            }>
+              <FileText className="h-5 w-5" />
+              <span>Risk Assessment Guides</span>
+            </NavLink>
+            
+            <NavLink to="/documentation/risk-assessment" className={({isActive}) => 
+              isActive ? activeNavClass : inactiveNavClass
+            }>
+              <BookOpen className="h-5 w-5" />
+              <span>Full Documentation</span>
+            </NavLink>
+
+
           <Link 
             href="/documentation"
             className={cn(
