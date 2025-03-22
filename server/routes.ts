@@ -44,28 +44,6 @@ import {
   analyzeRegulatoryImpact,
   subscribeToUpdates
 } from './regulatory-updates';
-import { 
-  performComplianceAssessment 
-} from './advanced-compliance-assessment';
-import { 
-  initializeMonitoring, 
-  performMonitoringCheck, 
-  configureMonitoring 
-} from './continuous-monitoring';
-import { 
-  createAuditRecord, 
-  getAuditRecords, 
-  generateReport, 
-  exportReport, 
-  ReportType 
-} from './audit-reporting';
-import { 
-  getAllArticles, 
-  getArticlesByCategory, 
-  getArticleById, 
-  searchKnowledgeBase, 
-  askComplianceAI 
-} from './knowledge-base';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
