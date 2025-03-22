@@ -11,17 +11,23 @@ import {
   AlertTriangleIcon,
   ArrowRightIcon, 
   BrainIcon, 
+  CheckIcon,
   ChevronRightIcon, 
   ClipboardCheckIcon, 
   DatabaseIcon, 
   FileIcon, 
   InfoIcon, 
+  PencilIcon,
   SaveIcon, 
   SearchIcon,
   ShieldIcon,
   SparklesIcon,
-  UploadIcon
+  UploadIcon,
+  XIcon
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 export function SystemRegistration() {
   const [activeTab, setActiveTab] = useState("basic");
@@ -31,13 +37,25 @@ export function SystemRegistration() {
     purpose: "",
     version: "1.0",
     department: "",
+    vendor: "",
     riskLevel: "",
+    systemId: "",
     aiCapabilities: "",
     trainingDatasets: "",
     outputTypes: "",
     usageContext: "",
     potentialImpact: "",
-    mitigationMeasures: ""
+    mitigationMeasures: "",
+    implementationDate: "",
+    lastAssessmentDate: "",
+    expectedLifetime: "",
+    maintenanceSchedule: "",
+    owner: "",
+    deploymentScope: "",
+    integrations: [],
+    changeHistory: [],
+    dataSources: [],
+    trainingDataDescription: ""
   });
 
   const [registrationProgress, setRegistrationProgress] = useState<{
@@ -54,6 +72,21 @@ export function SystemRegistration() {
 
   const [sghAsiaAiInProgress, setSghAsiaAiInProgress] = useState(false);
   const [sghAsiaAiResults, setSghAsiaAiResults] = useState<any>(null);
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [activeAiTab, setActiveAiTab] = useState("upload");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [systemDescription, setSystemDescription] = useState("");
+  const [extractionProgress, setExtractionProgress] = useState(0);
+  const [extractionInProgress, setExtractionInProgress] = useState(false);
+  const [extractionResults, setExtractionResults] = useState<any>(null);
+  const [confidence, setConfidence] = useState(0);
+
+  // Handle file upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setUploadedFile(e.target.files[0]);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -70,6 +103,7 @@ export function SystemRegistration() {
     });
   };
 
+  // Run the SGH ASIA AI analysis using the DeepSeek API
   const runSghAsiaAiAnalysis = async () => {
     setSghAsiaAiInProgress(true);
 
@@ -101,6 +135,137 @@ export function SystemRegistration() {
       setSghAsiaAiInProgress(false);
       // Handle error appropriately, e.g., display an error message to the user
     }
+  };
+  
+  // Extract information from the document using DeepSeek AI
+  const extractInformation = async () => {
+    setExtractionInProgress(true);
+    setExtractionProgress(0);
+    
+    // Simulate progress for demo purposes
+    const interval = setInterval(() => {
+      setExtractionProgress(prev => {
+        if (prev >= 95) {
+          clearInterval(interval);
+          return prev;
+        }
+        return prev + 5;
+      });
+    }, 100);
+    
+    try {
+      setTimeout(() => {
+        // Simulate AI extraction results
+        clearInterval(interval);
+        setExtractionProgress(100);
+        setConfidence(92);
+        
+        const results = {
+          systemName: "HR Candidate Evaluation Tool v3",
+          vendor: "TalentAI Inc.",
+          version: "3.2.1",
+          department: "Human Resources",
+          systemPurpose: "Analyzes candidate resumes and applications to rank job candidates based on skill matching, experience, and qualification criteria. Utilizes natural language processing and supervised machine learning to evaluate candidate fit.",
+          aiTechniques: "Natural Language Processing, Supervised Learning, Ranking Algorithms",
+          dataTypes: "Resumes, Job Applications, Job Descriptions, Historical Hiring Data",
+          integrationPoints: "HRIS System, Applicant Tracking System",
+          userRoles: "HR Managers, Recruiters",
+          implementationDate: "March 15, 2024",
+          riskClassification: "High Risk",
+          euAiActArticles: ["Article 6.2", "Article 9", "Article 10", "Article 13"],
+          complianceConsiderations: "Based on system description, this is identified as a potential high-risk system under EU AI Act Article 6.2 (Employment/worker management)",
+          documentationRequirements: ["Technical Documentation", "Risk Assessment", "Human Oversight Protocol", "Data Governance Documentation"]
+        };
+        
+        setExtractionResults(results);
+        setExtractionInProgress(false);
+      }, 2500);
+    } catch (error) {
+      console.error("Error extracting information:", error);
+      clearInterval(interval);
+      setExtractionInProgress(false);
+    }
+  };
+  
+  // Extract information from text description using DeepSeek AI
+  const analyzeDescription = async () => {
+    setExtractionInProgress(true);
+    setExtractionProgress(0);
+    
+    // Simulate progress for demo purposes
+    const interval = setInterval(() => {
+      setExtractionProgress(prev => {
+        if (prev >= 95) {
+          clearInterval(interval);
+          return prev;
+        }
+        return prev + 8;
+      });
+    }, 100);
+    
+    try {
+      setTimeout(() => {
+        // Simulate AI extraction results
+        clearInterval(interval);
+        setExtractionProgress(100);
+        setConfidence(88);
+        
+        const results = {
+          systemName: "TalentAI's Candidate Evaluation System",
+          vendor: "TalentAI",
+          version: "3.2.1",
+          department: "HR",
+          systemPurpose: "Analyzes resumes and ranks job applicants based on qualifications, skills, and experience to help recruitment team identify promising candidates more efficiently.",
+          aiTechniques: "Machine Learning, Natural Language Processing",
+          dataTypes: "Resumes, Job Applications, Applicant Data",
+          integrationPoints: "Applicant Tracking System, HRIS",
+          userRoles: "Recruitment Team",
+          implementationDate: "Recently",
+          riskClassification: "High Risk",
+          euAiActArticles: ["Article 6.2", "Article 9", "Article 10"],
+          complianceConsiderations: "Likely High-Risk (Employment Category) under EU AI Act",
+          documentationRequirements: ["Technical Documentation", "Risk Assessment", "Human Oversight Protocol"]
+        };
+        
+        setExtractionResults(results);
+        setExtractionInProgress(false);
+      }, 1500);
+    } catch (error) {
+      console.error("Error analyzing description:", error);
+      clearInterval(interval);
+      setExtractionInProgress(false);
+    }
+  };
+  
+  // Apply a single extracted field to the form
+  const applyField = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+  
+  // Apply all extracted information to the form
+  const applyAllFields = () => {
+    if (!extractionResults) return;
+    
+    setFormData(prev => ({
+      ...prev,
+      name: extractionResults.systemName || prev.name,
+      vendor: extractionResults.vendor || prev.vendor,
+      version: extractionResults.version || prev.version,
+      department: extractionResults.department || prev.department,
+      purpose: extractionResults.systemPurpose || prev.purpose,
+      aiCapabilities: extractionResults.aiTechniques || prev.aiCapabilities,
+      trainingDatasets: extractionResults.dataTypes || prev.trainingDatasets,
+      implementationDate: extractionResults.implementationDate || prev.implementationDate,
+      riskLevel: extractionResults.riskClassification || prev.riskLevel
+    }));
+    
+    setShowAiModal(false);
+    
+    // Show toast notification (simulated)
+    console.log("All fields applied successfully");
   };
 
   const handleTabChange = (tab: string) => {
