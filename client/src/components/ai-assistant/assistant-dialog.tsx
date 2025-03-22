@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface AiAssistantDialogProps {
   open: boolean;
