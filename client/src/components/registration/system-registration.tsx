@@ -1,169 +1,84 @@
-import { useState, useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { BrainIcon, Sparkles, Upload, Bot, PencilIcon, SparklesIcon } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { RegistrationGuide } from "./registration-guide";
-import {
-  AlertTriangleIcon,
-  ArrowRightIcon,
-  BrainIcon,
-  CheckIcon,
-  ChevronRightIcon,
-  ClipboardCheckIcon,
-  DatabaseIcon,
-  FileIcon,
-  InfoIcon,
-  PencilIcon,
-  SaveIcon,
-  SearchIcon,
-  ShieldIcon,
-  SparklesIcon,
-  UploadIcon,
-  XIcon
-} from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from '@/components/ui/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import RegistrationGuide from './registration-guide';
 
+// Initial form data structure
+const initialFormData = {
+  name: '',
+  description: '',
+  purpose: '',
+  version: '',
+  department: '',
+  vendor: '',
+  riskLevel: 'Limited',
+  systemId: '',
+  aiCapabilities: '',
+  trainingDatasets: '',
+  outputTypes: '',
+  usageContext: '',
+  potentialImpact: '',
+  mitigationMeasures: '',
+  implementationDate: '',
+  lastAssessmentDate: '',
+  expectedLifetime: '',
+  maintenanceSchedule: '',
+  owner: '',
+  deploymentScope: '',
+  integrations: [],
+  changeHistory: [],
+  dataSources: [],
+  trainingDataDescription: ''
+};
 
-export function SystemRegistration() {
-  const [activeTab, setActiveTab] = useState("basic");
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    purpose: "",
-    version: "1.0",
-    department: "",
-    vendor: "",
-    riskLevel: "",
-    systemId: "",
-    aiCapabilities: "",
-    trainingDatasets: "",
-    outputTypes: "",
-    usageContext: "",
-    potentialImpact: "",
-    mitigationMeasures: "",
-    implementationDate: "",
-    lastAssessmentDate: "",
-    expectedLifetime: "",
-    maintenanceSchedule: "",
-    owner: "",
-    deploymentScope: "",
-    integrations: [],
-    changeHistory: [],
-    dataSources: [],
-    trainingDataDescription: ""
-  });
-
-  const [registrationProgress, setRegistrationProgress] = useState<{
-    basic: boolean;
-    classification: boolean;
-    technical: boolean;
-    impact: boolean;
-  }>({
-    basic: false,
-    classification: false,
-    technical: false,
-    impact: false
-  });
-
+const SystemRegistration: React.FC = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState(initialFormData);
+  const [currentStep, setCurrentStep] = useState(1);
   const [sghAsiaAiInProgress, setSghAsiaAiInProgress] = useState(false);
   const [sghAsiaAiResults, setSghAsiaAiResults] = useState<any>(null);
-  const [showAiModal, setShowAiModal] = useState(false);
-  const [activeAiTab, setActiveAiTab] = useState("upload");
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiTab, setAiTab] = useState('upload');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [systemDescription, setSystemDescription] = useState("");
-  const [extractionProgress, setExtractionProgress] = useState(0);
   const [extractionInProgress, setExtractionInProgress] = useState(false);
-  const [extractionResults, setExtractionResults] = useState<any>(null);
-  const [confidence, setConfidence] = useState(0);
-  const [systemLoadedFromAssessment, setSystemLoadedFromAssessment] = useState(false);
+  const [extractionProgress, setExtractionProgress] = useState(0);
+  const [aiTextInput, setAiTextInput] = useState('');
+  const [aiResults, setAiResults] = useState<any>(null);
+  const [confidenceScore, setConfidenceScore] = useState(0);
 
-  // Load system data from risk assessment if available
-  useEffect(() => {
-    try {
-      const savedSystem = localStorage.getItem('systemToRegister');
-      if (savedSystem) {
-        const systemData = JSON.parse(savedSystem);
-
-        // Update form data with the loaded system
-        setFormData(prev => ({
-          ...prev,
-          name: systemData.name || prev.name,
-          description: systemData.description || prev.description,
-          purpose: systemData.purpose || prev.purpose,
-          department: systemData.department || prev.department,
-          riskLevel: systemData.riskLevel || prev.riskLevel
-        }));
-
-        // Mark the first tab as complete
-        setRegistrationProgress(prev => ({
-          ...prev,
-          basic: true
-        }));
-
-        // Set flag that system was loaded from assessment
-        setSystemLoadedFromAssessment(true);
-
-        // Show simulated AI results based on loaded data
-        setSghAsiaAiResults({
-          systemCategory: systemData.systemCategory || "General Purpose System",
-          riskClassification: systemData.riskLevel || "Limited",
-          complianceScore: systemData.complianceScore || 65,
-          euAiActArticles: ["Article 10", "Article 13", "Article 15"],
-          suggestedImprovements: [
-            "Complete technical documentation with detailed model information",
-            "Implement formal risk management procedures",
-            "Establish clear human oversight mechanisms",
-            "Create comprehensive data governance policies"
-          ]
-        });
-
-        // Once loaded, remove from localStorage to prevent confusion on next visit
-        localStorage.removeItem('systemToRegister');
-      }
-    } catch (error) {
-      console.error("Error loading system data from assessment:", error);
-    }
-  }, []);
-
-  // Handle file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setUploadedFile(e.target.files[0]);
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
+    });
+  };
+
+  const handleDepartmentChange = (value: string) => {
+    setFormData({
+      ...formData,
+      department: value
     });
   };
 
@@ -201,10 +116,19 @@ export function SystemRegistration() {
         ...prev,
         riskLevel: results.riskClassification
       }));
+
+      toast({
+        title: "AI Analysis Complete",
+        description: `System classified as ${results.riskClassification} risk with ${results.complianceScore}% compliance score.`,
+      });
     } catch (error) {
       console.error("Error running AI analysis:", error);
       setSghAsiaAiInProgress(false);
-      // Handle error appropriately, e.g., display an error message to the user
+      toast({
+        title: "Analysis Error",
+        description: "There was a problem running the AI analysis. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -213,157 +137,204 @@ export function SystemRegistration() {
     setExtractionInProgress(true);
     setExtractionProgress(0);
 
-    // Simulate progress for demo purposes
-    const interval = setInterval(() => {
+    // Simulate the extraction process with progress
+    const progressInterval = setInterval(() => {
       setExtractionProgress(prev => {
         if (prev >= 95) {
-          clearInterval(interval);
+          clearInterval(progressInterval);
           return prev;
         }
-        return prev + 5;
+        return prev + Math.floor(Math.random() * 10);
       });
-    }, 100);
+    }, 300);
 
     try {
+      // Mock extraction for demo - in production, this would call the DeepSeek API
       setTimeout(() => {
-        // Simulate AI extraction results
-        clearInterval(interval);
+        clearInterval(progressInterval);
         setExtractionProgress(100);
-        setConfidence(92);
-
-        const results = {
-          systemName: "HR Candidate Evaluation Tool v3",
-          vendor: "TalentAI Inc.",
-          version: "3.2.1",
-          department: "Human Resources",
-          systemPurpose: "Analyzes candidate resumes and applications to rank job candidates based on skill matching, experience, and qualification criteria. Utilizes natural language processing and supervised machine learning to evaluate candidate fit.",
-          aiTechniques: "Natural Language Processing, Supervised Learning, Ranking Algorithms",
-          dataTypes: "Resumes, Job Applications, Job Descriptions, Historical Hiring Data",
-          integrationPoints: "HRIS System, Applicant Tracking System",
-          userRoles: "HR Managers, Recruiters",
-          implementationDate: "March 15, 2024",
-          riskClassification: "High Risk",
-          euAiActArticles: ["Article 6.2", "Article 9", "Article 10", "Article 13"],
-          complianceConsiderations: "Based on system description, this is identified as a potential high-risk system under EU AI Act Article 6.2 (Employment/worker management)",
-          documentationRequirements: ["Technical Documentation", "Risk Assessment", "Human Oversight Protocol", "Data Governance Documentation"]
+        
+        // Sample extraction results
+        const extractedData = {
+          name: uploadedFile ? 'HR Candidate Evaluation Tool v3' : 'Customer Service AI Chatbot',
+          vendor: uploadedFile ? 'TalentAI Inc.' : 'ServiceBot Technologies',
+          version: uploadedFile ? '3.2.1' : '2.5.0',
+          department: uploadedFile ? 'Human Resources' : 'Customer Support',
+          purpose: uploadedFile 
+            ? 'Analyzes candidate resumes and applications to rank job candidates based on skill matching, experience, and qualification criteria.' 
+            : 'Provides automated customer support through natural language understanding of customer queries.',
+          aiCapabilities: uploadedFile 
+            ? 'Natural Language Processing, Supervised Learning, Ranking Algorithms' 
+            : 'NLP, Intent Recognition, Knowledge Base Retrieval',
+          dataTypes: uploadedFile 
+            ? 'Resumes, Job Applications, Job Descriptions, Historical Hiring Data' 
+            : 'Customer Questions, Support Tickets, Product Knowledge Base',
+          riskLevel: uploadedFile ? 'High' : 'Limited'
         };
-
-        setExtractionResults(results);
+        
+        setAiResults(extractedData);
+        setConfidenceScore(uploadedFile ? 92 : 87);
         setExtractionInProgress(false);
-      }, 2500);
+      }, 3000);
     } catch (error) {
       console.error("Error extracting information:", error);
-      clearInterval(interval);
       setExtractionInProgress(false);
+      toast({
+        title: "Extraction Error",
+        description: "There was a problem extracting information. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
-  // Extract information from text description using DeepSeek AI
-  const analyzeDescription = async () => {
+  // Extract information from text description
+  const analyzeTextDescription = async () => {
+    if (!aiTextInput) {
+      toast({
+        title: "Input Required",
+        description: "Please enter a description of the AI system.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setExtractionInProgress(true);
     setExtractionProgress(0);
 
-    // Simulate progress for demo purposes
-    const interval = setInterval(() => {
+    // Simulate the extraction process with progress
+    const progressInterval = setInterval(() => {
       setExtractionProgress(prev => {
         if (prev >= 95) {
-          clearInterval(interval);
+          clearInterval(progressInterval);
           return prev;
         }
-        return prev + 8;
+        return prev + Math.floor(Math.random() * 10);
       });
-    }, 100);
+    }, 200);
 
     try {
+      // Mock text analysis for demo - in production, this would call the DeepSeek API
       setTimeout(() => {
-        // Simulate AI extraction results
-        clearInterval(interval);
+        clearInterval(progressInterval);
         setExtractionProgress(100);
-        setConfidence(88);
-
-        const results = {
-          systemName: "TalentAI's Candidate Evaluation System",
-          vendor: "TalentAI",
-          version: "3.2.1",
-          department: "HR",
-          systemPurpose: "Analyzes resumes and ranks job applicants based on qualifications, skills, and experience to help recruitment team identify promising candidates more efficiently.",
-          aiTechniques: "Machine Learning, Natural Language Processing",
-          dataTypes: "Resumes, Job Applications, Applicant Data",
-          integrationPoints: "Applicant Tracking System, HRIS",
-          userRoles: "Recruitment Team",
-          implementationDate: "Recently",
-          riskClassification: "High Risk",
-          euAiActArticles: ["Article 6.2", "Article 9", "Article 10"],
-          complianceConsiderations: "Likely High-Risk (Employment Category) under EU AI Act",
-          documentationRequirements: ["Technical Documentation", "Risk Assessment", "Human Oversight Protocol"]
+        
+        const extractedData = {
+          name: aiTextInput.includes('TalentAI') ? 'HR Candidate Evaluation System' : 'Customer Interaction AI',
+          vendor: aiTextInput.includes('TalentAI') ? 'TalentAI Inc.' : 'AI Service Solutions',
+          version: aiTextInput.includes('3.2.1') ? '3.2.1' : '1.0',
+          department: aiTextInput.includes('HR') ? 'Human Resources' : 'Customer Service',
+          purpose: aiTextInput.substring(0, 120) + '...',
+          aiCapabilities: aiTextInput.includes('machine learning') ? 'Machine Learning, Ranking, Pattern Recognition' : 'NLP, Intent Recognition, Sentiment Analysis',
+          dataTypes: aiTextInput.includes('resume') ? 'Resumes, Applications, Candidate Data' : 'Customer Conversations, Support Tickets',
+          riskLevel: aiTextInput.includes('HR') || aiTextInput.includes('recruitment') ? 'High' : 'Limited'
         };
-
-        setExtractionResults(results);
+        
+        setAiResults(extractedData);
+        setConfidenceScore(85);
         setExtractionInProgress(false);
-      }, 1500);
+      }, 2500);
     } catch (error) {
-      console.error("Error analyzing description:", error);
-      clearInterval(interval);
+      console.error("Error analyzing text:", error);
       setExtractionInProgress(false);
+      toast({
+        title: "Analysis Error",
+        description: "There was a problem analyzing the text. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
-  // Apply a single extracted field to the form
-  const applyField = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
+  // Apply all AI results to form data
+  const applyAllResults = () => {
+    if (aiResults) {
+      setFormData({
+        ...formData,
+        name: aiResults.name || formData.name,
+        vendor: aiResults.vendor || formData.vendor,
+        version: aiResults.version || formData.version,
+        department: aiResults.department || formData.department,
+        purpose: aiResults.purpose || formData.purpose,
+        aiCapabilities: aiResults.aiCapabilities || formData.aiCapabilities,
+        trainingDatasets: aiResults.dataTypes || formData.trainingDatasets,
+        riskLevel: aiResults.riskLevel || formData.riskLevel
+      });
+      
+      setAiModalOpen(false);
+      
+      toast({
+        title: "Information Applied",
+        description: "AI-extracted information has been applied to the form.",
+      });
+    }
+  };
+
+  // Apply a single result field
+  const applyField = (field: string, value: string) => {
+    setFormData({
+      ...formData,
       [field]: value
-    }));
+    });
+    
+    toast({
+      title: "Field Updated",
+      description: `${field.charAt(0).toUpperCase() + field.slice(1)} has been updated.`,
+    });
   };
 
-  // Apply all extracted information to the form
-  const applyAllFields = () => {
-    if (!extractionResults) return;
-
-    setFormData(prev => ({
-      ...prev,
-      name: extractionResults.systemName || prev.name,
-      vendor: extractionResults.vendor || prev.vendor,
-      version: extractionResults.version || prev.version,
-      department: extractionResults.department || prev.department,
-      purpose: extractionResults.systemPurpose || prev.purpose,
-      aiCapabilities: extractionResults.aiTechniques || prev.aiCapabilities,
-      trainingDatasets: extractionResults.dataTypes || prev.trainingDatasets,
-      implementationDate: extractionResults.implementationDate || prev.implementationDate,
-      riskLevel: extractionResults.riskClassification || prev.riskLevel
-    }));
-
-    setShowAiModal(false);
-
-    // Show toast notification (simulated)
-    console.log("All fields applied successfully");
-  };
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-
-    // Mark previous sections as complete
-    const updatedProgress = {...registrationProgress};
-    if (tab === "classification" && formData.name && formData.description && formData.purpose) {
-      updatedProgress.basic = true;
-    } else if (tab === "technical" && formData.riskLevel) {
-      updatedProgress.classification = true;
-    } else if (tab === "impact" && formData.aiCapabilities && formData.trainingDatasets) {
-      updatedProgress.technical = true;
+  // Handle file upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setUploadedFile(files[0]);
     }
-
-    setRegistrationProgress(updatedProgress);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     console.log("Submit system registration:", formData);
-    // Here you would submit the data to your backend API
+    
+    try {
+      const response = await fetch('/api/systems', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...formData,
+          createdBy: "system", // In a real app, this would be the user's ID
+        })
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Registration Successful",
+          description: "The AI system has been registered successfully.",
+        });
+        
+        navigate('/dashboard');
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Registration Failed",
+          description: errorData.message || "Failed to register the AI system.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast({
+        title: "Submission Error",
+        description: "There was a problem submitting the form. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
     <div className="space-y-6">
-      <RegistrationGuide /> {/* Added RegistrationGuide component here */}
+      <RegistrationGuide />
       <Card className="border-neutral-200 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-xl flex items-center">
@@ -379,484 +350,428 @@ export function SystemRegistration() {
             <div className="flex-1">
               <h3 className="font-medium text-sm">Accelerate Your System Registration</h3>
               <p className="text-xs text-neutral-500 mt-1">
-                Let our SGH ASIA AI analyze your system description and suggest appropriate classification and compliance requirements
+                Let our SGH ASIA AI analyze your system details and suggest appropriate classification and compliance requirements
               </p>
             </div>
-            <Button 
-              variant="default" 
-              className="whitespace-nowrap"
-              onClick={runSghAsiaAiAnalysis}
-              disabled={sghAsiaAiInProgress || !formData.description}
-            >
-              {sghAsiaAiInProgress ? (
-                <>
-                  <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin mr-2"></div>
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <SparklesIcon className="h-4 w-4 mr-1.5" />
-                  Run AI Analysis
-                </>
-              )}
-            </Button>
-          </div>
-
-          {sghAsiaAiResults && (
-            <Card className="border-primary/20 bg-primary/5 mb-6">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center">
-                  <SparklesIcon className="h-4 w-4 mr-1.5 text-primary" />
-                  SGH ASIA AI Analysis Results
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 pb-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-3">
-                  <div>
-                    <p className="text-xs text-neutral-500">System Category</p>
-                    <p className="text-sm font-medium">{sghAsiaAiResults.systemCategory}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-neutral-500">Risk Classification</p>
-                    <p className="text-sm font-medium text-amber-600">{sghAsiaAiResults.riskClassification}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-neutral-500">Compliance Score</p>
-                    <div className="flex items-center">
-                      <div className="w-16 h-1.5 bg-neutral-200 rounded-full mr-2">
-                        <div 
-                          className={`h-full rounded-full ${
-                            sghAsiaAiResults.complianceScore > 80 ? "bg-green-500" : 
-                            sghAsiaAiResults.complianceScore > 60 ? "bg-amber-500" : "bg-red-500"
-                          }`}
-                          style={{ width: `${sghAsiaAiResults.complianceScore}%` }}
-                        />
-                      </div>
-                      <span className="text-sm font-medium">{sghAsiaAiResults.complianceScore}%</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-xs text-neutral-500">Applicable EU AI Act Articles</p>
-                  <div className="flex flex-wrap gap-1">
-                    {sghAsiaAiResults.euAiActArticles.map((article: string) => (
-                      <span 
-                        key={article} 
-                        className="text-xs bg-neutral-100 text-neutral-800 px-2 py-1 rounded-full"
-                      >
-                        {article}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-3">
-                  <p className="text-xs text-neutral-500 mb-1">Suggested Improvements</p>
-                  <ul className="text-xs space-y-1">
-                    {sghAsiaAiResults.suggestedImprovements.map((improvement: string, index: number) => (
-                      <li key={index} className="flex items-start">
-                        <ChevronRightIcon className="h-3 w-3 text-primary mt-0.5 mr-1.5 flex-shrink-0" />
-                        <span>{improvement}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </CardContent>
-              <CardFooter className="pt-0">
-                <Button variant="outline" size="sm" className="text-xs">
-                  <SaveIcon className="h-3 w-3 mr-1.5" />
-                  Apply Recommendations
+            <Dialog open={aiModalOpen} onOpenChange={setAiModalOpen}>
+              <DialogTrigger asChild>
+                <Button variant="default" className="whitespace-nowrap">
+                  <SparklesIcon className="h-4 w-4 mr-2" />
+                  Generate with AI
                 </Button>
-              </CardFooter>
-            </Card>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
-              <TabsList className="grid grid-cols-4">
-                <TabsTrigger value="basic" className="relative">
-                  Basic Info
-                  {registrationProgress.basic && (
-                    <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
-                      <ClipboardCheckIcon className="h-2 w-2 text-white" />
-                    </div>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="classification" className="relative">
-                  Classification
-                  {registrationProgress.classification && (
-                    <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
-                      <ClipboardCheckIcon className="h-2 w-2 text-white" />
-                    </div>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="technical" className="relative">
-                  Technical Details
-                  {registrationProgress.technical && (
-                    <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
-                      <ClipboardCheckIcon className="h-2 w-2 text-white" />
-                    </div>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="impact" className="relative">
-                  Impact Assessment
-                  {registrationProgress.impact && (
-                    <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
-                      <ClipboardCheckIcon className="h-2 w-2 text-white" />
-                    </div>
-                  )}
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="basic" className="space-y-4 pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">System Name</Label>
-                    <Input 
-                      id="name"
-                      name="name"
-                      placeholder="e.g., HR Candidate Evaluation Tool" 
-                      value={formData.name}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="version">Version</Label>
-                    <Input 
-                      id="version"
-                      name="version"
-                      placeholder="e.g., 1.0" 
-                      value={formData.version}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="department">Department</Label>
-                  <Input 
-                    id="department"
-                    name="department"
-                    placeholder="e.g., Human Resources" 
-                    value={formData.department}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">System Description</Label>
-                  <Textarea 
-                    id="description"
-                    name="description"
-                    placeholder="Provide a detailed description of your AI system..." 
-                    rows={3}
-                    value={formData.description}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="purpose">Intended Purpose</Label>
-                  <Textarea 
-                    id="purpose"
-                    name="purpose"
-                    placeholder="Describe the intended purpose and use cases of the system..." 
-                    rows={3}
-                    value={formData.purpose}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="flex justify-end">
-                  <Button 
-                    type="button" 
-                    onClick={() => handleTabChange("classification")}
-                    disabled={!formData.name || !formData.description || !formData.purpose}
-                  >
-                    Next Step
-                    <ArrowRightIcon className="ml-1.5 h-4 w-4" />
-                  </Button>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="classification" className="space-y-4 pt-4">
-                <div className="space-y-3">
-                  <Label>Risk Classification</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div 
-                      className={`border rounded-md p-3 cursor-pointer ${
-                        formData.riskLevel === "Unacceptable Risk" 
-                          ? "border-red-500 bg-red-50"
-                          : "hover:border-neutral-300"
-                      }`}
-                      onClick={() => handleRadioChange("riskLevel", "Unacceptable Risk")}
-                    >
-                      <RadioGroup value={formData.riskLevel} className="flex items-center mb-2">
-                        <RadioGroupItem 
-                          value="Unacceptable Risk" 
-                          id="unacceptable" 
-                          className={formData.riskLevel === "Unacceptable Risk" ? "text-red-500" : ""}
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center justify-between">
+                    <span>AI-Assisted System Registration</span>
+                    <span className="text-xs text-blue-600 font-normal">Powered by DeepSeek AI</span>
+                  </DialogTitle>
+                  <DialogDescription>
+                    Our AI will analyze your information and suggest fields based on available information.
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <Tabs value={aiTab} onValueChange={setAiTab}>
+                  <TabsList className="w-full mb-4">
+                    <TabsTrigger value="upload" className="flex-1">Upload Documentation</TabsTrigger>
+                    <TabsTrigger value="text" className="flex-1">Enter Description</TabsTrigger>
+                    <TabsTrigger value="url" className="flex-1">URL/API Endpoint</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="upload">
+                    <div className="space-y-4">
+                      <div 
+                        className="border-2 border-dashed border-neutral-300 rounded-md p-8 text-center cursor-pointer hover:bg-neutral-50 transition-colors"
+                        onClick={() => document.getElementById('file-upload')?.click()}
+                      >
+                        <Upload className="h-8 w-8 mx-auto text-neutral-400 mb-2" />
+                        <p className="text-sm font-medium">Drag & drop system documentation or click to browse</p>
+                        <p className="text-xs text-neutral-500 mt-1">Supported formats: PDF, DOCX, TXT, JSON</p>
+                        
+                        <input 
+                          id="file-upload" 
+                          type="file" 
+                          className="hidden" 
+                          accept=".pdf,.docx,.txt,.json"
+                          onChange={handleFileUpload}
                         />
-                        <Label 
-                          htmlFor="unacceptable" 
-                          className={`ml-2 font-medium ${
-                            formData.riskLevel === "Unacceptable Risk" ? "text-red-600" : ""
-                          }`}
-                        >
-                          Unacceptable Risk
-                        </Label>
-                      </RadioGroup>
-                      <p className="text-xs text-neutral-500">
-                        Systems posing a clear threat to safety, livelihoods, or rights of people.
-                      </p>
+                        
+                        {uploadedFile && (
+                          <div className="mt-4 text-sm bg-blue-50 p-2 rounded flex items-center justify-center">
+                            <span className="truncate max-w-[280px]">{uploadedFile.name}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <Button 
+                        className="w-full" 
+                        onClick={extractInformation}
+                        disabled={!uploadedFile || extractionInProgress}
+                      >
+                        {extractionInProgress ? (
+                          <>
+                            <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin mr-2"></div>
+                            Processing...
+                          </>
+                        ) : (
+                          <>Extract Information</>
+                        )}
+                      </Button>
+                      
+                      {extractionInProgress && (
+                        <div className="space-y-2">
+                          <Progress value={extractionProgress} className="h-2" />
+                          <p className="text-xs text-center text-neutral-500">DeepSeek AI is analyzing the document...</p>
+                        </div>
+                      )}
                     </div>
-
-                    <div 
-                      className={`border rounded-md p-3 cursor-pointer ${
-                        formData.riskLevel === "High Risk" 
-                          ? "border-amber-500 bg-amber-50"
-                          : "hover:border-neutral-300"
-                      }`}
-                      onClick={() => handleRadioChange("riskLevel", "High Risk")}
-                    >
-                      <RadioGroup value={formData.riskLevel} className="flex items-center mb-2">
-                        <RadioGroupItem 
-                          value="High Risk" 
-                          id="high" 
-                          className={formData.riskLevel === "High Risk" ? "text-amber-500" : ""}
-                        />
-                        <Label 
-                          htmlFor="high" 
-                          className={`ml-2 font-medium ${
-                            formData.riskLevel === "High Risk" ? "text-amber-600" : ""
-                          }`}
-                        >
-                          High Risk
-                        </Label>
-                      </RadioGroup>
-                      <p className="text-xs text-neutral-500">
-                        Systems with significant potential to harm health, safety, or fundamental rights.
-                      </p>
-                    </div>
-
-                    <div 
-                      className={`border rounded-md p-3 cursor-pointer ${
-                        formData.riskLevel === "Limited Risk" 
-                          ? "border-blue-500 bg-blue-50"
-                          : "hover:border-neutral-300"
-                      }`}
-                      onClick={() => handleRadioChange("riskLevel", "Limited Risk")}
-                    >
-                      <RadioGroup value={formData.riskLevel} className="flex items-center mb-2">
-                        <RadioGroupItem 
-                          value="Limited Risk" 
-                          id="limited" 
-                          className={formData.riskLevel === "Limited Risk" ? "text-blue-500" : ""}
-                        />
-                        <Label 
-                          htmlFor="limited" 
-                          className={`ml-2 font-medium ${
-                            formData.riskLevel === "Limited Risk" ? "text-blue-600" : ""
-                          }`}
-                        >
-                          Limited Risk
-                        </Label>
-                      </RadioGroup>
-                      <p className="text-xs text-neutral-500">
-                        Systems requiring transparency measures but with lower risk profile.
-                      </p>
-                    </div>
-
-                    <div 
-                      className={`border rounded-md p-3 cursor-pointer ${
-                        formData.riskLevel === "Minimal Risk" 
-                          ? "border-green-500 bg-green-50"
-                          : "hover:border-neutral-300"
-                      }`}
-                      onClick={() => handleRadioChange("riskLevel", "Minimal Risk")}
-                    >
-                      <RadioGroup value={formData.riskLevel} className="flex items-center mb-2">
-                        <RadioGroupItem 
-                          value="Minimal Risk" 
-                          id="minimal" 
-                          className={formData.riskLevel === "Minimal Risk" ? "text-green-500" : ""}
-                        />
-                        <Label 
-                          htmlFor="minimal" 
-                          className={`ml-2 font-medium ${
-                            formData.riskLevel === "Minimal Risk" ? "text-green-600" : ""
-                          }`}
-                        >
-                          Minimal Risk
-                        </Label>
-                      </RadioGroup>
-                      <p className="text-xs text-neutral-500">
-                        Systems presenting minimal or no risk to fundamental rights or safety.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-3 border rounded-md mt-4 bg-blue-50 border-blue-200">
-                    <div className="flex items-start">
-                      <InfoIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
+                  </TabsContent>
+                  
+                  <TabsContent value="text">
+                    <div className="space-y-4">
                       <div>
-                        <p className="text-sm font-medium text-blue-800">Risk Classification Guidance</p>
-                        <p className="text-xs text-blue-700 mt-1">
-                          Not sure about risk level? Use the SGH ASIA AI analysis to get a recommendation based on the system description or consult the official EU AI Act guidelines.
+                        <Textarea 
+                          placeholder="Describe the AI system in your own words..." 
+                          className="min-h-[120px]"
+                          value={aiTextInput}
+                          onChange={(e) => setAiTextInput(e.target.value)}
+                        />
+                        <p className="text-xs text-neutral-500 mt-1">
+                          Provide details about functionality, purpose, technology used, and deployment context
                         </p>
                       </div>
+                      
+                      <Button 
+                        className="w-full" 
+                        onClick={analyzeTextDescription}
+                        disabled={!aiTextInput || extractionInProgress}
+                      >
+                        {extractionInProgress ? (
+                          <>
+                            <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin mr-2"></div>
+                            DeepSeek is analyzing...
+                          </>
+                        ) : (
+                          <>Analyze with DeepSeek</>
+                        )}
+                      </Button>
+                      
+                      {extractionInProgress && (
+                        <div className="space-y-2">
+                          <Progress value={extractionProgress} className="h-2" />
+                          <p className="text-xs text-center text-neutral-500">DeepSeek AI is analyzing your description...</p>
+                        </div>
+                      )}
                     </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="url">
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="api-url">API Endpoint or Documentation URL</Label>
+                        <Input id="api-url" placeholder="https://api.example.com/ai-system/info" />
+                        <p className="text-xs text-neutral-500 mt-1">
+                          Enter a URL to your system's API documentation or specification
+                        </p>
+                      </div>
+                      
+                      <Button className="w-full" disabled>
+                        Fetch Information
+                      </Button>
+                      <p className="text-xs text-center text-neutral-500">
+                        URL/API analysis coming soon
+                      </p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+                
+                {aiResults && !extractionInProgress && (
+                  <div className="mt-6 border rounded-md p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium">DeepSeek Analysis Results</h4>
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                        {confidenceScore}% Confidence
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                      {Object.entries(aiResults).map(([key, value]) => (
+                        <div key={key} className="flex items-center justify-between border-b border-neutral-100 pb-2">
+                          <div>
+                            <span className="text-sm font-medium capitalize">
+                              {key === 'name' ? 'System Name' : key.replace(/([A-Z])/g, ' $1').trim()}:
+                            </span>
+                            <p className="text-sm text-neutral-700 truncate max-w-[300px]">{value as string}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="h-7 px-2"
+                              onClick={() => applyField(key === 'dataTypes' ? 'trainingDatasets' : key, value as string)}
+                            >
+                              Apply
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-7 w-7 p-0"
+                            >
+                              <PencilIcon className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {aiResults && aiResults.riskLevel && (
+                      <div className="mt-4 bg-amber-50 border border-amber-200 rounded p-3 text-sm">
+                        <p className="font-medium text-amber-800">EU AI Act Classification:</p>
+                        <p className="text-amber-700">
+                          Based on the analysis, this appears to be a {aiResults.riskLevel.toLowerCase()} risk system
+                          {aiResults.riskLevel === 'High' && " under EU AI Act Article 6.2"}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                </div>
-
-                <div className="flex justify-between">
-                  <Button 
-                    type="button"
+                )}
+                
+                <DialogFooter>
+                  <Button
                     variant="outline"
-                    onClick={() => handleTabChange("basic")}
+                    onClick={() => setAiModalOpen(false)}
                   >
-                    Back
+                    Cancel
                   </Button>
-                  <Button 
-                    type="button" 
-                    onClick={() => handleTabChange("technical")}
-                    disabled={!formData.riskLevel}
+                  <Button
+                    onClick={applyAllResults}
+                    disabled={!aiResults || extractionInProgress}
                   >
-                    Next Step
-                    <ArrowRightIcon className="ml-1.5 h-4 w-4" />
+                    Apply All
                   </Button>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="technical" className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="aiCapabilities">AI Capabilities</Label>
-                  <Textarea 
-                    id="aiCapabilities"
-                    name="aiCapabilities"
-                    placeholder="Describe the AI capabilities (e.g., machine learning, NLP, computer vision, etc.)" 
-                    rows={3}
-                    value={formData.aiCapabilities}
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid gap-6">
+              <div className="grid gap-3">
+                <Label htmlFor="name">System Name*</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  placeholder="E.g., Customer Service Chatbot"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                  className={aiResults && aiResults.name === formData.name ? "bg-blue-50 border-blue-200" : ""}
+                />
+              </div>
+              
+              <div className="grid gap-3">
+                <Label htmlFor="description">System Description*</Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  placeholder="Describe what the AI system does..."
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  required
+                  className={aiResults && aiResults.purpose === formData.description ? "bg-blue-50 border-blue-200" : ""}
+                />
+              </div>
+              
+              <div className="grid sm:grid-cols-3 gap-4">
+                <div className="grid gap-3">
+                  <Label htmlFor="version">Version</Label>
+                  <Input
+                    id="version"
+                    name="version"
+                    placeholder="E.g., 1.0.0"
+                    value={formData.version}
                     onChange={handleInputChange}
+                    className={aiResults && aiResults.version === formData.version ? "bg-blue-50 border-blue-200" : ""}
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="trainingDatasets">Training Datasets</Label>
-                  <Textarea 
-                    id="trainingDatasets"
-                    name="trainingDatasets"
-                    placeholder="Describe the data used to train the system" 
-                    rows={3}
-                    value={formData.trainingDatasets}
+                
+                <div className="grid gap-3">
+                  <Label htmlFor="vendor">Vendor</Label>
+                  <Input
+                    id="vendor"
+                    name="vendor"
+                    placeholder="E.g., OpenAI"
+                    value={formData.vendor}
                     onChange={handleInputChange}
+                    className={aiResults && aiResults.vendor === formData.vendor ? "bg-blue-50 border-blue-200" : ""}
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="outputTypes">Output Types</Label>
-                  <Textarea 
-                    id="outputTypes"
-                    name="outputTypes"
-                    placeholder="Describe the outputs produced by the system" 
-                    rows={2}
-                    value={formData.outputTypes}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="flex justify-between">
-                  <Button 
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleTabChange("classification")}
+                
+                <div className="grid gap-3">
+                  <Label htmlFor="department">Department*</Label>
+                  <Select 
+                    value={formData.department} 
+                    onValueChange={handleDepartmentChange}
+                    required
                   >
-                    Back
-                  </Button>
-                  <Button 
-                    type="button" 
-                    onClick={() => handleTabChange("impact")}
-                    disabled={!formData.aiCapabilities || !formData.trainingDatasets}
-                  >
-                    Next Step
-                    <ArrowRightIcon className="ml-1.5 h-4 w-4" />
-                  </Button>
+                    <SelectTrigger className={aiResults && aiResults.department === formData.department ? "bg-blue-50 border-blue-200" : ""}>
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="HR">Human Resources</SelectItem>
+                      <SelectItem value="Customer Service">Customer Service</SelectItem>
+                      <SelectItem value="Finance">Finance</SelectItem>
+                      <SelectItem value="Marketing">Marketing</SelectItem>
+                      <SelectItem value="IT">IT</SelectItem>
+                      <SelectItem value="Legal">Legal</SelectItem>
+                      <SelectItem value="Operations">Operations</SelectItem>
+                      <SelectItem value="R&D">R&D</SelectItem>
+                      <SelectItem value="Sales">Sales</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              </TabsContent>
-
-              <TabsContent value="impact" className="space-y-4 pt-4">
-                <div className="space-y-2">
+              </div>
+              
+              <div className="grid gap-3">
+                <Label>Risk Level Classification*</Label>
+                <RadioGroup 
+                  value={formData.riskLevel} 
+                  onValueChange={(value) => handleRadioChange('riskLevel', value)}
+                  className="flex flex-col space-y-1"
+                  required
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Unacceptable" id="unacceptable" />
+                    <Label htmlFor="unacceptable" className="font-normal">Unacceptable Risk</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="High" id="high" />
+                    <Label htmlFor="high" className="font-normal">High Risk</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Limited" id="limited" />
+                    <Label htmlFor="limited" className="font-normal">Limited Risk</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Minimal" id="minimal" />
+                    <Label htmlFor="minimal" className="font-normal">Minimal Risk</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="grid gap-3">
+                <Label htmlFor="aiCapabilities">AI Capabilities</Label>
+                <Textarea
+                  id="aiCapabilities"
+                  name="aiCapabilities"
+                  placeholder="Describe the AI techniques and capabilities..."
+                  value={formData.aiCapabilities}
+                  onChange={handleInputChange}
+                  className={aiResults && aiResults.aiCapabilities === formData.aiCapabilities ? "bg-blue-50 border-blue-200" : ""}
+                />
+              </div>
+              
+              <div className="grid gap-3">
+                <Label htmlFor="trainingDatasets">Training Datasets</Label>
+                <Textarea
+                  id="trainingDatasets"
+                  name="trainingDatasets"
+                  placeholder="Describe the data used to train the system..."
+                  value={formData.trainingDatasets}
+                  onChange={handleInputChange}
+                  className={aiResults && aiResults.dataTypes === formData.trainingDatasets ? "bg-blue-50 border-blue-200" : ""}
+                />
+              </div>
+              
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid gap-3">
                   <Label htmlFor="usageContext">Usage Context</Label>
-                  <Textarea 
+                  <Textarea
                     id="usageContext"
                     name="usageContext"
-                    placeholder="Describe the context and who will use the system" 
-                    rows={3}
+                    placeholder="Describe how and where the system is used..."
                     value={formData.usageContext}
                     onChange={handleInputChange}
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="potentialImpact">
-                    <span className="flex items-center">
-                      <span>Potential Impact</span>
-                      {formData.riskLevel === "High Risk" && (
-                        <span className="ml-2 px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">Required for High Risk Systems</span>
-                      )}
-                    </span>
-                  </Label>
-                  <Textarea 
+                
+                <div className="grid gap-3">
+                  <Label htmlFor="potentialImpact">Potential Impact</Label>
+                  <Textarea
                     id="potentialImpact"
                     name="potentialImpact"
-                    placeholder="Describe potential impacts on individuals, groups, or society" 
-                    rows={3}
+                    placeholder="Describe potential impacts on users, society..."
                     value={formData.potentialImpact}
                     onChange={handleInputChange}
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="mitigationMeasures">
-                    <span className="flex items-center">
-                      <span>Mitigation Measures</span>
-                      {formData.riskLevel === "High Risk" && (
-                        <span className="ml-2 px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">Required for High Risk Systems</span>
-                      )}
-                    </span>
-                  </Label>
-                  <Textarea 
-                    id="mitigationMeasures"
-                    name="mitigationMeasures"
-                    placeholder="Describe measures to mitigate risks" 
-                    rows={3}
-                    value={formData.mitigationMeasures}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="flex justify-between">
-                  <Button 
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleTabChange("technical")}
-                  >
-                    Back
-                  </Button>
-                  <Button 
-                    type="submit"
-                    disabled={!formData.usageContext || (formData.riskLevel === "High Risk" && (!formData.potentialImpact || !formData.mitigationMeasures))}
-                  >
-                    Register System
-                    <ShieldIcon className="ml-1.5 h-4 w-4" />
-                  </Button>
-                </div>
-              </TabsContent>
-            </Tabs>
+              </div>
+              
+              <div className="grid gap-3">
+                <Label htmlFor="mitigationMeasures">Risk Mitigation Measures</Label>
+                <Textarea
+                  id="mitigationMeasures"
+                  name="mitigationMeasures"
+                  placeholder="Describe measures to mitigate risks..."
+                  value={formData.mitigationMeasures}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            
+            {sghAsiaAiResults && (
+              <Card className="bg-blue-50 border-blue-100">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">AI Analysis Results</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-sm space-y-2">
+                    <p><span className="font-medium">Risk Classification:</span> {sghAsiaAiResults.riskClassification}</p>
+                    <p><span className="font-medium">EU AI Act Articles:</span> {sghAsiaAiResults.euAiActArticles.join(', ')}</p>
+                    <p><span className="font-medium">Compliance Score:</span> {sghAsiaAiResults.complianceScore}%</p>
+                    
+                    {sghAsiaAiResults.suggestedImprovements && (
+                      <div>
+                        <p className="font-medium mt-2">Suggested Improvements:</p>
+                        <ul className="list-disc list-inside mt-1 pl-2">
+                          {sghAsiaAiResults.suggestedImprovements.map((item: string, index: number) => (
+                            <li key={index} className="text-sm">{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            <div className="flex justify-between pt-4">
+              <Button 
+                type="button" 
+                variant="outline"
+                onClick={() => runSghAsiaAiAnalysis()}
+                disabled={sghAsiaAiInProgress || !formData.description}
+              >
+                {sghAsiaAiInProgress ? (
+                  <>
+                    <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin mr-2"></div>
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Bot className="mr-2 h-4 w-4" />
+                    Analyze with SGH AI
+                  </>
+                )}
+              </Button>
+              
+              <Button type="submit">Register System</Button>
+            </div>
           </form>
         </CardContent>
       </Card>
     </div>
   );
-}
+};
+
+export default SystemRegistration;

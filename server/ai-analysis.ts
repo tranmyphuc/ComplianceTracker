@@ -140,8 +140,23 @@ export async function analyzeSystemCategory(data: Partial<AiSystem>): Promise<st
     Description: ${data.description || 'N/A'}
     Purpose: ${data.purpose || 'N/A'}
     Department: ${data.department || 'N/A'}
+    Vendor: ${data.vendor || 'N/A'}
+    Version: ${data.version || 'N/A'}
+    AI Capabilities: ${data.aiCapabilities || 'N/A'}
 
-    Output your answer in JSON format with a single 'category' field.
+    Consider these possible categories:
+    - Decision Support System
+    - Automation System
+    - Recognition System
+    - Prediction System
+    - Recommendation System
+    - Content Generation System
+    - Classification System
+    - Natural Language Processing System
+    - Computer Vision System
+    - Machine Learning System
+
+    Output your answer in JSON format with a single 'category' field and short 'explanation' field.
   `;
 
   try {
@@ -162,13 +177,27 @@ export async function determineRiskLevel(data: Partial<AiSystem>): Promise<strin
   const prompt = `
     You are an EU AI Act compliance expert. Based on the following AI system details,
     classify its risk level according to the EU AI Act (Unacceptable, High, Limited, or Minimal).
+    
+    Be extremely specific and refer to exact relevant EU AI Act articles.
 
     System Name: ${data.name || 'N/A'}
     Description: ${data.description || 'N/A'}
     Purpose: ${data.purpose || 'N/A'}
     Department: ${data.department || 'N/A'}
-
-    Output your answer in JSON format with a 'riskLevel' field and a 'justification' field.
+    Vendor: ${data.vendor || 'N/A'}
+    Version: ${data.version || 'N/A'}
+    AI Capabilities: ${data.aiCapabilities || 'N/A'}
+    Training Datasets: ${data.trainingDatasets || 'N/A'}
+    Usage Context: ${data.usageContext || 'N/A'}
+    Potential Impact: ${data.potentialImpact || 'N/A'}
+    
+    Remember that:
+    - Unacceptable Risk: Systems explicitly prohibited under Article 5 (social scoring, biometric categorization, emotion recognition, etc.)
+    - High Risk: Systems in Annex III areas (critical infrastructure, education, employment, essential services, law enforcement, migration, administration of justice)
+    - Limited Risk: Systems with transparency obligations (chatbots, emotion recognition, deepfakes)
+    - Minimal Risk: All other AI systems
+    
+    Output your answer in JSON format with a 'riskLevel' field and a detailed 'justification' field that cites specific EU AI Act articles.
   `;
 
   try {

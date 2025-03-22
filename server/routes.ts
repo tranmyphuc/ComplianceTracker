@@ -274,6 +274,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       handleError(err as Error, res);
     }
   });
+  
+  // AI-powered system suggestion from name or description
+  app.post("/api/suggest/system", async (req: Request, res: Response) => {
+    try {
+      const { name, description } = req.body;
+      
+      if (!name && !description) {
+        return res.status(400).json({ message: "Either name or description is required" });
+      }
+      
+      const prompt = `
+        You are an EU AI Act compliance expert. Based on the following information about an AI system,
+        generate comprehensive suggestions for all registration fields.
+        
+        ${name ? `System Name: ${name}` : ''}
+        ${description ? `Description: ${description}` : ''}
+        
+        Provide suggestions for the following fields:
+        - name (if not provided)
+        - vendor (suggest a realistic vendor name)
+        - version (suggest a realistic version number)
+        - department (where this system would typically be used)
+        - purpose (detailed purpose of the system)
+        - aiCapabilities (technical capabilities like NLP, Computer Vision, etc.)
+        - trainingDatasets (types of data used to train this system)
+        - outputTypes (what outputs this system produces)
+        - usageContext (where and how this system is used)
+        - potentialImpact (potential impacts on individuals and society)
+        - riskLevel (according to EU AI Act: Unacceptable, High, Limited, Minimal)
+        
+        Output your answer in JSON format with all these fields and a 'confidence' value from 0-100.
+      `;
+      
+      const response = await callDeepSeekApi(prompt);
+      let suggestions;
+      
+      try {
+        suggestions = JSON.parse(response);
+      } catch (error) {
+        console.error("Error parsing DeepSeek response:", error);
+        return res.status(500).json({ message: "Failed to parse AI suggestions" });
+      }
+      
+      // Also analyze risk level and articles
+      const [riskClassification, euAiActArticles] = await Promise.all([
+        determineRiskLevel(suggestions),
+        determineRelevantArticles(suggestions)
+      ]);
+      
+      // Add to suggestions
+      suggestions.riskClassification = riskClassification;
+      suggestions.euAiActArticles = euAiActArticles;
+      
+      res.json(suggestions);
+    } catch (err) {
+      console.error("Error generating system suggestions:", err);
+      handleError(err as Error, res);
+    }
+  });
 
   app.post("/api/analyze/document", async (req: Request, res: Response) => {
     try {
