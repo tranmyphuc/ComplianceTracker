@@ -104,6 +104,17 @@ function simulateDeepSeekResponse(prompt: string): string {
 
     // Define different types of AI systems to analyze
     const systemTypes = {
+      deepseek: {
+        keywords: ['deepseek', 'deepseek ai', 'sgh asia ai', 'sgh', 'sgh ai'],
+        name: "DeepSeek AI Assistant",
+        vendor: "SGH ASIA Ltd.",
+        version: "3.0",
+        department: "IT Infrastructure & Security",
+        purpose: "An advanced AI language model designed for complex reasoning, code generation, and natural language processing tasks with high accuracy and contextual understanding.",
+        capabilities: "Advanced Natural Language Processing, Code Generation, Reasoning, Context Understanding, Content Creation",
+        dataSources: "Research Papers, Code Repositories, Internet Content, Technical Documentation",
+        riskLevel: "Limited"
+      },
       copilot: {
         keywords: ['copilot', 'microsoft copilot', 'ms copilot', 'microsoft'],
         name: "Microsoft Copilot",
@@ -185,25 +196,40 @@ function simulateDeepSeekResponse(prompt: string): string {
     // Determine the system type based on the description
     let matchedSystem = systemTypes.default;
     let highestMatchCount = 0;
-
-    for (const [type, system] of Object.entries(systemTypes)) {
-      if (type === 'default') continue;
-
-      // Enhanced matching logic that looks at both the prompt and description
-      const matchCount = system.keywords.reduce((count, keyword) => {
-        // Check for exact matches with word boundaries to avoid partial matches
-        if (new RegExp(`\\b${keyword}\\b`, 'i').test(lowercasePrompt)) {
-          return count + 2; // Give higher weight to exact matches
+    
+    // Priority override: If "deepseek" is directly in the prompt, prioritize it
+    if (lowercasePrompt.includes('deepseek')) {
+      matchedSystem = systemTypes.deepseek;
+      highestMatchCount = 10; // Give a very high score to ensure it's selected
+      console.log(`Priority match detected for type: deepseek, Keywords: ${systemTypes.deepseek.keywords.join(', ')}`);
+    } 
+    // Priority override: If "sgh" is directly in the prompt, prioritize it
+    else if (lowercasePrompt.includes('sgh')) {
+      matchedSystem = systemTypes.deepseek;
+      highestMatchCount = 10; // Give a very high score to ensure it's selected
+      console.log(`Priority match detected for type: sgh asia ai, Keywords: ${systemTypes.deepseek.keywords.join(', ')}`);
+    }
+    // Otherwise, use the standard matching algorithm
+    else {
+      for (const [type, system] of Object.entries(systemTypes)) {
+        if (type === 'default') continue;
+  
+        // Enhanced matching logic that looks at both the prompt and description
+        const matchCount = system.keywords.reduce((count, keyword) => {
+          // Check for exact matches with word boundaries to avoid partial matches
+          if (new RegExp(`\\b${keyword}\\b`, 'i').test(lowercasePrompt)) {
+            return count + 2; // Give higher weight to exact matches
+          }
+          // Also check for includes for more fuzzy matching
+          return count + (lowercasePrompt.includes(keyword) ? 1 : 0);
+        }, 0);
+  
+        console.log(`System type: ${type}, Match count: ${matchCount}, Keywords: ${system.keywords.join(', ')}`);
+  
+        if (matchCount > highestMatchCount) {
+          matchedSystem = system;
+          highestMatchCount = matchCount;
         }
-        // Also check for includes for more fuzzy matching
-        return count + (lowercasePrompt.includes(keyword) ? 1 : 0);
-      }, 0);
-
-      console.log(`System type: ${type}, Match count: ${matchCount}, Keywords: ${system.keywords.join(', ')}`);
-
-      if (matchCount > highestMatchCount) {
-        matchedSystem = system;
-        highestMatchCount = matchCount;
       }
     }
 
@@ -301,9 +327,23 @@ function simulateDeepSeekResponse(prompt: string): string {
         'Enhance transparency measures for affected individuals'
       ]
     });
-  } else if (lowercasePrompt.includes('chatbot') || lowercasePrompt.includes('eu ai act compliance assistant') || lowercasePrompt.includes('expert')) {
+  } else if (lowercasePrompt.includes('chatbot') || lowercasePrompt.includes('eu ai act compliance assistant') || lowercasePrompt.includes('expert') || lowercasePrompt.length < 10) {
     // Handle chatbot queries for EU AI Act compliance assistant
-    if (lowercasePrompt.includes('high-risk')) {
+    
+    // Handle very short questions or common conversation starters
+    if (lowercasePrompt === 'hi' || lowercasePrompt === 'hello' || lowercasePrompt === 'hey') {
+      return 'Hello! I\'m the SGH ASIA AI Assistant for EU AI Act compliance. How can I help you today with your compliance questions?';
+    } else if (lowercasePrompt === 'why') {
+      return 'The "why" behind the EU AI Act is to ensure AI systems used in the EU are safe, respect fundamental rights, and align with EU values. The regulation aims to foster innovation while protecting individuals from potential harms of AI. Was there a specific aspect of the EU AI Act you wanted to understand better?';
+    } else if (lowercasePrompt === 'what' || lowercasePrompt === 'what?') {
+      return 'The EU AI Act is a comprehensive legal framework for artificial intelligence systems. It categorizes AI systems by risk level (unacceptable, high, limited, minimal) and applies different requirements based on these categories. Would you like to know more about any specific aspect of the regulation?';
+    } else if (lowercasePrompt === 'how' || lowercasePrompt === 'how?') {
+      return 'The EU AI Act works through a risk-based approach. Systems are classified based on their potential harm, with strict requirements for high-risk AI and prohibitions for unacceptable risk systems. Compliance involves documentation, risk assessment, and ongoing monitoring. Could you specify what aspect of compliance you need help with?';
+    } else if (lowercasePrompt.includes('deepseek')) {
+      return 'DeepSeek AI is an advanced large language model developed by SGH ASIA. Under the EU AI Act, it would likely be classified as a general-purpose AI system with transparency requirements. As it evolves, its specific classification could change based on use cases and deployment contexts. The EU AI Act requires clear documentation of capabilities, limitations, and potential risks for such systems.';
+    } else if (lowercasePrompt.includes('sgh')) {
+      return 'SGH ASIA is a leader in AI compliance solutions, specializing in helping organizations navigate the complex requirements of regulations like the EU AI Act. Our AI systems are designed with compliance in mind, following principles of transparency, fairness, and accountability that align with global AI governance frameworks.';
+    } else if (lowercasePrompt.includes('high-risk')) {
       return 'High-risk AI systems under the EU AI Act include those used in critical infrastructure, education, employment, essential services, law enforcement, migration, and those that can impact fundamental rights. These systems face the most stringent regulatory requirements including risk management, data governance, technical documentation, record keeping, human oversight, accuracy, and cybersecurity measures.';
     } else if (lowercasePrompt.includes('deadline') || lowercasePrompt.includes('timeline')) {
       return 'The EU AI Act has a phased implementation timeline: 6 months after entry into force for prohibitions on unacceptable risk AI systems, 12 months for governance bodies establishment, 24 months for codes of practice development, and full application after 36 months. Organizations should plan their compliance roadmap accordingly.';
