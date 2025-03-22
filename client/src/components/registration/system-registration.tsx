@@ -179,11 +179,84 @@ export const SystemRegistration: React.FC = () => {
     }
   };
 
-  // Handle form submission
+  // Navigate to the next step
+  const goToNextStep = () => {
+    if (currentStep < 4) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  // Navigate to the previous step
+  const goToPreviousStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  // Validate the current step
+  const validateCurrentStep = (): boolean => {
+    const errors: Record<string, string> = {};
+    const missing: string[] = [];
+
+    // Different validation for different steps
+    if (currentStep === 1) {
+      // Basic info validation
+      const basicInfoFields = ['name', 'description', 'purpose', 'vendor', 'department'];
+      
+      basicInfoFields.forEach(field => {
+        if (!formData[field as keyof typeof formData]) {
+          errors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
+          missing.push(field);
+        }
+      });
+    } 
+    else if (currentStep === 2) {
+      // AI Details validation
+      const aiDetailsFields = ['aiCapabilities', 'trainingDatasets'];
+      
+      aiDetailsFields.forEach(field => {
+        if (!formData[field as keyof typeof formData]) {
+          errors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
+          missing.push(field);
+        }
+      });
+    }
+    else if (currentStep === 3) {
+      // Risk Assessment validation
+      if (!formData.riskLevel) {
+        errors.riskLevel = "Risk Level is required";
+        missing.push('riskLevel');
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setMissingFields(missing);
+
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields for this step",
+        variant: "destructive"
+      });
+
+      return false;
+    }
+
+    return true;
+  };
+
+  // Handle next step button click
+  const handleNextStep = () => {
+    if (validateCurrentStep()) {
+      goToNextStep();
+    }
+  };
+
+  // Handle form submission (on final step)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate required fields
+    // Final validation of all required fields
     const errors: Record<string, string> = {};
     const requiredFields = ['name', 'description', 'purpose', 'vendor', 'department', 'riskLevel'];
     const missing: string[] = [];
@@ -633,6 +706,362 @@ export const SystemRegistration: React.FC = () => {
     setAiResults(null);
     setConfidenceScore(0);
     setShowSystemRecommendations(false);
+  };
+
+  // Render content based on current step
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="grid gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid gap-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="name" className={validationErrors.name ? "text-destructive" : ""}>
+                    System Name*
+                  </Label>
+                  {validationErrors.name && (
+                    <span className="text-xs text-destructive">{validationErrors.name}</span>
+                  )}
+                </div>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Customer Support Chatbot"
+                  className={validationErrors.name ? "border-destructive" : ""}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="vendor" className={validationErrors.vendor ? "text-destructive" : ""}>
+                    Vendor/Provider*
+                  </Label>
+                  {validationErrors.vendor && (
+                    <span className="text-xs text-destructive">{validationErrors.vendor}</span>
+                  )}
+                </div>
+                <Input
+                  id="vendor"
+                  name="vendor"
+                  value={formData.vendor}
+                  onChange={handleInputChange}
+                  placeholder="e.g., OpenAI, Google, In-house"
+                  className={validationErrors.vendor ? "border-destructive" : ""}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="description" className={validationErrors.description ? "text-destructive" : ""}>
+                  Description*
+                </Label>
+                {validationErrors.description && (
+                  <span className="text-xs text-destructive">{validationErrors.description}</span>
+                )}
+              </div>
+              <Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Provide a detailed description of the AI system and its capabilities"
+                className={`min-h-[100px] ${validationErrors.description ? "border-destructive" : ""}`}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid gap-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="department" className={validationErrors.department ? "text-destructive" : ""}>
+                    Department*
+                  </Label>
+                  {validationErrors.department && (
+                    <span className="text-xs text-destructive">{validationErrors.department}</span>
+                  )}
+                </div>
+                <Select
+                  value={formData.department}
+                  onValueChange={(value) => handleSelectChange("department", value)}
+                >
+                  <SelectTrigger id="department" className={validationErrors.department ? "border-destructive" : ""}>
+                    <SelectValue placeholder="Select a department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept.id} value={dept.name}>
+                        {dept.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="version">Version</Label>
+                <Input
+                  id="version"
+                  name="version"
+                  value={formData.version}
+                  onChange={handleInputChange}
+                  placeholder="e.g., 1.0, 2.3.1"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="purpose" className={validationErrors.purpose ? "text-destructive" : ""}>
+                  Purpose*
+                </Label>
+                {validationErrors.purpose && (
+                  <span className="text-xs text-destructive">{validationErrors.purpose}</span>
+                )}
+              </div>
+              <Textarea
+                id="purpose"
+                name="purpose"
+                value={formData.purpose}
+                onChange={handleInputChange}
+                placeholder="Describe the intended purpose and use cases of this AI system"
+                className={`min-h-[100px] ${validationErrors.purpose ? "border-destructive" : ""}`}
+              />
+            </div>
+          </div>
+        );
+        
+      case 2:
+        return (
+          <div className="grid gap-6">
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="aiCapabilities" className={validationErrors.aiCapabilities ? "text-destructive" : ""}>
+                  AI Capabilities*
+                </Label>
+                {validationErrors.aiCapabilities && (
+                  <span className="text-xs text-destructive">{validationErrors.aiCapabilities}</span>
+                )}
+              </div>
+              <Textarea
+                id="aiCapabilities"
+                name="aiCapabilities"
+                value={formData.aiCapabilities}
+                onChange={handleInputChange}
+                placeholder="e.g., Natural Language Processing, Image Recognition, Predictive Analytics"
+                className={`min-h-[100px] ${validationErrors.aiCapabilities ? "border-destructive" : ""}`}
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="trainingDatasets" className={validationErrors.trainingDatasets ? "text-destructive" : ""}>
+                  Training Datasets*
+                </Label>
+                {validationErrors.trainingDatasets && (
+                  <span className="text-xs text-destructive">{validationErrors.trainingDatasets}</span>
+                )}
+              </div>
+              <Textarea
+                id="trainingDatasets"
+                name="trainingDatasets"
+                value={formData.trainingDatasets}
+                onChange={handleInputChange}
+                placeholder="Describe the data used to train the AI system"
+                className={`min-h-[100px] ${validationErrors.trainingDatasets ? "border-destructive" : ""}`}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid gap-3">
+                <Label htmlFor="outputTypes">Output Types</Label>
+                <Input
+                  id="outputTypes"
+                  name="outputTypes"
+                  value={formData.outputTypes}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Text, Images, Predictions"
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="usageContext">Usage Context</Label>
+                <Input
+                  id="usageContext"
+                  name="usageContext"
+                  value={formData.usageContext}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Customer-facing, Internal only"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              <Label htmlFor="potentialImpact">Potential Impact</Label>
+              <Textarea
+                id="potentialImpact"
+                name="potentialImpact"
+                value={formData.potentialImpact}
+                onChange={handleInputChange}
+                placeholder="Describe potential impacts on individuals, groups, or society"
+                className="min-h-[100px]"
+              />
+            </div>
+          </div>
+        );
+        
+      case 3:
+        return (
+          <div className="grid gap-6">
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="riskLevel" className={validationErrors.riskLevel ? "text-destructive" : ""}>
+                  Risk Level*
+                </Label>
+                {validationErrors.riskLevel && (
+                  <span className="text-xs text-destructive">{validationErrors.riskLevel}</span>
+                )}
+              </div>
+              <Select
+                value={formData.riskLevel}
+                onValueChange={(value) => handleSelectChange("riskLevel", value)}
+              >
+                <SelectTrigger id="riskLevel" className={validationErrors.riskLevel ? "border-destructive" : ""}>
+                  <SelectValue placeholder="Select a risk level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {riskLevels.map((risk) => (
+                    <SelectItem key={risk.id} value={risk.name}>
+                      <div className="flex items-center">
+                        <span>{risk.name}</span>
+                        <span className="text-xs text-neutral-500 ml-2">({risk.description})</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-3">
+              <Label htmlFor="mitigationMeasures">Risk Mitigation Measures</Label>
+              <Textarea
+                id="mitigationMeasures"
+                name="mitigationMeasures"
+                value={formData.mitigationMeasures}
+                onChange={handleInputChange}
+                placeholder="Describe measures in place to mitigate risks"
+                className="min-h-[100px]"
+              />
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mt-4">
+              <div className="flex space-x-2">
+                <AlertTriangleIcon className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-medium text-amber-800">Risk Assessment</h3>
+                  <p className="text-sm text-amber-700 mt-1">
+                    Based on the information provided, this system is classified as <strong>{formData.riskLevel}</strong> risk.
+                    {formData.riskLevel === 'High' && (
+                      <span className="block mt-2">
+                        High-risk AI systems require additional documentation and compliance measures under the EU AI Act.
+                      </span>
+                    )}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={runSghAsiaAiAnalysis}
+                    disabled={sghAsiaAiInProgress}
+                  >
+                    {sghAsiaAiInProgress ? "Analyzing..." : "Run AI Risk Analysis"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {sghAsiaAiResults && (
+              <div className="bg-primary/5 border border-primary/20 rounded-md p-4 mt-2">
+                <h3 className="text-sm font-medium">SGH ASIA AI Analysis Results</h3>
+                <div className="mt-2 text-sm">
+                  <p><strong>Risk Classification:</strong> {sghAsiaAiResults.riskClassification}</p>
+                  <p className="mt-1"><strong>Relevant Articles:</strong> {sghAsiaAiResults.relevantArticles?.join(", ")}</p>
+                  {sghAsiaAiResults.suggestedImprovements && (
+                    <div className="mt-2">
+                      <p><strong>Suggested Improvements:</strong></p>
+                      <ul className="list-disc pl-5 mt-1 space-y-1">
+                        {Array.isArray(sghAsiaAiResults.suggestedImprovements) ? (
+                          sghAsiaAiResults.suggestedImprovements.map((item, i) => (
+                            <li key={i}>{item}</li>
+                          ))
+                        ) : (
+                          <li>{sghAsiaAiResults.suggestedImprovements}</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+        
+      case 4:
+        return (
+          <div className="grid gap-6">
+            <div className="bg-primary/5 border border-primary/20 rounded-md p-4">
+              <h3 className="text-sm font-medium">Review and Submit</h3>
+              <p className="mt-1 text-sm text-neutral-600">
+                Please review the information before submitting. Once submitted, the system will be registered in your AI inventory.
+              </p>
+            </div>
+
+            <div className="grid gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Basic Information</h4>
+                  <div className="text-sm space-y-2">
+                    <p><strong>Name:</strong> {formData.name}</p>
+                    <p><strong>Description:</strong> {formData.description}</p>
+                    <p><strong>Vendor:</strong> {formData.vendor}</p>
+                    <p><strong>Department:</strong> {formData.department}</p>
+                    <p><strong>Version:</strong> {formData.version}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium mb-2">AI Capabilities & Risk</h4>
+                  <div className="text-sm space-y-2">
+                    <p><strong>Purpose:</strong> {formData.purpose}</p>
+                    <p><strong>Capabilities:</strong> {formData.aiCapabilities}</p>
+                    <p><strong>Training Data:</strong> {formData.trainingDatasets}</p>
+                    <p>
+                      <strong>Risk Level:</strong> {" "}
+                      <Badge variant={formData.riskLevel === "High" ? "destructive" : "outline"}>
+                        {formData.riskLevel}
+                      </Badge>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Alert className="mt-2">
+              <AlertTriangleIcon className="h-4 w-4" />
+              <AlertTitle>Important</AlertTitle>
+              <AlertDescription>
+                By registering this AI system, you confirm that all information provided is accurate and that the system will be used in compliance with the EU AI Act and organizational policies.
+              </AlertDescription>
+            </Alert>
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
   // Complete form with realistic data
@@ -1419,7 +1848,35 @@ export const SystemRegistration: React.FC = () => {
                 </Button>
               </div>
 
-              <Button type="submit">Register System</Button>
+              {/* Show different buttons based on current step */}
+              <div className="flex justify-between mt-8">
+                {currentStep > 1 && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={goToPreviousStep}
+                  >
+                    Previous Step
+                  </Button>
+                )}
+                
+                {currentStep < 4 ? (
+                  <Button 
+                    type="button" 
+                    className="ml-auto" 
+                    onClick={handleNextStep}
+                  >
+                    Next Step
+                  </Button>
+                ) : (
+                  <Button 
+                    type="submit" 
+                    className="ml-auto"
+                  >
+                    Register System
+                  </Button>
+                )}
+              </div>
             </div>
           </form>
         </CardContent>
