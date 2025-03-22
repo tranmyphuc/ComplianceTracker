@@ -8,6 +8,7 @@ import {
   insertAlertSchema,
   insertDeadlineSchema,
   insertDocumentSchema,
+  insertRiskAssessmentSchema,
   loginSchema,
   registerSchema,
 } from "@shared/schema";
@@ -716,6 +717,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Chatbot endpoint using DeepSeek AI
   app.post("/api/chatbot/query", handleChatbotQuery);
+  
+  // Risk Assessment Routes
+  app.get("/api/risk-assessments/system/:systemId", async (req: Request, res: Response) => {
+    try {
+      const systemId = req.params.systemId;
+      
+      if (!systemId) {
+        return res.status(400).json({ message: "System ID is required" });
+      }
+      
+      const assessments = await storage.getRiskAssessmentsForSystem(systemId);
+      res.json(assessments);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+  
+  app.get("/api/risk-assessments/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const assessment = await storage.getRiskAssessment(id);
+      
+      if (!assessment) {
+        return res.status(404).json({ message: "Risk assessment not found" });
+      }
+      
+      res.json(assessment);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+  
+  app.post("/api/risk-assessments", async (req: Request, res: Response) => {
+    try {
+      const { systemId, ...assessmentData } = req.body;
+      
+      if (!systemId) {
+        return res.status(400).json({ message: "System ID is required" });
+      }
+      
+      // Check if system exists
+      const system = await storage.getAiSystemBySystemId(systemId);
+      if (!system) {
+        return res.status(404).json({ message: "System not found" });
+      }
+      
+      // Create risk assessment
+      const newAssessment = await storage.createRiskAssessment({
+        ...assessmentData,
+        systemId,
+        assessmentDate: new Date(),
+        status: "Completed"
+      });
+      
+      // Create activity record for the assessment
+      await storage.createActivity({
+        type: "risk_assessment",
+        description: `Risk assessment completed for ${system.name}`,
+        systemId,
+        userId: req.body.createdBy || "system",
+        metadata: { assessmentId: newAssessment.assessmentId }
+      });
+      
+      res.status(201).json(newAssessment);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+  
+  app.put("/api/risk-assessments/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const assessmentData = req.body;
+      
+      const updatedAssessment = await storage.updateRiskAssessment(id, assessmentData);
+      
+      if (!updatedAssessment) {
+        return res.status(404).json({ message: "Risk assessment not found" });
+      }
+      
+      res.json(updatedAssessment);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+  
+  // Risk assessment analysis endpoints
+  app.get("/api/risk-assessment/:systemId/analyze", async (req: Request, res: Response) => {
+    try {
+      req.params = { ...req.params }; // Ensure params is mutable
+      await analyzeSystemRisk(req, res);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+  
+  app.get("/api/risk-assessment/:systemId/prohibited", async (req: Request, res: Response) => {
+    try {
+      req.params = { ...req.params }; // Ensure params is mutable
+      await analyzeProhibitedUse(req, res);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+  
+  app.get("/api/risk-assessment/:systemId/report", async (req: Request, res: Response) => {
+    try {
+      req.params = { ...req.params }; // Ensure params is mutable
+      await generateRiskReport(req, res);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+  
+  app.get("/api/risk-assessment/:systemId/gaps", async (req: Request, res: Response) => {
+    try {
+      req.params = { ...req.params }; // Ensure params is mutable
+      await analyzeComplianceGaps(req, res);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
 
   // Dashboard summary
   app.get("/api/dashboard/summary", async (_req: Request, res: Response) => {
