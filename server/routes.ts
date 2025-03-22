@@ -1169,6 +1169,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/risk-assessment/:systemId/report', generateRiskReport);
   app.get('/api/risk-assessment/:systemId/gaps', analyzeComplianceGaps);
 
+  // Training module routes
+  app.get('/api/training/modules', getTrainingModules);
+  app.get('/api/training/modules/:moduleId', getModuleContent);
+  app.post('/api/training/progress', trackTrainingProgress);
+  app.get('/api/training/progress', getUserProgress);
+
   // AI Analysis endpoints
   app.post('/api/analyze-system-category', async (req: Request, res: Response) => {
     try {

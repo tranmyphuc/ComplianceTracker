@@ -1,491 +1,488 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, ArrowRight, BookOpen, CheckCircle, Clipboard, FileText, Play } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
 import { Separator } from "@/components/ui/separator";
-import { useAuth } from "@/components/auth/auth-context";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAuth } from "@/components/auth/auth-context";
 import { TrainingModules } from "@/components/training/training-modules";
+import { BookOpen, CheckCircle, ChevronLeft, FileText, GraduationCap, AlertCircle } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Training() {
-  const { user } = useAuth();
   const { toast } = useToast();
-  const [activeModule, setActiveModule] = useState<string | null>(null);
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("modules");
-  const [moduleProgress, setModuleProgress] = useState<Record<string, number>>({});
+  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState(0);
+  const [assessmentResponses, setAssessmentResponses] = useState<Record<number, string>>({});
+  const [assessmentCompleted, setAssessmentCompleted] = useState(false);
+  const [assessmentResults, setAssessmentResults] = useState<{
+    correct: number;
+    total: number;
+    passed: boolean;
+  } | null>(null);
 
   // Fetch all training modules
-  const { data: modules, isLoading: modulesLoading } = useQuery({
+  const { data: modules, isLoading: isLoadingModules } = useQuery({
     queryKey: ['/api/training/modules'],
-    queryFn: async () => {
-      try {
-        const response = await apiRequest('/api/training/modules', { method: 'GET' });
-        return response;
-      } catch (error) {
-        // If API not available yet, return mock modules for development
-        return [
-          {
-            id: "1",
-            title: "EU AI Act Introduction",
-            description: "Overview of the EU AI Act, its objectives, scope, and implications for organizations.",
-            estimated_time: "45 minutes",
-            topics: ["AI Act Overview", "Key Definitions", "Prohibited Practices", "Risk Categories"],
-            role_relevance: {
-              decision_maker: "High",
-              developer: "High",
-              operator: "High",
-              user: "Medium"
-            }
-          },
-          {
-            id: "2",
-            title: "Risk Classification System",
-            description: "Detailed exploration of the risk-based approach and classification criteria.",
-            estimated_time: "60 minutes",
-            topics: ["Risk-Based Approach", "Classification Criteria", "Examples by Category", "Risk Assessment Process"],
-            role_relevance: {
-              decision_maker: "High",
-              developer: "High",
-              operator: "Medium",
-              user: "Low"
-            }
-          },
-          {
-            id: "3",
-            title: "Technical Requirements",
-            description: "Technical compliance requirements for AI systems under the EU AI Act.",
-            estimated_time: "90 minutes",
-            topics: ["Data Governance", "Technical Documentation", "Record Keeping", "Transparency"],
-            role_relevance: {
-              decision_maker: "Medium",
-              developer: "High",
-              operator: "High",
-              user: "Low"
-            }
-          },
-          {
-            id: "4",
-            title: "Documentation Requirements",
-            description: "Comprehensive guide to required documentation for AI system compliance.",
-            estimated_time: "75 minutes",
-            topics: ["Technical Documentation", "Risk Management", "Data Sheets", "User Instructions"],
-            role_relevance: {
-              decision_maker: "Medium",
-              developer: "High",
-              operator: "Medium",
-              user: "Low"
-            }
-          },
-          {
-            id: "5",
-            title: "Governance Framework",
-            description: "Organizational governance structures for EU AI Act compliance.",
-            estimated_time: "60 minutes",
-            topics: ["Compliance Roles", "Reporting Structure", "Oversight Mechanisms", "Incident Response"],
-            role_relevance: {
-              decision_maker: "High",
-              developer: "Medium",
-              operator: "Medium",
-              user: "Low"
-            }
-          },
-          {
-            id: "6",
-            title: "Implementation Case Studies",
-            description: "Real-world examples of EU AI Act implementation across various industries.",
-            estimated_time: "90 minutes",
-            topics: ["Healthcare AI", "Financial Services", "Manufacturing", "Public Services"],
-            role_relevance: {
-              decision_maker: "High",
-              developer: "High",
-              operator: "High",
-              user: "Medium"
-            }
-          }
-        ];
-      }
-    }
+    queryFn: () => apiRequest('/api/training/modules', {
+      method: 'GET'
+    }),
   });
 
-  // Fetch user training progress
-  const { data: progress, isLoading: progressLoading } = useQuery({
+  // Fetch user progress
+  const { data: userProgress = {}, isLoading: isLoadingProgress } = useQuery({
     queryKey: ['/api/training/progress', user?.uid],
-    queryFn: async () => {
-      try {
-        const response = await apiRequest('/api/training/progress', { 
-          method: 'GET',
-          params: { userId: user?.uid }
-        });
-        return response;
-      } catch (error) {
-        // If API not available yet, return mock progress for development
-        return {
-          "1": { completion: 100 },
-          "2": { completion: 75 },
-          "3": { completion: 35 },
-          "4": { completion: 0 },
-          "5": { completion: 0 },
-          "6": { completion: 0 }
-        };
+    queryFn: () => apiRequest('/api/training/progress', {
+      method: 'GET',
+      params: {
+        userId: user?.uid
       }
-    },
-    enabled: !!user
+    }),
+    enabled: !!user?.uid
   });
 
-  // Fetch active module content when selected
-  const { data: moduleContent, isLoading: contentLoading } = useQuery({
-    queryKey: ['/api/training/modules', activeModule],
-    queryFn: async () => {
-      if (!activeModule) return null;
-      
-      try {
-        const response = await apiRequest(`/api/training/modules/${activeModule}`, { 
-          method: 'GET',
-          params: { role: user?.role || 'user' }
-        });
-        return response;
-      } catch (error) {
-        // If API not available yet, return mock content for development
-        const mockContent = {
-          title: modules?.find(m => m.id === activeModule)?.title || "Module Content",
-          sections: [
-            {
-              title: "Introduction",
-              content: `
-                <h3>Welcome to this training module</h3>
-                <p>The EU AI Act is a comprehensive regulatory framework designed to ensure AI systems used within the European Union are safe, transparent, traceable, non-discriminatory and environmentally friendly. The Act takes a risk-based approach, with different requirements based on the level of risk posed by AI systems.</p>
-                <p>This module will provide you with a fundamental understanding of the EU AI Act, its key provisions, and how it impacts your organization's AI development and deployment practices.</p>
-              `
-            },
-            {
-              title: "Learning Objectives",
-              content: `
-                <p>By the end of this module, you will be able to:</p>
-                <ul>
-                  <li>Understand the purpose and scope of the EU AI Act</li>
-                  <li>Identify the different risk categories for AI systems</li>
-                  <li>Recognize prohibited AI practices</li>
-                  <li>Understand basic compliance requirements for your role</li>
-                </ul>
-              `
-            },
-            {
-              title: "Key Concepts",
-              content: `
-                <h3>Risk-Based Approach</h3>
-                <p>The EU AI Act classifies AI systems into four risk categories:</p>
-                <ol>
-                  <li><strong>Unacceptable Risk:</strong> AI systems that pose a clear threat to people are prohibited.</li>
-                  <li><strong>High Risk:</strong> AI systems that could harm people's safety or fundamental rights are subject to strict requirements.</li>
-                  <li><strong>Limited Risk:</strong> AI systems with specific transparency obligations.</li>
-                  <li><strong>Minimal Risk:</strong> All other AI systems are subject to minimal regulation.</li>
-                </ol>
-                <p>Your responsibilities and compliance requirements will vary depending on the risk classification of the AI systems you work with.</p>
-              `
-            }
-          ],
-          assessments: [
-            {
-              question: "Which of the following is NOT one of the risk categories in the EU AI Act?",
-              options: [
-                "Unacceptable Risk",
-                "High Risk",
-                "Medium Risk",
-                "Limited Risk"
-              ],
-              correctAnswer: "Medium Risk"
-            },
-            {
-              question: "What happens to AI systems classified as 'Unacceptable Risk'?",
-              options: [
-                "They require continuous monitoring",
-                "They are prohibited",
-                "They need special certification",
-                "They must be registered in an EU database"
-              ],
-              correctAnswer: "They are prohibited"
-            }
-          ]
-        };
-        return mockContent;
+  // Fetch specific module content when a module is selected
+  const { data: moduleContent, isLoading: isLoadingContent } = useQuery({
+    queryKey: ['/api/training/modules', selectedModuleId, user?.role],
+    queryFn: () => apiRequest(`/api/training/modules/${selectedModuleId}`, {
+      method: 'GET',
+      params: {
+        role: user?.role || 'user'
       }
-    },
-    enabled: !!activeModule
+    }),
+    enabled: !!selectedModuleId
   });
 
-  // Update progress in state whenever API data changes
-  useEffect(() => {
-    if (progress) {
-      setModuleProgress(prev => {
-        const newProgress = {...prev};
-        Object.entries(progress).forEach(([moduleId, data]) => {
-          newProgress[moduleId] = (data as any).completion || 0;
-        });
-        return newProgress;
-      });
-    }
-  }, [progress]);
-
-  // Function to track module progress
-  const trackProgress = async (moduleId: string, completion: number) => {
-    try {
-      await apiRequest('/api/training/progress', {
+  // Update progress mutation
+  const updateProgressMutation = useMutation({
+    mutationFn: (data: { moduleId: string; completion: number }) => 
+      apiRequest('/api/training/progress', {
         method: 'POST',
         body: {
-          moduleId,
+          moduleId: data.moduleId,
           userId: user?.uid,
-          completion
+          completion: data.completion
         }
-      });
-      
-      // Update local state
-      setModuleProgress(prev => ({
-        ...prev,
-        [moduleId]: completion
-      }));
-      
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/training/progress'] });
+    },
+    onError: (error) => {
       toast({
-        title: "Progress updated",
-        description: `Training progress recorded: ${completion}%`,
+        title: "Error updating progress",
+        description: "Your progress could not be saved. Please try again.",
+        variant: "destructive"
       });
-    } catch (error) {
-      console.error("Failed to track progress:", error);
-      
-      // Still update local state for development
-      setModuleProgress(prev => ({
-        ...prev,
-        [moduleId]: completion
-      }));
+      console.error("Error updating progress:", error);
+    }
+  });
+
+  // Check if specified module is locked
+  const isModuleLocked = (moduleId: string, index: number) => {
+    if (index === 0) return false; // First module is never locked
+    
+    // For subsequent modules, check if previous module has enough progress
+    const prevModuleId = String(Number(moduleId) - 1);
+    const prevModuleProgress = userProgress[prevModuleId]?.completion || 0;
+    
+    return prevModuleProgress < 80; // 80% completion required to unlock next module
+  };
+
+  // Handle module selection
+  const handleSelectModule = (moduleId: string) => {
+    const module = Array.isArray(modules) && modules.find(m => m.id === moduleId);
+    if (!module) return;
+
+    // Check if module is locked
+    const moduleIndex = Array.isArray(modules) ? modules.findIndex(m => m.id === moduleId) : -1;
+    if (moduleIndex > 0 && isModuleLocked(moduleId, moduleIndex)) {
+      toast({
+        title: "Module Locked",
+        description: "You need to complete the previous module first (minimum 80% progress).",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSelectedModuleId(moduleId);
+    setActiveTab("content");
+    setActiveSection(0);
+    setAssessmentResponses({});
+    setAssessmentCompleted(false);
+    setAssessmentResults(null);
+  };
+
+  // Update progress as user navigates through sections
+  useEffect(() => {
+    if (!selectedModuleId || !moduleContent) return;
+
+    // Calculate current progress based on active section and assessments
+    const sections = moduleContent.sections?.length || 0;
+    const hasCompletedAssessment = assessmentCompleted;
+    let progressPercentage = 0;
+
+    if (sections > 0) {
+      // If we're still in content sections
+      if (activeSection < sections) {
+        // Calculate progress based on sections viewed
+        progressPercentage = Math.floor((activeSection / sections) * 70);
+      } else {
+        // User is in assessment section
+        progressPercentage = 70;
+
+        // Add up to 30% more for assessment completion
+        if (hasCompletedAssessment) {
+          progressPercentage = 100;
+        } else {
+          // Calculate progress based on answered questions
+          const answeredCount = Object.keys(assessmentResponses).length;
+          const totalQuestions = moduleContent.assessments?.length || 0;
+          
+          if (totalQuestions > 0) {
+            const assessmentProgress = (answeredCount / totalQuestions) * 30;
+            progressPercentage += assessmentProgress;
+          }
+        }
+      }
+    }
+
+    // Update user progress in the database if it's higher than current
+    const currentProgress = userProgress[selectedModuleId]?.completion || 0;
+    if (progressPercentage > currentProgress) {
+      updateProgressMutation.mutate({
+        moduleId: selectedModuleId,
+        completion: progressPercentage
+      });
+    }
+  }, [selectedModuleId, activeSection, assessmentResponses, assessmentCompleted, moduleContent]);
+
+  // Handle assessment submission
+  const handleSubmitAssessment = () => {
+    if (!moduleContent || !moduleContent.assessments) return;
+
+    const totalQuestions = moduleContent.assessments.length;
+    if (Object.keys(assessmentResponses).length < totalQuestions) {
+      toast({
+        title: "Incomplete Assessment",
+        description: "Please answer all questions before submitting.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Calculate score
+    let correctCount = 0;
+    for (let i = 0; i < totalQuestions; i++) {
+      const userAnswer = assessmentResponses[i];
+      const correctAnswer = moduleContent.assessments[i].correctAnswer;
+      if (userAnswer === correctAnswer) {
+        correctCount++;
+      }
+    }
+
+    const percentCorrect = (correctCount / totalQuestions) * 100;
+    const passed = percentCorrect >= 70; // 70% to pass
+
+    setAssessmentResults({
+      correct: correctCount,
+      total: totalQuestions,
+      passed
+    });
+    setAssessmentCompleted(true);
+
+    // If passed, ensure 100% completion is recorded
+    if (passed && selectedModuleId) {
+      updateProgressMutation.mutate({
+        moduleId: selectedModuleId,
+        completion: 100
+      });
     }
   };
 
-  // Handle module completion
-  const handleCompleteModule = async () => {
-    if (!activeModule) return;
+  // Handle starting a new module after completing one
+  const handleStartNextModule = () => {
+    if (!modules || !selectedModuleId) return;
     
-    await trackProgress(activeModule, 100);
+    const currentIndex = Array.isArray(modules) ? 
+      modules.findIndex(m => m.id === selectedModuleId) : -1;
     
-    toast({
-      title: "Module completed!",
-      description: "Congratulations on completing this training module.",
-      variant: "default",
-    });
+    if (currentIndex >= 0 && currentIndex < modules.length - 1) {
+      const nextModule = modules[currentIndex + 1];
+      handleSelectModule(nextModule.id);
+    } else {
+      // If we're at the last module, go back to modules list
+      setActiveTab("modules");
+      setSelectedModuleId(null);
+    }
   };
 
-  // Function to determine if a module should be locked
-  const isModuleLocked = (moduleId: string, index: number) => {
-    if (index === 0) return false; // First module is always unlocked
-    const prevModuleId = String(parseInt(moduleId) - 1);
-    return (moduleProgress[prevModuleId] || 0) < 80; // Previous module must be at least 80% complete
-  };
-
+  // Filter modules by role
+  const filteredModules = Array.isArray(modules) ? 
+    modules.filter(m => {
+      // Only show if relevance for user's role is Medium or High
+      const role = user?.role || "user";
+      const relevance = m.role_relevance[role as keyof typeof m.role_relevance];
+      return relevance !== "Low";
+    }) : [];
+  
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">EU AI Act Training</h1>
-        <Button variant="outline" onClick={() => setActiveModule(null)} disabled={!activeModule}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Modules
-        </Button>
+    <div className="container mx-auto py-6 max-w-5xl">
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">EU AI Act Training</h1>
+            <p className="text-muted-foreground">Learn about the EU AI Act and ensure your organization stays compliant</p>
+          </div>
+          {selectedModuleId && (
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setSelectedModuleId(null);
+                setActiveTab("modules");
+              }}
+              className="flex items-center"
+            >
+              <ChevronLeft className="mr-1 h-4 w-4" /> Back to modules
+            </Button>
+          )}
+        </div>
       </div>
-      
-      <Tabs defaultValue="modules" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="modules" disabled={!!activeModule}>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="modules" disabled={!!selectedModuleId}>
             <BookOpen className="mr-2 h-4 w-4" /> Training Modules
           </TabsTrigger>
-          <TabsTrigger value="progress" disabled={!!activeModule}>
-            <Clipboard className="mr-2 h-4 w-4" /> Your Progress
-          </TabsTrigger>
-          <TabsTrigger value="certificates" disabled={!!activeModule}>
-            <FileText className="mr-2 h-4 w-4" /> Certificates
+          <TabsTrigger value="content" disabled={!selectedModuleId}>
+            <FileText className="mr-2 h-4 w-4" /> Module Content
           </TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="modules" className="space-y-4">
-          {activeModule ? (
-            <div className="space-y-6">
-              {contentLoading ? (
-                <div className="flex justify-center p-8">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                </div>
-              ) : (
-                <>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>{moduleContent?.title}</CardTitle>
-                      <CardDescription>
-                        Progress: {moduleProgress[activeModule] || 0}% complete
-                        <Progress value={moduleProgress[activeModule] || 0} className="mt-2" />
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-8">
-                      {moduleContent?.sections.map((section, index) => (
-                        <div key={index} className="space-y-2">
-                          <h3 className="text-xl font-semibold">{section.title}</h3>
-                          <div 
-                            className="prose max-w-none" 
-                            dangerouslySetInnerHTML={{ __html: section.content }}
-                          />
-                          <Separator className="my-4" />
-                        </div>
-                      ))}
-                      
-                      {moduleContent?.assessments && moduleContent.assessments.length > 0 && (
-                        <div className="space-y-4">
-                          <h3 className="text-xl font-semibold">Assessment</h3>
-                          <p className="text-gray-600">Complete this short assessment to test your understanding.</p>
-                          
-                          {moduleContent.assessments.map((assessment, index) => (
-                            <Card key={index} className="mt-4">
-                              <CardHeader>
-                                <CardTitle className="text-lg">{assessment.question}</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <div className="space-y-2">
-                                  {assessment.options.map((option, optionIndex) => (
-                                    <div key={optionIndex} className="flex items-center space-x-2">
-                                      <input 
-                                        type="radio" 
-                                        id={`question-${index}-option-${optionIndex}`} 
-                                        name={`question-${index}`} 
-                                        className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
-                                      />
-                                      <label 
-                                        htmlFor={`question-${index}-option-${optionIndex}`}
-                                        className="text-gray-700"
-                                      >
-                                        {option}
-                                      </label>
-                                    </div>
-                                  ))}
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                    <CardFooter className="flex justify-between">
-                      <Button variant="outline" onClick={() => setActiveModule(null)}>
-                        Back to Modules
-                      </Button>
-                      <Button onClick={handleCompleteModule}>
-                        <CheckCircle className="mr-2 h-4 w-4" /> Mark as Complete
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </>
-              )}
-            </div>
-          ) : (
-            <TrainingModules 
-              modules={modules || []} 
-              progress={moduleProgress}
-              isLoading={modulesLoading}
-              onSelectModule={setActiveModule}
-              isModuleLocked={isModuleLocked}
-            />
-          )}
-        </TabsContent>
-        
-        <TabsContent value="progress">
+
+        <TabsContent value="modules">
           <Card>
             <CardHeader>
-              <CardTitle>Your Training Progress</CardTitle>
-              <CardDescription>Track your completion of EU AI Act training modules</CardDescription>
+              <CardTitle className="flex items-center">
+                <GraduationCap className="mr-2 h-5 w-5" /> Available Training Modules
+              </CardTitle>
+              <CardDescription>
+                Select a module to start or continue your training on the EU AI Act
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              {progressLoading ? (
-                <div className="flex justify-center p-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-              ) : (
+              <TrainingModules
+                modules={filteredModules}
+                progress={userProgress}
+                isLoading={isLoadingModules || isLoadingProgress}
+                onSelectModule={handleSelectModule}
+                isModuleLocked={isModuleLocked}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="content">
+          {isLoadingContent ? (
+            <Card>
+              <CardHeader>
+                <div className="h-7 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse mt-2"></div>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-4">
-                  {modules?.map((module) => (
-                    <div key={module.id} className="flex items-center space-x-4">
-                      <div className="w-12 text-center">
-                        {moduleProgress[module.id] === 100 ? (
-                          <CheckCircle className="h-6 w-6 text-green-500 mx-auto" />
-                        ) : (
-                          <span className="text-lg font-semibold">{moduleProgress[module.id] || 0}%</span>
+                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : moduleContent ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>{moduleContent.title}</CardTitle>
+                  <CardDescription>
+                    {selectedModuleId && Array.isArray(modules) && 
+                      modules.find(m => m.id === selectedModuleId)?.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="mb-6">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Progress</span>
+                      <span>{userProgress[selectedModuleId || '']?.completion || 0}%</span>
+                    </div>
+                    <Progress value={userProgress[selectedModuleId || '']?.completion || 0} />
+                  </div>
+
+                  {/* Content or Assessment display */}
+                  {moduleContent.sections && activeSection < moduleContent.sections.length ? (
+                    /* Content Section */
+                    <div className="space-y-4">
+                      <h2 className="text-xl font-bold mb-2">
+                        {moduleContent.sections[activeSection].title}
+                      </h2>
+                      <div 
+                        className="prose max-w-none" 
+                        dangerouslySetInnerHTML={{ 
+                          __html: moduleContent.sections[activeSection].content 
+                        }} 
+                      />
+                    </div>
+                  ) : (
+                    /* Assessment Section */
+                    assessmentCompleted ? (
+                      <div className="space-y-4">
+                        <h2 className="text-xl font-bold mb-2">Assessment Results</h2>
+                        
+                        {assessmentResults && (
+                          <div className="space-y-4">
+                            <Alert variant={assessmentResults.passed ? "default" : "destructive"}>
+                              <div className="flex items-center">
+                                {assessmentResults.passed ? (
+                                  <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
+                                ) : (
+                                  <AlertCircle className="h-5 w-5 mr-2" />
+                                )}
+                                <AlertTitle>
+                                  {assessmentResults.passed ? 
+                                    "Congratulations! You've passed the assessment." :
+                                    "Assessment not passed"
+                                  }
+                                </AlertTitle>
+                              </div>
+                              <AlertDescription>
+                                You answered {assessmentResults.correct} out of {assessmentResults.total} questions correctly 
+                                ({Math.round((assessmentResults.correct / assessmentResults.total) * 100)}%).
+                              </AlertDescription>
+                            </Alert>
+                            
+                            {assessmentResults.passed ? (
+                              <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+                                <p className="text-green-800 font-medium">
+                                  You have successfully completed this module. You can now proceed to the next module.
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="p-4 bg-amber-50 border border-amber-200 rounded-md">
+                                <p className="text-amber-800 font-medium">
+                                  Review the module content and try again to improve your understanding of the EU AI Act.
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <Progress value={moduleProgress[module.id] || 0} className="h-2" />
+                    ) : (
+                      <div className="space-y-4">
+                        <h2 className="text-xl font-bold mb-2">Module Assessment</h2>
+                        <p className="mb-4">Complete this assessment to validate your understanding of the module content.</p>
+                        
+                        {moduleContent.assessments && moduleContent.assessments.map((assessment, index) => (
+                          <div key={index} className="border rounded-md p-4 mb-4">
+                            <p className="font-medium mb-2">{index + 1}. {assessment.question}</p>
+                            <div className="space-y-2 mt-3">
+                              {assessment.options.map((option, optionIndex) => (
+                                <div key={optionIndex} className="flex items-center">
+                                  <input
+                                    type="radio"
+                                    id={`q${index}-opt${optionIndex}`}
+                                    name={`question-${index}`}
+                                    className="mr-2"
+                                    checked={assessmentResponses[index] === option}
+                                    onChange={() => {
+                                      setAssessmentResponses({
+                                        ...assessmentResponses,
+                                        [index]: option
+                                      });
+                                    }}
+                                  />
+                                  <label htmlFor={`q${index}-opt${optionIndex}`}>{option}</label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className="flex-[2]">
-                        <span className="font-medium">{module.title}</span>
-                      </div>
+                    )
+                  )}
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  {/* Navigation buttons based on current section */}
+                  {moduleContent.sections && (
+                    <>
                       <Button 
-                        variant={moduleProgress[module.id] === 100 ? "ghost" : "outline"} 
-                        size="sm"
-                        onClick={() => setActiveModule(module.id)}
-                        disabled={isModuleLocked(module.id, parseInt(module.id) - 1)}
+                        variant="outline" 
+                        onClick={() => {
+                          if (activeSection > 0) {
+                            setActiveSection(activeSection - 1);
+                          } else if (selectedModuleId) {
+                            // Go back to modules list
+                            setSelectedModuleId(null);
+                            setActiveTab("modules");
+                          }
+                        }}
+                        disabled={activeSection === 0 && !selectedModuleId}
                       >
-                        {moduleProgress[module.id] === 100 ? 'Review' : 'Continue'} <ArrowRight className="ml-2 h-4 w-4" />
+                        Previous
                       </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-            <CardFooter>
-              <div className="text-sm text-gray-500">
-                Complete all modules to receive your EU AI Act Compliance Certificate
-              </div>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="certificates">
-          <Card>
-            <CardHeader>
-              <CardTitle>Training Certificates</CardTitle>
-              <CardDescription>Your EU AI Act training accomplishments</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {Object.values(moduleProgress).some(p => p === 100) ? (
-                <div className="space-y-4">
-                  {modules?.filter(m => (moduleProgress[m.id] || 0) === 100).map((module) => (
-                    <Card key={module.id} className="bg-gray-50">
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between items-center">
-                          <CardTitle className="text-lg">{module.title}</CardTitle>
-                          <Badge variant="outline">Completed</Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-gray-600">
-                          Certificate ID: EUAI-{user?.uid?.substring(0, 6)}-{module.id}-{Date.now().toString().substring(7, 12)}
-                        </p>
-                      </CardContent>
-                      <CardFooter>
-                        <Button variant="outline" size="sm">
-                          <FileText className="mr-2 h-4 w-4" /> Download Certificate
+                      
+                      {activeSection < moduleContent.sections.length - 1 ? (
+                        <Button onClick={() => setActiveSection(activeSection + 1)}>
+                          Next
                         </Button>
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center p-8 text-center">
-                  <FileText className="h-16 w-16 text-gray-300 mb-4" />
-                  <h3 className="text-lg font-medium">No Certificates Yet</h3>
-                  <p className="text-gray-500 mt-2">
-                    Complete training modules to earn your certificates
-                  </p>
-                  <Button className="mt-4" onClick={() => setActiveTab("modules")}>
-                    <Play className="mr-2 h-4 w-4" /> Start Training
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                      ) : activeSection === moduleContent.sections.length - 1 ? (
+                        <Button onClick={() => setActiveSection(activeSection + 1)}>
+                          Go to Assessment
+                        </Button>
+                      ) : !assessmentCompleted ? (
+                        <Button onClick={handleSubmitAssessment}>
+                          Submit Assessment
+                        </Button>
+                      ) : (
+                        <Button 
+                          onClick={handleStartNextModule}
+                          disabled={!assessmentResults?.passed}
+                        >
+                          {assessmentResults?.passed ? 
+                            "Start Next Module" : 
+                            "Retry Assessment"
+                          }
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </CardFooter>
+              </Card>
+            </motion.div>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>Module Not Found</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>The requested training module could not be found. Please select a different module.</p>
+              </CardContent>
+              <CardFooter>
+                <Button onClick={() => {
+                  setSelectedModuleId(null);
+                  setActiveTab("modules");
+                }}>
+                  Return to Modules
+                </Button>
+              </CardFooter>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>
