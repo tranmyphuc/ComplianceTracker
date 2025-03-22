@@ -1,24 +1,53 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useLocation } from "wouter";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { AuthForm } from "@/components/auth/auth-form";
+import { getFirebaseAuth } from "@/lib/firebase";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Login() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [useFirebase, setUseFirebase] = useState(true);
+  
+  // Check if Firebase Auth is available
+  useEffect(() => {
+    const auth = getFirebaseAuth();
+    if (!auth) {
+      console.log("Firebase Auth is not available, using backend authentication");
+      setUseFirebase(false);
+    }
+  }, []);
   
   const handleLogin = async (data: { email: string; password: string }) => {
     setIsLoading(true);
     setErrorMessage("");
     
     try {
-      const auth = getAuth();
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      if (useFirebase) {
+        // Firebase Authentication
+        const auth = getAuth();
+        await signInWithEmailAndPassword(auth, data.email, data.password);
+      } else {
+        // Fallback to our backend authentication
+        const response = await apiRequest(
+          "POST",
+          "/api/auth/login",
+          {
+            email: data.email,
+            password: data.password,
+          }
+        );
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Authentication failed");
+        }
+      }
       
       toast({
         title: "Login successful",
@@ -29,22 +58,33 @@ export default function Login() {
     } catch (error: any) {
       console.error("Login error:", error);
       
-      // Handle specific Firebase auth errors
-      switch (error.code) {
-        case "auth/user-not-found":
-          setErrorMessage("No account found with this email address");
-          break;
-        case "auth/wrong-password":
-          setErrorMessage("Incorrect password");
-          break;
-        case "auth/invalid-email":
-          setErrorMessage("Invalid email format");
-          break;
-        case "auth/too-many-requests":
-          setErrorMessage("Too many failed attempts. Please try again later");
-          break;
-        default:
-          setErrorMessage("Failed to login. Please check your credentials");
+      if (useFirebase && error.code) {
+        // Handle specific Firebase auth errors
+        switch (error.code) {
+          case "auth/user-not-found":
+            setErrorMessage("No account found with this email address");
+            break;
+          case "auth/wrong-password":
+            setErrorMessage("Incorrect password");
+            break;
+          case "auth/invalid-email":
+            setErrorMessage("Invalid email format");
+            break;
+          case "auth/too-many-requests":
+            setErrorMessage("Too many failed attempts. Please try again later");
+            break;
+          case "auth/configuration-not-found":
+            // Switch to backend authentication and retry
+            console.log("Firebase configuration issue, switching to backend authentication");
+            setUseFirebase(false);
+            handleLogin(data);
+            return;
+          default:
+            setErrorMessage("Failed to login. Please check your credentials");
+        }
+      } else {
+        // Handle backend auth errors
+        setErrorMessage(error.message || "Failed to login. Please check your credentials");
       }
       
       toast({
@@ -90,9 +130,9 @@ export default function Login() {
             <div className="text-sm text-neutral-500">
               Don't have an account?{" "}
               <Link href="/register">
-                <a className="text-primary font-medium hover:underline">
+                <span className="text-primary font-medium hover:underline">
                   Sign up
-                </a>
+                </span>
               </Link>
             </div>
             
@@ -102,6 +142,12 @@ export default function Login() {
               and
               <a href="#" className="text-primary hover:underline mx-1">Privacy Policy</a>
             </div>
+            
+            {!useFirebase && (
+              <div className="text-xs text-amber-500 mt-2">
+                Using fallback authentication (Firebase not configured)
+              </div>
+            )}
           </CardFooter>
         </Card>
       </div>

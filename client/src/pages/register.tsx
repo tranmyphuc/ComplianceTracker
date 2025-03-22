@@ -1,16 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useLocation } from "wouter";
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { AuthForm } from "@/components/auth/auth-form";
+import { getFirebaseAuth } from "@/lib/firebase";
 
 export default function Register() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [useFirebase, setUseFirebase] = useState(true);
+  
+  // Check if Firebase Auth is available
+  useEffect(() => {
+    const auth = getFirebaseAuth();
+    if (!auth) {
+      console.log("Firebase Auth is not available, using backend authentication only");
+      setUseFirebase(false);
+    }
+  }, []);
   
   const handleRegister = async (data: { 
     email: string; 
@@ -23,26 +34,52 @@ export default function Register() {
     setErrorMessage("");
     
     try {
-      const auth = getAuth();
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      const user = userCredential.user;
+      let uid = "";
       
-      // Update profile with display name
-      if (data.displayName) {
-        await updateProfile(user, {
-          displayName: data.displayName
-        });
+      if (useFirebase) {
+        // Firebase Authentication
+        try {
+          const auth = getAuth();
+          const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+          const user = userCredential.user;
+          uid = user.uid;
+          
+          // Update profile with display name
+          if (data.displayName) {
+            await updateProfile(user, {
+              displayName: data.displayName
+            });
+          }
+        } catch (error: any) {
+          if (error.code === "auth/configuration-not-found") {
+            // Switch to backend-only if Firebase is not configured
+            console.log("Firebase configuration issue, switching to backend-only registration");
+            setUseFirebase(false);
+            // Continue with backend registration without Firebase
+            uid = "backend-" + Date.now(); // Generate a temporary UID for backend only
+          } else {
+            throw error; // Re-throw other Firebase errors
+          }
+        }
+      } else {
+        // Backend-only registration (no Firebase)
+        uid = "backend-" + Date.now(); // Generate a temporary UID for backend only
       }
       
       // Create user in backend
-      await apiRequest("POST", "/api/auth/register", {
-        uid: user.uid,
-        email: data.email,
-        username: data.username,
-        displayName: data.displayName || data.username,
-        department: data.department,
-        role: "user"
-      });
+      await apiRequest(
+        "POST", 
+        "/api/auth/register", 
+        {
+          uid,
+          email: data.email,
+          password: data.password, // Only needed for backend auth
+          username: data.username,
+          displayName: data.displayName || data.username,
+          department: data.department,
+          role: "user"
+        }
+      );
       
       toast({
         title: "Registration successful",
@@ -53,19 +90,24 @@ export default function Register() {
     } catch (error: any) {
       console.error("Registration error:", error);
       
-      // Handle specific Firebase auth errors
-      switch (error.code) {
-        case "auth/email-already-in-use":
-          setErrorMessage("This email is already in use");
-          break;
-        case "auth/invalid-email":
-          setErrorMessage("Invalid email format");
-          break;
-        case "auth/weak-password":
-          setErrorMessage("Password is too weak");
-          break;
-        default:
-          setErrorMessage("Failed to register. Please try again");
+      if (useFirebase && error.code) {
+        // Handle specific Firebase auth errors
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            setErrorMessage("This email is already in use");
+            break;
+          case "auth/invalid-email":
+            setErrorMessage("Invalid email format");
+            break;
+          case "auth/weak-password":
+            setErrorMessage("Password is too weak");
+            break;
+          default:
+            setErrorMessage("Failed to register. Please try again");
+        }
+      } else {
+        // Handle backend auth errors
+        setErrorMessage(error.message || "Failed to register. Please try again");
       }
       
       toast({
@@ -111,9 +153,9 @@ export default function Register() {
             <div className="text-sm text-neutral-500">
               Already have an account?{" "}
               <Link href="/login">
-                <a className="text-primary font-medium hover:underline">
+                <span className="text-primary font-medium hover:underline">
                   Sign in
-                </a>
+                </span>
               </Link>
             </div>
             
@@ -123,6 +165,12 @@ export default function Register() {
               and
               <a href="#" className="text-primary hover:underline mx-1">Privacy Policy</a>
             </div>
+            
+            {!useFirebase && (
+              <div className="text-xs text-amber-500 mt-2">
+                Using backend-only registration (Firebase not configured)
+              </div>
+            )}
           </CardFooter>
         </Card>
       </div>
