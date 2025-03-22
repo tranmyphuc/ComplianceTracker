@@ -133,7 +133,7 @@ export function SystemRegistration() {
         <CardHeader className="pb-3">
           <CardTitle className="text-xl flex items-center">
             <BrainIcon className="h-5 w-5 mr-2 text-primary" />
-            DeepSeek-Powered System Registration
+            SGH ASIA AI-Powered System Registration
           </CardTitle>
           <CardDescription>
             Use AI assistance to accurately classify and register your AI systems according to EU AI Act requirements
@@ -144,16 +144,16 @@ export function SystemRegistration() {
             <div className="flex-1">
               <h3 className="font-medium text-sm">Accelerate Your System Registration</h3>
               <p className="text-xs text-neutral-500 mt-1">
-                Let our DeepSeek AI analyze your system description and suggest appropriate classification and compliance requirements
+                Let our SGH ASIA AI analyze your system description and suggest appropriate classification and compliance requirements
               </p>
             </div>
             <Button 
               variant="default" 
               className="whitespace-nowrap"
-              onClick={runDeepSeekAnalysis}
-              disabled={deepSeekInProgress || !formData.description}
+              onClick={runSghAsiaAiAnalysis}
+              disabled={sghAsiaAiInProgress || !formData.description}
             >
-              {deepSeekInProgress ? (
+              {sghAsiaAiInProgress ? (
                 <>
                   <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin mr-2"></div>
                   Analyzing...
@@ -167,23 +167,23 @@ export function SystemRegistration() {
             </Button>
           </div>
           
-          {deepSeekResults && (
+          {sghAsiaAiResults && (
             <Card className="border-primary/20 bg-primary/5 mb-6">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium flex items-center">
                   <SparklesIcon className="h-4 w-4 mr-1.5 text-primary" />
-                  DeepSeek AI Analysis Results
+                  SGH ASIA AI Analysis Results
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0 pb-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-3">
                   <div>
                     <p className="text-xs text-neutral-500">System Category</p>
-                    <p className="text-sm font-medium">{deepSeekResults.systemCategory}</p>
+                    <p className="text-sm font-medium">{sghAsiaAiResults.systemCategory}</p>
                   </div>
                   <div>
                     <p className="text-xs text-neutral-500">Risk Classification</p>
-                    <p className="text-sm font-medium text-amber-600">{deepSeekResults.riskClassification}</p>
+                    <p className="text-sm font-medium text-amber-600">{sghAsiaAiResults.riskClassification}</p>
                   </div>
                   <div>
                     <p className="text-xs text-neutral-500">Compliance Score</p>
@@ -191,13 +191,13 @@ export function SystemRegistration() {
                       <div className="w-16 h-1.5 bg-neutral-200 rounded-full mr-2">
                         <div 
                           className={`h-full rounded-full ${
-                            deepSeekResults.complianceScore > 80 ? "bg-green-500" : 
-                            deepSeekResults.complianceScore > 60 ? "bg-amber-500" : "bg-red-500"
+                            sghAsiaAiResults.complianceScore > 80 ? "bg-green-500" : 
+                            sghAsiaAiResults.complianceScore > 60 ? "bg-amber-500" : "bg-red-500"
                           }`}
-                          style={{ width: `${deepSeekResults.complianceScore}%` }}
+                          style={{ width: `${sghAsiaAiResults.complianceScore}%` }}
                         />
                       </div>
-                      <span className="text-sm font-medium">{deepSeekResults.complianceScore}%</span>
+                      <span className="text-sm font-medium">{sghAsiaAiResults.complianceScore}%</span>
                     </div>
                   </div>
                 </div>
@@ -205,7 +205,7 @@ export function SystemRegistration() {
                 <div className="space-y-2">
                   <p className="text-xs text-neutral-500">Applicable EU AI Act Articles</p>
                   <div className="flex flex-wrap gap-1">
-                    {deepSeekResults.euAiActArticles.map((article: string) => (
+                    {sghAsiaAiResults.euAiActArticles.map((article: string) => (
                       <span 
                         key={article} 
                         className="text-xs bg-neutral-100 text-neutral-800 px-2 py-1 rounded-full"
@@ -219,7 +219,7 @@ export function SystemRegistration() {
                 <div className="mt-3">
                   <p className="text-xs text-neutral-500 mb-1">Suggested Improvements</p>
                   <ul className="text-xs space-y-1">
-                    {deepSeekResults.suggestedImprovements.map((improvement: string, index: number) => (
+                    {sghAsiaAiResults.suggestedImprovements.map((improvement: string, index: number) => (
                       <li key={index} className="flex items-start">
                         <ChevronRightIcon className="h-3 w-3 text-primary mt-0.5 mr-1.5 flex-shrink-0" />
                         <span>{improvement}</span>
@@ -429,7 +429,7 @@ export function SystemRegistration() {
                         </Label>
                       </RadioGroup>
                       <p className="text-xs text-neutral-500">
-                        Systems with transparency obligations but not requiring as stringent controls.
+                        Systems requiring transparency measures but with lower risk profile.
                       </p>
                     </div>
                     
@@ -457,44 +457,31 @@ export function SystemRegistration() {
                         </Label>
                       </RadioGroup>
                       <p className="text-xs text-neutral-500">
-                        Systems posing minimal or no risk to individuals' rights or safety.
+                        Systems presenting minimal or no risk to fundamental rights or safety.
                       </p>
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 border rounded-md mt-4 bg-blue-50 border-blue-200">
+                    <div className="flex items-start">
+                      <InfoIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-blue-800">Risk Classification Guidance</p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          Not sure about risk level? Use the SGH ASIA AI analysis to get a recommendation based on the system description or consult the official EU AI Act guidelines.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
                 
-                {formData.riskLevel === "High Risk" && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
-                    <div className="flex items-start">
-                      <AlertTriangleIcon className="h-5 w-5 text-amber-600 mt-0.5 mr-2 flex-shrink-0" />
-                      <div>
-                        <h4 className="text-sm font-medium text-amber-800">High Risk Classification Implications</h4>
-                        <p className="text-xs text-amber-700 mt-1">
-                          This classification requires substantial documentation, conformity assessment, 
-                          human oversight mechanisms, and ongoing risk management procedures.
-                        </p>
-                        <div className="flex gap-2 mt-2">
-                          <Button size="sm" variant="outline" className="h-7 text-xs">
-                            <FileIcon className="h-3 w-3 mr-1.5" />
-                            Required Documentation
-                          </Button>
-                          <Button size="sm" variant="outline" className="h-7 text-xs">
-                            <InfoIcon className="h-3 w-3 mr-1.5" />
-                            Compliance Guide
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
                 <div className="flex justify-between">
                   <Button 
-                    type="button" 
+                    type="button"
                     variant="outline"
                     onClick={() => handleTabChange("basic")}
                   >
-                    Previous
+                    Back
                   </Button>
                   <Button 
                     type="button" 
@@ -513,8 +500,8 @@ export function SystemRegistration() {
                   <Textarea 
                     id="aiCapabilities"
                     name="aiCapabilities"
-                    placeholder="Describe the AI capabilities (e.g., machine learning algorithms, neural networks)..." 
-                    rows={2}
+                    placeholder="Describe the AI capabilities (e.g., machine learning, NLP, computer vision, etc.)" 
+                    rows={3}
                     value={formData.aiCapabilities}
                     onChange={handleInputChange}
                   />
@@ -525,8 +512,8 @@ export function SystemRegistration() {
                   <Textarea 
                     id="trainingDatasets"
                     name="trainingDatasets"
-                    placeholder="Describe the datasets used for training the system..." 
-                    rows={2}
+                    placeholder="Describe the data used to train the system" 
+                    rows={3}
                     value={formData.trainingDatasets}
                     onChange={handleInputChange}
                   />
@@ -537,20 +524,20 @@ export function SystemRegistration() {
                   <Textarea 
                     id="outputTypes"
                     name="outputTypes"
-                    placeholder="Describe the types of outputs the system produces..." 
+                    placeholder="Describe the outputs produced by the system" 
                     rows={2}
                     value={formData.outputTypes}
                     onChange={handleInputChange}
                   />
                 </div>
                 
-                <div className="flex justify-between mt-4">
+                <div className="flex justify-between">
                   <Button 
-                    type="button" 
+                    type="button"
                     variant="outline"
                     onClick={() => handleTabChange("classification")}
                   >
-                    Previous
+                    Back
                   </Button>
                   <Button 
                     type="button" 
@@ -569,76 +556,65 @@ export function SystemRegistration() {
                   <Textarea 
                     id="usageContext"
                     name="usageContext"
-                    placeholder="Describe the context in which the system will be used..." 
-                    rows={2}
+                    placeholder="Describe the context and who will use the system" 
+                    rows={3}
                     value={formData.usageContext}
                     onChange={handleInputChange}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="potentialImpact">Potential Impact</Label>
+                  <Label htmlFor="potentialImpact">
+                    <span className="flex items-center">
+                      <span>Potential Impact</span>
+                      {formData.riskLevel === "High Risk" && (
+                        <span className="ml-2 px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">Required for High Risk Systems</span>
+                      )}
+                    </span>
+                  </Label>
                   <Textarea 
                     id="potentialImpact"
                     name="potentialImpact"
-                    placeholder="Describe the potential impact on individuals or groups..." 
-                    rows={2}
+                    placeholder="Describe potential impacts on individuals, groups, or society" 
+                    rows={3}
                     value={formData.potentialImpact}
                     onChange={handleInputChange}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="mitigationMeasures">Mitigation Measures</Label>
+                  <Label htmlFor="mitigationMeasures">
+                    <span className="flex items-center">
+                      <span>Mitigation Measures</span>
+                      {formData.riskLevel === "High Risk" && (
+                        <span className="ml-2 px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">Required for High Risk Systems</span>
+                      )}
+                    </span>
+                  </Label>
                   <Textarea 
                     id="mitigationMeasures"
                     name="mitigationMeasures"
-                    placeholder="Describe measures implemented to mitigate risks..." 
-                    rows={2}
+                    placeholder="Describe measures to mitigate risks" 
+                    rows={3}
                     value={formData.mitigationMeasures}
                     onChange={handleInputChange}
                   />
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-                  <div className="flex items-center justify-center p-6 border border-dashed rounded-md cursor-pointer hover:bg-neutral-50">
-                    <div className="text-center">
-                      <UploadIcon className="h-8 w-8 text-neutral-400 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-neutral-700">Technical Documentation</p>
-                      <p className="text-xs text-neutral-500 mt-1">Upload system documentation</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-center p-6 border border-dashed rounded-md cursor-pointer hover:bg-neutral-50">
-                    <div className="text-center">
-                      <UploadIcon className="h-8 w-8 text-neutral-400 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-neutral-700">Risk Assessment</p>
-                      <p className="text-xs text-neutral-500 mt-1">Upload risk assessment report</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-center p-6 border border-dashed rounded-md cursor-pointer hover:bg-neutral-50">
-                    <div className="text-center">
-                      <UploadIcon className="h-8 w-8 text-neutral-400 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-neutral-700">Compliance Declaration</p>
-                      <p className="text-xs text-neutral-500 mt-1">Upload compliance documentation</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-between mt-4">
+                <div className="flex justify-between">
                   <Button 
-                    type="button" 
+                    type="button"
                     variant="outline"
                     onClick={() => handleTabChange("technical")}
                   >
-                    Previous
+                    Back
                   </Button>
                   <Button 
                     type="submit"
-                    disabled={!formData.potentialImpact}
+                    disabled={!formData.usageContext || (formData.riskLevel === "High Risk" && (!formData.potentialImpact || !formData.mitigationMeasures))}
                   >
                     Register System
+                    <ShieldIcon className="ml-1.5 h-4 w-4" />
                   </Button>
                 </div>
               </TabsContent>
@@ -646,51 +622,6 @@ export function SystemRegistration() {
           </form>
         </CardContent>
       </Card>
-      
-      {/* Quick Registration Tips */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <Card className="border-neutral-200 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-md flex items-center">
-              <SearchIcon className="h-4 w-4 mr-2 text-blue-500" />
-              Classification Guidance
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-neutral-600">
-              Not sure about risk level? Use the DeepSeek AI analysis to get a recommendation based on the system description or consult the official EU AI Act guidelines.
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-neutral-200 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-md flex items-center">
-              <DatabaseIcon className="h-4 w-4 mr-2 text-green-500" />
-              Data Governance
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-neutral-600">
-              When describing training datasets, include information about data sources, collection methods, preprocessing techniques, and measures to ensure quality and representativeness.
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-neutral-200 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-md flex items-center">
-              <ShieldIcon className="h-4 w-4 mr-2 text-amber-500" />
-              Impact Assessment
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-neutral-600">
-              Consider both intended and unintended consequences of your system when completing the impact assessment. Include potential biases, safety risks, and effects on different user groups.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
