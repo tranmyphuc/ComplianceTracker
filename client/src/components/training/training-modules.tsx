@@ -1,8 +1,10 @@
+import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Clock, Lock, Play, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, FileText, GraduationCap, Lock, Unlock } from "lucide-react";
+import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 
 interface TrainingModule {
   id: string;
@@ -20,7 +22,7 @@ interface TrainingModule {
 
 interface TrainingModulesProps {
   modules: TrainingModule[];
-  progress: Record<string, number>;
+  progress: Record<string, { completion: number }>;
   isLoading: boolean;
   onSelectModule: (moduleId: string) => void;
   isModuleLocked: (moduleId: string, index: number) => boolean;
@@ -31,42 +33,26 @@ export function TrainingModules({
   progress,
   isLoading,
   onSelectModule,
-  isModuleLocked,
+  isModuleLocked
 }: TrainingModulesProps) {
-  // Function to get the badge variant based on relevance level
-  const getRelevanceBadgeVariant = (level: string) => {
-    switch (level) {
-      case "High":
-        return "default";
-      case "Medium":
-        return "secondary";
-      case "Low":
-        return "outline";
-      default:
-        return "outline";
-    }
-  };
-
-  // Function to determine the user's role for display purposes
-  // In a real implementation, this would come from the auth context
-  const getUserRole = () => "developer";
+  // Ensure progress is a valid object
+  const safeProgress = progress && typeof progress === 'object' ? progress : {};
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="opacity-70">
-            <CardHeader className="pb-2 animate-pulse">
-              <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2 mt-2"></div>
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="border border-gray-200">
+            <CardHeader className="pb-2">
+              <div className="h-6 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse mt-2"></div>
             </CardHeader>
-            <CardContent className="animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6 mt-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-4/6 mt-2"></div>
+            <CardContent>
+              <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+              <div className="h-2 bg-gray-200 rounded w-full animate-pulse mt-4"></div>
             </CardContent>
-            <CardFooter className="animate-pulse">
-              <div className="h-9 bg-gray-200 rounded w-1/3"></div>
+            <CardFooter className="pt-2">
+              <div className="h-9 bg-gray-200 rounded w-full animate-pulse"></div>
             </CardFooter>
           </Card>
         ))}
@@ -74,95 +60,123 @@ export function TrainingModules({
     );
   }
 
+  if (!Array.isArray(modules) || modules.length === 0) {
+    return (
+      <Card>
+        <CardContent className="pt-6 text-center">
+          <p>No training modules available for your role. Please check back later.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-4">
       {modules.map((module, index) => {
         const isLocked = isModuleLocked(module.id, index);
-        const isCompleted = (progress[module.id] || 0) === 100;
-        const role = getUserRole();
-        const relevance = module.role_relevance[role as keyof typeof module.role_relevance] || "Medium";
-
+        const currentProgress = safeProgress[module.id]?.completion || 0;
+        const isCompleted = currentProgress === 100;
+        
         return (
-          <Card 
-            key={module.id} 
-            className={`relative transition-all ${isLocked ? 'opacity-60' : 'hover:shadow-md'}`}
+          <motion.div
+            key={module.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            {isLocked && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/5 backdrop-blur-[1px] rounded-lg z-10">
-                <div className="bg-white p-4 rounded-lg shadow-lg text-center">
-                  <Lock className="mx-auto mb-2 h-8 w-8 text-yellow-500" />
-                  <p className="font-medium">Complete previous module first</p>
-                  <p className="text-sm text-gray-500">80% completion required</p>
-                </div>
-              </div>
-            )}
-
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="flex items-center">
-                    {module.title}
-                    {isCompleted && (
-                      <CheckCircle className="ml-2 h-5 w-5 text-green-500" />
+            <Card className={`border ${isLocked ? 'border-gray-200 bg-gray-50' : 'border-primary/20'}`}>
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg">
+                    {isLocked ? (
+                      <span className="flex items-center text-gray-500">
+                        <Lock className="mr-2 h-4 w-4" /> {module.title}
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        <GraduationCap className="mr-2 h-5 w-5" /> {module.title}
+                      </span>
                     )}
                   </CardTitle>
-                  <CardDescription className="mt-1">
-                    Module {module.id} of {modules.length}
-                  </CardDescription>
+                  {isCompleted && (
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Completed
+                    </Badge>
+                  )}
                 </div>
-                <Badge variant={getRelevanceBadgeVariant(relevance)}>
-                  {relevance} Relevance
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 mb-4">{module.description}</p>
-              
-              <div className="flex items-center text-sm text-gray-500 mb-4">
-                <Clock className="mr-2 h-4 w-4" />
-                <span>{module.estimated_time}</span>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 mb-4">
-                {module.topics.map((topic, i) => (
-                  <Badge key={i} variant="outline" className="bg-gray-50">
-                    {topic}
-                  </Badge>
-                ))}
-              </div>
-              
-              <div className="mt-4">
-                <div className="flex justify-between text-sm mb-1">
-                  <span>Progress</span>
-                  <span>{progress[module.id] || 0}%</span>
+                <CardDescription className={isLocked ? 'text-gray-400' : ''}>
+                  {module.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {module.topics.map((topic, i) => (
+                    <Badge 
+                      key={i} 
+                      variant="secondary" 
+                      className={isLocked ? 'bg-gray-100 text-gray-400' : ''}
+                    >
+                      {topic}
+                    </Badge>
+                  ))}
                 </div>
-                <Progress value={progress[module.id] || 0} />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                className="w-full" 
-                disabled={isLocked}
-                onClick={() => onSelectModule(module.id)}
-              >
-                {progress[module.id] ? (
-                  progress[module.id] === 100 ? (
+                <div className="flex items-center gap-4 text-sm mb-4">
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 mr-1 opacity-70" />
+                    <span className={isLocked ? 'text-gray-400' : 'text-gray-600'}>
+                      {module.estimated_time}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <FileText className="h-4 w-4 mr-1 opacity-70" />
+                    <span className={isLocked ? 'text-gray-400' : 'text-gray-600'}>
+                      {isCompleted ? 'All sections completed' : 'Multiple sections'}
+                    </span>
+                  </div>
+                </div>
+                <div className="mb-1 flex justify-between text-xs">
+                  <span className={isLocked ? 'text-gray-400' : ''}>Progress</span>
+                  <span className={isLocked ? 'text-gray-400' : ''}>
+                    {currentProgress}%
+                  </span>
+                </div>
+                <Progress 
+                  value={currentProgress} 
+                  className={isLocked ? 'bg-gray-200' : ''} 
+                />
+              </CardContent>
+              <CardFooter className="pt-2">
+                <Button 
+                  className="w-full"
+                  variant={isLocked ? "outline" : "default"}
+                  disabled={isLocked}
+                  onClick={() => onSelectModule(module.id)}
+                >
+                  {isLocked ? (
                     <>
-                      <CheckCircle className="mr-2 h-4 w-4" /> Review Module
+                      <Lock className="mr-2 h-4 w-4" /> 
+                      Complete Previous Module
+                    </>
+                  ) : isCompleted ? (
+                    <>
+                      <GraduationCap className="mr-2 h-4 w-4" /> 
+                      Review Module
+                    </>
+                  ) : currentProgress > 0 ? (
+                    <>
+                      <GraduationCap className="mr-2 h-4 w-4" /> 
+                      Continue Module
                     </>
                   ) : (
                     <>
-                      <Play className="mr-2 h-4 w-4" /> Continue Module
+                      <Unlock className="mr-2 h-4 w-4" /> 
+                      Start Module
                     </>
-                  )
-                ) : (
-                  <>
-                    <Play className="mr-2 h-4 w-4" /> Start Module
-                  </>
-                )}
-              </Button>
-            </CardFooter>
-          </Card>
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
         );
       })}
     </div>

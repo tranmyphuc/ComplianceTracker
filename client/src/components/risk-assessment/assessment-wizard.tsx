@@ -178,7 +178,7 @@ export function AssessmentWizard() {
   };
 
   const getSelectedSystem = () => {
-    if (!systems) return null;
+    if (!systems || !Array.isArray(systems)) return null;
     return systems.find((system: any) => system.systemId === selectedSystem);
   };
 
@@ -359,14 +359,14 @@ export function AssessmentWizard() {
                     <Skeleton key={i} className="h-16 w-full" />
                   ))}
                 </div>
-              ) : systems?.length === 0 ? (
+              ) : systems && Array.isArray(systems) && systems.length === 0 ? (
                 <div className="p-8 text-center">
                   <p className="text-neutral-500">No AI systems found. Please register a system first.</p>
                   <Button className="mt-4">Register New System</Button>
                 </div>
               ) : (
                 <div className="grid gap-2">
-                  {systems?.map((system: any) => (
+                  {systems && Array.isArray(systems) && systems.map((system: any) => (
                     <div
                       key={system.systemId}
                       className={`p-4 border rounded-md cursor-pointer transition-colors ${

@@ -38,24 +38,14 @@ export default function Training() {
   // Fetch user progress
   const { data: userProgress = {}, isLoading: isLoadingProgress } = useQuery({
     queryKey: ['/api/training/progress', user?.uid],
-    queryFn: () => apiRequest('/api/training/progress', {
-      method: 'GET',
-      params: {
-        userId: user?.uid
-      }
-    }),
+    queryFn: () => apiRequest(`/api/training/progress?userId=${user?.uid}`),
     enabled: !!user?.uid
   });
 
   // Fetch specific module content when a module is selected
   const { data: moduleContent, isLoading: isLoadingContent } = useQuery({
     queryKey: ['/api/training/modules', selectedModuleId, user?.role],
-    queryFn: () => apiRequest(`/api/training/modules/${selectedModuleId}`, {
-      method: 'GET',
-      params: {
-        role: user?.role || 'user'
-      }
-    }),
+    queryFn: () => apiRequest(`/api/training/modules/${selectedModuleId}?role=${user?.role || 'user'}`),
     enabled: !!selectedModuleId
   });
 
@@ -89,7 +79,10 @@ export default function Training() {
     
     // For subsequent modules, check if previous module has enough progress
     const prevModuleId = String(Number(moduleId) - 1);
-    const prevModuleProgress = userProgress[prevModuleId]?.completion || 0;
+    
+    // Safely check if userProgress exists and has the property
+    const progressData = userProgress && typeof userProgress === 'object' ? userProgress : {};
+    const prevModuleProgress = progressData[prevModuleId]?.completion || 0;
     
     return prevModuleProgress < 80; // 80% completion required to unlock next module
   };
@@ -153,7 +146,8 @@ export default function Training() {
     }
 
     // Update user progress in the database if it's higher than current
-    const currentProgress = userProgress[selectedModuleId]?.completion || 0;
+    const progressData = userProgress && typeof userProgress === 'object' ? userProgress : {};
+    const currentProgress = progressData[selectedModuleId]?.completion || 0;
     if (progressPercentage > currentProgress) {
       updateProgressMutation.mutate({
         moduleId: selectedModuleId,
@@ -320,9 +314,11 @@ export default function Training() {
                   <div className="mb-6">
                     <div className="flex justify-between text-sm mb-1">
                       <span>Progress</span>
-                      <span>{userProgress[selectedModuleId || '']?.completion || 0}%</span>
+                      <span>{userProgress && typeof userProgress === 'object' && selectedModuleId ? 
+                        userProgress[selectedModuleId]?.completion || 0 : 0}%</span>
                     </div>
-                    <Progress value={userProgress[selectedModuleId || '']?.completion || 0} />
+                    <Progress value={userProgress && typeof userProgress === 'object' && selectedModuleId ? 
+                      userProgress[selectedModuleId]?.completion || 0 : 0} />
                   </div>
 
                   {/* Content or Assessment display */}
