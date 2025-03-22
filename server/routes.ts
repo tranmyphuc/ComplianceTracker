@@ -70,7 +70,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // In a real app, we would verify the password hash here
-      // Simulating successful authentication
+      // For now, we do a simple password comparison
+      if (user.password !== loginData.password) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
       
       res.status(200).json({ 
         id: user.id,
