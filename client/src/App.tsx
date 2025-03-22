@@ -57,7 +57,7 @@ function Router() {
     // DEVELOPMENT MODE - Auto login with admin
     // Remove this for production
     const devModeEnabled = true; // Set to false to disable development mode
-    
+
     if (devModeEnabled) {
       console.log("DEVELOPMENT MODE ACTIVATED: Auto-login with admin user");
       const adminUser: AppUser = {
@@ -69,13 +69,13 @@ function Router() {
         role: "admin",
         department: "Executive"
       };
-      
+
       setUser(adminUser);
       localStorage.setItem('user', JSON.stringify(adminUser));
       setLoading(false);
       return;
     }
-    
+
     // Normal flow - Try to get user from localStorage first
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -101,7 +101,7 @@ function Router() {
             displayName: firebaseUser.displayName || undefined,
             emailVerified: firebaseUser.emailVerified
           };
-          
+
           setUser(appUser);
           localStorage.setItem('user', JSON.stringify(appUser));
         } else if (!localStorage.getItem('user')) {
@@ -109,7 +109,7 @@ function Router() {
           // This allows our backend auth to work even if Firebase auth fails
           setUser(null);
         }
-        
+
         setLoading(false);
       });
 
@@ -168,6 +168,14 @@ function App() {
       <AiAssistantButton />
       <Toaster />
     </QueryClientProvider>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="bg-gray-100 text-gray-600 py-4 text-center">
+      © 2025 SGH ASIA Ltd. All rights reserved. We are compliant with EU AI Act, GDPR, PDPD of Vietnam and ISO 27001:2022. Developed and maintained by the Information Technology & Security Division.
+    </footer>
   );
 }
 

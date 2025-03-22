@@ -454,6 +454,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Import new modules
+  import { 
+    calculateComprehensiveScore, 
+    generateComplianceRoadmap 
+  } from './compliance-scoring';
+  import { 
+    generateDocument, 
+    generateDocumentTemplate, 
+    DocumentType 
+  } from './document-generator';
+  import {
+    getRecentUpdates,
+    getUpdateById,
+    analyzeRegulatoryImpact,
+    subscribeToUpdates
+  } from './regulatory-updates';
+
+  // Enhanced compliance scoring routes
+  app.post("/api/compliance/score", async (req: Request, res: Response) => {
+    try {
+      const systemData = req.body;
+      const complianceScore = calculateComprehensiveScore(systemData);
+      res.json(complianceScore);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.post("/api/compliance/roadmap", async (req: Request, res: Response) => {
+    try {
+      const systemData = req.body;
+      const roadmap = generateComplianceRoadmap(systemData);
+      res.json(roadmap);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  // Document generator routes
+  app.post("/api/documents/generate", async (req: Request, res: Response) => {
+    try {
+      const { system, documentType, companyName, additionalDetails } = req.body;
+      
+      if (!system || !documentType || !companyName) {
+        return res.status(400).json({ message: "Missing required parameters" });
+      }
+      
+      const document = await generateDocument({
+        system,
+        documentType,
+        companyName,
+        additionalDetails
+      });
+      
+      res.json({ document });
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.get("/api/documents/templates/:type", (req: Request, res: Response) => {
+    try {
+      const documentType = req.params.type as DocumentType;
+      const template = generateDocumentTemplate(documentType);
+      res.json(template);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  // Regulatory updates routes
+  app.get("/api/regulatory/updates", async (req: Request, res: Response) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 5;
+      const updates = await getRecentUpdates(limit);
+      res.json(updates);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.get("/api/regulatory/updates/:id", async (req: Request, res: Response) => {
+    try {
+      const update = getUpdateById(req.params.id);
+      
+      if (!update) {
+        return res.status(404).json({ message: "Regulatory update not found" });
+      }
+      
+      res.json(update);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.post("/api/regulatory/impact", async (req: Request, res: Response) => {
+    try {
+      const { updateId, systemIds } = req.body;
+      
+      if (!updateId || !systemIds) {
+        return res.status(400).json({ message: "Missing required parameters" });
+      }
+      
+      const impact = await analyzeRegulatoryImpact(updateId, systemIds);
+      res.json(impact);
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
+  app.post("/api/regulatory/subscribe", (req: Request, res: Response) => {
+    try {
+      const { email, updateTypes } = req.body;
+      
+      if (!email || !updateTypes) {
+        return res.status(400).json({ message: "Missing required parameters" });
+      }
+      
+      const success = subscribeToUpdates(email, updateTypes);
+      res.json({ success });
+    } catch (err) {
+      handleError(err as Error, res);
+    }
+  });
+
   // Setup HTTP server
   const httpServer = createServer(app);
   return httpServer;
