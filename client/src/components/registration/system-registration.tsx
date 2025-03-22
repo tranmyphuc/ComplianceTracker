@@ -1,0 +1,696 @@
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { 
+  AlertTriangleIcon,
+  ArrowRightIcon, 
+  BrainIcon, 
+  ChevronRightIcon, 
+  ClipboardCheckIcon, 
+  DatabaseIcon, 
+  FileIcon, 
+  InfoIcon, 
+  SaveIcon, 
+  SearchIcon,
+  ShieldIcon,
+  SparklesIcon,
+  UploadIcon
+} from "lucide-react";
+
+export function SystemRegistration() {
+  const [activeTab, setActiveTab] = useState("basic");
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    purpose: "",
+    version: "1.0",
+    department: "",
+    riskLevel: "",
+    aiCapabilities: "",
+    trainingDatasets: "",
+    outputTypes: "",
+    usageContext: "",
+    potentialImpact: "",
+    mitigationMeasures: ""
+  });
+  
+  const [registrationProgress, setRegistrationProgress] = useState<{
+    basic: boolean;
+    classification: boolean;
+    technical: boolean;
+    impact: boolean;
+  }>({
+    basic: false,
+    classification: false,
+    technical: false,
+    impact: false
+  });
+  
+  const [deepSeekInProgress, setDeepSeekInProgress] = useState(false);
+  const [deepSeekResults, setDeepSeekResults] = useState<any>(null);
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+  
+  const handleRadioChange = (name: string, value: string) => {
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+  
+  const runDeepSeekAnalysis = () => {
+    setDeepSeekInProgress(true);
+    
+    // Simulate DeepSeek API analysis (would be a real API call in production)
+    setTimeout(() => {
+      const results = {
+        systemCategory: "Decision Support System",
+        riskClassification: "High Risk",
+        euAiActArticles: ["Article 6", "Article 9", "Article 10", "Article 13", "Article 14"],
+        suggestedImprovements: [
+          "Add explicit human oversight mechanisms",
+          "Implement audit trails for all decisions",
+          "Document data governance practices in more detail",
+          "Establish clear responsibility chain for system outputs"
+        ],
+        complianceScore: 68,
+        requiredDocumentation: [
+          "Technical Documentation",
+          "Risk Assessment",
+          "Conformity Assessment",
+          "Human Oversight Protocol"
+        ]
+      };
+      
+      setDeepSeekResults(results);
+      setDeepSeekInProgress(false);
+      
+      // Auto-fill some form fields based on DeepSeek analysis
+      setFormData(prev => ({
+        ...prev,
+        riskLevel: results.riskClassification
+      }));
+    }, 3000);
+  };
+  
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    
+    // Mark previous sections as complete
+    const updatedProgress = {...registrationProgress};
+    if (tab === "classification" && formData.name && formData.description && formData.purpose) {
+      updatedProgress.basic = true;
+    } else if (tab === "technical" && formData.riskLevel) {
+      updatedProgress.classification = true;
+    } else if (tab === "impact" && formData.aiCapabilities && formData.trainingDatasets) {
+      updatedProgress.technical = true;
+    }
+    
+    setRegistrationProgress(updatedProgress);
+  };
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Submit system registration:", formData);
+    // Here you would submit the data to your backend API
+  };
+  
+  return (
+    <div className="space-y-6">
+      <Card className="border-neutral-200 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl flex items-center">
+            <BrainIcon className="h-5 w-5 mr-2 text-primary" />
+            DeepSeek-Powered System Registration
+          </CardTitle>
+          <CardDescription>
+            Use AI assistance to accurately classify and register your AI systems according to EU AI Act requirements
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 items-center p-4 bg-neutral-50 rounded-md mb-6">
+            <div className="flex-1">
+              <h3 className="font-medium text-sm">Accelerate Your System Registration</h3>
+              <p className="text-xs text-neutral-500 mt-1">
+                Let our DeepSeek AI analyze your system description and suggest appropriate classification and compliance requirements
+              </p>
+            </div>
+            <Button 
+              variant="default" 
+              className="whitespace-nowrap"
+              onClick={runDeepSeekAnalysis}
+              disabled={deepSeekInProgress || !formData.description}
+            >
+              {deepSeekInProgress ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin mr-2"></div>
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <SparklesIcon className="h-4 w-4 mr-1.5" />
+                  Run AI Analysis
+                </>
+              )}
+            </Button>
+          </div>
+          
+          {deepSeekResults && (
+            <Card className="border-primary/20 bg-primary/5 mb-6">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center">
+                  <SparklesIcon className="h-4 w-4 mr-1.5 text-primary" />
+                  DeepSeek AI Analysis Results
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 pb-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-3">
+                  <div>
+                    <p className="text-xs text-neutral-500">System Category</p>
+                    <p className="text-sm font-medium">{deepSeekResults.systemCategory}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-neutral-500">Risk Classification</p>
+                    <p className="text-sm font-medium text-amber-600">{deepSeekResults.riskClassification}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-neutral-500">Compliance Score</p>
+                    <div className="flex items-center">
+                      <div className="w-16 h-1.5 bg-neutral-200 rounded-full mr-2">
+                        <div 
+                          className={`h-full rounded-full ${
+                            deepSeekResults.complianceScore > 80 ? "bg-green-500" : 
+                            deepSeekResults.complianceScore > 60 ? "bg-amber-500" : "bg-red-500"
+                          }`}
+                          style={{ width: `${deepSeekResults.complianceScore}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-medium">{deepSeekResults.complianceScore}%</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <p className="text-xs text-neutral-500">Applicable EU AI Act Articles</p>
+                  <div className="flex flex-wrap gap-1">
+                    {deepSeekResults.euAiActArticles.map((article: string) => (
+                      <span 
+                        key={article} 
+                        className="text-xs bg-neutral-100 text-neutral-800 px-2 py-1 rounded-full"
+                      >
+                        {article}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="mt-3">
+                  <p className="text-xs text-neutral-500 mb-1">Suggested Improvements</p>
+                  <ul className="text-xs space-y-1">
+                    {deepSeekResults.suggestedImprovements.map((improvement: string, index: number) => (
+                      <li key={index} className="flex items-start">
+                        <ChevronRightIcon className="h-3 w-3 text-primary mt-0.5 mr-1.5 flex-shrink-0" />
+                        <span>{improvement}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </CardContent>
+              <CardFooter className="pt-0">
+                <Button variant="outline" size="sm" className="text-xs">
+                  <SaveIcon className="h-3 w-3 mr-1.5" />
+                  Apply Recommendations
+                </Button>
+              </CardFooter>
+            </Card>
+          )}
+          
+          <form onSubmit={handleSubmit}>
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
+              <TabsList className="grid grid-cols-4">
+                <TabsTrigger value="basic" className="relative">
+                  Basic Info
+                  {registrationProgress.basic && (
+                    <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
+                      <ClipboardCheckIcon className="h-2 w-2 text-white" />
+                    </div>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="classification" className="relative">
+                  Classification
+                  {registrationProgress.classification && (
+                    <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
+                      <ClipboardCheckIcon className="h-2 w-2 text-white" />
+                    </div>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="technical" className="relative">
+                  Technical Details
+                  {registrationProgress.technical && (
+                    <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
+                      <ClipboardCheckIcon className="h-2 w-2 text-white" />
+                    </div>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="impact" className="relative">
+                  Impact Assessment
+                  {registrationProgress.impact && (
+                    <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
+                      <ClipboardCheckIcon className="h-2 w-2 text-white" />
+                    </div>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="basic" className="space-y-4 pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">System Name</Label>
+                    <Input 
+                      id="name"
+                      name="name"
+                      placeholder="e.g., HR Candidate Evaluation Tool" 
+                      value={formData.name}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="version">Version</Label>
+                    <Input 
+                      id="version"
+                      name="version"
+                      placeholder="e.g., 1.0" 
+                      value={formData.version}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="department">Department</Label>
+                  <Input 
+                    id="department"
+                    name="department"
+                    placeholder="e.g., Human Resources" 
+                    value={formData.department}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="description">System Description</Label>
+                  <Textarea 
+                    id="description"
+                    name="description"
+                    placeholder="Provide a detailed description of your AI system..." 
+                    rows={3}
+                    value={formData.description}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="purpose">Intended Purpose</Label>
+                  <Textarea 
+                    id="purpose"
+                    name="purpose"
+                    placeholder="Describe the intended purpose and use cases of the system..." 
+                    rows={3}
+                    value={formData.purpose}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="flex justify-end">
+                  <Button 
+                    type="button" 
+                    onClick={() => handleTabChange("classification")}
+                    disabled={!formData.name || !formData.description || !formData.purpose}
+                  >
+                    Next Step
+                    <ArrowRightIcon className="ml-1.5 h-4 w-4" />
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="classification" className="space-y-4 pt-4">
+                <div className="space-y-3">
+                  <Label>Risk Classification</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div 
+                      className={`border rounded-md p-3 cursor-pointer ${
+                        formData.riskLevel === "Unacceptable Risk" 
+                          ? "border-red-500 bg-red-50"
+                          : "hover:border-neutral-300"
+                      }`}
+                      onClick={() => handleRadioChange("riskLevel", "Unacceptable Risk")}
+                    >
+                      <RadioGroup value={formData.riskLevel} className="flex items-center mb-2">
+                        <RadioGroupItem 
+                          value="Unacceptable Risk" 
+                          id="unacceptable" 
+                          className={formData.riskLevel === "Unacceptable Risk" ? "text-red-500" : ""}
+                        />
+                        <Label 
+                          htmlFor="unacceptable" 
+                          className={`ml-2 font-medium ${
+                            formData.riskLevel === "Unacceptable Risk" ? "text-red-600" : ""
+                          }`}
+                        >
+                          Unacceptable Risk
+                        </Label>
+                      </RadioGroup>
+                      <p className="text-xs text-neutral-500">
+                        Systems posing a clear threat to safety, livelihoods, or rights of people.
+                      </p>
+                    </div>
+                    
+                    <div 
+                      className={`border rounded-md p-3 cursor-pointer ${
+                        formData.riskLevel === "High Risk" 
+                          ? "border-amber-500 bg-amber-50"
+                          : "hover:border-neutral-300"
+                      }`}
+                      onClick={() => handleRadioChange("riskLevel", "High Risk")}
+                    >
+                      <RadioGroup value={formData.riskLevel} className="flex items-center mb-2">
+                        <RadioGroupItem 
+                          value="High Risk" 
+                          id="high" 
+                          className={formData.riskLevel === "High Risk" ? "text-amber-500" : ""}
+                        />
+                        <Label 
+                          htmlFor="high" 
+                          className={`ml-2 font-medium ${
+                            formData.riskLevel === "High Risk" ? "text-amber-600" : ""
+                          }`}
+                        >
+                          High Risk
+                        </Label>
+                      </RadioGroup>
+                      <p className="text-xs text-neutral-500">
+                        Systems with significant potential to harm health, safety, or fundamental rights.
+                      </p>
+                    </div>
+                    
+                    <div 
+                      className={`border rounded-md p-3 cursor-pointer ${
+                        formData.riskLevel === "Limited Risk" 
+                          ? "border-blue-500 bg-blue-50"
+                          : "hover:border-neutral-300"
+                      }`}
+                      onClick={() => handleRadioChange("riskLevel", "Limited Risk")}
+                    >
+                      <RadioGroup value={formData.riskLevel} className="flex items-center mb-2">
+                        <RadioGroupItem 
+                          value="Limited Risk" 
+                          id="limited" 
+                          className={formData.riskLevel === "Limited Risk" ? "text-blue-500" : ""}
+                        />
+                        <Label 
+                          htmlFor="limited" 
+                          className={`ml-2 font-medium ${
+                            formData.riskLevel === "Limited Risk" ? "text-blue-600" : ""
+                          }`}
+                        >
+                          Limited Risk
+                        </Label>
+                      </RadioGroup>
+                      <p className="text-xs text-neutral-500">
+                        Systems with transparency obligations but not requiring as stringent controls.
+                      </p>
+                    </div>
+                    
+                    <div 
+                      className={`border rounded-md p-3 cursor-pointer ${
+                        formData.riskLevel === "Minimal Risk" 
+                          ? "border-green-500 bg-green-50"
+                          : "hover:border-neutral-300"
+                      }`}
+                      onClick={() => handleRadioChange("riskLevel", "Minimal Risk")}
+                    >
+                      <RadioGroup value={formData.riskLevel} className="flex items-center mb-2">
+                        <RadioGroupItem 
+                          value="Minimal Risk" 
+                          id="minimal" 
+                          className={formData.riskLevel === "Minimal Risk" ? "text-green-500" : ""}
+                        />
+                        <Label 
+                          htmlFor="minimal" 
+                          className={`ml-2 font-medium ${
+                            formData.riskLevel === "Minimal Risk" ? "text-green-600" : ""
+                          }`}
+                        >
+                          Minimal Risk
+                        </Label>
+                      </RadioGroup>
+                      <p className="text-xs text-neutral-500">
+                        Systems posing minimal or no risk to individuals' rights or safety.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                {formData.riskLevel === "High Risk" && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
+                    <div className="flex items-start">
+                      <AlertTriangleIcon className="h-5 w-5 text-amber-600 mt-0.5 mr-2 flex-shrink-0" />
+                      <div>
+                        <h4 className="text-sm font-medium text-amber-800">High Risk Classification Implications</h4>
+                        <p className="text-xs text-amber-700 mt-1">
+                          This classification requires substantial documentation, conformity assessment, 
+                          human oversight mechanisms, and ongoing risk management procedures.
+                        </p>
+                        <div className="flex gap-2 mt-2">
+                          <Button size="sm" variant="outline" className="h-7 text-xs">
+                            <FileIcon className="h-3 w-3 mr-1.5" />
+                            Required Documentation
+                          </Button>
+                          <Button size="sm" variant="outline" className="h-7 text-xs">
+                            <InfoIcon className="h-3 w-3 mr-1.5" />
+                            Compliance Guide
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex justify-between">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => handleTabChange("basic")}
+                  >
+                    Previous
+                  </Button>
+                  <Button 
+                    type="button" 
+                    onClick={() => handleTabChange("technical")}
+                    disabled={!formData.riskLevel}
+                  >
+                    Next Step
+                    <ArrowRightIcon className="ml-1.5 h-4 w-4" />
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="technical" className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="aiCapabilities">AI Capabilities</Label>
+                  <Textarea 
+                    id="aiCapabilities"
+                    name="aiCapabilities"
+                    placeholder="Describe the AI capabilities (e.g., machine learning algorithms, neural networks)..." 
+                    rows={2}
+                    value={formData.aiCapabilities}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="trainingDatasets">Training Datasets</Label>
+                  <Textarea 
+                    id="trainingDatasets"
+                    name="trainingDatasets"
+                    placeholder="Describe the datasets used for training the system..." 
+                    rows={2}
+                    value={formData.trainingDatasets}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="outputTypes">Output Types</Label>
+                  <Textarea 
+                    id="outputTypes"
+                    name="outputTypes"
+                    placeholder="Describe the types of outputs the system produces..." 
+                    rows={2}
+                    value={formData.outputTypes}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="flex justify-between mt-4">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => handleTabChange("classification")}
+                  >
+                    Previous
+                  </Button>
+                  <Button 
+                    type="button" 
+                    onClick={() => handleTabChange("impact")}
+                    disabled={!formData.aiCapabilities || !formData.trainingDatasets}
+                  >
+                    Next Step
+                    <ArrowRightIcon className="ml-1.5 h-4 w-4" />
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="impact" className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="usageContext">Usage Context</Label>
+                  <Textarea 
+                    id="usageContext"
+                    name="usageContext"
+                    placeholder="Describe the context in which the system will be used..." 
+                    rows={2}
+                    value={formData.usageContext}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="potentialImpact">Potential Impact</Label>
+                  <Textarea 
+                    id="potentialImpact"
+                    name="potentialImpact"
+                    placeholder="Describe the potential impact on individuals or groups..." 
+                    rows={2}
+                    value={formData.potentialImpact}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="mitigationMeasures">Mitigation Measures</Label>
+                  <Textarea 
+                    id="mitigationMeasures"
+                    name="mitigationMeasures"
+                    placeholder="Describe measures implemented to mitigate risks..." 
+                    rows={2}
+                    value={formData.mitigationMeasures}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+                  <div className="flex items-center justify-center p-6 border border-dashed rounded-md cursor-pointer hover:bg-neutral-50">
+                    <div className="text-center">
+                      <UploadIcon className="h-8 w-8 text-neutral-400 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-neutral-700">Technical Documentation</p>
+                      <p className="text-xs text-neutral-500 mt-1">Upload system documentation</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-center p-6 border border-dashed rounded-md cursor-pointer hover:bg-neutral-50">
+                    <div className="text-center">
+                      <UploadIcon className="h-8 w-8 text-neutral-400 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-neutral-700">Risk Assessment</p>
+                      <p className="text-xs text-neutral-500 mt-1">Upload risk assessment report</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-center p-6 border border-dashed rounded-md cursor-pointer hover:bg-neutral-50">
+                    <div className="text-center">
+                      <UploadIcon className="h-8 w-8 text-neutral-400 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-neutral-700">Compliance Declaration</p>
+                      <p className="text-xs text-neutral-500 mt-1">Upload compliance documentation</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between mt-4">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => handleTabChange("technical")}
+                  >
+                    Previous
+                  </Button>
+                  <Button 
+                    type="submit"
+                    disabled={!formData.potentialImpact}
+                  >
+                    Register System
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </form>
+        </CardContent>
+      </Card>
+      
+      {/* Quick Registration Tips */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <Card className="border-neutral-200 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-md flex items-center">
+              <SearchIcon className="h-4 w-4 mr-2 text-blue-500" />
+              Classification Guidance
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-neutral-600">
+              Not sure about risk level? Use the DeepSeek AI analysis to get a recommendation based on the system description or consult the official EU AI Act guidelines.
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-neutral-200 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-md flex items-center">
+              <DatabaseIcon className="h-4 w-4 mr-2 text-green-500" />
+              Data Governance
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-neutral-600">
+              When describing training datasets, include information about data sources, collection methods, preprocessing techniques, and measures to ensure quality and representativeness.
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-neutral-200 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-md flex items-center">
+              <ShieldIcon className="h-4 w-4 mr-2 text-amber-500" />
+              Impact Assessment
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-neutral-600">
+              Consider both intended and unintended consequences of your system when completing the impact assessment. Include potential biases, safety risks, and effects on different user groups.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

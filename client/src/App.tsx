@@ -8,6 +8,9 @@ import Inventory from "@/pages/inventory";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import RiskAssessment from "@/pages/risk-assessment";
+import Documentation from "@/pages/documentation";
+import RegisterSystem from "@/pages/register-system";
+import KnowledgeCenter from "@/pages/knowledge-center";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged, getAuth, User } from "firebase/auth";
 import { useLocation } from "wouter";
@@ -148,6 +151,9 @@ function Router() {
         <Route path="/register" component={Register} />
         <Route path="/inventory" component={Inventory} />
         <Route path="/risk-assessment" component={RiskAssessment} />
+        <Route path="/documentation" component={Documentation} />
+        <Route path="/register-system" component={RegisterSystem} />
+        <Route path="/knowledge-center" component={KnowledgeCenter} />
         <Route component={NotFound} />
       </Switch>
     </AuthContext.Provider>
