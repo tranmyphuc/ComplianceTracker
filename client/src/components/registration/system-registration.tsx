@@ -202,7 +202,7 @@ export const SystemRegistration: React.FC = () => {
     setExtractionInProgress(true);
     setExtractionProgress(0);
 
-    // Simulate the extraction process with progress
+    // Simulate the extraction process with progress during API call
     const progressInterval = setInterval(() => {
       setExtractionProgress(prev => {
         if (prev >= 95) {
@@ -214,34 +214,68 @@ export const SystemRegistration: React.FC = () => {
     }, 200);
 
     try {
-      // Mock text analysis for demo - in production, this would call the SGH ASIA AI API
-      setTimeout(() => {
-        clearInterval(progressInterval);
-        setExtractionProgress(100);
-        
-        const extractedData = {
-          name: aiTextInput.includes('TalentAI') ? 'HR Candidate Evaluation System' : 'Customer Interaction AI',
-          vendor: aiTextInput.includes('TalentAI') ? 'TalentAI Inc.' : 'AI Service Solutions',
-          version: aiTextInput.includes('3.2.1') ? '3.2.1' : '1.0',
-          department: aiTextInput.includes('HR') ? 'Human Resources' : 'Customer Service',
-          purpose: aiTextInput.substring(0, 120) + '...',
-          aiCapabilities: aiTextInput.includes('machine learning') ? 'Machine Learning, Ranking, Pattern Recognition' : 'NLP, Intent Recognition, Sentiment Analysis',
-          dataTypes: aiTextInput.includes('resume') ? 'Resumes, Applications, Candidate Data' : 'Customer Conversations, Support Tickets',
-          riskLevel: aiTextInput.includes('HR') || aiTextInput.includes('recruitment') ? 'High' : 'Limited'
-        };
-        
-        setAiResults(extractedData);
-        setConfidenceScore(85);
-        setExtractionInProgress(false);
-      }, 2500);
+      // Make an actual API call to the backend
+      const response = await fetch('/api/suggest/system', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          description: aiTextInput
+        })
+      });
+      
+      clearInterval(progressInterval);
+      
+      if (!response.ok) {
+        throw new Error('Failed to analyze system description');
+      }
+      
+      const result = await response.json();
+      setExtractionProgress(100);
+      
+      // Map the API response to our expected format
+      const extractedData = {
+        name: result.name || (aiTextInput.length > 30 ? aiTextInput.substring(0, 30) + '...' : aiTextInput),
+        vendor: result.vendor || 'Not specified',
+        version: result.version || '1.0',
+        department: result.department || 'Customer Service',
+        purpose: result.purpose || aiTextInput.substring(0, 120) + '...',
+        aiCapabilities: result.capabilities || 'NLP, Intent Recognition, Sentiment Analysis',
+        dataTypes: result.dataSources || 'Customer Conversations, Support Tickets',
+        riskLevel: result.riskLevel || 'Limited'
+      };
+      
+      setAiResults(extractedData);
+      setConfidenceScore(result.confidenceScore || 85);
+      setExtractionInProgress(false);
     } catch (error) {
       console.error("Error analyzing text:", error);
+      clearInterval(progressInterval);
       setExtractionInProgress(false);
+      setExtractionProgress(0);
+      
       toast({
         title: "Analysis Error",
-        description: "There was a problem analyzing the text. Please try again.",
+        description: "There was a problem analyzing the text. Using basic analysis instead.",
         variant: "destructive"
       });
+      
+      // Fallback to basic analysis if API fails
+      const basicExtractedData = {
+        name: aiTextInput.length > 30 ? aiTextInput.substring(0, 30) + '...' : aiTextInput,
+        vendor: 'Not specified',
+        version: '1.0',
+        department: 'Customer Service',
+        purpose: aiTextInput.substring(0, 120) + '...',
+        aiCapabilities: 'NLP, Intent Recognition, Sentiment Analysis',
+        dataTypes: 'Customer Conversations, Support Tickets',
+        riskLevel: 'Limited'
+      };
+      
+      setAiResults(basicExtractedData);
+      setConfidenceScore(70);
+      setExtractionInProgress(false);
     }
   };
 

@@ -76,7 +76,49 @@ function simulateDeepSeekResponse(prompt: string): string {
   // Extract relevant parts from the prompt to simulate intelligent responses
   const lowercasePrompt = prompt.toLowerCase();
 
-  if (lowercasePrompt.includes('category') || lowercasePrompt.includes('classify')) {
+  // Specifically handle the case of generating system registration suggestions
+  if (lowercasePrompt.includes('generate') && lowercasePrompt.includes('registration') || 
+      (lowercasePrompt.includes('suggest') && lowercasePrompt.includes('system'))) {
+    
+    const description = prompt.includes('Description:') ? 
+      prompt.split('Description:')[1].split('Provide suggestions')[0].trim() : 
+      'Unknown system';
+    
+    // Analyze the description to create customized system details
+    const isGammaApp = description.toLowerCase().includes('gamma.app');
+    const isPresentation = isGammaApp || 
+      description.toLowerCase().includes('presentation') || 
+      description.toLowerCase().includes('slide') || 
+      description.toLowerCase().includes('content');
+    
+    return JSON.stringify({
+      name: isGammaApp ? "Gamma Presentation AI" : "Content Generation Assistant",
+      vendor: isGammaApp ? "Gamma Software Inc." : "AI Creative Solutions Ltd.",
+      version: "2.5.3",
+      department: isPresentation ? "Marketing" : "Customer Service",
+      purpose: isGammaApp ? 
+        "An AI-powered presentation creation tool that automatically generates professional slides, infographics, and dynamic content based on minimal user input." : 
+        "Content generation system that helps users create professional content with AI assistance, including writing, design, and presentation capabilities.",
+      capabilities: isPresentation ? 
+        "NLP, Content Generation, Image Recognition, Layout Optimization" : 
+        "NLP, Intent Recognition, Sentiment Analysis, Content Structuring",
+      dataSources: isPresentation ? 
+        "Document Templates, Image Libraries, Font Collections, Presentation Examples" : 
+        "Customer Conversations, Support Tickets, Knowledge Base Articles",
+      outputTypes: isPresentation ? 
+        "Structured Presentations, Infographics, Animated Slides" : 
+        "Text Content, Recommendations, Formatted Documents",
+      usageContext: isPresentation ? 
+        "Marketing teams, Sales presentations, Executive summaries" : 
+        "Customer support scenarios, Internal documentation",
+      potentialImpact: isPresentation ? 
+        "Improves communication efficiency, Reduces preparation time, Enhances visual presentation quality" : 
+        "Accelerates response times, Standardizes service quality, Reduces manual effort",
+      riskLevel: "Limited",
+      confidenceScore: 85
+    });
+  }
+  else if (lowercasePrompt.includes('category') || lowercasePrompt.includes('classify')) {
     return JSON.stringify({
       category: lowercasePrompt.includes('hr') || lowercasePrompt.includes('candidate') 
         ? 'Human Resource Management System' 
