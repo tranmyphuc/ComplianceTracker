@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -31,6 +32,12 @@ export function AssessmentWizard() {
   });
   const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
   const [aiAnalysisResults, setAiAnalysisResults] = useState<any>(null);
+  const [manualSystemInput, setManualSystemInput] = useState({
+    name: "",
+    description: "",
+    department: "",
+    purpose: ""
+  });
 
   const { data: systems, isLoading } = useQuery({
     queryKey: ["/api/systems"],
@@ -57,15 +64,12 @@ export function AssessmentWizard() {
   const handleContinue = () => {
     switch (activeTab) {
       case "system-selection":
+        // Allow users to directly go to Risk Parameters tab without selecting a system
         if (!selectedSystem) {
-          toast({
-            title: "No system selected",
-            description: "Please select an AI system to continue",
-            variant: "destructive"
-          });
-          return;
+          setActiveTab("risk-params");  // Go directly to risk-params for manual entry
+        } else {
+          setActiveTab("prohibited-use");
         }
-        setActiveTab("prohibited-use");
         break;
       case "prohibited-use":
         // Validate that all questions have been answered
@@ -141,27 +145,43 @@ export function AssessmentWizard() {
   };
 
   const runAIAnalysis = async () => {
-    if (!selectedSystem) {
-      toast({
-        title: "No system selected",
-        description: "Please select an AI system to run analysis",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setAiAnalysisLoading(true);
     setAiAnalysisResults(null);
 
     try {
-      const selectedSystemData = getSelectedSystem();
+      // Use manually entered data if no system is selected
+      let systemData;
+      
+      if (selectedSystem) {
+        systemData = getSelectedSystem();
+      } else if (manualSystemInput.name) {
+        // Create a temporary system object using manual input
+        systemData = {
+          name: manualSystemInput.name,
+          description: manualSystemInput.description,
+          department: manualSystemInput.department,
+          purpose: manualSystemInput.purpose,
+          // Add minimal required fields for analysis
+          systemId: `TEMP-${Date.now()}`,
+          status: "Draft",
+          riskLevel: "Unknown"
+        };
+      } else {
+        toast({
+          title: "Missing information",
+          description: "Please enter system details or select an existing system",
+          variant: "destructive"
+        });
+        setAiAnalysisLoading(false);
+        return;
+      }
       
       const response = await fetch('/api/analyze/system', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(selectedSystemData)
+        body: JSON.stringify(systemData)
       });
 
       if (!response.ok) {
@@ -223,7 +243,6 @@ export function AssessmentWizard() {
             <TabsTrigger 
               value="risk-params"
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              disabled={!selectedSystem}
             >
               4. Parameters
             </TabsTrigger>
@@ -258,7 +277,7 @@ export function AssessmentWizard() {
               <div className="space-y-2">
                 <h3 className="text-lg font-medium">Select AI System</h3>
                 <p className="text-sm text-neutral-500">
-                  Choose the AI system you want to assess for EU AI Act compliance
+                  Choose the AI system you want to assess for EU AI Act compliance, or proceed to the Risk Parameters tab to analyze a new system manually
                 </p>
               </div>
               
@@ -666,7 +685,7 @@ export function AssessmentWizard() {
                 </p>
               </div>
               
-              {selectedSystem && (
+              {selectedSystem ? (
                 <div className="bg-neutral-50 p-4 rounded-md border">
                   <h4 className="font-medium">Selected System</h4>
                   <div className="text-sm mt-1">
@@ -676,6 +695,57 @@ export function AssessmentWizard() {
                     Department: {getSelectedSystem()?.department}
                   </div>
                 </div>
+              ) : (
+                <div className="border rounded-md p-4">
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Enter AI System Details</h4>
+                    <p className="text-sm text-neutral-500">
+                      No system selected. Enter details below to analyze a new AI system.
+                    </p>
+                    
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="system-name">System Name</Label>
+                        <Input 
+                          id="system-name" 
+                          placeholder="e.g., Customer Service Chatbot" 
+                          value={manualSystemInput.name}
+                          onChange={(e) => setManualSystemInput({...manualSystemInput, name: e.target.value})}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="department">Department</Label>
+                        <Input 
+                          id="department" 
+                          placeholder="e.g., Customer Support" 
+                          value={manualSystemInput.department}
+                          onChange={(e) => setManualSystemInput({...manualSystemInput, department: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="purpose">Primary Purpose</Label>
+                      <Textarea 
+                        id="purpose" 
+                        placeholder="Describe the main purpose and functionality of this AI system..." 
+                        value={manualSystemInput.purpose}
+                        onChange={(e) => setManualSystemInput({...manualSystemInput, purpose: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Detailed Description</Label>
+                      <Textarea 
+                        id="description" 
+                        placeholder="Provide more details about how the system works, technologies used, and integration points..." 
+                        value={manualSystemInput.description}
+                        onChange={(e) => setManualSystemInput({...manualSystemInput, description: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
               )}
               
               <div className="flex justify-center">
@@ -683,7 +753,7 @@ export function AssessmentWizard() {
                   size="lg" 
                   className="gap-2" 
                   onClick={runAIAnalysis}
-                  disabled={aiAnalysisLoading}
+                  disabled={aiAnalysisLoading || (!selectedSystem && !manualSystemInput.name)}
                 >
                   {aiAnalysisLoading ? (
                     <>
