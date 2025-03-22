@@ -751,7 +751,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/risk-assessments", async (req: Request, res: Response) => {
     try {
-      const { systemId, ...assessmentData } = req.body;
+      // Parse and validate the request data
+      const validatedData = insertRiskAssessmentSchema.parse(req.body);
+      const { systemId, ...assessmentData } = validatedData;
       
       if (!systemId) {
         return res.status(400).json({ message: "System ID is required" });
@@ -776,7 +778,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         type: "risk_assessment",
         description: `Risk assessment completed for ${system.name}`,
         systemId,
-        userId: req.body.createdBy || "system",
+        userId: assessmentData.createdBy || "system",
         metadata: { assessmentId: newAssessment.assessmentId }
       });
       
