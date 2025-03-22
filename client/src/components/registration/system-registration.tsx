@@ -320,7 +320,8 @@ export const SystemRegistration: React.FC = () => {
 
   // AI-powered suggestions from name or description
   const getAiSuggestions = async () => {
-    if (!formData.name && !formData.description) {
+    const systemDescription = formData.name || formData.description || aiTextInput;
+    if (!systemDescription || systemDescription.trim().length < 2) {
       toast({
         variant: "destructive",
         title: "Input Required",
@@ -328,6 +329,8 @@ export const SystemRegistration: React.FC = () => {
       });
       return;
     }
+
+    console.log("Generating suggestions for:", systemDescription); // Added logging
 
     setExtractionInProgress(true);
     setAiExtractionStatus('extracting');

@@ -371,6 +371,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Either name or description is required" });
       }
       
+      // Log the input for debugging
+      console.log("AI suggestion request:", { name, description });
+      
       const prompt = `
         You are an EU AI Act compliance expert. Based on the following information about an AI system,
         generate comprehensive suggestions for all registration fields.

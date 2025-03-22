@@ -80,9 +80,19 @@ function simulateDeepSeekResponse(prompt: string): string {
   if (lowercasePrompt.includes('generate') && lowercasePrompt.includes('registration') || 
       (lowercasePrompt.includes('suggest') && lowercasePrompt.includes('system'))) {
 
-    const description = prompt.includes('Description:') ? 
-      prompt.split('Description:')[1].split('Provide suggestions')[0].trim() : 
-      'Unknown system';
+    // Extract description, handling various input formats
+    let description = 'Unknown system';
+    if (prompt.includes('Description:')) {
+      description = prompt.split('Description:')[1].split('Provide suggestions')[0].trim();
+    } else if (prompt.includes('System Description')) {
+      description = prompt.split('System Description')[1].trim();
+    } else {
+      // Assume the last part of the prompt contains the system description
+      const parts = prompt.split('\n').filter(line => line.trim().length > 0);
+      if (parts.length > 0) {
+        description = parts[parts.length - 1].trim();
+      }
+    }
 
     console.log("Processing system description for analysis:", description);
 
