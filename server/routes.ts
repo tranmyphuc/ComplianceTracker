@@ -23,8 +23,6 @@ import {
   analyzeSystemCompliance,
   callDeepSeekApi
 } from "./ai-analysis";
-
-// Import compliance modules
 import { 
   calculateComprehensiveScore, 
   generateComplianceRoadmap 
@@ -33,7 +31,13 @@ import {
   generateDocument, 
   generateDocumentTemplate, 
   DocumentType 
-} from './document-generation';
+} from './document-generator';
+import {
+  getRecentUpdates,
+  getUpdateById,
+  analyzeRegulatoryImpact,
+  subscribeToUpdates
+} from './regulatory-updates';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -465,22 +469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Import new modules
-  import { 
-    calculateComprehensiveScore, 
-    generateComplianceRoadmap 
-  } from './compliance-scoring';
-  import { 
-    generateDocument, 
-    generateDocumentTemplate, 
-    DocumentType 
-  } from './document-generator';
-  import {
-    getRecentUpdates,
-    getUpdateById,
-    analyzeRegulatoryImpact,
-    subscribeToUpdates
-  } from './regulatory-updates';
+  // Enhanced compliance scoring and document generation routes
 
   // Enhanced compliance scoring routes
   app.post("/api/compliance/score", async (req: Request, res: Response) => {
