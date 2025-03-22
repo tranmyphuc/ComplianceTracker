@@ -11,11 +11,11 @@ export function Footer() {
           <div className="text-xs text-neutral-400 mr-4">
             Compliant with EU AI Act, GDPR, PDPD of Vietnam and ISO 27001:2022
           </div>
-          <Link href="/privacy">
-            <a className="hover:text-neutral-800">Privacy Policy</a>
+          <Link href="/privacy" className="hover:text-neutral-800">
+            Privacy Policy
           </Link>
-          <Link href="/terms">
-            <a className="hover:text-neutral-800">Terms of Service</a>
+          <Link href="/terms" className="hover:text-neutral-800">
+            Terms of Service
           </Link>
         </div>
       </div>

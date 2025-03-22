@@ -39,12 +39,14 @@ interface AuthContextType {
   logout: () => void;
 }
 
-export const AuthContext = createContext<AuthContextType>({
+const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   setUser: () => {},
   logout: () => {},
 });
+
+export { AuthContext };
 
 function Router() {
   const [user, setUser] = useState<AppUser | null>(null);
