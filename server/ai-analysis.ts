@@ -5,10 +5,15 @@ import {storage} from './storage'; // Assuming storage is defined elsewhere
 import {handleError} from './error-handling'; // Assuming handleError is defined elsewhere
 
 
-// DeepSeek API configuration
+// AI API configurations
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
+// Gemini API configuration
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+// Define response types for the APIs
 interface DeepSeekResponse {
   choices: {
     message: {
@@ -17,22 +22,83 @@ interface DeepSeekResponse {
   }[];
 }
 
+interface GeminiResponse {
+  candidates: [{
+    content: {
+      parts: [{
+        text: string;
+      }]
+    }
+  }];
+}
+
+/**
+ * Call the Gemini API with a prompt
+ */
+async function callGeminiApi(prompt: string): Promise<string> {
+  try {
+    console.log('Calling Gemini API with prompt');
+    
+    const url = `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }]
+      }),
+      // Add a timeout to prevent hanging requests
+      signal: AbortSignal.timeout(10000)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json() as GeminiResponse;
+    return data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error('Gemini API error:', error);
+    throw error;
+  }
+}
+
 /**
  * Call the DeepSeek AI API with a prompt
+ * Falls back to Gemini API if DeepSeek fails
+ * Falls back to simulation if both fail
  */
 export async function callDeepSeekApi(prompt: string, detectedSystemType?: string): Promise<string> {
   try {
-    // Check if API key is present
+    // Check if DeepSeek API key is present
     if (!DEEPSEEK_API_KEY) {
-      console.log('DeepSeek API key not found, using simulation mode');
-      return simulateDeepSeekResponse(prompt);
+      console.log('DeepSeek API key not found, checking for Gemini API');
+      
+      // Check if Gemini API key is present
+      if (GEMINI_API_KEY) {
+        console.log('Using Gemini API as primary option');
+        try {
+          return await callGeminiApi(prompt);
+        } catch (error) {
+          console.error('Gemini API error - falling back to simulation:', error);
+          return simulateDeepSeekResponse(prompt, detectedSystemType);
+        }
+      } else {
+        console.log('No API keys available, using simulation mode');
+        return simulateDeepSeekResponse(prompt, detectedSystemType);
+      }
     }
 
     console.log('Calling DeepSeek API with prompt:', prompt);
 
     try {
-      // Try the real API first
-      // Use the defined API URL
+      // Try the DeepSeek API first
       const response = await fetch(DEEPSEEK_API_URL, {
         method: 'POST',
         headers: {
@@ -60,14 +126,25 @@ export async function callDeepSeekApi(prompt: string, detectedSystemType?: strin
 
       const data = await response.json() as DeepSeekResponse;
       return data.choices[0].message.content;
-    } catch (error) {
-      // If API call fails, log error and fall back to simulation
-      console.error('DeepSeek API error - falling back to simulation:', error);
-      console.log('Using simulation mode as fallback with detected system type:', detectedSystemType);
-      return simulateDeepSeekResponse(prompt, detectedSystemType);
+    } catch (deepseekError) {
+      // If DeepSeek API call fails, try Gemini as backup
+      console.error('DeepSeek API error - trying Gemini API as backup:', deepseekError);
+      
+      if (GEMINI_API_KEY) {
+        try {
+          console.log('Attempting Gemini API as fallback...');
+          return await callGeminiApi(prompt);
+        } catch (geminiError) {
+          console.error('Gemini API fallback also failed - using simulation:', geminiError);
+          return simulateDeepSeekResponse(prompt, detectedSystemType);
+        }
+      } else {
+        console.log('Gemini API key not available, using simulation fallback with detected system type:', detectedSystemType);
+        return simulateDeepSeekResponse(prompt, detectedSystemType);
+      }
     }
   } catch (error) {
-    console.error('Error in DeepSeek API handler:', error);
+    console.error('Error in API handler chain:', error);
     // Final fallback
     return simulateDeepSeekResponse(prompt, detectedSystemType);
   }
