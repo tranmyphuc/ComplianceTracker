@@ -43,17 +43,60 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 function Router() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useLocation();
   const auth = getAuth();
 
+  // Check local storage for user on mount
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
+    // Try to get user from localStorage first
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setLoading(false);
+      } catch (e) {
+        console.error('Failed to parse stored user', e);
+        localStorage.removeItem('user');
+      }
+    }
+  }, []);
 
-      // Redirect to login if not authenticated and trying to access protected routes
+  // Firebase auth state change listener
+  useEffect(() => {
+    try {
+      const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        if (firebaseUser) {
+          // Convert Firebase user to our AppUser format
+          const appUser: AppUser = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            displayName: firebaseUser.displayName || undefined,
+            emailVerified: firebaseUser.emailVerified
+          };
+          
+          setUser(appUser);
+          localStorage.setItem('user', JSON.stringify(appUser));
+        } else if (!localStorage.getItem('user')) {
+          // Only clear user if we don't have a localStorage user
+          // This allows our backend auth to work even if Firebase auth fails
+          setUser(null);
+        }
+        
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    } catch (error) {
+      console.error('Firebase auth error:', error);
+      setLoading(false);
+    }
+  }, [auth]);
+
+  // Handle routing based on auth state
+  useEffect(() => {
+    if (!loading) {
       if (!user) {
         if (
           location !== "/login" && 
@@ -65,13 +108,18 @@ function Router() {
       } else if (location === "/login" || location === "/register") {
         setLocation("/");
       }
-    });
+    }
+  }, [user, loading, location, setLocation]);
 
-    return () => unsubscribe();
-  }, [auth, location, setLocation]);
+  const logout = () => {
+    auth.signOut().catch(console.error);
+    localStorage.removeItem('user');
+    setUser(null);
+    setLocation("/login");
+  };
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, setUser, logout }}>
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/login" component={Login} />

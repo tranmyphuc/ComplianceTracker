@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useLocation } from "wouter";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AuthForm } from "@/components/auth/auth-form";
 import { getFirebaseAuth } from "@/lib/firebase";
 import { apiRequest } from "@/lib/queryClient";
+import { AuthContext, AppUser } from "../App";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -13,6 +14,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [useFirebase, setUseFirebase] = useState(true);
+  const { setUser } = useContext(AuthContext);
   
   // Check if Firebase Auth is available
   useEffect(() => {
@@ -55,9 +57,24 @@ export default function Login() {
             throw new Error(responseData.message || "Authentication failed");
           }
           
-          // Set user context with the response data
-          console.log("Login successful:", responseData);
-          // Here you would typically update user context
+          // Create an AppUser from the response data
+          const user: AppUser = {
+            id: responseData.id,
+            uid: responseData.uid,
+            email: responseData.email,
+            username: responseData.username,
+            displayName: responseData.displayName,
+            role: responseData.role,
+            department: responseData.department
+          };
+          
+          // Update AuthContext with the user
+          setUser(user);
+          
+          // Store user in localStorage for persistence
+          localStorage.setItem('user', JSON.stringify(user));
+          
+          console.log("Login successful, user set:", user);
         } catch (error) {
           console.error("Backend login error:", error);
           throw error;
