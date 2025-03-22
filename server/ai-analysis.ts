@@ -19,7 +19,8 @@ interface DeepSeekResponse {
  */
 export async function callDeepSeekApi(prompt: string): Promise<string> {
   try {
-    if (!DEEPSEEK_API_KEY) {
+    // Check if API key is present, but in development mode we can proceed without it
+  if (!DEEPSEEK_API_KEY && process.env.NODE_ENV !== 'development') {
       throw new Error('DeepSeek API key is not configured');
     }
 
@@ -66,6 +67,7 @@ export async function callDeepSeekApi(prompt: string): Promise<string> {
 
 /**
  * Simulate DeepSeek API response for local development
+ * This provides consistent responses for development and testing
  */
 function simulateDeepSeekResponse(prompt: string): string {
   // Extract relevant parts from the prompt to simulate intelligent responses
@@ -103,6 +105,19 @@ function simulateDeepSeekResponse(prompt: string): string {
         'Enhance transparency measures for affected individuals'
       ]
     });
+  } else if (lowercasePrompt.includes('chatbot') || lowercasePrompt.includes('eu ai act compliance assistant') || lowercasePrompt.includes('expert')) {
+    // Handle chatbot queries for EU AI Act compliance assistant
+    if (lowercasePrompt.includes('high-risk')) {
+      return 'High-risk AI systems under the EU AI Act include those used in critical infrastructure, education, employment, essential services, law enforcement, migration, and those that can impact fundamental rights. These systems face the most stringent regulatory requirements including risk management, data governance, technical documentation, record keeping, human oversight, accuracy, and cybersecurity measures.';
+    } else if (lowercasePrompt.includes('deadline') || lowercasePrompt.includes('timeline')) {
+      return 'The EU AI Act has a phased implementation timeline: 6 months after entry into force for prohibitions on unacceptable risk AI systems, 12 months for governance bodies establishment, 24 months for codes of practice development, and full application after 36 months. Organizations should plan their compliance roadmap accordingly.';
+    } else if (lowercasePrompt.includes('documentation')) {
+      return 'The EU AI Act requires comprehensive documentation for high-risk AI systems including: technical specifications, development methods, system architecture, training methodologies, validation procedures, risk assessment reports, human oversight measures, and performance metrics. The documentation must be maintained and updated throughout the system lifecycle.';
+    } else if (lowercasePrompt.includes('penalty') || lowercasePrompt.includes('fine')) {
+      return 'The EU AI Act includes substantial penalties for non-compliance. For violations of prohibited AI practices, fines can reach €35 million or 7% of global annual turnover, whichever is higher. For other violations like insufficient risk management or inadequate documentation, penalties can reach €15 million or 3% of global annual turnover.';
+    } else {
+      return 'The EU AI Act is the world\'s first comprehensive legal framework for artificial intelligence. It establishes a risk-based approach, categorizing AI systems into unacceptable risk (prohibited), high-risk (heavily regulated), limited risk (transparency requirements), and minimal risk (largely unregulated). It aims to ensure AI systems used in the EU are safe, transparent, ethical, and compliant with existing laws. How can I assist you with your specific EU AI Act compliance needs?';
+    }
   } else {
     return JSON.stringify({
       response: 'I need more context about the AI system to provide specific guidance.'

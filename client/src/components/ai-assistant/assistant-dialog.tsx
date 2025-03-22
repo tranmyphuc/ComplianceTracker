@@ -42,8 +42,9 @@ export function AiAssistantDialog({ open, onOpenChange }: AiAssistantDialogProps
     e.preventDefault();
     if (!inputValue.trim() || isProcessing) return;
     
-    const userQuestion = inputValue;
+    const userQuestion = inputValue.trim();
     
+    // Add user message to chat
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
@@ -55,18 +56,38 @@ export function AiAssistantDialog({ open, onOpenChange }: AiAssistantDialogProps
     setInputValue("");
     setIsProcessing(true);
     
+    // Automatic scroll to bottom on new message
+    setTimeout(() => {
+      const chatArea = document.querySelector('.scroll-area-viewport');
+      if (chatArea) {
+        chatArea.scrollTop = chatArea.scrollHeight;
+      }
+    }, 100);
+    
     try {
-      // Get response from DeepSeek AI through our backend
+      // Get response from SGH ASIA AI through our backend
       const aiResponseContent = await getAIResponse(userQuestion);
       
+      // Format the response text with proper line breaks and formatting
+      let formattedResponse = aiResponseContent;
+      
+      // Create AI response message object
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: aiResponseContent,
+        content: formattedResponse,
         timestamp: new Date()
       };
       
+      // Add AI response to chat
       setMessages(prev => [...prev, aiResponse]);
+      
+      // Log successful interaction
+      console.log("AI Assistant conversation success:", { 
+        query: userQuestion.substring(0, 50) + (userQuestion.length > 50 ? '...' : ''),
+        responseLength: formattedResponse.length
+      });
+      
     } catch (error) {
       console.error("Error getting AI response:", error);
       
@@ -74,13 +95,21 @@ export function AiAssistantDialog({ open, onOpenChange }: AiAssistantDialogProps
       const errorResponse: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "I'm sorry, I'm having trouble connecting to the SGH ASIA AI service. Please try again later.",
+        content: "I'm sorry, I'm having trouble connecting to the SGH ASIA AI service. Please try again later or check with your administrator about the DeepSeek API configuration.",
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, errorResponse]);
     } finally {
       setIsProcessing(false);
+      
+      // Scroll to bottom after response
+      setTimeout(() => {
+        const chatArea = document.querySelector('.scroll-area-viewport');
+        if (chatArea) {
+          chatArea.scrollTop = chatArea.scrollHeight;
+        }
+      }, 100);
     }
   };
   
@@ -114,7 +143,7 @@ export function AiAssistantDialog({ open, onOpenChange }: AiAssistantDialogProps
                           : "bg-neutral-100 text-neutral-900"
                       }`}
                     >
-                      <p className="text-sm">{message.content}</p>
+                      <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                       <p className="text-xs opacity-70 mt-1">
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>

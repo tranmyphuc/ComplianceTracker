@@ -381,7 +381,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Log the interaction for audit purposes
       console.log(`Chatbot Query: "${query.substring(0, 100)}${query.length > 100 ? '...' : ''}"`);
       
-      return res.json({ response: aiResponse });
+      // Format the response - handle both JSON and plain text responses
+      let formattedResponse = aiResponse;
+      try {
+        // If the response is valid JSON, try to extract a meaningful field
+        const parsedResponse = JSON.parse(aiResponse);
+        if (parsedResponse.response) {
+          formattedResponse = parsedResponse.response;
+        } else if (parsedResponse.riskLevel && parsedResponse.justification) {
+          formattedResponse = `Risk Level: ${parsedResponse.riskLevel}\n\n${parsedResponse.justification}`;
+        } else if (parsedResponse.category) {
+          formattedResponse = `Category: ${parsedResponse.category}`;
+        } else if (parsedResponse.articles) {
+          formattedResponse = `Relevant Articles: ${parsedResponse.articles.join(', ')}\n\n${parsedResponse.explanation || ''}`;
+        } else if (parsedResponse.improvements) {
+          formattedResponse = `Suggested Improvements:\n- ${parsedResponse.improvements.join('\n- ')}`;
+        }
+      } catch (e) {
+        // The response is already a string, not JSON, so use it as is
+      }
+      
+      return res.json({ response: formattedResponse });
     } catch (err) {
       console.error("Error handling chatbot query:", err);
       handleError(err as Error, res);
