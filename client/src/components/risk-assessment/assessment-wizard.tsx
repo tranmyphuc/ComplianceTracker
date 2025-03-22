@@ -34,11 +34,15 @@ export function AssessmentWizard() {
   });
   const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
   const [aiAnalysisResults, setAiAnalysisResults] = useState<any>(null);
+  const [detailedRiskParameters, setDetailedRiskParameters] = useState<any>(null);
   const [manualSystemInput, setManualSystemInput] = useState({
     name: "",
     description: "",
     department: "",
-    purpose: ""
+    purpose: "",
+    version: "",
+    vendor: "",
+    aiCapabilities: ""
   });
 
   const { data: systems, isLoading } = useQuery({
@@ -188,6 +192,9 @@ export function AssessmentWizard() {
           description: manualSystemInput.description,
           department: manualSystemInput.department,
           purpose: manualSystemInput.purpose,
+          version: manualSystemInput.version,
+          vendor: manualSystemInput.vendor,
+          aiCapabilities: manualSystemInput.aiCapabilities,
           // Add minimal required fields for analysis
           systemId: `TEMP-${Date.now()}`,
           status: "Draft",
