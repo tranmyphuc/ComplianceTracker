@@ -136,6 +136,8 @@ export const insertAlertSchema = createInsertSchema(alerts).omit({ id: true });
 export const insertDeadlineSchema = createInsertSchema(deadlines).omit({ id: true });
 export const insertDocumentSchema = createInsertSchema(documents).omit({ id: true });
 export const insertRiskAssessmentSchema = createInsertSchema(riskAssessments).omit({ id: true });
+export const insertTrainingModuleSchema = createInsertSchema(trainingModules).omit({ id: true });
+export const insertTrainingProgressSchema = createInsertSchema(trainingProgress).omit({ id: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -161,6 +163,12 @@ export type InsertDocument = z.infer<typeof insertDocumentSchema>;
 
 export type RiskAssessment = typeof riskAssessments.$inferSelect;
 export type InsertRiskAssessment = z.infer<typeof insertRiskAssessmentSchema>;
+
+export type TrainingModule = typeof trainingModules.$inferSelect;
+export type InsertTrainingModule = z.infer<typeof insertTrainingModuleSchema>;
+
+export type TrainingProgress = typeof trainingProgress.$inferSelect;
+export type InsertTrainingProgress = z.infer<typeof insertTrainingProgressSchema>;
 
 // Specialized schemas for the API
 export const loginSchema = z.object({
