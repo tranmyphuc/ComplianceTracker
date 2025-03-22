@@ -52,8 +52,8 @@ export function SystemRegistration() {
     impact: false
   });
   
-  const [deepSeekInProgress, setDeepSeekInProgress] = useState(false);
-  const [deepSeekResults, setDeepSeekResults] = useState<any>(null);
+  const [sghAsiaAiInProgress, setSghAsiaAiInProgress] = useState(false);
+  const [sghAsiaAiResults, setSghAsiaAiResults] = useState<any>(null);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -70,10 +70,10 @@ export function SystemRegistration() {
     });
   };
   
-  const runDeepSeekAnalysis = () => {
-    setDeepSeekInProgress(true);
+  const runSghAsiaAiAnalysis = () => {
+    setSghAsiaAiInProgress(true);
     
-    // Simulate DeepSeek API analysis (would be a real API call in production)
+    // Simulate SGH ASIA AI analysis (would be a real API call in production)
     setTimeout(() => {
       const results = {
         systemCategory: "Decision Support System",
@@ -94,10 +94,10 @@ export function SystemRegistration() {
         ]
       };
       
-      setDeepSeekResults(results);
-      setDeepSeekInProgress(false);
+      setSghAsiaAiResults(results);
+      setSghAsiaAiInProgress(false);
       
-      // Auto-fill some form fields based on DeepSeek analysis
+      // Auto-fill some form fields based on SGH ASIA AI analysis
       setFormData(prev => ({
         ...prev,
         riskLevel: results.riskClassification
