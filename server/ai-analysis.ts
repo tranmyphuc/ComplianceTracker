@@ -88,6 +88,17 @@ function simulateDeepSeekResponse(prompt: string): string {
 
     // Define different types of AI systems to analyze
     const systemTypes = {
+      copilot: {
+        keywords: ['copilot', 'microsoft copilot', 'ms copilot', 'microsoft'],
+        name: "Microsoft Copilot",
+        vendor: "Microsoft Corporation",
+        version: "2024.1",
+        department: "Information Technology",
+        purpose: "An AI assistant that integrates across Microsoft 365 applications to assist users with content creation, data analysis, and task automation. It enhances productivity by offering context-aware suggestions, automating routine tasks, and generating content based on user prompts.",
+        capabilities: "Natural Language Processing, Code Generation, Content Creation, Data Analysis, Context-Aware Suggestions",
+        dataSources: "Microsoft 365 Data, User Documents, Code Repositories, Web Content, User Interactions",
+        riskLevel: "Limited"
+      },
       gammaApp: {
         keywords: ['gamma.app', 'gamma', 'presentation', 'slide'],
         name: "Gamma Presentation AI",
@@ -162,9 +173,17 @@ function simulateDeepSeekResponse(prompt: string): string {
     for (const [type, system] of Object.entries(systemTypes)) {
       if (type === 'default') continue;
 
+      // Enhanced matching logic that looks at both the prompt and description
       const matchCount = system.keywords.reduce((count, keyword) => {
+        // Check for exact matches with word boundaries to avoid partial matches
+        if (new RegExp(`\\b${keyword}\\b`, 'i').test(lowercasePrompt)) {
+          return count + 2; // Give higher weight to exact matches
+        }
+        // Also check for includes for more fuzzy matching
         return count + (lowercasePrompt.includes(keyword) ? 1 : 0);
       }, 0);
+
+      console.log(`System type: ${type}, Match count: ${matchCount}, Keywords: ${system.keywords.join(', ')}`);
 
       if (matchCount > highestMatchCount) {
         matchedSystem = system;

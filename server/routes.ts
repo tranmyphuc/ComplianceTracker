@@ -378,9 +378,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ${name ? `System Name: ${name}` : ''}
         ${description ? `Description: ${description}` : ''}
         
+        IMPORTANT: If the system name contains "Microsoft Copilot" or "Copilot", it refers to Microsoft's AI assistant 
+        that integrates with Microsoft 365 and provides coding assistance, content generation, and analysis.
+        
+        Identify the specific AI system that best matches the provided name/description. 
+        Do not default to generic systems unless absolutely necessary.
+        
         Provide suggestions for the following fields:
-        - name (if not provided)
-        - vendor (suggest a realistic vendor name)
+        - name (keep the original name if provided, otherwise suggest an appropriate name)
+        - vendor (the company that develops this specific AI system)
         - version (suggest a realistic version number)
         - department (where this system would typically be used)
         - purpose (detailed purpose of the system)
@@ -391,7 +397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         - potentialImpact (potential impacts on individuals and society)
         - riskLevel (according to EU AI Act: Unacceptable, High, Limited, Minimal)
         
-        Output your answer in JSON format with all these fields and a 'confidence' value from 0-100.
+        Output your answer in JSON format with all these fields and a 'confidenceScore' value from 0-100.
       `;
       
       const response = await callDeepSeekApi(prompt);
