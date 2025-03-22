@@ -31,7 +31,7 @@ export async function callDeepSeekApi(prompt: string): Promise<string> {
     console.log('Calling DeepSeek API with prompt:', prompt);
 
     // Always use the real API since we have the API key
-    const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+    const DEEPSEEK_API_URL = 'https://api.deepseek.ai/v1/chat/completions';
     
     const response = await fetch(DEEPSEEK_API_URL, {
       method: 'POST',

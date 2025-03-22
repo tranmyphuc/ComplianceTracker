@@ -408,9 +408,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let suggestions;
 
       try {
-        suggestions = JSON.parse(response);
+        // Clean up the response to handle markdown formatting (```json) or other formatting
+        let cleanedResponse = response;
+        
+        // Remove markdown code blocks if present
+        if (cleanedResponse.includes('```json')) {
+          cleanedResponse = cleanedResponse.replace(/```json\s*/, '').replace(/\s*```\s*$/, '');
+        } else if (cleanedResponse.includes('```')) {
+          cleanedResponse = cleanedResponse.replace(/```\s*/, '').replace(/\s*```\s*$/, '');
+        }
+        
+        // Try to find JSON within the text if it's still not valid
+        if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
+          const jsonStartIndex = cleanedResponse.indexOf('{');
+          const jsonEndIndex = cleanedResponse.lastIndexOf('}') + 1;
+          if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex) {
+            cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
+          }
+        }
+        
+        console.log("Cleaned API response for parsing:", cleanedResponse);
+        suggestions = JSON.parse(cleanedResponse);
       } catch (error) {
         console.error("Error parsing DeepSeek response:", error);
+        console.error("Raw response:", response);
         return res.status(500).json({ message: "Failed to parse AI suggestions" });
       }
 
