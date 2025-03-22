@@ -115,7 +115,8 @@ function simulateDeepSeekResponse(prompt: string): string {
         riskLevel: "Limited"
       },
       gemini: {
-        keywords: ['gemini', 'gemini ai', 'gemini pro', 'google ai', 'bard', 'google gemini'],
+        // Simplified keywords for easier matching
+        keywords: ['gemini', 'gem', 'google', 'gemini pro', 'google ai', 'bard'],
         name: "Google Gemini",
         vendor: "Google LLC",
         version: "2024.1",
@@ -126,7 +127,8 @@ function simulateDeepSeekResponse(prompt: string): string {
         riskLevel: "Limited"
       },
       claude: {
-        keywords: ['claude', 'claude ai', 'anthropic', 'claude sonnet', 'claude haiku', 'anthropic ai'],
+        // Simplified keywords for easier matching
+        keywords: ['claude', 'anthropic', 'claude ai', 'sonnet', 'haiku'],
         name: "Claude AI Assistant",
         vendor: "Anthropic PBC",
         version: "3.0",
@@ -223,14 +225,24 @@ function simulateDeepSeekResponse(prompt: string): string {
       if (type === 'default') continue;
 
       // Use the input as entered by the user for matching without prioritization
-      // Enhanced matching logic that looks at the prompt
+      // Enhanced matching logic that looks at both prompt and description
+      const textToSearch = (lowercasePrompt + " " + description.toLowerCase());
+      
+      // Debug the textToSearch for every system type
+      console.log(`Searching for keywords in: "${textToSearch}"`);
+      
       const matchCount = system.keywords.reduce((count, keyword) => {
         // Check for exact matches with word boundaries to avoid partial matches
-        if (new RegExp(`\\b${keyword}\\b`, 'i').test(lowercasePrompt)) {
+        if (new RegExp(`\\b${keyword}\\b`, 'i').test(textToSearch)) {
+          console.log(`Found exact match for keyword: ${keyword}`);
           return count + 2; // Give higher weight to exact matches
         }
         // Also check for includes for more fuzzy matching
-        return count + (lowercasePrompt.includes(keyword) ? 1 : 0);
+        if (textToSearch.includes(keyword)) {
+          console.log(`Found fuzzy match for keyword: ${keyword}`);
+          return count + 1;
+        }
+        return count;
       }, 0);
 
       console.log(`System type: ${type}, Match count: ${matchCount}, Keywords: ${system.keywords.join(', ')}`);
