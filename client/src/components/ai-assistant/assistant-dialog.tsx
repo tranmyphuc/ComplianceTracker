@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { SparklesIcon, SendIcon, HistoryIcon, InfoIcon, BookmarkIcon } from "lucide-react";
+import { SparklesIcon, SendIcon, HistoryIcon, InfoIcon, BookmarkIcon, TrashIcon } from "lucide-react";
 
 interface AiAssistantDialogProps {
   open: boolean;
@@ -26,17 +26,59 @@ interface Message {
 }
 
 export function AiAssistantDialog({ open, onOpenChange }: AiAssistantDialogProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
+  // Load messages from localStorage if available
+  const loadStoredMessages = (): Message[] => {
+    try {
+      const storedMessages = localStorage.getItem('aiAssistantMessages');
+      if (storedMessages) {
+        const parsed = JSON.parse(storedMessages);
+        // Convert string timestamps back to Date objects
+        return parsed.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading stored messages:', error);
+    }
+    // Default welcome message
+    return [{
       id: "1",
       role: "assistant",
       content: "Hello! I'm your AI Assistant for EU AI Act compliance. How can I help you today?",
       timestamp: new Date()
+    }];
+  };
+
+  const [messages, setMessages] = useState<Message[]>(loadStoredMessages());
+  
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    try {
+      // Don't save if there's just the welcome message
+      if (messages.length > 0) {
+        localStorage.setItem('aiAssistantMessages', JSON.stringify(messages));
+      }
+    } catch (error) {
+      console.error('Error saving messages:', error);
     }
-  ]);
+  }, [messages]);
   
   const [inputValue, setInputValue] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Function to clear conversation history
+  const handleClearConversation = () => {
+    const welcomeMessage: Message = {
+      id: "1",
+      role: "assistant",
+      content: "Hello! I'm your AI Assistant for EU AI Act compliance. How can I help you today?",
+      timestamp: new Date()
+    };
+    
+    setMessages([welcomeMessage]);
+    localStorage.removeItem('aiAssistantMessages');
+  };
   
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,13 +159,27 @@ export function AiAssistantDialog({ open, onOpenChange }: AiAssistantDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] p-0 gap-0 h-[80vh] flex flex-col">
         <DialogHeader className="p-6 pb-4">
-          <DialogTitle className="flex items-center">
-            <SparklesIcon className="h-5 w-5 mr-2 text-primary" />
-            EU AI Act Compliance Assistant
-          </DialogTitle>
-          <DialogDescription>
-            Get expert guidance on EU AI Act compliance requirements and implementation
-          </DialogDescription>
+          <div className="flex justify-between items-start">
+            <div>
+              <DialogTitle className="flex items-center">
+                <SparklesIcon className="h-5 w-5 mr-2 text-primary" />
+                EU AI Act Compliance Assistant
+              </DialogTitle>
+              <DialogDescription>
+                Get expert guidance on EU AI Act compliance requirements and implementation
+              </DialogDescription>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleClearConversation}
+              className="text-xs flex items-center px-2"
+              disabled={messages.length <= 1 || isProcessing}
+            >
+              <TrashIcon className="h-3 w-3 mr-1" />
+              Clear History
+            </Button>
+          </div>
         </DialogHeader>
         
         <div className="flex-1 flex overflow-hidden">
