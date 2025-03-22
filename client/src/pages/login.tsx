@@ -168,12 +168,8 @@ export default function Login() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
           <div className="flex items-center">
-            <svg className="h-10 w-10 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" />
-              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span className="ml-2 text-2xl font-semibold">ComplianceAI</span>
+            <img src="/images/sgh-logo-color.svg" alt="SGH ASIA" className="h-14 w-auto" />
+            <span className="ml-2 text-2xl font-semibold hidden">SGH ASIA</span>
           </div>
         </div>
         
@@ -181,7 +177,7 @@ export default function Login() {
           <CardHeader>
             <CardTitle className="text-xl">Sign in to your account</CardTitle>
             <CardDescription>
-              Enter your credentials to access the compliance platform
+              Enter your credentials to access the EU AI Act compliance platform
             </CardDescription>
           </CardHeader>
           <CardContent>
