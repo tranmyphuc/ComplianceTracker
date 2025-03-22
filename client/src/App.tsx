@@ -160,7 +160,7 @@ function Router() {
         <Route path="/reports" component={Documentation} />
         <Route path="/profile" component={Dashboard} />
         <Route path="/settings" component={Dashboard} />
-        <Route component={NotFound} />
+        <Route component={NotFound} /> {/* Catch-all 404 route */}
       </Switch>
     </AuthContext.Provider>
   );
