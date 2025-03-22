@@ -85,6 +85,7 @@ export class MemStorage implements IStorage {
     this.alerts = new Map();
     this.deadlines = new Map();
     this.documents = new Map();
+    this.riskAssessments = new Map();
     
     this.userIdCounter = 1;
     this.systemIdCounter = 1;
@@ -93,6 +94,7 @@ export class MemStorage implements IStorage {
     this.alertIdCounter = 1;
     this.deadlineIdCounter = 1;
     this.documentIdCounter = 1;
+    this.riskAssessmentIdCounter = 1;
     
     // Initialize with some sample departments
     this.initializeDepartments();
@@ -303,6 +305,54 @@ export class MemStorage implements IStorage {
     this.documents.set(id, updatedDocument);
     return updatedDocument;
   }
+  
+  // Risk Assessment methods
+  async getRiskAssessment(id: number): Promise<RiskAssessment | undefined> {
+    return this.riskAssessments.get(id);
+  }
+  
+  async getRiskAssessmentByAssessmentId(assessmentId: string): Promise<RiskAssessment | undefined> {
+    return Array.from(this.riskAssessments.values()).find(assessment => assessment.assessmentId === assessmentId);
+  }
+  
+  async getRiskAssessmentsForSystem(systemId: string): Promise<RiskAssessment[]> {
+    return Array.from(this.riskAssessments.values())
+      .filter(assessment => assessment.systemId === systemId)
+      .sort((a, b) => b.assessmentDate.getTime() - a.assessmentDate.getTime());
+  }
+  
+  async createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment> {
+    const id = this.riskAssessmentIdCounter++;
+    const now = new Date();
+    
+    // Make sure we have assessment date and ID
+    const assessmentDate = assessment.assessmentDate || now;
+    const assessmentId = assessment.assessmentId || `RA-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    
+    const newAssessment: RiskAssessment = { 
+      ...assessment, 
+      id,
+      assessmentId,
+      assessmentDate, 
+      createdAt: now
+    };
+    
+    this.riskAssessments.set(id, newAssessment);
+    return newAssessment;
+  }
+  
+  async updateRiskAssessment(id: number, assessment: Partial<RiskAssessment>): Promise<RiskAssessment | undefined> {
+    const existingAssessment = this.riskAssessments.get(id);
+    if (!existingAssessment) return undefined;
+    
+    const updatedAssessment = { 
+      ...existingAssessment, 
+      ...assessment
+    };
+    
+    this.riskAssessments.set(id, updatedAssessment);
+    return updatedAssessment;
+  }
 }
 
 // DatabaseStorage implementation using Drizzle ORM
@@ -499,6 +549,49 @@ export class DatabaseStorage implements IStorage {
       .update(documents)
       .set(updatedDocument)
       .where(eq(documents.id, id))
+      .returning();
+    return result[0];
+  }
+  
+  // Risk Assessment operations
+  async getRiskAssessment(id: number): Promise<RiskAssessment | undefined> {
+    const result = await db.select().from(riskAssessments).where(eq(riskAssessments.id, id)).limit(1);
+    return result[0];
+  }
+  
+  async getRiskAssessmentByAssessmentId(assessmentId: string): Promise<RiskAssessment | undefined> {
+    const result = await db.select().from(riskAssessments).where(eq(riskAssessments.assessmentId, assessmentId)).limit(1);
+    return result[0];
+  }
+  
+  async getRiskAssessmentsForSystem(systemId: string): Promise<RiskAssessment[]> {
+    return await db
+      .select()
+      .from(riskAssessments)
+      .where(eq(riskAssessments.systemId, systemId))
+      .orderBy(desc(riskAssessments.assessmentDate));
+  }
+  
+  async createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment> {
+    // Generate a unique assessment ID if one isn't provided
+    const assessmentId = assessment.assessmentId || `RA-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    
+    const newAssessment = {
+      ...assessment,
+      assessmentId,
+      assessmentDate: assessment.assessmentDate || new Date(),
+      createdAt: new Date()
+    };
+    
+    const result = await db.insert(riskAssessments).values(newAssessment).returning();
+    return result[0];
+  }
+  
+  async updateRiskAssessment(id: number, assessment: Partial<RiskAssessment>): Promise<RiskAssessment | undefined> {
+    const result = await db
+      .update(riskAssessments)
+      .set(assessment)
+      .where(eq(riskAssessments.id, id))
       .returning();
     return result[0];
   }
