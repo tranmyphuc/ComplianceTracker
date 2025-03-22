@@ -79,13 +79,13 @@ function simulateDeepSeekResponse(prompt: string): string {
   // Specifically handle the case of generating system registration suggestions
   if (lowercasePrompt.includes('generate') && lowercasePrompt.includes('registration') || 
       (lowercasePrompt.includes('suggest') && lowercasePrompt.includes('system'))) {
-    
+
     const description = prompt.includes('Description:') ? 
       prompt.split('Description:')[1].split('Provide suggestions')[0].trim() : 
       'Unknown system';
-    
+
     console.log("Processing system description for analysis:", description);
-    
+
     // Define different types of AI systems to analyze
     const systemTypes = {
       gammaApp: {
@@ -154,41 +154,41 @@ function simulateDeepSeekResponse(prompt: string): string {
         riskLevel: "Limited"
       }
     };
-    
+
     // Determine the system type based on the description
     let matchedSystem = systemTypes.default;
     let highestMatchCount = 0;
-    
+
     for (const [type, system] of Object.entries(systemTypes)) {
       if (type === 'default') continue;
-      
+
       const matchCount = system.keywords.reduce((count, keyword) => {
         return count + (lowercasePrompt.includes(keyword) ? 1 : 0);
       }, 0);
-      
+
       if (matchCount > highestMatchCount) {
         matchedSystem = system;
         highestMatchCount = matchCount;
       }
     }
-    
+
     // If we couldn't match any system specifically, try to make a more intelligent analysis
     if (highestMatchCount === 0) {
       // Extract potential keywords from the description for basic analysis
       const words = description.toLowerCase().split(/\s+/);
-      
+
       // Try to determine if this might be a content-related system
       const contentRelated = words.some(word => 
         ['content', 'text', 'write', 'writing', 'document', 'article'].includes(word));
-      
+
       // Try to determine if this might be an image-related system
       const imageRelated = words.some(word => 
         ['image', 'photo', 'picture', 'visual', 'camera'].includes(word));
-      
+
       // Try to determine if this might be a decision support system
       const decisionRelated = words.some(word => 
         ['decision', 'support', 'predict', 'forecast', 'recommend'].includes(word));
-      
+
       if (contentRelated) {
         matchedSystem = {
           ...systemTypes.default,
@@ -215,9 +215,9 @@ function simulateDeepSeekResponse(prompt: string): string {
         };
       }
     }
-    
+
     const confidenceScore = highestMatchCount > 0 ? 75 + (highestMatchCount * 5) : 70;
-    
+
     // Return the result as JSON with the matched system information
     return JSON.stringify({
       name: matchedSystem.name,
@@ -335,7 +335,7 @@ export async function determineRiskLevel(data: Partial<AiSystem>): Promise<strin
   const prompt = `
     You are an EU AI Act compliance expert. Based on the following AI system details,
     classify its risk level according to the EU AI Act (Unacceptable, High, Limited, or Minimal).
-    
+
     Be extremely specific and refer to exact relevant EU AI Act articles.
 
     System Name: ${data.name || 'N/A'}
@@ -348,13 +348,13 @@ export async function determineRiskLevel(data: Partial<AiSystem>): Promise<strin
     Training Datasets: ${data.trainingDatasets || 'N/A'}
     Usage Context: ${data.usageContext || 'N/A'}
     Potential Impact: ${data.potentialImpact || 'N/A'}
-    
+
     Remember that:
     - Unacceptable Risk: Systems explicitly prohibited under Article 5 (social scoring, biometric categorization, emotion recognition, etc.)
     - High Risk: Systems in Annex III areas (critical infrastructure, education, employment, essential services, law enforcement, migration, administration of justice)
     - Limited Risk: Systems with transparency obligations (chatbots, emotion recognition, deepfakes)
     - Minimal Risk: All other AI systems
-    
+
     Output your answer in JSON format with a 'riskLevel' field and a detailed 'justification' field that cites specific EU AI Act articles.
   `;
 
