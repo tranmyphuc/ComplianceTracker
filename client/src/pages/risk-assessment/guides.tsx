@@ -6,7 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ShieldAlert, Book, CheckCircle, FileText, Info, List, HelpCircle } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 
 const RiskAssessmentGuides: React.FC = () => {
   return (

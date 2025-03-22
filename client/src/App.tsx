@@ -17,7 +17,7 @@ import Training from "@/pages/training";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, lazy } from "react";
 
 function Router() {
   const { user, loading } = useAuth();
@@ -47,6 +47,7 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route path="/inventory" component={Inventory} />
       <Route path="/risk-assessment" component={RiskAssessment} />
+      <Route path="/risk-assessment/guides" component={lazy(() => import('@/pages/risk-assessment/guides'))} />
       <Route path="/documentation" component={Documentation} />
       <Route path="/register-system" component={RegisterSystem} />
       <Route path="/knowledge-center" component={KnowledgeCenter} />
