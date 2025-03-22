@@ -1,6 +1,9 @@
-
 import type { AiSystem } from '@shared/schema';
 import fetch from 'node-fetch';
+import {Request, Response} from 'express';
+import {storage} from './storage'; // Assuming storage is defined elsewhere
+import {handleError} from './error-handling'; // Assuming handleError is defined elsewhere
+
 
 // DeepSeek API configuration
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
@@ -72,7 +75,7 @@ export async function callDeepSeekApi(prompt: string): Promise<string> {
 function simulateDeepSeekResponse(prompt: string): string {
   // Extract relevant parts from the prompt to simulate intelligent responses
   const lowercasePrompt = prompt.toLowerCase();
-  
+
   if (lowercasePrompt.includes('category') || lowercasePrompt.includes('classify')) {
     return JSON.stringify({
       category: lowercasePrompt.includes('hr') || lowercasePrompt.includes('candidate') 
@@ -132,12 +135,12 @@ export async function analyzeSystemCategory(data: Partial<AiSystem>): Promise<st
   const prompt = `
     You are an EU AI Act compliance expert. Based on the following AI system details,
     determine the most appropriate category for this system.
-    
+
     System Name: ${data.name || 'N/A'}
     Description: ${data.description || 'N/A'}
     Purpose: ${data.purpose || 'N/A'}
     Department: ${data.department || 'N/A'}
-    
+
     Output your answer in JSON format with a single 'category' field.
   `;
 
@@ -159,12 +162,12 @@ export async function determineRiskLevel(data: Partial<AiSystem>): Promise<strin
   const prompt = `
     You are an EU AI Act compliance expert. Based on the following AI system details,
     classify its risk level according to the EU AI Act (Unacceptable, High, Limited, or Minimal).
-    
+
     System Name: ${data.name || 'N/A'}
     Description: ${data.description || 'N/A'}
     Purpose: ${data.purpose || 'N/A'}
     Department: ${data.department || 'N/A'}
-    
+
     Output your answer in JSON format with a 'riskLevel' field and a 'justification' field.
   `;
 
@@ -186,12 +189,12 @@ export async function determineRelevantArticles(data: Partial<AiSystem>): Promis
   const prompt = `
     You are an EU AI Act compliance expert. Based on the following AI system details,
     list the most relevant EU AI Act articles that would apply to this system.
-    
+
     System Name: ${data.name || 'N/A'}
     Description: ${data.description || 'N/A'}
     Purpose: ${data.purpose || 'N/A'}
     Department: ${data.department || 'N/A'}
-    
+
     Output your answer in JSON format with an 'articles' array field.
   `;
 
@@ -212,12 +215,12 @@ export async function generateImprovements(data: Partial<AiSystem>): Promise<str
   const prompt = `
     You are an EU AI Act compliance expert. Based on the following AI system details,
     suggest key improvements to enhance compliance with the EU AI Act.
-    
+
     System Name: ${data.name || 'N/A'}
     Description: ${data.description || 'N/A'}
     Purpose: ${data.purpose || 'N/A'}
     Department: ${data.department || 'N/A'}
-    
+
     Output your answer in JSON format with an 'improvements' array field containing 4-5 specific suggestions.
   `;
 
@@ -246,20 +249,20 @@ export async function generateImprovements(data: Partial<AiSystem>): Promise<str
  */
 export function calculateComplianceScore(data: Partial<AiSystem>): number {
   let score = 50; // Base score
-  
+
   // Add points for having complete basic information
   if (data.name) score += 5;
   if (data.description) score += 5;
   if (data.purpose) score += 5;
   if (data.department) score += 5;
-  
+
   // Additional points for technical details
   if (data.vendor) score += 5;
   if (data.version) score += 5;
-  
+
   // Add randomness to simulate AI-based analysis
   score += Math.floor(Math.random() * 10);
-  
+
   // Cap the score at 100
   return Math.min(score, 100);
 }
@@ -272,7 +275,7 @@ export function determineRequiredDocs(data: Partial<AiSystem>): string[] {
     'Technical Documentation',
     'Risk Assessment'
   ];
-  
+
   // Additional documents for high-risk systems
   if (data.riskLevel === 'High' || data.riskLevel === 'High Risk') {
     return [
@@ -283,7 +286,7 @@ export function determineRequiredDocs(data: Partial<AiSystem>): string[] {
       'Algorithmic Impact Assessment'
     ];
   }
-  
+
   // Limited risk systems
   if (data.riskLevel === 'Limited' || data.riskLevel === 'Limited Risk') {
     return [
@@ -292,7 +295,7 @@ export function determineRequiredDocs(data: Partial<AiSystem>): string[] {
       'Usage Guidelines'
     ];
   }
-  
+
   // Minimal risk systems
   return baseDocuments;
 }
@@ -304,12 +307,12 @@ export async function analyzeDocument(data: any): Promise<any> {
   const prompt = `
     You are an EU AI Act compliance expert. Analyze the following document details
     for completeness and compliance with EU AI Act requirements.
-    
+
     Document Type: ${data.type || 'N/A'}
     Document Title: ${data.title || 'N/A'}
     Content: ${data.content || 'N/A'}
     Related System: ${data.systemName || 'N/A'}
-    
+
     Provide an assessment of the document's completeness and suggest improvements.
     Output your answer in JSON format with 'completeness' (percentage) and 'suggestions' (array) fields.
   `;
@@ -350,3 +353,106 @@ export async function analyzeSystemCompliance(systemId: string): Promise<any> {
     };
   }
 }
+
+// Chatbot endpoint using DeepSeek AI
+  app.post("/api/chatbot/query", async (req: Request, res: Response) => {
+    try {
+      const { query } = req.body;
+
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: "Invalid query parameter" });
+      }
+
+      // Skip processing for very short queries
+      if (query.trim().length < 3) {
+        return res.json({ 
+          response: "Please provide a more detailed question about EU AI Act compliance so I can assist you better."
+        });
+      }
+
+      // Construct a context-specific prompt with knowledge base information
+      const prompt = `You are an expert SGH ASIA AI assistant specializing in EU AI Act compliance. 
+        You provide clear, accurate, and helpful responses to questions about AI regulation, 
+        compliance requirements, risk assessment, and implementation strategies.
+
+        Here is some key information about the EU AI Act:
+        - The EU AI Act is the world's first comprehensive legal framework for AI
+        - It takes a risk-based approach (Unacceptable, High, Limited, Minimal risk)
+        - High-risk systems require technical documentation, human oversight, and risk management
+        - Limited risk systems have specific transparency obligations
+        - Implementation timeline includes phases over 36 months after entry into force
+
+        User question: ${query}
+
+        Please provide a detailed, helpful, and technically accurate response. Include specific 
+        article references when relevant. Format your answer to be clear and structured.`;
+
+      // Call DeepSeek API through our wrapper
+      const aiResponse = await callDeepSeekApi(prompt);
+
+      // Log the interaction for audit purposes
+      console.log(`Chatbot Query: "${query.substring(0, 100)}${query.length > 100 ? '...' : ''}"`);
+
+      // Enhanced response formatting
+      let formattedResponse = aiResponse;
+      try {
+        // First try to parse as JSON
+        const parsedResponse = JSON.parse(aiResponse);
+
+        // Extract relevant information based on response structure
+        if (parsedResponse.response) {
+          formattedResponse = parsedResponse.response;
+        } else if (parsedResponse.riskLevel && parsedResponse.justification) {
+          formattedResponse = `Risk Level: ${parsedResponse.riskLevel}\n\n${parsedResponse.justification}`;
+        } else if (parsedResponse.category) {
+          formattedResponse = `Category: ${parsedResponse.category}`;
+        } else if (parsedResponse.articles) {
+          formattedResponse = `Relevant Articles: ${parsedResponse.articles.join(', ')}\n\n${parsedResponse.explanation || ''}`;
+        } else if (parsedResponse.improvements) {
+          formattedResponse = `Suggested Improvements:\n- ${parsedResponse.improvements.join('\n- ')}`;
+        } else {
+          // Handle generic JSON response
+          formattedResponse = Object.entries(parsedResponse)
+            .map(([key, value]) => {
+              if (Array.isArray(value)) {
+                return `${key.charAt(0).toUpperCase() + key.slice(1)}:\n- ${value.join('\n- ')}`;
+              } else {
+                return `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`;
+              }
+            })
+            .join('\n\n');
+        }
+      } catch (e) {
+        // Not JSON, format the text response for better readability
+        formattedResponse = aiResponse
+          .replace(/^(\d+\.\s|\-\s|\*\s)/gm, '\n$1') // Add newlines before lists
+          .replace(/(\w|\.|\:)\n(\w)/g, '$1\n\n$2'); // Double newlines between paragraphs
+      }
+
+      // Create an audit record of this interaction
+      try {
+        await storage.createActivity({
+          type: "ai_interaction",
+          description: `AI assistant query: "${query.substring(0, 50)}${query.length > 50 ? '...' : ''}"`,
+          userId: req.body.userId || "system",
+          timestamp: new Date(),
+          metadata: { query, responseLength: formattedResponse.length }
+        });
+        console.log("AI Assistant conversation success:", { 
+          query: query.substring(0, 20), 
+          responseLength: formattedResponse.length 
+        });
+      } catch (auditErr) {
+        console.error("Error logging AI interaction:", auditErr);
+      }
+
+      return res.json({ response: formattedResponse });
+    } catch (err) {
+      console.error("Error handling chatbot query:", err);
+
+      // Provide a graceful fallback
+      return res.json({ 
+        response: "I apologize, but I encountered an issue processing your request. Please try again with a more specific question about EU AI Act compliance." 
+      });
+    }
+  });
