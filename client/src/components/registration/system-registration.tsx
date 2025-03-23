@@ -956,8 +956,10 @@ export const SystemRegistration: React.FC = () => {
 
     try {
       // Set a timeout to ensure the request doesn't hang indefinitely
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      const abortController = new AbortController();
+      let timeoutId: number | null = window.setTimeout(() => {
+        abortController.abort();
+      }, 20000); // 20 second timeout (increased from 15 seconds)
       
       const response = await fetch('/api/suggest/system', {
         method: 'POST',
@@ -968,7 +970,7 @@ export const SystemRegistration: React.FC = () => {
           name: formData.name || aiTextInput,
           description: formData.description || aiTextInput
         }),
-        signal: controller.signal
+        signal: abortController.signal
       });
 
       clearTimeout(timeoutId);

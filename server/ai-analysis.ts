@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import {Request, Response} from 'express';
 import {storage} from './storage'; // Assuming storage is defined elsewhere
 import {handleError} from './error-handling'; // Assuming handleError is defined elsewhere
+import {getApiKey} from './ai-key-management'; // Import getApiKey function
 
 
 // AI API configurations
