@@ -47,7 +47,7 @@ import {
   subscribeToUpdates
 } from './regulatory-updates';
 import { analyzeSystemRisk, analyzeProhibitedUse, generateRiskReport, analyzeComplianceGaps } from './risk-assessment';
-import { getTrainingModules, getModuleContent, trackTrainingProgress, getUserProgress, getTrainingModuleContent, getTrainingModuleMetadata, recordTrainingCompletion, getTrainingCertificate, exportTrainingModule } from './training-module';
+import { getModuleContent, trackTrainingProgress, getUserProgress, getTrainingModuleContent, getTrainingModuleMetadata, recordTrainingCompletion, getTrainingCertificate, exportTrainingModule, fetchTrainingModulesList } from './training-module';
 import { 
   getApiKeys, 
   addApiKey, 
@@ -1233,7 +1233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Training module routes
   app.get('/api/training/modules', async (req, res) => {
     try {
-      const modules = await getTrainingModules();
+      const modules = await fetchTrainingModulesList();
       res.json(modules);
     } catch (error) {
       handleError(res, error, 'Error retrieving training modules');
