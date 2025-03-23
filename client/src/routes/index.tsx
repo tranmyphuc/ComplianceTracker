@@ -42,6 +42,10 @@
   element: <TrainingCertificatePage />,
 },
 {
-  path: "*",
-  element: <Suspense fallback={<PageLoader />}><NotFound /></Suspense>
-}
+          path: "systems/:id/assess-risk",
+          element: <AssessRiskPage />
+        },
+        {
+          path: "risk-management/:id",
+          element: <SystemRiskManagement />
+        },
