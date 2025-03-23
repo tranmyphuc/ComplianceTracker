@@ -790,7 +790,7 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
             "Integrating governance into organizational structure with clear accountability and resources",
             "Implementing governance only after problems occur"
           ],
-          correctAnswer: "Integrating governance into organizational structure with clearaccountability and resources"
+          correctAnswer: "Integrating governance into organizational structure with clear accountability and resources"
         },
         {
           question: "Which metric best indicates the effectiveness of an AI governance framework?",
