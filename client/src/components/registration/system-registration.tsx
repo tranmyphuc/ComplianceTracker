@@ -143,6 +143,8 @@ export const SystemRegistration: React.FC = () => {
   const [showProgressSteps, setShowProgressSteps] = useState(true);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [showSystemRecommendations, setShowSystemRecommendations] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
 
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -202,7 +204,7 @@ export const SystemRegistration: React.FC = () => {
     if (currentStep === 1) {
       // Basic info validation
       const basicInfoFields = ['name', 'description', 'purpose', 'vendor', 'department'];
-      
+
       basicInfoFields.forEach(field => {
         if (!formData[field as keyof typeof formData]) {
           errors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
@@ -213,7 +215,7 @@ export const SystemRegistration: React.FC = () => {
     else if (currentStep === 2) {
       // AI Details validation
       const aiDetailsFields = ['aiCapabilities', 'trainingDatasets'];
-      
+
       aiDetailsFields.forEach(field => {
         if (!formData[field as keyof typeof formData]) {
           errors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
@@ -256,45 +258,36 @@ export const SystemRegistration: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Final validation of all required fields
-    const errors: Record<string, string> = {};
-    const requiredFields = ['name', 'description', 'purpose', 'vendor', 'department', 'riskLevel'];
-    const missing: string[] = [];
+    // Validate required fields
+    const requiredFields = ['name', 'department', 'riskLevel'];
+    const missing = requiredFields.filter(field => !formData[field as keyof typeof formData]);
 
-    requiredFields.forEach(field => {
-      if (!formData[field as keyof typeof formData]) {
-        errors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
-        missing.push(field);
-      }
-    });
-
-    if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
+    if (missing.length > 0) {
       setMissingFields(missing);
-
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-
       return;
     }
 
-    // Generate a system ID if not provided
-    const dataToSubmit = { ...formData };
-    if (!dataToSubmit.systemId) {
-      dataToSubmit.systemId = `AI-SYS-${Math.floor(1000 + Math.random() * 9000)}`;
-    }
+    setSubmitting(true);
 
     try {
-      // Submit data to backend
+      // Create a copy of the form data to modify before sending
+      const processedFormData = {...formData};
+
+      // Convert arrays to strings if they exist
+      if (Array.isArray(processedFormData.aiCapabilities)) {
+        processedFormData.aiCapabilities = processedFormData.aiCapabilities.join(', ');
+      }
+
+      if (Array.isArray(processedFormData.trainingDatasets)) {
+        processedFormData.trainingDatasets = processedFormData.trainingDatasets.join(', ');
+      }
+
       const response = await fetch('/api/systems', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(dataToSubmit)
+        body: JSON.stringify(processedFormData)
       });
 
       if (!response.ok) {
@@ -320,6 +313,8 @@ export const SystemRegistration: React.FC = () => {
         description: "There was an error registering your AI system. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -521,7 +516,7 @@ export const SystemRegistration: React.FC = () => {
             </div>
           </div>
         );
-        
+
       case 2:
         return (
           <div className="grid gap-6">
@@ -600,7 +595,7 @@ export const SystemRegistration: React.FC = () => {
             </div>
           </div>
         );
-        
+
       case 3:
         return (
           <div className="grid gap-6">
@@ -697,7 +692,7 @@ export const SystemRegistration: React.FC = () => {
             )}
           </div>
         );
-        
+
       case 4:
         return (
           <div className="grid gap-6">
@@ -786,7 +781,7 @@ export const SystemRegistration: React.FC = () => {
     try {
       // Read file content
       const reader = new FileReader();
-      
+
       // Create a promise to handle the FileReader
       const fileContent = await new Promise<string>((resolve, reject) => {
         reader.onload = (e) => {
@@ -797,7 +792,7 @@ export const SystemRegistration: React.FC = () => {
           }
         };
         reader.onerror = () => reject(reader.error);
-        
+
         // Read the file as text
         if (uploadedFile.type === 'application/pdf') {
           // For PDFs, extract the filename since we can't read PDF content directly in browser
@@ -806,7 +801,7 @@ export const SystemRegistration: React.FC = () => {
           reader.readAsText(uploadedFile);
         }
       });
-      
+
       // Set a timeout to ensure the request doesn't hang indefinitely
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
@@ -833,12 +828,12 @@ export const SystemRegistration: React.FC = () => {
       const results = await response.json();
       clearInterval(progressInterval);
       setExtractionProgress(100);
-      
+
       // Verify results
       if (!results || typeof results !== 'object') {
         throw new Error('Invalid response format');
       }
-      
+
       setAiResults(results);
       setConfidenceScore(results.confidenceScore || 70);
       setAiExtractionStatus('success');
@@ -872,7 +867,7 @@ export const SystemRegistration: React.FC = () => {
         description: errorMessage + " Please try again or enter details manually.",
         variant: "destructive"
       });
-      
+
       // Generate fallback results to avoid breaking the UI
       setAiResults({
         name: uploadedFile.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "),
@@ -960,7 +955,7 @@ export const SystemRegistration: React.FC = () => {
       let timeoutId: number | null = window.setTimeout(() => {
         abortController.abort();
       }, 35000); // 35 second timeout (increased to prevent premature aborts)
-      
+
       const response = await fetch('/api/suggest/system', {
         method: 'POST',
         headers: {
@@ -982,13 +977,25 @@ export const SystemRegistration: React.FC = () => {
       const results = await response.json();
       clearInterval(progressInterval);
       setExtractionProgress(100);
-      
+
       // Verify that we have valid results
       if (!results || typeof results !== 'object') {
         throw new Error('Invalid response format');
       }
-      
-      setAiResults(results);
+
+      // Process arrays to strings if needed
+      const processedResults = {...results};
+
+      if (Array.isArray(processedResults.aiCapabilities)) {
+        processedResults.aiCapabilities = processedResults.aiCapabilities.join(', ');
+      }
+
+      if (Array.isArray(processedResults.trainingDatasets)) {
+        processedResults.trainingDatasets = processedResults.trainingDatasets.join(', ');
+      }
+
+
+      setAiResults(processedResults);
       setConfidenceScore(results.confidenceScore || 75);
       setAiExtractionStatus('success');
 
@@ -1021,7 +1028,7 @@ export const SystemRegistration: React.FC = () => {
         description: errorMessage + " Please try again or enter details manually.",
         variant: "destructive"
       });
-      
+
       // Generate empty results to avoid breaking the UI
       setAiResults({
         name: formData.name || aiTextInput || "AI System",
@@ -1362,7 +1369,7 @@ export const SystemRegistration: React.FC = () => {
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Render content based on current step */}
@@ -1379,12 +1386,13 @@ export const SystemRegistration: React.FC = () => {
                   Previous Step
                 </Button>
               )}
-              
+
               {currentStep < 4 ? (
                 <Button 
                   type="button" 
                   className="ml-auto" 
                   onClick={handleNextStep}
+                  disabled={submitting}
                 >
                   Next Step
                 </Button>
@@ -1392,8 +1400,9 @@ export const SystemRegistration: React.FC = () => {
                 <Button 
                   type="submit" 
                   className="ml-auto"
+                  disabled={submitting}
                 >
-                  Register System
+                  {submitting ? 'Registering...' : 'Register System'}
                 </Button>
               )}
             </div>
