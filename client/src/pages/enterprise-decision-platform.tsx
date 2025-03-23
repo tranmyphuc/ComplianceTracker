@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EnterpriseDecisionPlatform } from '@/components/strategic/enterprise-decision-platform';
 import { Brain, TrendingUp, Target, BarChart3, Lightbulb, Sparkles, Network } from 'lucide-react';
 
@@ -73,83 +72,79 @@ export default function EnterprisePlatformPage() {
 
   return (
     <div className="p-6 pt-4">
-          <div className="container mx-auto">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-3xl font-bold">Enterprise AI Decision Platform</h1>
-                <p className="text-muted-foreground mt-1">
-                  Transform your strategic decision-making with advanced AI
-                </p>
-              </div>
-              <Button onClick={handleRestartWizard}>
-                Restart Tour
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle>Welcome to the Enterprise AI Decision Platform</CardTitle>
-                  <CardDescription>
-                    Revolutionize your business decision-making with AI-powered insights
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="mb-4">
-                    The Enterprise AI Decision Platform combines cutting-edge artificial intelligence 
-                    with your business expertise to enhance strategic decision-making. Our platform
-                    analyzes vast amounts of data to provide actionable insights and recommendations.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                    <Button className="w-full" onClick={() => setLocation("/strategic-planning")}>
-                      Strategic Planning Tools
-                    </Button>
-                    <Button variant="outline" className="w-full" onClick={handleRestartWizard}>
-                      Platform Tour
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Get Started</CardTitle>
-                  <CardDescription>Quick access to key platform features</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {features.slice(0, 5).map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <div className="bg-primary/10 p-2 rounded-full mr-3">
-                          {React.createElement(feature.icon, { className: "h-4 w-4 text-primary" })}
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-medium">{feature.title}</h3>
-                          <p className="text-xs text-muted-foreground">{feature.description}</p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full" onClick={handleRestartWizard}>
-                    Explore All Features
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
+      <div className="container mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold">Enterprise AI Decision Platform</h1>
+            <p className="text-muted-foreground mt-1">
+              Transform your strategic decision-making with advanced AI
+            </p>
           </div>
-        </main>
-        
-        <Footer />
-        
-        {/* Enterprise Decision Platform Wizard */}
-        {showWizard && (
-          <EnterpriseDecisionPlatform 
-            onComplete={handleWizardComplete} 
-          />
-        )}
+          <Button onClick={handleRestartWizard}>
+            Restart Tour
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Welcome to the Enterprise AI Decision Platform</CardTitle>
+              <CardDescription>
+                Revolutionize your business decision-making with AI-powered insights
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">
+                The Enterprise AI Decision Platform combines cutting-edge artificial intelligence 
+                with your business expertise to enhance strategic decision-making. Our platform
+                analyzes vast amounts of data to provide actionable insights and recommendations.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                <Button className="w-full" onClick={() => setLocation("/strategic-planning")}>
+                  Strategic Planning Tools
+                </Button>
+                <Button variant="outline" className="w-full" onClick={handleRestartWizard}>
+                  Platform Tour
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Get Started</CardTitle>
+              <CardDescription>Quick access to key platform features</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {features.slice(0, 5).map((feature, index) => (
+                  <li key={index} className="flex items-start">
+                    <div className="bg-primary/10 p-2 rounded-full mr-3">
+                      {React.createElement(feature.icon, { className: "h-4 w-4 text-primary" })}
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium">{feature.title}</h3>
+                      <p className="text-xs text-muted-foreground">{feature.description}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Button variant="outline" className="w-full" onClick={handleRestartWizard}>
+                Explore All Features
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
       </div>
+      
+      {/* Enterprise Decision Platform Wizard */}
+      {showWizard && (
+        <EnterpriseDecisionPlatform 
+          onComplete={handleWizardComplete} 
+        />
+      )}
     </div>
   );
 }
