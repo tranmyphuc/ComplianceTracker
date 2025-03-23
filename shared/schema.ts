@@ -110,8 +110,7 @@ export const trainingModules = pgTable("training_modules", {
   estimatedTime: text("estimated_time").notNull(),
   topics: jsonb("topics").notNull(),
   roleRelevance: jsonb("role_relevance").notNull(),
-  content: jsonb("content").notNull(),
-  assessments: jsonb("assessments").notNull(),
+  content: jsonb("content").notNull(), // Content will include sections and assessments
   order: integer("order").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
