@@ -943,6 +943,7 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
           title: "Developer-Focused Implementation Tools",
           content: `<p>Several tools have proven valuable for developers implementing EU AI Act compliance:</p>
 
+  },
   "7": {
     "default": {
       title: "AI System Inventory Management",
