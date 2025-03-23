@@ -60,7 +60,7 @@ export default function Training() {
     queryKey: ['/api/training/modules'],
     queryFn: async () => {
       const response = await apiRequest('/api/training/modules');
-      return response as TrainingModule[];
+      return response;
     },
   });
 
@@ -71,7 +71,7 @@ export default function Training() {
       const response = await apiRequest('/api/training/progress', {
         params: { userId: user?.uid }
       });
-      return response as Record<string, { completion: number }>;
+      return response;
     },
     enabled: !!user?.uid
   });
@@ -81,7 +81,7 @@ export default function Training() {
     queryKey: ['/api/training/modules', selectedModuleId, user?.role],
     queryFn: async () => {
       const response = await apiRequest(`/api/training/modules/${selectedModuleId}?role=${user?.role || 'user'}`);
-      return response as ModuleContent;
+      return response;
     },
     enabled: !!selectedModuleId
   });
@@ -89,7 +89,7 @@ export default function Training() {
   // Update progress mutation
   const updateProgressMutation = useMutation({
     mutationFn: async (data: { moduleId: string; completion: number }) => {
-      const response = await apiRequest('/api/training/progress', {
+      return await apiRequest('/api/training/progress', {
         method: 'POST',
         body: {
           moduleId: data.moduleId,
@@ -97,7 +97,6 @@ export default function Training() {
           completion: data.completion
         }
       });
-      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/training/progress'] });
