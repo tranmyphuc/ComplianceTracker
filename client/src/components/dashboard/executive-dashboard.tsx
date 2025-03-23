@@ -367,21 +367,23 @@ export function ExecutiveDashboard() {
           <div className="flex items-center justify-between">
             <CardTitle>Business Performance</CardTitle>
             <div className="flex items-center space-x-2">
-              <select className="text-sm border border-neutral-200 rounded-md px-2 py-1">
+              <select className="text-xs sm:text-sm border border-neutral-200 rounded-md px-1 sm:px-2 py-1 max-w-[110px] sm:max-w-none">
                 <option>Last 30 Days</option>
                 <option>Last Quarter</option>
                 <option>Last Year</option>
-                <option>Custom Range</option>
+                <option>Custom</option>
               </select>
             </div>
           </div>
           <Tabs defaultValue="revenue" className="w-full">
-            <TabsList className="mb-2">
-              <TabsTrigger value="revenue">Revenue</TabsTrigger>
-              <TabsTrigger value="customers">Customers</TabsTrigger>
-              <TabsTrigger value="products">Products</TabsTrigger>
-              <TabsTrigger value="channels">Channels</TabsTrigger>
-            </TabsList>
+            <div className="overflow-x-auto pb-1">
+              <TabsList className="mb-2 inline-flex w-auto min-w-full">
+                <TabsTrigger value="revenue" className="text-xs sm:text-sm">Revenue</TabsTrigger>
+                <TabsTrigger value="customers" className="text-xs sm:text-sm">Customers</TabsTrigger>
+                <TabsTrigger value="products" className="text-xs sm:text-sm">Products</TabsTrigger>
+                <TabsTrigger value="channels" className="text-xs sm:text-sm">Channels</TabsTrigger>
+              </TabsList>
+            </div>
           </Tabs>
         </CardHeader>
         <CardContent className="pb-2">
@@ -588,26 +590,26 @@ export function ExecutiveDashboard() {
       </Card>
 
       {/* Quick Actions Footer */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-        <Button variant="outline" className="flex flex-col h-auto py-3 px-4 space-y-1">
-          <FileTextIcon className="h-5 w-5 mb-1" />
-          <span className="text-xs">New Strategic Plan</span>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
+        <Button variant="outline" className="flex flex-col h-auto py-2 sm:py-3 px-2 sm:px-4 space-y-1">
+          <FileTextIcon className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+          <span className="text-xs truncate">New Strategic Plan</span>
         </Button>
-        <Button variant="outline" className="flex flex-col h-auto py-3 px-4 space-y-1">
-          <BarChart3Icon className="h-5 w-5 mb-1" />
-          <span className="text-xs">Run Market Analysis</span>
+        <Button variant="outline" className="flex flex-col h-auto py-2 sm:py-3 px-2 sm:px-4 space-y-1">
+          <BarChart3Icon className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+          <span className="text-xs truncate">Run Market Analysis</span>
         </Button>
-        <Button variant="outline" className="flex flex-col h-auto py-3 px-4 space-y-1">
-          <LightbulbIcon className="h-5 w-5 mb-1" />
-          <span className="text-xs">Register AI System</span>
+        <Button variant="outline" className="flex flex-col h-auto py-2 sm:py-3 px-2 sm:px-4 space-y-1">
+          <LightbulbIcon className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+          <span className="text-xs truncate">Register AI System</span>
         </Button>
-        <Button variant="outline" className="flex flex-col h-auto py-3 px-4 space-y-1">
-          <FileTextIcon className="h-5 w-5 mb-1" />
-          <span className="text-xs">Generate Report</span>
+        <Button variant="outline" className="flex flex-col h-auto py-2 sm:py-3 px-2 sm:px-4 space-y-1">
+          <FileTextIcon className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+          <span className="text-xs truncate">Generate Report</span>
         </Button>
-        <Button variant="outline" className="flex flex-col h-auto py-3 px-4 space-y-1">
-          <CalendarIcon className="h-5 w-5 mb-1" />
-          <span className="text-xs">Schedule Training</span>
+        <Button variant="outline" className="flex flex-col h-auto py-2 sm:py-3 px-2 sm:px-4 space-y-1">
+          <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+          <span className="text-xs truncate">Schedule Training</span>
         </Button>
       </div>
     </div>
