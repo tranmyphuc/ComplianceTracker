@@ -2,19 +2,11 @@ import React from 'react';
 import { Link } from 'wouter';
 import { Shield } from 'lucide-react';
 
-import { useComponentTracking } from '../app-wrapper';
-
-export const Footer: React.FC<{ preventDuplicate?: boolean }> = ({ preventDuplicate = false }) => {
+export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const isAlreadyRendered = useComponentTracking('app-footer');
-  
-  // Don't render if this instance is a duplicate and prevention is enabled
-  if (isAlreadyRendered && preventDuplicate) {
-    return null;
-  }
 
   return (
-    <footer id={footerId} data-component="app-footer" className="bg-slate-900 text-white py-6 mt-auto">
+    <footer className="bg-slate-900 text-white py-6 mt-auto">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center">

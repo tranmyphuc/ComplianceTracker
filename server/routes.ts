@@ -901,7 +901,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/risk-assessment/:systemId/gaps", async (req: Request, res: Response) => {
     try {
       req.params = { ...req.params }; // Ensure params is mutable
-      await analyzeComplianceGaps(req, res);
+      awaitanalyzeComplianceGaps(req, res);
     } catch (err) {
       handleError(res, err as Error);
     }
@@ -1345,47 +1345,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/risk-assessment/:systemId/prohibited', analyzeProhibitedUse);
   app.get('/api/risk-assessment/:systemId/report', generateRiskReport);
   app.get('/api/risk-assessment/:systemId/gaps', analyzeComplianceGaps);
-
-  //Risk Management Endpoints
-  app.get('/api/risk-management/system/:systemId', async (req, res) => {
-    try {
-      const rms = await riskManagement.getRiskManagementSystem(req.params.systemId);
-      res.json(rms);
-    } catch (error) {
-      handleError(res, error);
-    }
-  });
-
-  app.post('/api/risk-management/system/:systemId', async (req, res) => {
-    try {
-      const rms = await riskManagement.createRiskManagementSystem(
-        req.params.systemId,
-        req.body.userId || 'system',
-        req.body.reviewCycle || 'quarterly'
-      );
-      res.json(rms);
-    } catch (error) {
-      handleError(res, error);
-    }
-  });
-
-  app.get('/api/risk-management/controls/:systemId', async (req, res) => {
-    try {
-      const controls = await riskManagement.getRiskControlsForSystem(req.params.systemId);
-      res.json(controls);
-    } catch (error) {
-      handleError(res, error);
-    }
-  });
-
-  app.get('/api/risk-management/events/:systemId', async (req, res) => {
-    try {
-      const events = await riskManagement.getRiskEventsForSystem(req.params.systemId);
-      res.json(events);
-    } catch (error) {
-      handleError(res, error);
-    }
-  });
 
   // Initialize continuous monitoring system
   initializeMonitoring().catch(err => console.error('Error initializing monitoring:', err));

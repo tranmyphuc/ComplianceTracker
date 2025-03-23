@@ -36,7 +36,6 @@ import {
   TrainingCertificatePage as LazyTrainingCertificatePage,
   TrainingModulePage as LazyTrainingModulePage
 } from "./routes/lazy-imports.ts";
-import { AppWrapper } from "./components/app-wrapper";
 
 function Router() {
   const { user, loading } = useAuth();
@@ -188,40 +187,13 @@ function Router() {
 }
 
 function App() {
-  const [location] = useLocation();
-
-  // Advanced UI element duplicate detection
-  React.useEffect(() => {
-    // List of components to check for duplicates
-    const componentsToCheck = [
-      { selector: '[data-component="app-header"]', name: 'Header' },
-      { selector: '[data-component="app-footer"]', name: 'Footer' },
-      { selector: '[data-component="app-sidebar"]', name: 'Sidebar' }
-    ];
-    
-    // Check each component
-    componentsToCheck.forEach(comp => {
-      const elements = document.querySelectorAll(comp.selector);
-      if (elements.length > 1) {
-        console.warn(`UI Issue: Found ${elements.length} ${comp.name} elements. This is causing duplicate UI.`);
-        // Log element details for debugging
-        elements.forEach((el, i) => {
-          const parentInfo = el.parentElement?.className || 'unknown parent';
-          console.warn(`${comp.name} #${i+1} rendered in: ${parentInfo}`);
-        });
-      }
-    });
-  }, [location]);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ToastProvider>
-          <AppWrapper>
-            <Router />
-            <AiAssistantButton />
-            <Toaster />
-          </AppWrapper>
+          <Router />
+          <AiAssistantButton />
+          <Toaster />
         </ToastProvider>
       </AuthProvider>
     </QueryClientProvider>

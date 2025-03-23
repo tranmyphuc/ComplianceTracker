@@ -31,24 +31,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
-import { useComponentTracking } from '../app-wrapper';
 
 interface SidebarProps {
   className?: string;
   isOpen?: boolean;
   onClose?: () => void;
-  preventDuplicate?: boolean;
 }
 
-export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = false }: SidebarProps) {
+export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
   const [location] = useLocation();
   const isMobile = useIsMobile();
-  const isAlreadyRendered = useComponentTracking('app-sidebar');
-
-  // Don't render if this instance is a duplicate and prevention is enabled
-  if (isAlreadyRendered && preventDuplicate) {
-    return null;
-  }
 
   const isActive = (path: string) => {
     if (path === "/" && location === "/") return true;
@@ -58,12 +50,6 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
 
   // Conditionally handle item click on mobile to close the sidebar
   const handleItemClick = () => {
-    if (isMobile && onClose) {
-      onClose();
-    }
-  };
-
-  const handleSidebarItemClick = () => {
     if (isMobile && onClose) {
       onClose();
     }
@@ -110,7 +96,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <HomeIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Home/Dashboard</span>
@@ -122,7 +108,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/strategic-planning") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <TargetIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Strategic Planning</span>
@@ -134,7 +120,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/market-intelligence") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <PieChartIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Market Intelligence</span>
@@ -146,7 +132,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/operations-excellence") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <BriefcaseIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Operations Excellence</span>
@@ -158,7 +144,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/risk-management") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <AlertTriangleIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Risk Management</span>
@@ -170,7 +156,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/growth-innovation") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <TrendingUpIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Growth & Innovation</span>
@@ -182,7 +168,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/settings") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <SettingsIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Settings</span>
@@ -202,7 +188,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/inventory") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <CpuIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>AI Systems</span>
@@ -214,7 +200,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/risk-assessment") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <ShieldIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Risk Assessment</span>
@@ -226,7 +212,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/documentation") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <FileTextIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Documentation</span>
@@ -238,7 +224,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/training") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <AwardIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Training</span>
@@ -250,7 +236,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/documentation/training") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <FileTextIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Training Docs</span>
@@ -263,7 +249,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/tasks") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <CheckSquareIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Tasks</span>
@@ -275,7 +261,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/reports") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleSidebarItemClick}
+            onClick={handleItemClick}
           >
             <BarChart3Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Reports</span>
@@ -289,7 +275,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
                 "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
                 isActive("/register-system") && "bg-primary/10 text-primary font-medium"
               )}
-              onClick={handleSidebarItemClick}
+              onClick={handleItemClick}
             >
               <BrainIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>Register AI System</span>
@@ -301,7 +287,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
                 "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
                 isActive("/knowledge-center") && "bg-primary/10 text-primary font-medium"
               )}
-              onClick={handleSidebarItemClick}
+              onClick={handleItemClick}
             >
               <BookOpenIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>Knowledge Center</span>
@@ -313,7 +299,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
                 "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
                 isActive("/workflow") && "bg-primary/10 text-primary font-medium"
               )}
-              onClick={handleSidebarItemClick}
+              onClick={handleItemClick}
             >
               <NetworkIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>AI Workflow Diagram</span>
@@ -326,7 +312,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
                 isActive("/onboarding") && "bg-primary/10 text-primary font-medium",
                 "mt-2 bg-purple-50"
               )}
-              onClick={handleSidebarItemClick}
+              onClick={handleItemClick}
             >
               <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0 text-purple-500" />
               <span className="font-medium">Platform Tour</span>
@@ -340,7 +326,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
                 isActive("/enterprise-decision-platform") && "bg-primary/10 text-primary font-medium",
                 "mt-2 bg-blue-50"
               )}
-              onClick={handleSidebarItemClick}
+              onClick={handleItemClick}
             >
               <PieChartIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0 text-blue-500" />
               <span className="font-medium">Enterprise Decision Platform</span>
@@ -352,7 +338,7 @@ export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = 
           <div className="pt-8 mt-4">
             <Button 
               className="w-full flex items-center justify-center gap-1 sm:gap-2 bg-[#7B1FA2]/90 hover:bg-[#7B1FA2] text-xs sm:text-sm"
-              onClick={handleSidebarItemClick}
+              onClick={handleItemClick}
             >
               <BotIcon className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>AI Assistant</span>

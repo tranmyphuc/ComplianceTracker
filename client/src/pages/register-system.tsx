@@ -3,36 +3,29 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { SystemRegistration } from "@/components/registration/system-registration";
-import { RegistrationError } from '@/components/system-registration/registration-error'; // Added import statement
 
 export default function RegisterSystem() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [error, setError] = useState(null); // Added error state
-
-  const handleRegistrationError = (error) => {
-    setError(error);
-  }
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-
+      
       <div className="flex flex-1 overflow-hidden">
         <Sidebar className={sidebarOpen ? "" : "hidden"} />
-
+        
         <main className="flex-1 overflow-y-auto pb-10">
           <div className="p-4 md:p-6">
             <div className="mb-6">
               <h1 className="text-2xl font-semibold text-neutral-800">Register AI System</h1>
               <p className="text-neutral-500 mt-1">Register and classify new AI systems for EU AI Act compliance</p>
             </div>
-
-            <SystemRegistration onError={handleRegistrationError}/> {/* Pass error handler to SystemRegistration */}
-            {error && <RegistrationError error={error} />} {/*Added error component*/}
+            
+            <SystemRegistration />
           </div>
         </main>
       </div>
-
+      
       <Footer />
     </div>
   );
