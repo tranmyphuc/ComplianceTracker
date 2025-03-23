@@ -84,12 +84,4 @@ function App() {
   );
 }
 
-function Footer() {
-  return (
-    <footer className="bg-gray-100 text-gray-600 py-4 text-center">
-      © 2025 SGH ASIA Ltd. All rights reserved. We are compliant with EU AI Act, GDPR, PDPD of Vietnam and ISO 27001:2022. Developed and maintained by the Information Technology & Security Division.
-    </footer>
-  );
-}
-
 export default App;
