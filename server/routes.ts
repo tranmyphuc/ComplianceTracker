@@ -58,15 +58,15 @@ import {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
-  const handleError = (err: Error, res: Response) => {
-    console.error(err);
+  const handleError = (res: Response, err: Error, errorMessage?: string) => {
+    console.error(errorMessage || 'An error occurred:', err);
     if (err instanceof ZodError) {
       return res.status(400).json({
         message: "Validation error",
         errors: err.errors,
       });
     }
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: errorMessage || "Internal server error" });
   };
 
   // API routes
@@ -99,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         department: newUser.department
       });
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -128,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         department: user.department
       });
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -138,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const systems = await storage.getAllAiSystems();
       res.json(systems);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -148,7 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const systems = await storage.getHighRiskAiSystems(limit);
       res.json(systems);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -163,7 +163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(system);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -234,7 +234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(newSystem);
     } catch (err) {
       console.error("System registration error:", err);
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -297,7 +297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(updatedSystem);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -307,7 +307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const departments = await storage.getAllDepartments();
       res.json(departments);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -318,7 +318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const activities = await storage.getRecentActivities(limit);
       res.json(activities);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -328,7 +328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newActivity = await storage.createActivity(activityData);
       res.status(201).json(newActivity);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -339,7 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const alerts = await storage.getCriticalAlerts(limit);
       res.json(alerts);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -508,7 +508,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (err) {
       console.error("Error analyzing system with DeepSeek AI:", err);
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -669,7 +669,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(suggestions);
     } catch (err) {
       console.error("Error generating system suggestions:", err);
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -679,7 +679,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const aiAnalysis = await analyzeDocument(documentData);
       res.json(aiAnalysis);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -689,7 +689,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const complianceAnalysis = await analyzeSystemCompliance(systemId);
       res.json(complianceAnalysis);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -700,7 +700,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newAlert = await storage.createAlert(alertData);
       res.status(201).json(newAlert);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -715,7 +715,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(resolvedAlert);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -726,7 +726,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const deadlines = await storage.getUpcomingDeadlines(limit);
       res.json(deadlines);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -736,7 +736,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newDeadline = await storage.createDeadline(deadlineData);
       res.status(201).json(newDeadline);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -747,7 +747,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const documents = await storage.getDocumentsForSystem(systemId);
       res.json(documents);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -757,7 +757,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newDocument = await storage.createDocument(documentData);
       res.status(201).json(newDocument);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -773,7 +773,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(updatedDocument);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -792,7 +792,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const assessments = await storage.getRiskAssessmentsForSystem(systemId);
       res.json(assessments);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -807,7 +807,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(assessment);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -846,7 +846,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(201).json(newAssessment);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -863,7 +863,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(updatedAssessment);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -873,7 +873,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.params = { ...req.params }; // Ensure params is mutable
       await analyzeSystemRisk(req, res);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -882,7 +882,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.params = { ...req.params }; // Ensure params is mutable
       await analyzeProhibitedUse(req, res);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -891,7 +891,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.params = { ...req.params }; // Ensure params is mutable
       await generateRiskReport(req, res);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -900,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.params = { ...req.params }; // Ensure params is mutable
       await analyzeComplianceGaps(req, res);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -946,7 +946,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         departmentCompliance
       });
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -959,7 +959,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const complianceScore = calculateComprehensiveScore(systemData);
       res.json(complianceScore);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -969,7 +969,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const roadmap = generateComplianceRoadmap(systemData);
       res.json(roadmap);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -991,7 +991,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ document });
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1001,7 +1001,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const template = generateDocumentTemplate(documentType);
       res.json(template);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1012,7 +1012,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updates = await getRecentUpdates(limit);
       res.json(updates);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1026,7 +1026,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(update);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1041,7 +1041,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const impact = await analyzeRegulatoryImpact(updateId, systemIds);
       res.json(impact);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1056,7 +1056,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const success = subscribeToUpdates(email, updateTypes);
       res.json({ success });
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1069,7 +1069,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const assessment = await performComplianceAssessment(systemData);
       res.json(assessment);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1085,7 +1085,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const success = await configureMonitoring(systemId, config);
       res.json({ success });
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1100,7 +1100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await performMonitoringCheck(systemId, config);
       res.json(result);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1111,7 +1111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const record = await createAuditRecord(recordData);
       res.status(201).json(record);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1120,7 +1120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const records = await getAuditRecords(req.params.systemId);
       res.json(records);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1135,7 +1135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const report = await generateReport(type, systemIds, options);
       res.json(report);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1157,7 +1157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // This is a simplified implementation
       res.json({ data: "Export successful", format });
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1167,7 +1167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const articles = getAllArticles();
       res.json(articles);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1176,7 +1176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const articles = getArticlesByCategory(req.params.category);
       res.json(articles);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1190,7 +1190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(article);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1205,7 +1205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const results = searchKnowledgeBase(query);
       res.json(results);
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1220,7 +1220,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const answer = await askComplianceAI(question);
       res.json({ question, answer });
     } catch (err) {
-      handleError(err as Error, res);
+      handleError(res, err as Error);
     }
   });
 
@@ -1333,7 +1333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const category = await analyzeSystemCategory(system);
       res.json({ category });
     } catch (error) {
-      handleError(error as Error, res);
+      handleError(res, error as Error);
     }
   });
 
