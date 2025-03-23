@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { AIJack } from "./ai-jack";
+import { AIMascot } from "./ai-mascot";
 import { AnimatedJourneyTracker } from "./animated-journey-tracker";
 import { RegulatoryEmojiReaction } from "./regulatory-emoji-reaction";
 import { 
@@ -27,56 +27,56 @@ const onboardingSteps = [
     id: "welcome",
     title: "Welcome to the EU AI Act Compliance Platform",
     description: "Let's take a quick tour of the platform and learn how to become compliant with the EU AI Act regulations.",
-    mood: "happy" as const,
-    message: "Hi there! I'm AI JACK, your compliance guide. I'll help you navigate through the EU AI Act requirements!",
+    mascotMood: "happy" as const,
+    mascotMessage: "Hi there! I'm your AI compliance guide. I'll help you navigate through the EU AI Act requirements!",
     icon: Shield
   },
   {
     id: "systems-inventory",
     title: "Register Your AI Systems",
     description: "Register your AI systems for comprehensive risk assessment and continuous compliance monitoring.",
-    mood: "explaining" as const,
-    message: "Start by registering your AI systems in the inventory. This is the foundation of your compliance journey.",
+    mascotMood: "explaining" as const,
+    mascotMessage: "Start by registering your AI systems in the inventory. This is the foundation of your compliance journey.",
     icon: Database
   },
   {
     id: "risk-assessment",
     title: "Assess Your AI System Risks",
     description: "Our advanced risk assessment tool evaluates your AI systems against EU AI Act requirements and identifies compliance gaps.",
-    mood: "thinking" as const,
-    message: "Risk assessment helps you understand your compliance obligations based on your AI system's risk level.",
+    mascotMood: "thinking" as const,
+    mascotMessage: "Risk assessment helps you understand your compliance obligations based on your AI system's risk level.",
     icon: AlertTriangle
   },
   {
     id: "documentation",
     title: "Generate Required Documentation",
     description: "Generate essential documentation tailored to your AI systems' risk level and compliance requirements.",
-    mood: "explaining" as const,
-    message: "Proper documentation is crucial for EU AI Act compliance. I'll help you generate all required documents.",
+    mascotMood: "explaining" as const,
+    mascotMessage: "Proper documentation is crucial for EU AI Act compliance. I'll help you generate all required documents.",
     icon: FileText
   },
   {
     id: "monitoring",
     title: "Monitor Compliance Status",
     description: "Track your compliance status, receive alerts about regulatory updates, and visualize your progress.",
-    mood: "explaining" as const,
-    message: "Staying compliant requires continuous monitoring. Our dashboard shows your compliance status at a glance.",
+    mascotMood: "explaining" as const,
+    mascotMessage: "Staying compliant requires continuous monitoring. Our dashboard shows your compliance status at a glance.",
     icon: BarChart
   },
   {
     id: "training",
     title: "Training and Knowledge Center",
     description: "Access interactive training modules and a comprehensive knowledge base on EU AI Act requirements.",
-    mood: "happy" as const,
-    message: "Continuous learning is key! Explore our training modules to deepen your understanding of the EU AI Act.",
+    mascotMood: "happy" as const,
+    mascotMessage: "Continuous learning is key! Explore our training modules to deepen your understanding of the EU AI Act.",
     icon: BookOpen
   },
   {
     id: "complete",
     title: "You're Ready to Start!",
     description: "Congratulations! You're now ready to begin your EU AI Act compliance journey.",
-    mood: "celebrating" as const,
-    message: "Excellent! You're all set to start your compliance journey. Remember, I'm here to help you every step of the way!",
+    mascotMood: "celebrating" as const,
+    mascotMessage: "Excellent! You're all set to start your compliance journey. Remember, I'm here to help you every step of the way!",
     icon: Award
   }
 ];
@@ -462,11 +462,11 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                     )}
                   </div>
                   
-                  {/* AI Jack character - always visible */}
+                  {/* Mascot character - always visible */}
                   <div className="flex justify-center">
-                    <AIJack 
-                      mood={currentStepData.mood}
-                      message={currentStepData.message}
+                    <AIMascot 
+                      mood={currentStepData.mascotMood}
+                      message={currentStepData.mascotMessage}
                       size="lg"
                       animate={true}
                     />
