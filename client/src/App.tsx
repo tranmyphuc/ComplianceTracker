@@ -18,6 +18,7 @@ import Workflow from "@/pages/workflow";
 import OnboardingPage from "@/pages/onboarding";
 import StrategicPlanning from "@/pages/strategic-planning";
 import RegulatoryComplexity from "@/pages/regulatory-complexity";
+import EnterpriseDecisionPlatform from "@/pages/enterprise-decision-platform";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -79,6 +80,7 @@ function Router() {
       <Route path="/workflow" component={Workflow} />
       <Route path="/strategic-planning" component={StrategicPlanning} />
       <Route path="/regulatory-complexity" component={RegulatoryComplexity} />
+      <Route path="/enterprise-decision-platform" component={EnterpriseDecisionPlatform} />
       <Route path="/onboarding" component={OnboardingPage} />
       <Route path="/profile" component={Dashboard} />
       <Route path="/settings" component={Dashboard} />
