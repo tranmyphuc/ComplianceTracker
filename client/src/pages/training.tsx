@@ -59,7 +59,7 @@ export default function Training() {
   const { data: modules, isLoading: isLoadingModules } = useQuery({
     queryKey: ['/api/training/modules'],
     queryFn: async () => {
-      const response = await apiRequest('/api/training/modules');
+      const response = await apiRequest<TrainingModule[]>('/api/training/modules');
       return response;
     },
   });
@@ -68,7 +68,7 @@ export default function Training() {
   const { data: userProgress = {}, isLoading: isLoadingProgress } = useQuery({
     queryKey: ['/api/training/progress', user?.uid],
     queryFn: async () => {
-      const response = await apiRequest('/api/training/progress', {
+      const response = await apiRequest<Record<string, { completion: number }>>('/api/training/progress', {
         params: { userId: user?.uid }
       });
       return response;
@@ -80,7 +80,7 @@ export default function Training() {
   const { data: moduleContent, isLoading: isLoadingContent } = useQuery({
     queryKey: ['/api/training/modules', selectedModuleId, user?.role],
     queryFn: async () => {
-      const response = await apiRequest(`/api/training/modules/${selectedModuleId}?role=${user?.role || 'user'}`);
+      const response = await apiRequest<ModuleContent>(`/api/training/modules/${selectedModuleId}?role=${user?.role || 'user'}`);
       return response;
     },
     enabled: !!selectedModuleId
@@ -89,7 +89,7 @@ export default function Training() {
   // Update progress mutation
   const updateProgressMutation = useMutation({
     mutationFn: async (data: { moduleId: string; completion: number }) => {
-      return await apiRequest('/api/training/progress', {
+      return await apiRequest<{ success: boolean }>('/api/training/progress', {
         method: 'POST',
         body: {
           moduleId: data.moduleId,
