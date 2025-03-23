@@ -358,7 +358,7 @@ export default function Training() {
               <CardHeader>
                 <CardTitle>Your Personalized Learning Path</CardTitle>
                 <CardDescription>
-                  Training tailored to your role as {user?.role ? user.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'User'}
+                  Training tailored to your role as {user?.role ? user.role.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) : 'User'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -601,11 +601,12 @@ export default function Training() {
                                 {module.title}
                               </div>
                               <div className="w-1/2 px-4">
-                                <Progress 
-                                  value={p.assessmentScore} 
-                                  className="h-2"
-                                  indicator={p.assessmentScore! >= 70 ? "bg-green-500" : "bg-amber-500"}
-                                />
+                                <div className="relative w-full">
+                                  <Progress 
+                                    value={p.assessmentScore} 
+                                    className={`h-2 ${p.assessmentScore! >= 70 ? "bg-green-500" : "bg-amber-500"}`}
+                                  />
+                                </div>
                               </div>
                               <div className="w-1/6 text-right">
                                 {p.assessmentScore}%

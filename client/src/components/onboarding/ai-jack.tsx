@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { BrainCircuit, ExternalLink, Lightbulb, HelpCircle } from "lucide-react";
 
 interface AIJackProps {
