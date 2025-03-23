@@ -4,7 +4,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle2, AlertCircle, XCircle, ArrowRight, Cpu, Database, FileText, RefreshCw, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export function AIWorkflowDiagram({ activeStep = 0 }: { activeStep?: number }) {
+export function AIWorkflowDiagram({ 
+  activeStep = 0, 
+  errorStep = -1 
+}: { 
+  activeStep?: number,
+  errorStep?: number 
+}) {
   const steps = [
     { 
       id: 'input', 
@@ -58,9 +64,12 @@ export function AIWorkflowDiagram({ activeStep = 0 }: { activeStep?: number }) {
         <div className="space-y-8">
           {steps.map((step, index) => {
             const StepIcon = step.icon;
-            let status: 'pending' | 'processing' | 'complete' | 'error' = 'pending';
+            // Define type that includes all possible status values
+            type StepStatus = 'pending' | 'processing' | 'complete' | 'error';
+            let status: StepStatus = 'pending';
             
-            if (index < activeStep) status = 'complete';
+            if (index === errorStep) status = 'error';
+            else if (index < activeStep) status = 'complete';
             else if (index === activeStep) status = 'processing';
             
             return (

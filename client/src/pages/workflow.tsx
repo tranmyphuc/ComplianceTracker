@@ -3,10 +3,11 @@ import { AIWorkflowDiagram } from '@/components/workflow/ai-workflow-diagram';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Info, HelpCircle, RefreshCw } from 'lucide-react';
+import { Info, HelpCircle, RefreshCw, XCircle } from 'lucide-react';
 
 export default function WorkflowPage() {
   const [activeStep, setActiveStep] = useState(1);
+  const [errorStep, setErrorStep] = useState(-1);
   const [selectedTab, setSelectedTab] = useState('overview');
   const [simulating, setSimulating] = useState(false);
 
@@ -14,6 +15,7 @@ export default function WorkflowPage() {
   const simulateWorkflow = () => {
     setSimulating(true);
     setActiveStep(0);
+    setErrorStep(-1);
     
     const steps = [1, 2, 3, 4];
     let currentStep = 0;
@@ -29,6 +31,24 @@ export default function WorkflowPage() {
     }, 1500);
   };
   
+  // Simulates a workflow with an error
+  const simulateError = () => {
+    setSimulating(true);
+    setActiveStep(0);
+    setErrorStep(-1);
+    
+    // First move to step 1
+    setTimeout(() => {
+      setActiveStep(1);
+      
+      // Then fail at step 2 after a short delay
+      setTimeout(() => {
+        setErrorStep(2);
+        setSimulating(false);
+      }, 1500);
+    }, 1500);
+  };
+  
   return (
     <div className="container py-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -36,23 +56,43 @@ export default function WorkflowPage() {
           <h1 className="text-3xl font-bold tracking-tight">SGH ASIA AI System Workflow</h1>
           <p className="text-muted-foreground mt-1">Understanding how our compliance analysis system works</p>
         </div>
-        <Button 
-          onClick={simulateWorkflow} 
-          disabled={simulating}
-          className="flex items-center gap-2"
-        >
-          {simulating ? (
-            <>
-              <RefreshCw className="h-4 w-4 animate-spin" />
-              Simulating...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="h-4 w-4" />
-              Simulate Workflow
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={simulateError} 
+            disabled={simulating}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            {simulating ? (
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Simulating...
+              </>
+            ) : (
+              <>
+                <XCircle className="h-4 w-4 text-red-500" />
+                Simulate Error
+              </>
+            )}
+          </Button>
+          <Button 
+            onClick={simulateWorkflow} 
+            disabled={simulating}
+            className="flex items-center gap-2"
+          >
+            {simulating ? (
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Simulating...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                Simulate Success
+              </>
+            )}
+          </Button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -71,7 +111,7 @@ export default function WorkflowPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <AIWorkflowDiagram activeStep={activeStep} />
+              <AIWorkflowDiagram activeStep={activeStep} errorStep={errorStep} />
             </CardContent>
           </Card>
         </div>

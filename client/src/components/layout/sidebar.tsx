@@ -24,6 +24,7 @@ import {
   BotIcon,
   PieChartIcon,
   SmartphoneIcon,
+  NetworkIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -275,6 +276,18 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             >
               <BookOpenIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>Knowledge Center</span>
+            </Link>
+            
+            <Link 
+              href="/workflow"
+              className={cn(
+                "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+                isActive("/workflow") && "bg-primary/10 text-primary font-medium"
+              )}
+              onClick={handleItemClick}
+            >
+              <NetworkIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
+              <span>AI Workflow Diagram</span>
             </Link>
           </div>
 
