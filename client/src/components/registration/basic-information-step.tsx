@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { AlertCircle } from "lucide-react";
 
 interface BasicInformationStepProps {
   formData: {
@@ -22,13 +23,15 @@ interface BasicInformationStepProps {
     [key: string]: any;
   };
   setFormData: React.Dispatch<React.SetStateAction<any>>;
-  departments: { id: number; name: string }[];
+  departments?: { id: number; name: string }[];
+  errors?: Record<string, string>;
 }
 
 export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
   formData,
   setFormData,
-  departments = []
+  departments = [],
+  errors = {}
 }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -51,9 +54,17 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               placeholder="Enter the system name"
               value={formData.name}
               onChange={handleInputChange}
+              className={errors.name ? "border-red-500" : ""}
               required
             />
-            <p className="text-sm text-gray-500">Provide a clear descriptive name for the AI system</p>
+            {errors.name ? (
+              <p className="text-sm text-red-500 flex items-center mt-1">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                {errors.name}
+              </p>
+            ) : (
+              <p className="text-sm text-gray-500">Provide a clear descriptive name for the AI system</p>
+            )}
           </div>
         </div>
 
@@ -65,12 +76,20 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
             placeholder="Provide a detailed description of the AI system"
             value={formData.description}
             onChange={handleInputChange}
+            className={errors.description ? "border-red-500" : ""}
             rows={4}
             required
           />
-          <p className="text-sm text-gray-500">
-            Describe what the system does, its main functions, and intended outputs
-          </p>
+          {errors.description ? (
+            <p className="text-sm text-red-500 flex items-center mt-1">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              {errors.description}
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500">
+              Describe what the system does, its main functions, and intended outputs
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -81,12 +100,20 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
             placeholder="What is the intended purpose of this AI system?"
             value={formData.purpose}
             onChange={handleInputChange}
+            className={errors.purpose ? "border-red-500" : ""}
             rows={3}
             required
           />
-          <p className="text-sm text-gray-500">
-            Clearly state the business objectives this system is designed to achieve
-          </p>
+          {errors.purpose ? (
+            <p className="text-sm text-red-500 flex items-center mt-1">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              {errors.purpose}
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500">
+              Clearly state the business objectives this system is designed to achieve
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -98,8 +125,15 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               placeholder="e.g., 1.0, 2.3.1"
               value={formData.version}
               onChange={handleInputChange}
+              className={errors.version ? "border-red-500" : ""}
               required
             />
+            {errors.version && (
+              <p className="text-sm text-red-500 flex items-center mt-1">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                {errors.version}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -108,7 +142,7 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               value={formData.department}
               onValueChange={(value) => handleSelectChange('department', value)}
             >
-              <SelectTrigger id="department">
+              <SelectTrigger id="department" className={errors.department ? "border-red-500" : ""}>
                 <SelectValue placeholder="Select department" />
               </SelectTrigger>
               <SelectContent>
@@ -133,6 +167,12 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
                 )}
               </SelectContent>
             </Select>
+            {errors.department && (
+              <p className="text-sm text-red-500 flex items-center mt-1">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                {errors.department}
+              </p>
+            )}
           </div>
         </div>
 
