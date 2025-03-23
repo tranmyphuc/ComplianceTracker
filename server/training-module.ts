@@ -1053,7 +1053,7 @@ export async function trackTrainingProgress(req: Request, res: Response) {
     
     if (existingProgress && existingProgress.length > 0) {
       // Update existing progress if new completion is higher
-      if (completion > existingProgress[0].completion) {
+      if (completion > (existingProgress[0].completion || 0)) {
         await db
           .update(trainingProgress)
           .set({ 
@@ -1102,7 +1102,7 @@ export async function getUserProgress(req: Request, res: Response) {
     
     progress.forEach(item => {
       formattedProgress[item.moduleId] = {
-        completion: item.completion
+        completion: item.completion || 0
       };
     });
     

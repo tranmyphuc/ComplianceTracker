@@ -59,8 +59,7 @@ export default function Training() {
   const { data: modules, isLoading: isLoadingModules } = useQuery({
     queryKey: ['/api/training/modules'],
     queryFn: async () => {
-      const response = await apiRequest<TrainingModule[]>('/api/training/modules');
-      return response;
+      return await apiRequest<TrainingModule[]>('/api/training/modules');
     },
   });
 
@@ -68,10 +67,9 @@ export default function Training() {
   const { data: userProgress = {}, isLoading: isLoadingProgress } = useQuery({
     queryKey: ['/api/training/progress', user?.uid],
     queryFn: async () => {
-      const response = await apiRequest<Record<string, { completion: number }>>('/api/training/progress', {
+      return await apiRequest<Record<string, { completion: number }>>('/api/training/progress', {
         params: { userId: user?.uid }
       });
-      return response;
     },
     enabled: !!user?.uid
   });
@@ -80,8 +78,9 @@ export default function Training() {
   const { data: moduleContent, isLoading: isLoadingContent } = useQuery({
     queryKey: ['/api/training/modules', selectedModuleId, user?.role],
     queryFn: async () => {
-      const response = await apiRequest<ModuleContent>(`/api/training/modules/${selectedModuleId}?role=${user?.role || 'user'}`);
-      return response;
+      return await apiRequest<ModuleContent>(`/api/training/modules/${selectedModuleId}`, {
+        params: { role: user?.role || 'user' }
+      });
     },
     enabled: !!selectedModuleId
   });
