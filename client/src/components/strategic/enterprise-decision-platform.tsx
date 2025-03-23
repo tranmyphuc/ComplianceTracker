@@ -6,7 +6,12 @@ import { EnterpriseTourWizard } from "@/components/wizards/enterprise-wizard";
 import { BarChart, LineChart, PieChart } from "@/components/ui/chart";
 import { InfoIcon, ArrowRightIcon, PlayCircleIcon, BarChartIcon, PieChartIcon, ActivityIcon } from "lucide-react";
 
-export function EnterpriseDecisionPlatform() {
+interface EnterpriseDecisionPlatformProps {
+  onComplete?: () => void;
+  onSkip?: () => void;
+}
+
+export function EnterpriseDecisionPlatform({ onComplete, onSkip }: EnterpriseDecisionPlatformProps) {
   const [showTour, setShowTour] = useState(false);
 
   if (showTour) {
