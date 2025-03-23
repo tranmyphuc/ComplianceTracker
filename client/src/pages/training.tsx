@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/lib/auth";
-import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/components/auth/auth-context";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";

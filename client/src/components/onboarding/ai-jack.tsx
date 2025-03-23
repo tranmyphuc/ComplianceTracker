@@ -1,18 +1,27 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { BrainCircuit, ExternalLink, Lightbulb, HelpCircle } from "lucide-react";
 
 interface AIJackProps {
   mood: 'neutral' | 'happy' | 'thinking' | 'explaining' | 'celebrating' | 'surprised';
+  message?: string;
   size?: 'sm' | 'md' | 'lg';
   animate?: boolean;
   className?: string;
+  showPracticePrompt?: boolean;
+  onPracticeClick?: () => void;
 }
 
 export function AIJack({ 
   mood = 'neutral',
+  message,
   size = 'md',
   animate = false,
-  className = ''
+  className = '',
+  showPracticePrompt = false,
+  onPracticeClick
 }: AIJackProps) {
   const [isAnimating, setIsAnimating] = useState(animate);
   
@@ -99,97 +108,156 @@ export function AIJack({
   };
   
   return (
-    <div className={`relative ${className}`}>
-      <motion.div
-        animate={isAnimating ? { y: [0, -5, 0, -5, 0] } : { y: 0 }}
-        transition={{ duration: 1 }}
-        className={`${dimensions} relative`}
-      >
-        <svg viewBox="0 0 60 60" className="w-full h-full text-primary">
-          {/* Head */}
-          <motion.circle 
-            cx="30" 
-            cy="30" 
-            r="24" 
-            className="fill-primary/10 stroke-primary stroke-2"
-            animate={isAnimating ? { scale: [1, 1.03, 1, 1.03, 1] } : { scale: 1 }}
-            transition={{ duration: 1 }}
-          />
+    <div className={`${className}`}>
+      <div className="flex flex-col items-center">
+        {/* AI Jack character */}
+        <motion.div
+          animate={isAnimating ? { y: [0, -5, 0, -5, 0] } : { y: 0 }}
+          transition={{ duration: 1 }}
+          className={`${dimensions} relative`}
+        >
+          <svg viewBox="0 0 60 60" className="w-full h-full text-primary">
+            {/* Head */}
+            <motion.circle 
+              cx="30" 
+              cy="30" 
+              r="24" 
+              className="fill-primary/10 stroke-primary stroke-2"
+              animate={isAnimating ? { scale: [1, 1.03, 1, 1.03, 1] } : { scale: 1 }}
+              transition={{ duration: 1 }}
+            />
+            
+            {/* Antenna */}
+            <motion.path 
+              d="M30,6 L30,1" 
+              className="stroke-current stroke-2"
+              animate={isAnimating ? { rotate: [-5, 5, -5, 5, 0] } : { rotate: 0 }}
+              transition={{ duration: 1 }}
+              style={{ transformOrigin: '30px 6px' }}
+            />
+            <circle cx="30" cy="1" r="1" className="fill-current" />
+            
+            {/* Face expression based on mood */}
+            {getExpression()}
+            
+            {/* Additional decorative elements */}
+            <path d="M12,25 L14,25" className="stroke-current stroke-2 opacity-70" />
+            <path d="M46,25 L48,25" className="stroke-current stroke-2 opacity-70" />
+            <path d="M21,42 C22,46 38,46 39,42" className="stroke-current stroke-1 opacity-50 fill-none" />
+          </svg>
           
-          {/* Antenna */}
-          <motion.path 
-            d="M30,6 L30,1" 
-            className="stroke-current stroke-2"
-            animate={isAnimating ? { rotate: [-5, 5, -5, 5, 0] } : { rotate: 0 }}
-            transition={{ duration: 1 }}
-            style={{ transformOrigin: '30px 6px' }}
-          />
-          <circle cx="30" cy="1" r="1" className="fill-current" />
-          
-          {/* Face expression based on mood */}
-          {getExpression()}
-          
-          {/* Additional decorative elements */}
-          <path d="M12,25 L14,25" className="stroke-current stroke-2 opacity-70" />
-          <path d="M46,25 L48,25" className="stroke-current stroke-2 opacity-70" />
-          <path d="M21,42 C22,46 38,46 39,42" className="stroke-current stroke-1 opacity-50 fill-none" />
-        </svg>
+          {/* Animated accent elements */}
+          <AnimatePresence>
+            {isAnimating && mood === 'thinking' && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0 }}
+                className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/6"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20">
+                  <path d="M5,10 L15,10 M10,5 L10,15" className="stroke-primary stroke-2" />
+                </svg>
+              </motion.div>
+            )}
+            
+            {isAnimating && mood === 'celebrating' && (
+              <>
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  className="absolute -top-1 -right-1"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16">
+                    <path d="M8,0 L9,6 L16,8 L9,10 L8,16 L7,10 L0,8 L7,6 Z" className="fill-yellow-400" />
+                  </svg>
+                </motion.div>
+                
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  className="absolute -top-2 -left-2"
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14">
+                    <path d="M7,0 L8,5 L14,7 L8,9 L7,14 L6,9 L0,7 L6,5 Z" className="fill-green-400" />
+                  </svg>
+                </motion.div>
+              </>
+            )}
+            
+            {isAnimating && mood === 'explaining' && (
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                className="absolute top-1/4 right-0 transform translate-x-full"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                  <path d="M0,12 L16,12 M11,6 L17,12 L11,18" className="stroke-primary stroke-2 fill-none" />
+                </svg>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
         
-        {/* Animated accent elements */}
-        <AnimatePresence>
-          {isAnimating && mood === 'thinking' && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
-              className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/6"
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20">
-                <path d="M5,10 L15,10 M10,5 L10,15" className="stroke-primary stroke-2" />
-              </svg>
-            </motion.div>
-          )}
-          
-          {isAnimating && mood === 'celebrating' && (
-            <>
-              <motion.div 
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                className="absolute -top-1 -right-1"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16">
-                  <path d="M8,0 L9,6 L16,8 L9,10 L8,16 L7,10 L0,8 L7,6 Z" className="fill-yellow-400" />
-                </svg>
-              </motion.div>
-              
-              <motion.div 
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                className="absolute -top-2 -left-2"
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14">
-                  <path d="M7,0 L8,5 L14,7 L8,9 L7,14 L6,9 L0,7 L6,5 Z" className="fill-green-400" />
-                </svg>
-              </motion.div>
-            </>
-          )}
-          
-          {isAnimating && mood === 'explaining' && (
-            <motion.div 
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              className="absolute top-1/4 right-0 transform translate-x-full"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24">
-                <path d="M0,12 L16,12 M11,6 L17,12 L11,18" className="stroke-primary stroke-2 fill-none" />
-              </svg>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+        {/* Message speech bubble */}
+        {message && (
+          <motion.div 
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-4 bg-primary/5 border border-primary/20 rounded-lg p-4 relative w-full max-w-md text-center text-sm md:text-base"
+          >
+            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-primary/5 border-t border-l border-primary/20"></div>
+            {message}
+          </motion.div>
+        )}
+        
+        {/* Practice prompt */}
+        {showPracticePrompt && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+            className="mt-4 w-full max-w-md"
+          >
+            <Card className="bg-card/50 backdrop-blur">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-start gap-3">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    <BrainCircuit className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium mb-1">Practice This Concept</h4>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Apply your knowledge with interactive practice exercises
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="default" 
+                        className="text-xs flex items-center gap-1"
+                        onClick={onPracticeClick}
+                      >
+                        Try Now <Lightbulb className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-xs flex items-center gap-1"
+                      >
+                        Learn More <HelpCircle className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }
