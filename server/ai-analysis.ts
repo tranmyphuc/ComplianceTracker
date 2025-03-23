@@ -333,7 +333,10 @@ function simulateDeepSeekResponse(prompt: string, detectedSystemType?: string): 
       // Debug the textToSearch for every system type
       console.log(`Searching for keywords in: "${textToSearch}"`);
       
-      const matchCount = system.keywords.reduce((count, keyword) => {
+      // Use type assertion to tell TypeScript that system.keywords exists
+      const keywords = 'keywords' in system ? system.keywords as string[] : [];
+      
+      const matchCount = keywords.reduce((count: number, keyword: string) => {
         // Give highest priority to exact matches with the input prompt
         if (lowercasePrompt.trim() === keyword) {
           console.log(`Found EXACT PROMPT MATCH for keyword: ${keyword}`);
@@ -352,7 +355,7 @@ function simulateDeepSeekResponse(prompt: string, detectedSystemType?: string): 
         return count;
       }, 0);
 
-      console.log(`System type: ${type}, Match count: ${matchCount}, Keywords: ${system.keywords.join(', ')}`);
+      console.log(`System type: ${type}, Match count: ${matchCount}, Keywords: ${keywords.join(', ')}`);
 
       if (matchCount > highestMatchCount) {
         matchedSystem = system;
