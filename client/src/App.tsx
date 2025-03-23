@@ -26,14 +26,16 @@ import { useLocation } from "wouter";
 import React, { useEffect, lazy, Suspense } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { AppLayout } from "@/components/layout/app-layout";
 import { 
   RiskAssessmentGuides, 
   RiskAssessmentDocumentation as LazyRiskAssessmentDocumentation,
   TrainingDocumentation as LazyTrainingDocumentation,
-  TrainingModule as LazyTrainingModule,
+  TrainingGuidesPage as LazyTrainingGuidesPage,
   TrainingPresentationPage as LazyTrainingPresentationPage,
-  TrainingCertificatePage as LazyTrainingCertificatePage
-} from "./routes/lazy-imports";
+  TrainingCertificatePage as LazyTrainingCertificatePage,
+  TrainingModulePage as LazyTrainingModulePage
+} from "./routes/lazy-imports.ts";
 
 function Router() {
   const { user, loading } = useAuth();
@@ -66,7 +68,14 @@ function Router() {
     "/training/module/:id",
     "/training/presentation/:id",
     "/training/certificate/:id",
-    // Add other routes from your application
+    "/risk-management",
+    "/enterprise-decision-platform",
+    "/strategic-planning",
+    "/regulatory-complexity",
+    "/workflow",
+    "/onboarding",
+    "/profile",
+    "/settings",
   ];
 
   // For debugging - route verification results
@@ -76,69 +85,103 @@ function Router() {
     });
   }, []);
 
+  // Render content inside App Layout to ensure consistent navigation
+  const renderWithLayout = (Component: any, props?: any) => {
+    return (
+      <AppLayout>
+        <Component {...props} />
+      </AppLayout>
+    );
+  };
+
+  // Render suspense components inside App Layout
+  const renderSuspense = (Component: any, props?: any) => {
+    return (
+      <AppLayout>
+        <Suspense fallback={<div className="p-8 text-center">Loading content...</div>}>
+          <Component {...props} />
+        </Suspense>
+      </AppLayout>
+    );
+  };
+
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
-      <Route path="/inventory" component={Inventory} />
-      <Route path="/risk-assessment" component={RiskAssessment} />
-      <Route path="/risk-assessment/guides">
-        {() => (
-          <Suspense fallback={<div className="p-8 text-center">Loading guide...</div>}>
-            <RiskAssessmentGuides />
-          </Suspense>
-        )}
+      <Route path="/">
+        {() => renderWithLayout(Dashboard)}
       </Route>
-      <Route path="/documentation" component={Documentation} />
+      <Route path="/inventory">
+        {() => renderWithLayout(Inventory)}
+      </Route>
+      <Route path="/risk-assessment">
+        {() => renderWithLayout(RiskAssessment)}
+      </Route>
+      <Route path="/risk-assessment/guides">
+        {() => renderSuspense(RiskAssessmentGuides)}
+      </Route>
+      <Route path="/documentation">
+        {() => renderWithLayout(Documentation)}
+      </Route>
       <Route path="/documentation/risk-assessment">
-        {() => (
-          <Suspense fallback={<div className="p-8 text-center">Loading documentation...</div>}>
-            <LazyRiskAssessmentDocumentation />
-          </Suspense>
-        )}
+        {() => renderSuspense(LazyRiskAssessmentDocumentation)}
       </Route>
       <Route path="/documentation/training-documentation">
-        {() => (
-          <Suspense fallback={<div className="p-8 text-center">Loading documentation...</div>}>
-            <LazyTrainingDocumentation />
-          </Suspense>
-        )}
+        {() => renderSuspense(LazyTrainingDocumentation)}
       </Route>
-      <Route path="/register-system" component={RegisterSystem} />
-      <Route path="/knowledge-center" component={KnowledgeCenter} />
-      <Route path="/compliance" component={Documentation} />
-      <Route path="/governance" component={Dashboard} />
-      <Route path="/reports" component={Reports} />
-      <Route path="/training" component={Training} />
+      <Route path="/register-system">
+        {() => renderWithLayout(RegisterSystem)}
+      </Route>
+      <Route path="/knowledge-center">
+        {() => renderWithLayout(KnowledgeCenter)}
+      </Route>
+      <Route path="/compliance">
+        {() => renderWithLayout(Documentation)}
+      </Route>
+      <Route path="/governance">
+        {() => renderWithLayout(Dashboard)}
+      </Route>
+      <Route path="/reports">
+        {() => renderWithLayout(Reports)}
+      </Route>
+      <Route path="/training">
+        {() => renderWithLayout(Training)}
+      </Route>
       <Route path="/training/module/:id">
-        {(params) => (
-          <Suspense fallback={<div className="p-8 text-center">Loading training module...</div>}>
-            <LazyTrainingModule params={params} />
-          </Suspense>
-        )}
+        {(params) => renderSuspense(LazyTrainingModulePage, { id: params.id })}
       </Route>
       <Route path="/training/presentation/:id">
-        {(params) => (
-          <Suspense fallback={<div className="p-8 text-center">Loading presentation...</div>}>
-            <LazyTrainingPresentationPage params={params} />
-          </Suspense>
-        )}
+        {(params) => renderSuspense(LazyTrainingPresentationPage, { id: params.id })}
       </Route>
       <Route path="/training/certificate/:id">
-        {(params) => (
-          <Suspense fallback={<div className="p-8 text-center">Loading certificate...</div>}>
-            <LazyTrainingCertificatePage params={params} />
-          </Suspense>
-        )}
+        {(params) => renderSuspense(LazyTrainingCertificatePage, { id: params.id })}
       </Route>
-      <Route path="/workflow" component={Workflow} />
-      <Route path="/strategic-planning" component={StrategicPlanning} />
-      <Route path="/regulatory-complexity" component={RegulatoryComplexity} />
-      <Route path="/enterprise-decision-platform" component={EnterpriseDecisionPlatform} />
-      <Route path="/risk-management" component={RiskManagement} />
-      <Route path="/onboarding" component={OnboardingPage} />
-      <Route path="/profile" component={Dashboard} />
-      <Route path="/settings" component={Dashboard} />
-      <Route component={NotFound} />
+      <Route path="/workflow">
+        {() => renderWithLayout(Workflow)}
+      </Route>
+      <Route path="/strategic-planning">
+        {() => renderWithLayout(StrategicPlanning)}
+      </Route>
+      <Route path="/regulatory-complexity">
+        {() => renderWithLayout(RegulatoryComplexity)}
+      </Route>
+      <Route path="/enterprise-decision-platform">
+        {() => renderWithLayout(EnterpriseDecisionPlatform)}
+      </Route>
+      <Route path="/risk-management">
+        {() => renderWithLayout(RiskManagement)}
+      </Route>
+      <Route path="/onboarding">
+        {() => renderWithLayout(OnboardingPage)}
+      </Route>
+      <Route path="/profile">
+        {() => renderWithLayout(Dashboard)}
+      </Route>
+      <Route path="/settings">
+        {() => renderWithLayout(Dashboard)}
+      </Route>
+      <Route>
+        {() => renderWithLayout(NotFound)}
+      </Route>
     </Switch>
   );
 }

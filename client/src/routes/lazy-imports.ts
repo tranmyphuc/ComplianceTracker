@@ -2,10 +2,8 @@
 import { lazy } from "react";
 
 // Main pages
-export const HomePage = lazy(() => import("../pages/home"));
 export const LoginPage = lazy(() => import("../pages/login"));
 export const RegisterPage = lazy(() => import("../pages/register"));
-export const ProfilePage = lazy(() => import("../pages/profile"));
 export const DashboardPage = lazy(() => import("../pages/dashboard"));
 export const NotFound = lazy(() => import("../pages/not-found"));
 
