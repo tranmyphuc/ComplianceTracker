@@ -118,6 +118,58 @@ const TRAINING_MODULES: TrainingModule[] = [
       operator: "High",
       user: "Medium"
     }
+  },
+  {
+    id: "7",
+    title: "AI System Inventory Management",
+    description: "Guidelines for creating and maintaining an AI system inventory",
+    estimated_time: "30-40 minutes",
+    topics: ["Inventory Creation", "System Classification", "Ongoing Management", "Documentation Standards"],
+    role_relevance: {
+      decision_maker: "High",
+      developer: "Medium",
+      operator: "High",
+      user: "Low"
+    }
+  },
+  {
+    id: "8",
+    title: "Data Governance for AI Compliance",
+    description: "Implementing robust data governance practices for EU AI Act compliance",
+    estimated_time: "35-45 minutes",
+    topics: ["Data Quality", "Bias Mitigation", "Training Data Management", "Ongoing Data Monitoring"],
+    role_relevance: {
+      decision_maker: "Medium",
+      developer: "High",
+      operator: "Medium",
+      user: "Low"
+    }
+  },
+  {
+    id: "9",
+    title: "Human Oversight Implementation",
+    description: "Designing and implementing effective human oversight mechanisms",
+    estimated_time: "30-40 minutes",
+    topics: ["Oversight Requirements", "Intervention Mechanisms", "Interface Design", "Decision Authority"],
+    role_relevance: {
+      decision_maker: "High",
+      developer: "High",
+      operator: "High",
+      user: "Medium"
+    }
+  },
+  {
+    id: "10",
+    title: "Compliance for Specific AI Applications",
+    description: "Specialized compliance guidance for different AI application domains",
+    estimated_time: "40-50 minutes",
+    topics: ["Healthcare AI", "Financial AI", "HR Applications", "Critical Infrastructure"],
+    role_relevance: {
+      decision_maker: "High",
+      developer: "High",
+      operator: "High",
+      user: "Medium"
+    }
   }
 ];
 
@@ -136,6 +188,14 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
             <li>Transparent and explainable</li>
             <li>Traceable and with human oversight</li>
             <li>Non-discriminatory and environmentally sustainable</li>
+          </ul>
+          <p>The EU AI Act has several key objectives:</p>
+          <ul>
+            <li>Ensure AI systems placed on the EU market are safe</li>
+            <li>Respect fundamental rights and EU values</li>
+            <li>Ensure legal certainty to facilitate innovation</li>
+            <li>Enhance governance and enforcement of AI regulations</li>
+            <li>Promote development of a single market for lawful, safe and trustworthy AI applications</li>
           </ul>`
         },
         {
@@ -882,6 +942,520 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
         {
           title: "Developer-Focused Implementation Tools",
           content: `<p>Several tools have proven valuable for developers implementing EU AI Act compliance:</p>
+
+  "7": {
+    "default": {
+      title: "AI System Inventory Management",
+      sections: [
+        {
+          title: "Importance of AI System Inventory",
+          content: `<p>An accurate and comprehensive AI system inventory is foundational to EU AI Act compliance. This inventory serves several critical purposes:</p>
+          <ul>
+            <li><strong>Risk Assessment</strong>: Enables systematic evaluation of all AI systems against EU AI Act risk categories</li>
+            <li><strong>Compliance Tracking</strong>: Provides a centralized registry for monitoring compliance status of each system</li>
+            <li><strong>Resource Allocation</strong>: Helps organizations prioritize compliance efforts based on risk levels</li>
+            <li><strong>Regulatory Reporting</strong>: Facilitates accurate and timely reporting to regulatory authorities</li>
+            <li><strong>Auditing Support</strong>: Creates a documented trail of AI systems for internal and external audits</li>
+          </ul>
+          <p>For many organizations, creating this inventory is the first step in their EU AI Act compliance journey.</p>`
+        },
+        {
+          title: "Creating a Comprehensive AI Inventory",
+          content: `<p>When building your AI system inventory, include the following key elements for each system:</p>
+          <ol>
+            <li><strong>Basic Information</strong>
+              <ul>
+                <li>System name and unique identifier</li>
+                <li>Version number and implementation date</li>
+                <li>Vendor information (if applicable)</li>
+                <li>Internal owner or responsible department</li>
+              </ul>
+            </li>
+            <li><strong>Technical Characteristics</strong>
+              <ul>
+                <li>AI capabilities and technologies used</li>
+                <li>Data sources and training methodologies</li>
+                <li>Output types and decision mechanisms</li>
+                <li>Integration points with other systems</li>
+              </ul>
+            </li>
+            <li><strong>Usage Context</strong>
+              <ul>
+                <li>Business purpose and objectives</li>
+                <li>User profiles and access controls</li>
+                <li>Geographic deployment scope</li>
+                <li>Impact on individuals or groups</li>
+              </ul>
+            </li>
+            <li><strong>Compliance Information</strong>
+              <ul>
+                <li>Risk classification under EU AI Act</li>
+                <li>Compliance status and gap assessment</li>
+                <li>Required documentation status</li>
+                <li>Assessment history and scheduled reviews</li>
+              </ul>
+            </li>
+          </ol>
+          <p>The inventory should be maintained in a centralized, accessible system that supports version control and change tracking.</p>`
+        },
+        {
+          title: "Ongoing Inventory Management",
+          content: `<p>An AI system inventory is not a one-time effort but requires ongoing management:</p>
+          <ul>
+            <li><strong>Regular Reviews</strong>: Schedule periodic reviews of the inventory (quarterly or bi-annually)</li>
+            <li><strong>Change Management</strong>: Implement a process for registering new systems and significant updates</li>
+            <li><strong>Retirement Tracking</strong>: Document decommissioned systems and data retention policies</li>
+            <li><strong>Responsibility Assignment</strong>: Clearly define who maintains the inventory and verifies its accuracy</li>
+            <li><strong>Integration with Development</strong>: Connect inventory processes with AI development lifecycle</li>
+          </ul>
+          <p>Organizations should consider implementing automated discovery tools to help identify AI systems that might not be formally registered.</p>`
+        }
+      ],
+      assessments: [
+        {
+          question: "What is the primary purpose of an AI system inventory under the EU AI Act?",
+          options: [
+            "To showcase AI capabilities to customers",
+            "To enable systematic evaluation and compliance tracking of AI systems",
+            "To reduce cloud computing costs",
+            "To facilitate employee training on AI systems"
+          ],
+          correctAnswer: "To enable systematic evaluation and compliance tracking of AI systems"
+        },
+        {
+          question: "Which of the following should NOT be included in an AI system inventory?",
+          options: [
+            "Risk classification under the EU AI Act",
+            "Data sources and training methodologies",
+            "Business purpose and objectives",
+            "Employee performance metrics for system developers"
+          ],
+          correctAnswer: "Employee performance metrics for system developers"
+        },
+        {
+          question: "How often should an AI system inventory be reviewed?",
+          options: [
+            "Only when an audit is scheduled",
+            "Once when the system is first deployed",
+            "Regularly (quarterly or bi-annually)",
+            "Only when regulatory requirements change"
+          ],
+          correctAnswer: "Regularly (quarterly or bi-annually)"
+        }
+      ]
+    },
+    "decision_maker": {
+      title: "AI System Inventory Management for Decision Makers",
+      sections: [
+        {
+          title: "Strategic Value of AI Inventory",
+          content: `<p>For decision makers, an AI system inventory offers strategic value beyond compliance:</p>
+          <ul>
+            <li><strong>Risk Management</strong>: Provides visibility into organizational exposure to AI regulatory risks</li>
+            <li><strong>Resource Optimization</strong>: Enables informed decisions about compliance resource allocation</li>
+            <li><strong>Portfolio Management</strong>: Supports strategic decisions about AI investments and priorities</li>
+            <li><strong>Liability Protection</strong>: Documents due diligence in identifying and managing AI systems</li>
+            <li><strong>Governance Support</strong>: Facilitates board-level oversight of AI governance</li>
+          </ul>
+          <p>A well-maintained inventory transforms compliance from a reactive burden to a strategic asset.</p>`
+        },
+        {
+          title: "Building Organizational Support",
+          content: `<p>As a decision maker, establishing organizational support for inventory management is critical:</p>
+          <ol>
+            <li><strong>Executive Sponsorship</strong>: Secure C-level support and communicate importance</li>
+            <li><strong>Cross-Functional Engagement</strong>: Involve IT, legal, business units, and data science teams</li>
+            <li><strong>Clear Ownership</strong>: Designate specific roles and responsibilities for inventory maintenance</li>
+            <li><strong>Resource Allocation</strong>: Provide necessary tools, systems, and staff time</li>
+            <li><strong>Policy Development</strong>: Establish formal policies requiring registration of AI systems</li>
+          </ol>
+          <p>Without strong organizational support, inventory efforts often become incomplete and outdated.</p>`
+        },
+        {
+          title: "Using Inventory Insights for Decision Making",
+          content: `<p>Leverage inventory data to drive executive decisions:</p>
+          <ul>
+            <li><strong>Compliance Investment</strong>: Focus resources on high-risk systems requiring extensive documentation</li>
+            <li><strong>Risk Mitigation</strong>: Address systems with unacceptable risk profiles through redesign or retirement</li>
+            <li><strong>Technology Standardization</strong>: Identify opportunities to standardize AI approaches for efficiency</li>
+            <li><strong>Vendor Management</strong>: Evaluate third-party AI providers based on compliance capabilities</li>
+            <li><strong>Strategic Planning</strong>: Align future AI investments with compliance considerations</li>
+          </ul>
+          <p>Regular executive reporting should include key metrics from the inventory, such as risk distribution and compliance status.</p>`
+        }
+      ],
+      assessments: [
+        {
+          question: "As a decision maker, what strategic value does an AI inventory provide beyond compliance?",
+          options: [
+            "It reduces development costs for AI systems",
+            "It enables informed decisions about compliance resource allocation",
+            "It accelerates AI deployment timelines",
+            "It eliminates the need for human oversight"
+          ],
+          correctAnswer: "It enables informed decisions about compliance resource allocation"
+        },
+        {
+          question: "What should be a priority when establishing organizational support for AI inventory management?",
+          options: [
+            "Outsourcing the entire inventory process",
+            "Limiting inventory visibility to the IT department",
+            "Securing executive sponsorship and cross-functional engagement",
+            "Focusing exclusively on customer-facing AI systems"
+          ],
+          correctAnswer: "Securing executive sponsorship and cross-functional engagement"
+        },
+        {
+          question: "How should decision makers use inventory insights?",
+          options: [
+            "To maximize the number of AI systems deployed",
+            "To focus resources on high-risk systems requiring extensive documentation",
+            "To avoid regulatory requirements through system redesign",
+            "To replace human workers with AI systems"
+          ],
+          correctAnswer: "To focus resources on high-risk systems requiring extensive documentation"
+        }
+      ]
+    }
+  },
+  "8": {
+    "default": {
+      title: "Data Governance for AI Compliance",
+      sections: [
+        {
+          title: "EU AI Act Data Governance Requirements",
+          content: `<p>The EU AI Act places significant emphasis on data governance, particularly for high-risk AI systems. Key requirements include:</p>
+          <ul>
+            <li><strong>Data Quality</strong>: Training, validation, and testing datasets must meet appropriate quality criteria</li>
+            <li><strong>Representativeness</strong>: Datasets must be relevant, representative, and free from errors</li>
+            <li><strong>Bias Mitigation</strong>: Data governance practices must address and mitigate potential biases</li>
+            <li><strong>Documentation</strong>: Data characteristics, selection choices, and preprocessing must be documented</li>
+            <li><strong>Privacy Compliance</strong>: Data governance must align with privacy regulations like GDPR</li>
+          </ul>
+          <p>These requirements aim to ensure that AI systems make decisions based on appropriate, accurate, and unbiased data.</p>`
+        },
+        {
+          title: "Implementing a Data Governance Framework",
+          content: `<p>An effective data governance framework for AI compliance includes these components:</p>
+          <ol>
+            <li><strong>Data Quality Management</strong>
+              <ul>
+                <li>Data quality metrics and standards</li>
+                <li>Validation processes and quality checks</li>
+                <li>Error detection and correction procedures</li>
+                <li>Documentation of quality assurance methods</li>
+              </ul>
+            </li>
+            <li><strong>Data Lifecycle Management</strong>
+              <ul>
+                <li>Data collection and acquisition policies</li>
+                <li>Data preprocessing and cleaning protocols</li>
+                <li>Version control and change management</li>
+                <li>Data retention and disposal guidelines</li>
+              </ul>
+            </li>
+            <li><strong>Bias Detection and Mitigation</strong>
+              <ul>
+                <li>Bias assessment methodologies</li>
+                <li>Fairness metrics and monitoring</li>
+                <li>Procedures for addressing identified biases</li>
+                <li>Documentation of bias mitigation strategies</li>
+              </ul>
+            </li>
+            <li><strong>Privacy and Security Controls</strong>
+              <ul>
+                <li>Data minimization practices</li>
+                <li>Access controls and authorization procedures</li>
+                <li>Data anonymization and pseudonymization techniques</li>
+                <li>Security measures for data protection</li>
+              </ul>
+            </li>
+          </ol>
+          <p>This framework should be documented and integrated with existing data governance structures within the organization.</p>`
+        },
+        {
+          title: "Ongoing Data Monitoring and Review",
+          content: `<p>Compliance with data governance requirements requires continuous monitoring:</p>
+          <ul>
+            <li><strong>Data Drift Monitoring</strong>: Regular checks for changes in data distributions</li>
+            <li><strong>Performance Impact Assessment</strong>: Evaluating how data changes affect system performance</li>
+            <li><strong>Periodic Data Audits</strong>: Scheduled reviews of datasets against quality and bias criteria</li>
+            <li><strong>Documentation Updates</strong>: Maintaining current records of all data characteristics and processes</li>
+            <li><strong>Feedback Loops</strong>: Incorporating insights from monitoring into data improvement processes</li>
+          </ul>
+          <p>Organizations should implement automated monitoring where possible while maintaining human oversight of monitoring results.</p>`
+        }
+      ],
+      assessments: [
+        {
+          question: "Which of the following is NOT a data governance requirement under the EU AI Act?",
+          options: [
+            "Datasets must be representative and free from errors",
+            "Data governance practices must address potential biases",
+            "All training data must be publicly accessible",
+            "Data characteristics and preprocessing must be documented"
+          ],
+          correctAnswer: "All training data must be publicly accessible"
+        },
+        {
+          question: "What is the primary purpose of bias detection and mitigation in AI data governance?",
+          options: [
+            "To reduce computational requirements",
+            "To ensure AI decisions are not unfairly discriminatory",
+            "To increase system processing speed",
+            "To eliminate the need for human oversight"
+          ],
+          correctAnswer: "To ensure AI decisions are not unfairly discriminatory"
+        },
+        {
+          question: "Why is ongoing data monitoring important for EU AI Act compliance?",
+          options: [
+            "It's required only for minimal risk AI systems",
+            "It helps detect data drift that could impact system performance and fairness",
+            "It reduces computational costs during training",
+            "It eliminates the need for initial data quality checks"
+          ],
+          correctAnswer: "It helps detect data drift that could impact system performance and fairness"
+        }
+      ]
+    }
+  },
+  "9": {
+    "default": {
+      title: "Human Oversight Implementation",
+      sections: [
+        {
+          title: "EU AI Act Human Oversight Requirements",
+          content: `<p>Human oversight is a central requirement of the EU AI Act, particularly for high-risk AI systems. The regulation requires:</p>
+          <ul>
+            <li><strong>Effective Oversight</strong>: Measures that enable humans to oversee AI system operation</li>
+            <li><strong>Prevention of Automation Bias</strong>: Safeguards against over-reliance on automated outputs</li>
+            <li><strong>Intervention Capabilities</strong>: Mechanisms for humans to interrupt or override system operations</li>
+            <li><strong>Understanding of Outputs</strong>: Information allowing humans to interpret system decisions</li>
+            <li><strong>Decision Authority</strong>: Clear delineation of when decisions require human review</li>
+          </ul>
+          <p>These requirements aim to ensure that AI systems remain under meaningful human control, particularly in high-stakes contexts.</p>`
+        },
+        {
+          title: "Designing Effective Human Oversight Mechanisms",
+          content: `<p>Well-designed human oversight mechanisms include the following components:</p>
+          <ol>
+            <li><strong>Interface Design</strong>
+              <ul>
+                <li>Intuitive displays of AI system operations and decisions</li>
+                <li>Clear presentation of confidence levels and uncertainty</li>
+                <li>Visual cues for situations requiring attention</li>
+                <li>Accessible controls for human intervention</li>
+              </ul>
+            </li>
+            <li><strong>Operational Procedures</strong>
+              <ul>
+                <li>Defined roles and responsibilities for oversight personnel</li>
+                <li>Decision protocols for different scenarios</li>
+                <li>Escalation paths for complex or uncertain situations</li>
+                <li>Documentation requirements for oversight actions</li>
+              </ul>
+            </li>
+            <li><strong>Training Programs</strong>
+              <ul>
+                <li>System-specific training for oversight personnel</li>
+                <li>Awareness of automation bias and how to mitigate it</li>
+                <li>Practice scenarios for intervention situations</li>
+                <li>Regular refresher training as systems evolve</li>
+              </ul>
+            </li>
+            <li><strong>Technical Implementation</strong>
+              <ul>
+                <li>Override mechanisms at various system stages</li>
+                <li>Logging of all human interventions</li>
+                <li>System pause and rollback capabilities</li>
+                <li>Explainability features for complex decisions</li>
+              </ul>
+            </li>
+          </ol>
+          <p>The design should balance allowing efficient AI operation while ensuring meaningful human control where needed.</p>`
+        },
+        {
+          title: "Evaluating Oversight Effectiveness",
+          content: `<p>Organizations should regularly assess whether their human oversight mechanisms are working as intended:</p>
+          <ul>
+            <li><strong>Oversight Metrics</strong>: Track frequency, timing, and outcomes of human interventions</li>
+            <li><strong>Scenario Testing</strong>: Simulate critical situations to test oversight response</li>
+            <li><strong>User Feedback</strong>: Collect input from oversight personnel about system usability</li>
+            <li><strong>Incident Analysis</strong>: Review cases where oversight succeeded or failed to identify improvements</li>
+            <li><strong>Documentation Review</strong>: Ensure oversight processes are properly documented and followed</li>
+          </ul>
+          <p>Evaluations should lead to iterative improvements in both technical systems and human processes.</p>`
+        }
+      ],
+      assessments: [
+        {
+          question: "What is the primary purpose of human oversight requirements in the EU AI Act?",
+          options: [
+            "To create new jobs in AI supervision",
+            "To slow down AI processing for better accuracy",
+            "To ensure AI systems remain under meaningful human control",
+            "To completely prevent AI from making any decisions"
+          ],
+          correctAnswer: "To ensure AI systems remain under meaningful human control"
+        },
+        {
+          question: "Which of the following is NOT typically included in effective human oversight interface design?",
+          options: [
+            "Clear presentation of confidence levels and uncertainty",
+            "Accessible controls for human intervention",
+            "Automatic overrides without human confirmation",
+            "Visual cues for situations requiring attention"
+          ],
+          correctAnswer: "Automatic overrides without human confirmation"
+        },
+        {
+          question: "Why is training important for human oversight personnel?",
+          options: [
+            "To teach them how to program AI systems",
+            "To make them aware of automation bias and how to mitigate it",
+            "To eliminate the need for technical documentation",
+            "To prepare them to replace AI systems with manual processes"
+          ],
+          correctAnswer: "To make them aware of automation bias and how to mitigate it"
+        }
+      ]
+    }
+  },
+  "10": {
+    "default": {
+      title: "Compliance for Specific AI Applications",
+      sections: [
+        {
+          title: "Healthcare AI Compliance",
+          content: `<p>Healthcare AI applications face specific compliance challenges under the EU AI Act:</p>
+          <ul>
+            <li><strong>Risk Classification</strong>: Most healthcare AI applications will qualify as high-risk systems</li>
+            <li><strong>Regulatory Intersection</strong>: Need to comply with both the EU AI Act and medical device regulations</li>
+            <li><strong>Data Protection</strong>: Heightened requirements for handling sensitive health data</li>
+            <li><strong>Documentation</strong>: Extensive technical documentation and clinical validation evidence</li>
+            <li><strong>Human Oversight</strong>: Critical importance of clinician oversight for diagnostic and treatment systems</li>
+          </ul>
+          <p>Healthcare organizations implementing AI must coordinate compliance efforts across regulatory frameworks.</p>
+          
+          <p>Key compliance areas specific to healthcare AI include:</p>
+          <ul>
+            <li><strong>Clinical Validation</strong>: Rigorous testing in relevant clinical settings</li>
+            <li><strong>Representative Data</strong>: Ensuring training data includes diverse patient populations</li>
+            <li><strong>Explainability</strong>: Making system reasoning understandable to healthcare professionals</li>
+            <li><strong>Integration Safety</strong>: Ensuring safe operation within clinical workflows</li>
+            <li><strong>Monitoring</strong>: Ongoing surveillance of performance in clinical environments</li>
+          </ul>`
+        },
+        {
+          title: "Financial Services AI Compliance",
+          content: `<p>Financial sector AI applications have specific compliance considerations:</p>
+          <ul>
+            <li><strong>Credit Scoring</strong>: AI systems for creditworthiness assessment are explicitly high-risk</li>
+            <li><strong>Market Models</strong>: Trading and market prediction systems require careful risk evaluation</li>
+            <li><strong>Anti-Discrimination</strong>: Heightened focus on preventing discriminatory outcomes</li>
+            <li><strong>Explainability</strong>: Requirements to explain decisions affecting financial access</li>
+            <li><strong>Regulatory Coordination</strong>: Alignment with existing financial services regulations</li>
+          </ul>
+          <p>Financial institutions must implement robust governance frameworks for AI systems.</p>
+          
+          <p>Specific compliance measures for financial AI include:</p>
+          <ul>
+            <li><strong>Fairness Testing</strong>: Regular assessment of outcomes across demographic groups</li>
+            <li><strong>Audit Trails</strong>: Comprehensive logging of all decisions and their bases</li>
+            <li><strong>Model Risk Management</strong>: Integration with existing model governance processes</li>
+            <li><strong>Disclosure Practices</strong>: Clear communication to customers about AI-based decisions</li>
+            <li><strong>Fallback Procedures</strong>: Alternative processes when AI systems cannot be used</li>
+          </ul>`
+        },
+        {
+          title: "HR and Employment AI Compliance",
+          content: `<p>AI systems used in employment contexts face specific regulatory scrutiny:</p>
+          <ul>
+            <li><strong>High-Risk Classification</strong>: Most HR AI applications fall under high-risk categories</li>
+            <li><strong>Recruitment Systems</strong>: Specific requirements for AI used in candidate selection</li>
+            <li><strong>Worker Management</strong>: Strict oversight for systems monitoring employee performance</li>
+            <li><strong>Fairness Requirements</strong>: Strong emphasis on non-discrimination and equal opportunity</li>
+            <li><strong>Transparency</strong>: Requirements to inform candidates and employees about AI use</li>
+          </ul>
+          <p>Organizations using AI in HR must implement comprehensive compliance measures.</p>
+          
+          <p>Key compliance areas for HR AI include:</p>
+          <ul>
+            <li><strong>Bias Auditing</strong>: Regular testing for discriminatory impacts across protected groups</li>
+            <li><strong>Human Review</strong>: Meaningful human oversight of AI-influenced decisions</li>
+            <li><strong>Candidate/Employee Notification</strong>: Clear disclosure of AI use in HR processes</li>
+            <li><strong>Alternative Pathways</strong>: Non-AI options for assessment when requested</li>
+            <li><strong>Documentation</strong>: Detailed records of system design choices and validation tests</li>
+          </ul>`
+        },
+        {
+          title: "Critical Infrastructure AI Compliance",
+          content: `<p>AI systems used in critical infrastructure face heightened requirements:</p>
+          <ul>
+            <li><strong>High-Risk Designation</strong>: Systems managing critical infrastructure are explicitly high-risk</li>
+            <li><strong>Safety Emphasis</strong>: Stringent requirements for ensuring physical safety</li>
+            <li><strong>Resilience</strong>: Requirements for system reliability and failure management</li>
+            <li><strong>Testing Rigor</strong>: Extensive testing under various operational conditions</li>
+            <li><strong>Continuity Planning</strong>: Robust procedures for maintaining operations during AI failures</li>
+          </ul>
+          <p>Organizations deploying AI in critical infrastructure must prioritize safety and reliability.</p>
+          
+          <p>Specific compliance measures include:</p>
+          <ul>
+            <li><strong>Adversarial Testing</strong>: Evaluating system performance under attack or manipulation</li>
+            <li><strong>Redundancy Design</strong>: Implementing backup systems and fallback procedures</li>
+            <li><strong>Continuous Monitoring</strong>: Real-time oversight of system performance and safety</li>
+            <li><strong>Incident Response</strong>: Well-documented procedures for system failures</li>
+            <li><strong>Regular Audits</strong>: Independent verification of safety and security measures</li>
+          </ul>`
+        }
+      ],
+      assessments: [
+        {
+          question: "Which regulatory framework must healthcare AI applications comply with in addition to the EU AI Act?",
+          options: [
+            "Financial services regulations",
+            "Environmental protection laws",
+            "Medical device regulations",
+            "Transportation safety rules"
+          ],
+          correctAnswer: "Medical device regulations"
+        },
+        {
+          question: "What is a key compliance requirement specific to financial AI systems?",
+          options: [
+            "Clinical validation in hospital settings",
+            "Testing with patients of diverse backgrounds",
+            "Fairness testing across demographic groups",
+            "Integration with manufacturing systems"
+          ],
+          correctAnswer: "Fairness testing across demographic groups"
+        },
+        {
+          question: "Why are most HR and employment AI applications classified as high-risk under the EU AI Act?",
+          options: [
+            "They process large volumes of data",
+            "They have significant impact on individuals' rights and opportunities",
+            "They are typically developed by large corporations",
+            "They use more advanced algorithms than other sectors"
+          ],
+          correctAnswer: "They have significant impact on individuals' rights and opportunities"
+        },
+        {
+          question: "What is a critical compliance measure for AI systems used in critical infrastructure?",
+          options: [
+            "Marketing materials explaining the AI capabilities",
+            "Implementing backup systems and fallback procedures",
+            "Minimizing human oversight to increase efficiency",
+            "Collecting more personal data for improved performance"
+          ],
+          correctAnswer: "Implementing backup systems and fallback procedures"
+        }
+      ]
+    }
+  }
+
           <ul>
             <li><strong>Fairness Libraries</strong>: Tools like AIF360 and Fairlearn for measuring and mitigating algorithmic bias.</li>
             <li><strong>Explainability Frameworks</strong>: Libraries such as SHAP, LIME, and InterpretML for generating explanations of model decisions.</li>
