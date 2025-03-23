@@ -41,9 +41,10 @@ const NavItem = ({
 
 export const Header = () => {
   const [location] = useLocation();
+  const headerId = React.useId();
 
   return (
-    <header className="sticky top-0 z-50 bg-primary text-white shadow-md">
+    <header id={`app-header-${headerId}`} data-component="app-header" className="sticky top-0 z-50 bg-primary text-white shadow-md">
       <div className="flex items-center justify-between h-14 px-4">
         {/* Logo and company name */}
         <div className="flex items-center">

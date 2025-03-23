@@ -36,6 +36,7 @@ import {
   TrainingCertificatePage as LazyTrainingCertificatePage,
   TrainingModulePage as LazyTrainingModulePage
 } from "./routes/lazy-imports.ts";
+import { AppWrapper } from "./components/app-wrapper";
 
 function Router() {
   const { user, loading } = useAuth();
@@ -187,13 +188,31 @@ function Router() {
 }
 
 function App() {
+  const [location] = useLocation();
+
+  // Add a check to detect duplicate layout elements
+  React.useEffect(() => {
+    const headers = document.querySelectorAll('[data-component="app-header"]');
+    const footers = document.querySelectorAll('[data-component="app-footer"]');
+
+    if (headers.length > 1) {
+      console.warn(`Found ${headers.length} header elements. This might cause UI issues.`);
+    }
+
+    if (footers.length > 1) {
+      console.warn(`Found ${footers.length} footer elements. This might cause UI issues.`);
+    }
+  }, [location]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ToastProvider>
-          <Router />
-          <AiAssistantButton />
-          <Toaster />
+          <AppWrapper>
+            <Router />
+            <AiAssistantButton />
+            <Toaster />
+          </AppWrapper>
         </ToastProvider>
       </AuthProvider>
     </QueryClientProvider>

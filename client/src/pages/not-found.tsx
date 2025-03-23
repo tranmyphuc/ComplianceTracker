@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'wouter';
-import { AppLayout } from "@/components/layout/app-layout";
 
 export default function NotFound() {
   return (
