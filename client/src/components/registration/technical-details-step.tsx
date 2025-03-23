@@ -4,6 +4,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { Switch } from "../ui/switch";
 import { Checkbox } from "../ui/checkbox";
+import { AlertCircle } from "lucide-react";
 
 interface TechnicalDetailsStepProps {
   formData: {
@@ -18,11 +19,13 @@ interface TechnicalDetailsStepProps {
     [key: string]: any;
   };
   setFormData: React.Dispatch<React.SetStateAction<any>>;
+  errors?: Record<string, string>;
 }
 
 export const TechnicalDetailsStep: React.FC<TechnicalDetailsStepProps> = ({
   formData,
-  setFormData
+  setFormData,
+  errors = {}
 }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -48,12 +51,20 @@ export const TechnicalDetailsStep: React.FC<TechnicalDetailsStepProps> = ({
             placeholder="What are the main AI capabilities of this system?"
             value={formData.aiCapabilities}
             onChange={handleInputChange}
+            className={errors.aiCapabilities ? "border-red-500" : ""}
             rows={3}
             required
           />
-          <p className="text-sm text-gray-500">
-            E.g., Natural Language Processing, Computer Vision, Predictive Analytics, etc.
-          </p>
+          {errors.aiCapabilities ? (
+            <p className="text-sm text-red-500 flex items-center mt-1">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              {errors.aiCapabilities}
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500">
+              E.g., Natural Language Processing, Computer Vision, Predictive Analytics, etc.
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -64,12 +75,20 @@ export const TechnicalDetailsStep: React.FC<TechnicalDetailsStepProps> = ({
             placeholder="Describe the datasets used to train this AI system"
             value={formData.trainingDatasets}
             onChange={handleInputChange}
+            className={errors.trainingDatasets ? "border-red-500" : ""}
             rows={3}
             required
           />
-          <p className="text-sm text-gray-500">
-            Include information about data sources, types, and any pre-processing methods
-          </p>
+          {errors.trainingDatasets ? (
+            <p className="text-sm text-red-500 flex items-center mt-1">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              {errors.trainingDatasets}
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500">
+              Include information about data sources, types, and any pre-processing methods
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -80,12 +99,20 @@ export const TechnicalDetailsStep: React.FC<TechnicalDetailsStepProps> = ({
             placeholder="In what context will this AI system be used?"
             value={formData.usageContext}
             onChange={handleInputChange}
+            className={errors.usageContext ? "border-red-500" : ""}
             rows={3}
             required
           />
-          <p className="text-sm text-gray-500">
-            Describe the environment, users, and situations where this system will be deployed
-          </p>
+          {errors.usageContext ? (
+            <p className="text-sm text-red-500 flex items-center mt-1">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              {errors.usageContext}
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500">
+              Describe the environment, users, and situations where this system will be deployed
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">

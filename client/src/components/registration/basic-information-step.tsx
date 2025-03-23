@@ -185,10 +185,18 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               placeholder="Who developed this system?"
               value={formData.vendor}
               onChange={handleInputChange}
+              className={errors.vendor ? "border-red-500" : ""}
             />
-            <p className="text-sm text-gray-500">
-              For internal systems, specify the team or division
-            </p>
+            {errors.vendor ? (
+              <p className="text-sm text-red-500 flex items-center mt-1">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                {errors.vendor}
+              </p>
+            ) : (
+              <p className="text-sm text-gray-500">
+                For internal systems, specify the team or division
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -199,9 +207,17 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               placeholder="Who is responsible for this system?"
               value={formData.internalOwner}
               onChange={handleInputChange}
+              className={errors.internalOwner ? "border-red-500" : ""}
               required
             />
-            <p className="text-sm text-gray-500">The person accountable for this system</p>
+            {errors.internalOwner ? (
+              <p className="text-sm text-red-500 flex items-center mt-1">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                {errors.internalOwner}
+              </p>
+            ) : (
+              <p className="text-sm text-gray-500">The person accountable for this system</p>
+            )}
           </div>
         </div>
       </div>

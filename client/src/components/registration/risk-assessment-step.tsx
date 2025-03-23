@@ -28,6 +28,7 @@ interface RiskAssessmentStepProps {
   };
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   aiSystemAnalysis?: any;
+  errors?: Record<string, string>;
 }
 
 export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
