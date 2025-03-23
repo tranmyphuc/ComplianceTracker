@@ -46,7 +46,7 @@ import {
   subscribeToUpdates
 } from './regulatory-updates';
 import { analyzeSystemRisk, analyzeProhibitedUse, generateRiskReport, analyzeComplianceGaps } from './risk-assessment';
-import { getTrainingModules, getModuleContent, trackTrainingProgress, getUserProgress } from './training-module';
+import { getTrainingModules, getModuleContent, trackTrainingProgress, getUserProgress, getTrainingModuleContent, getTrainingModuleMetadata, recordTrainingCompletion, getTrainingCertificate, exportTrainingModule } from './training-module';
 import { 
   getApiKeys, 
   addApiKey, 
@@ -531,7 +531,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (inputText.includes('gamma') || inputText.includes('gamma.app')) {
         // Special handling for Gamma.app
         systemType = 'gammaApp';
-        
+
         // Create specific suggestions for Gamma.app
         const gammaAppSuggestions = {
           name: name || "Gamma.app",
@@ -549,7 +549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           riskClassification: "Limited Risk",
           euAiActArticles: ["Article 52", "Article 13"]
         };
-        
+
         // Return specific suggestions immediately for Gamma.app
         return res.json(gammaAppSuggestions);
       } else if (inputText.includes('gemini')) {
@@ -1230,24 +1230,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/risk-assessment/:systemId/gaps', analyzeComplianceGaps);
 
   // Training module routes
-  app.get('/api/training/modules', getTrainingModules);
-  app.get('/api/training/modules/:moduleId', getModuleContent);
-  app.post('/api/training/progress', trackTrainingProgress);
-  app.get('/api/training/progress', getUserProgress);
-  app.get('/api/training/certification', (req, res) => {
-    // This endpoint would generate and return certifications
-    // For now, just return mock data
-    res.json({
-      certificates: [
-        {
-          id: "cert-1",
-          moduleId: "1",
-          title: "EU AI Act Introduction",
-          completionDate: new Date().toISOString(),
-          score: 85
-        }
-      ]
-    });
+  app.get('/api/training/modules', async (req, res) => {
+    try {
+      const modules = await getTrainingModules();
+      res.json(modules);
+    } catch (error) {
+      handleError(res, error, 'Error retrieving training modules');
+    }
+  });
+
+  app.get('/api/training/modules/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const role = req.query.role as string || 'technical';
+      const module = await getTrainingModuleContent(id, role);
+
+      if (!module) {
+        return res.status(404).json({ message: 'Training module not found' });
+      }
+
+      res.json(module);
+    } catch (error) {
+      handleError(res, error, 'Error retrieving training module content');
+    }
+  });
+
+  app.get('/api/training/modules/:id/metadata', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const moduleMetadata = await getTrainingModuleMetadata(id);
+
+      if (!moduleMetadata) {
+        return res.status(404).json({ message: 'Training module not found' });
+      }
+
+      res.json(moduleMetadata);
+    } catch (error) {
+      handleError(res, error, 'Error retrieving training module metadata');
+    }
+  });
+
+  app.post('/api/training/complete', async (req, res) => {
+    try {
+      // In a real app, this would be authenticated via middleware
+      const userId = req.user?.id || 'demo-user';
+      const { moduleId } = req.body;
+
+      if (!moduleId) {
+        return res.status(400).json({ message: 'Module ID is required' });
+      }
+
+      const certificateId = await recordTrainingCompletion(userId, moduleId);
+      res.json({ success: true, certificateId });
+    } catch (error) {
+      handleError(res, error, 'Error recording training completion');
+    }
+  });
+
+  app.get('/api/training/certificate/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const certificate = await getTrainingCertificate(id);
+
+      if (!certificate) {
+        return res.status(404).json({ message: 'Certificate not found' });
+      }
+
+      res.json(certificate);
+    } catch (error) {
+      handleError(res, error, 'Error retrieving training certificate');
+    }
+  });
+
+  app.get('/api/training/export/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const format = req.query.format as string || 'markdown';
+
+      const { content, filename, contentType } = await exportTrainingModule(id, format);
+
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(content);
+    } catch (error) {
+      handleError(res, error, 'Error exporting training module');
+    }
   });
 
   // API Key Management routes

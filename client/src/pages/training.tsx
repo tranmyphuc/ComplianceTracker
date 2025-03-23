@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronRight, Clock, BookOpen, CheckCircle2, Shield, BarChart4, User, Users, Award } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, BookOpen, CheckCircle2, Shield, BarChart4, User, Users, Award, ArrowRight as ArrowRightIcon } from "lucide-react";
 import axios from "axios";
 import { useLocation } from 'wouter';
 import { Separator } from "@/components/ui/separator";
@@ -18,6 +18,7 @@ import {
   BookOpen as BookOpenIcon, Clock as ClockIcon, CheckCircle, BarChart4 as BarChart4Icon,
   BookMarked, Award as AwardIcon, User as UserIcon, AlertCircle, Layers, Info
 } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 
 type TrainingModule = {
@@ -32,6 +33,7 @@ type TrainingModule = {
     operator: string;
     user: string;
   };
+  progress?: number; // Added progress property
 };
 
 type Progress = {
@@ -58,6 +60,7 @@ export default function Training() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const navigate = useNavigate(); // Added useNavigate hook
   const [activeTab, setActiveTab] = useState("overview");
   const [modules, setModules] = useState<TrainingModule[]>([]);
   const [progress, setProgress] = useState<Progress>({});
@@ -69,7 +72,7 @@ export default function Training() {
   const [selectedAnswers, setSelectedAnswers] = useState<{[key: string]: string}>({});
   const [showResults, setShowResults] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [userRole, setUserRole] = useState('user'); // Added userRole state
+  const [userRole, setUserRole] = useState('user'); 
   const [showGuidelines, setShowGuidelines] = useState(true);
 
   useEffect(() => {
@@ -79,12 +82,11 @@ export default function Training() {
         const response = await axios.get('/api/training/modules');
         setModules(response.data);
 
-        // Fetch progress if user is logged in
         if (user?.uid) {
           const progressResponse = await axios.get(`/api/training/progress?userId=${user.uid}`);
           setProgress(progressResponse.data);
         }
-        setUserRole(user?.role || 'user'); // Set userRole based on user data
+        setUserRole(user?.role || 'user'); 
 
       } catch (error) {
         console.error("Error fetching training modules:", error);
@@ -104,7 +106,6 @@ export default function Training() {
   const fetchModuleContent = async (moduleId: string) => {
     try {
       setIsLoading(true);
-      // Get user role or default to 'user'
       const role = user?.role || 'user';
 
       const response = await axios.get(`/api/training/modules/${moduleId}?role=${role}`);
@@ -136,7 +137,6 @@ export default function Training() {
         completion
       });
 
-      // Update local progress state
       setProgress(prev => ({
         ...prev,
         [moduleId]: {
@@ -154,9 +154,8 @@ export default function Training() {
     fetchModuleContent(moduleId);
     setActiveTab("content");
 
-    // Track that user started the module if no progress yet
     if (!progress[moduleId]) {
-      trackProgress(moduleId, 5); // 5% for starting
+      trackProgress(moduleId, 5); 
     }
   };
 
@@ -165,14 +164,11 @@ export default function Training() {
 
     if (currentSection < moduleContent.sections.length - 1) {
       setCurrentSection(prev => prev + 1);
-
-      // Calculate progress percentage
       const newProgress = Math.round(((currentSection + 2) / (moduleContent.sections.length + 1)) * 100);
       trackProgress(selectedModuleId, newProgress);
     } else {
-      // Move to quiz mode after completing all sections
       setQuizMode(true);
-      trackProgress(selectedModuleId, 80); // 80% for reaching quiz
+      trackProgress(selectedModuleId, 80); 
     }
   };
 
@@ -198,16 +194,13 @@ export default function Training() {
     if (currentQuestion < moduleContent.assessments.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
-      // Show results when all questions are answered
       setShowResults(true);
 
-      // Calculate score
       if (selectedModuleId) {
         const score = calculateScore();
-        const newProgress = score >= 70 ? 100 : 90; // 100% for passing, 90% for trying
+        const newProgress = score >= 70 ? 100 : 90; 
         trackProgress(selectedModuleId, newProgress);
 
-        // Update assessment score
         setProgress(prev => ({
           ...prev,
           [selectedModuleId]: {
@@ -239,10 +232,8 @@ export default function Training() {
     return Math.round((correct / moduleContent.assessments.length) * 100);
   };
 
-  // Filter modules by role
   const filteredModules = Array.isArray(modules) ?
     modules.filter(m => {
-      // Only show if relevance for user's role is Medium or High
       const role = user?.role || "user";
       const relevance = m.role_relevance[role as keyof typeof m.role_relevance];
       return relevance !== "Low";
@@ -287,13 +278,11 @@ export default function Training() {
       const aProgress = progress[a.id]?.completion || 0;
       const bProgress = progress[b.id]?.completion || 0;
 
-      // Sort by completion (in-progress first, then not started, then completed)
       if (aProgress > 0 && aProgress < 100 && (bProgress === 0 || bProgress === 100)) return -1;
       if (bProgress > 0 && bProgress < 100 && (aProgress === 0 || aProgress === 100)) return 1;
       if (aProgress === 0 && bProgress === 100) return -1;
       if (bProgress === 0 && aProgress === 100) return 1;
 
-      // Otherwise sort by module ID (assuming numerical order)
       return parseInt(a.id) - parseInt(b.id);
     });
   };
@@ -334,10 +323,16 @@ export default function Training() {
           </div>
           <Button
             size="sm"
-            onClick={() => setLocation(`/training/module/${module.id}`)}
+            onClick={() => navigate(`/training/module/${module.id}`)}
           >
             {isCompleted ? "Review" : isStarted ? "Continue" : "Start"}
             <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => navigate(`/training/presentation/${module.id}`)} // Added presentation mode link
+          >
+            Presentation
           </Button>
         </CardFooter>
       </Card>
@@ -401,7 +396,6 @@ export default function Training() {
           >
             {showGuidelines ? "Hide Guidelines" : "Show Guidelines"}
           </Button>
-          {/* Placeholder for changing role - needs backend integration */}
           <Button size="sm" disabled>
             <UserIcon className="h-4 w-4 mr-2" />
             Change Role

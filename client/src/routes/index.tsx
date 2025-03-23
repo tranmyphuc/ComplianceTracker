@@ -32,4 +32,12 @@
 {
   path: "/training/module/:id",
   element: <TrainingModule />,
+},
+{
+  path: "/training/presentation/:id",
+  element: <TrainingPresentationPage />,
+},
+{
+  path: "/training/certificate/:id",
+  element: <TrainingCertificatePage />,
 }

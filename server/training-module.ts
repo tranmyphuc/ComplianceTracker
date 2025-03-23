@@ -730,7 +730,7 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
             "Integrating governance into organizational structure with clear accountability and resources",
             "Implementing governance only after problems occur"
           ],
-          correctAnswer: "Integrating governance into organizational structure with clear accountability and resources"
+          correctAnswer: "Integrating governance into organizational structure with clearaccountability and resources"
         },
         {
           question: "Which metric best indicates the effectiveness of an AI governance framework?",
@@ -971,12 +971,12 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
 export async function getTrainingModules(req: Request, res: Response) {
   try {
     const modules = await db.select().from(trainingModules).orderBy(trainingModules.order);
-    
+
     // Fall back to sample data if no modules in database
     if (!modules || modules.length === 0) {
       return res.json(TRAINING_MODULES);
     }
-    
+
     return res.json(modules.map(module => ({
       id: module.moduleId,
       title: module.title,
@@ -1003,17 +1003,17 @@ export async function getModuleContent(req: Request, res: Response) {
   try {
     const { moduleId } = req.params;
     const userRole = req.query.role as string || 'user';
-    
+
     // Try to get module from database first
     const module = await db.select().from(trainingModules).where(eq(trainingModules.moduleId, moduleId)).limit(1);
-    
+
     if (module && module.length > 0) {
       const moduleData = module[0];
       const content = moduleData.content as any;
-      
+
       // Get role-specific content if available
       const roleContent = content[userRole] || content.default;
-      
+
       // Format full module content for the enhanced UI
       const enhancedContent = {
         title: moduleData.title,
@@ -1028,14 +1028,14 @@ export async function getModuleContent(req: Request, res: Response) {
           }
         }
       };
-      
+
       return res.json(enhancedContent);
     }
-    
+
     // Fall back to sample data if not in database
     if (MODULE_CONTENTS[moduleId]) {
       const roleContent = MODULE_CONTENTS[moduleId][userRole] || MODULE_CONTENTS[moduleId].default;
-      
+
       // Format full module content for the enhanced UI
       const enhancedContent = {
         title: MODULE_CONTENTS[moduleId].title,
@@ -1050,10 +1050,10 @@ export async function getModuleContent(req: Request, res: Response) {
           }
         }
       };
-      
+
       return res.json(enhancedContent);
     }
-    
+
     return res.status(404).json({ error: 'Module not found' });
   } catch (error) {
     console.error('Error fetching module content:', error);
@@ -1067,27 +1067,27 @@ function buildSlides(content: any) {
   if (content.slides) {
     return content.slides;
   }
-  
+
   // Otherwise, parse content markdown into slides
   const slides = [];
-  
+
   if (content.content) {
     // Split content by headers (# or ##)
     const sections = content.content.split(/(?=# |## )/);
-    
+
     sections.forEach((section: string) => {
       // Extract title from the first line
       const titleMatch = section.match(/^(# |## )(.*)/);
       let title = titleMatch ? titleMatch[2] : "Introduction";
       let sectionContent = section.replace(/^(# |## )(.*)/, ''); // Remove title
-      
+
       slides.push({
         title: title,
         content: `<div class="markdown-content">${sectionContent}</div>`
       });
     });
   }
-  
+
   // Add intro slide if no slides were created
   if (slides.length === 0) {
     slides.push({
@@ -1095,7 +1095,7 @@ function buildSlides(content: any) {
       content: "<p>No content available for this module.</p>"
     });
   }
-  
+
   return slides;
 }
 
@@ -1104,14 +1104,14 @@ function buildDocument(content: any, title: string) {
   if (content.document) {
     return content.document;
   }
-  
+
   if (content.content) {
     return `<div class="markdown-content">
       <h1>${title}</h1>
       ${content.content}
     </div>`;
   }
-  
+
   return "<p>No documentation available for this module.</p>";
 }
 
@@ -1120,7 +1120,7 @@ function buildExercises(content: any, moduleId: string) {
   if (content.exercises) {
     return content.exercises;
   }
-  
+
   // Generate default exercises based on module ID
   const defaultExercises = [
     {
@@ -1142,7 +1142,7 @@ function buildExercises(content: any, moduleId: string) {
       ]
     }
   ];
-  
+
   // Add module-specific exercises
   if (moduleId === "1") {
     defaultExercises.push({
@@ -1175,7 +1175,7 @@ function buildExercises(content: any, moduleId: string) {
       ]
     });
   }
-  
+
   return defaultExercises;
 }
 
@@ -1185,11 +1185,11 @@ function buildExercises(content: any, moduleId: string) {
 export async function trackTrainingProgress(req: Request, res: Response) {
   try {
     const { userId, moduleId, completion } = req.body;
-    
+
     if (!userId || !moduleId || typeof completion !== 'number') {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    
+
     // Update progress in database
     const existingProgress = await db
       .select()
@@ -1199,7 +1199,7 @@ export async function trackTrainingProgress(req: Request, res: Response) {
         eq(trainingProgress.moduleId, moduleId)
       ))
       .limit(1);
-    
+
     if (existingProgress && existingProgress.length > 0) {
       // Update existing progress if new completion is higher
       if (completion > (existingProgress[0].completion || 0)) {
@@ -1222,7 +1222,7 @@ export async function trackTrainingProgress(req: Request, res: Response) {
           updatedAt: new Date()
         });
     }
-    
+
     return res.json({ status: 'success', moduleId, userId, completion });
   } catch (error) {
     console.error('Error tracking training progress:', error);
@@ -1236,28 +1236,173 @@ export async function trackTrainingProgress(req: Request, res: Response) {
 export async function getUserProgress(req: Request, res: Response) {
   try {
     const { userId } = req.query;
-    
+
     if (!userId) {
       return res.status(400).json({ error: 'Missing user ID' });
     }
-    
+
     const progress = await db
       .select()
       .from(trainingProgress)
       .where(eq(trainingProgress.userId, userId as string));
-    
+
     // Format progress as object with moduleId as key
     const formattedProgress: Record<string, { completion: number }> = {};
-    
+
     progress.forEach(item => {
       formattedProgress[item.moduleId] = {
         completion: item.completion || 0
       };
     });
-    
+
     return res.json(formattedProgress);
   } catch (error) {
     console.error('Error fetching user progress:', error);
     return res.status(500).json({ error: 'Failed to fetch user progress' });
   }
 }
+// Helper functions for training presentation mode
+const mockTrainingContent = {
+  technical: {
+    slides: [
+      { title: 'Slide 1', content: 'Technical content for slide 1' },
+      { title: 'Slide 2', content: 'Technical content for slide 2' }
+    ]
+  },
+  decision_maker: {
+    slides: [
+      { title: 'Slide 1', content: 'Decision maker content for slide 1' },
+      { title: 'Slide 2', content: 'Decision maker content for slide 2' }
+    ]
+  }
+};
+
+export const getTrainingModuleContent = async (moduleId: string, role: string = 'technical') => {
+  // In a real implementation, this would fetch from database
+  // Here we're using the mock data
+
+  // Find the module
+  const modules = await getTrainingModules();
+  const module = modules.find(m => m.id === moduleId);
+
+  if (!module) {
+    return null;
+  }
+
+  // Return the content based on the role
+  // This would be more sophisticated in a real implementation
+  switch (moduleId) {
+    case 'eu-ai-act-intro':
+      return mockTrainingContent[role] || mockTrainingContent.technical;
+    case 'risk-classification':
+      // Would have different content per role
+      return mockTrainingContent[role] || mockTrainingContent.technical;
+    case 'technical-requirements':
+      // Would have different content per role
+      return mockTrainingContent[role] || mockTrainingContent.technical;
+    default:
+      return mockTrainingContent.technical;
+  }
+};
+
+export const getTrainingModuleMetadata = async (moduleId: string) => {
+  // In a real implementation, this would fetch from database
+  const modules = await getTrainingModules();
+  return modules.find(m => m.id === moduleId) || null;
+};
+
+export const recordTrainingCompletion = async (userId: string, moduleId: string) => {
+  // In a real implementation, this would record to database
+  // For now we just return a mock certificate ID
+  const certificateId = `cert-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  return certificateId;
+};
+
+export const getTrainingCertificate = async (certificateId: string) => {
+  // In a real implementation, this would fetch from database
+  // For now we return mock data
+  const modules = await getTrainingModules();
+  const randomModule = modules[Math.floor(Math.random() * modules.length)];
+
+  return {
+    id: certificateId,
+    moduleId: randomModule.id,
+    moduleTitle: randomModule.title,
+    completedAt: new Date().toISOString(),
+    userName: 'Demo User',
+    userRole: 'IT Manager'
+  };
+};
+
+export const exportTrainingModule = async (moduleId: string, format: string) => {
+  // In a real implementation, this would generate the export files
+  // For now we return mock data
+  const module = await getTrainingModuleMetadata(moduleId);
+
+  if (!module) {
+    throw new Error('Module not found');
+  }
+
+  let content = '';
+  let filename = '';
+  let contentType = '';
+
+  switch (format) {
+    case 'markdown':
+      content = `# ${module.title}\n\n## Overview\n\n${module.description}\n\n## Module Content\n\nThis would contain the full module content in markdown format.`;
+      filename = `${module.id}.md`;
+      contentType = 'text/markdown';
+      break;
+    case 'pptx':
+      // This would actually generate a PPTX file
+      // For now, just return a placeholder
+      content = 'PPTX content placeholder';
+      filename = `${module.id}.pptx`;
+      contentType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+      break;
+    case 'pdf':
+      // This would actually generate a PDF file
+      // For now, just return a placeholder
+      content = 'PDF content placeholder';
+      filename = `${module.id}.pdf`;
+      contentType = 'application/pdf';
+      break;
+    default:
+      throw new Error(`Unsupported format: ${format}`);
+  }
+
+  return { content, filename, contentType };
+};
+
+export const getTrainingModules = async () => {
+  // In a real implementation, this would fetch from database
+  return [
+    {
+      id: 'eu-ai-act-intro',
+      title: 'EU AI Act Introduction',
+      description: 'Introduction to the EU AI Act, its scope, and key provisions',
+      duration: '20-30 minutes',
+      relevance: 'Medium',
+      progress: 5,
+      categories: ['Regulatory Overview', 'Compliance Basics']
+    },
+    {
+      id: 'risk-classification',
+      title: 'Risk Classification System',
+      description: 'Understanding the risk categories and how to classify AI systems',
+      duration: '25-35 minutes',
+      relevance: 'High',
+      progress: 0,
+      categories: ['Risk Management', 'Compliance']
+    },
+    {
+      id: 'technical-requirements',
+      title: 'Technical Requirements',
+      description: 'Technical requirements for high-risk AI systems',
+      duration: '40-50 minutes',
+      relevance: 'High',
+      progress: 0,
+      categories: ['Technical Compliance', 'AI Development']
+    }
+  ];
+};
