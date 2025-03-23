@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import AIJackImage from "../../assets/ai-jack-image.png";
-import { SmileIcon, BrainCircuit, ClipboardList, ZapIcon, PartyPopper } from "lucide-react";
+import { Smile, Brain, ClipboardList, Zap, Trophy } from "lucide-react";
 
 type AIJackMood = "happy" | "thinking" | "explaining" | "surprised" | "celebrating";
 
@@ -132,19 +132,19 @@ export function AIJack({
         {/* Mood indicator */}
         <div className="absolute bottom-0 right-0 rounded-full p-1.5 bg-white shadow-md">
           {mood === "happy" && (
-            <SmileIcon className="w-5 h-5 text-green-500" />
+            <Smile className="w-5 h-5 text-green-500" />
           )}
           {mood === "thinking" && (
-            <BrainCircuit className="w-5 h-5 text-blue-500" />
+            <Brain className="w-5 h-5 text-blue-500" />
           )}
           {mood === "explaining" && (
             <ClipboardList className="w-5 h-5 text-purple-500" />
           )}
           {mood === "surprised" && (
-            <ZapIcon className="w-5 h-5 text-amber-500" />
+            <Zap className="w-5 h-5 text-amber-500" />
           )}
           {mood === "celebrating" && (
-            <PartyPopper className="w-5 h-5 text-pink-500" />
+            <Trophy className="w-5 h-5 text-pink-500" />
           )}
         </div>
       </motion.div>
