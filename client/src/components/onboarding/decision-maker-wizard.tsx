@@ -288,9 +288,9 @@ export function DecisionMakerWizard({ onComplete }: DecisionMakerWizardProps) {
                                   <AlertTriangle className="h-8 w-8 text-red-500 mb-2" />
                                   <span className="text-sm text-center text-red-700">Risk Detection</span>
                                 </div>
-                                <div className="border rounded-lg p-3 bg-yellow-50/50 flex flex-col items-center">
-                                  <BarChart className="h-8 w-8 text-yellow-500 mb-2" />
-                                  <span className="text-sm text-center text-yellow-700">Impact Analysis</span>
+                                <div className="border rounded-lg p-3 bg-blue-50/50 flex flex-col items-center">
+                                  <BarChart className="h-8 w-8 text-blue-500 mb-2" />
+                                  <span className="text-sm text-center text-blue-700">Impact Analysis</span>
                                 </div>
                                 <div className="border rounded-lg p-3 bg-green-50/50 flex flex-col items-center">
                                   <Shield className="h-8 w-8 text-green-500 mb-2" />
@@ -324,7 +324,7 @@ export function DecisionMakerWizard({ onComplete }: DecisionMakerWizardProps) {
                               <p>Let AI help you discover new business opportunities that align with your strategic goals.</p>
                               <div className="relative border rounded-lg p-4 bg-gradient-to-r from-purple-50 to-pink-50">
                                 <div className="flex items-start space-x-3">
-                                  <Lightbulb className="h-10 w-10 text-yellow-400 flex-shrink-0" />
+                                  <Lightbulb className="h-10 w-10 text-purple-400 flex-shrink-0" />
                                   <div>
                                     <h4 className="font-medium text-purple-800">AI-Detected Opportunity Example</h4>
                                     <p className="text-sm text-purple-700 mt-1">
@@ -382,7 +382,7 @@ export function DecisionMakerWizard({ onComplete }: DecisionMakerWizardProps) {
                                       </div>
                                     </div>
                                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-                                      <div className="w-12 h-12 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-700">
+                                      <div className="w-12 h-12 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-700">
                                         <TrendingUp className="h-6 w-6" />
                                       </div>
                                     </div>
@@ -403,7 +403,7 @@ export function DecisionMakerWizard({ onComplete }: DecisionMakerWizardProps) {
                               <p>You've completed the overview of our Enterprise AI Decision Platform. Now it's time to experience the power of AI-driven decision-making!</p>
                               <div className="border rounded-lg p-4 bg-gradient-to-r from-green-50 to-blue-50">
                                 <div className="flex items-center space-x-3">
-                                  <Award className="h-10 w-10 text-yellow-500" />
+                                  <Award className="h-10 w-10 text-blue-500" />
                                   <div>
                                     <h4 className="font-medium text-green-800">Next Steps</h4>
                                     <ul className="mt-2 space-y-2 text-sm">

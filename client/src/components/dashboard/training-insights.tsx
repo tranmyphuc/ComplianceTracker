@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { BookOpen, ChevronRight, Users, Award } from "lucide-react";
 
 interface TrainingInsightsProps {
@@ -22,7 +22,7 @@ interface TrainingInsightsProps {
 }
 
 export function TrainingInsights({ data }: TrainingInsightsProps) {
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   
   return (
     <Card>
@@ -68,7 +68,7 @@ export function TrainingInsights({ data }: TrainingInsightsProps) {
                 {data.completedModules} Completed
               </Badge>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/training")}>
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/training")}>
               View All
               <ChevronRight className="ml-1 h-4 w-4" />
             </Button>

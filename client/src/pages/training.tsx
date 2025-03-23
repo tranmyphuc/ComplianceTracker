@@ -9,13 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronRight, Clock, BookOpen, CheckCircle2, Shield, BarChart4, User, Users, Award } from "lucide-react";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TrainingVisualGuidelines } from "@/components/training/visual-guidelines";
 import {
-  BookOpen as BookOpenIcon, Clock as ClockIcon, CheckCircle, ChevronRight, BarChart4 as BarChart4Icon,
+  BookOpen as BookOpenIcon, Clock as ClockIcon, CheckCircle, BarChart4 as BarChart4Icon,
   BookMarked, Award as AwardIcon, User as UserIcon, AlertCircle, Layers, Info
 } from "lucide-react";
 
@@ -57,7 +57,7 @@ type ModuleContent = {
 export default function Training() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
   const [modules, setModules] = useState<TrainingModule[]>([]);
   const [progress, setProgress] = useState<Progress>({});
@@ -308,7 +308,8 @@ export default function Training() {
         <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
             <CardTitle>{module.title}</CardTitle>
-            <Badge variant={isCompleted ? "success" : isStarted ? "outline" : "secondary"}>
+            <Badge variant={isCompleted ? "default" : isStarted ? "outline" : "secondary"} 
+                   className={isCompleted ? "bg-green-500" : ""}>
               {isCompleted ? "Completed" : isStarted ? `${moduleProgress.completion}% Complete` : "Not Started"}
             </Badge>
           </div>
@@ -333,7 +334,7 @@ export default function Training() {
           </div>
           <Button
             size="sm"
-            onClick={() => navigate(`/training/module/${module.id}`)}
+            onClick={() => setLocation(`/training/module/${module.id}`)}
           >
             {isCompleted ? "Review" : isStarted ? "Continue" : "Start"}
             <ChevronRight className="h-4 w-4 ml-1" />
