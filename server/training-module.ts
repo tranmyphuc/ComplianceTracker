@@ -345,6 +345,230 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
         }
       ]
     }
+  },
+  "4": {
+    "default": {
+      title: "Documentation Requirements",
+      sections: [
+        {
+          title: "Technical Documentation Overview",
+          content: `<p>The EU AI Act requires comprehensive technical documentation for high-risk AI systems. This documentation must be prepared before the system is placed on the market and kept up-to-date throughout its lifecycle.</p>
+          <p>The technical documentation serves several key purposes:</p>
+          <ul>
+            <li>Demonstrating compliance with regulatory requirements</li>
+            <li>Providing transparency about the system's functioning</li>
+            <li>Enabling assessment by regulatory authorities</li>
+            <li>Supporting the conformity assessment process</li>
+            <li>Facilitating post-market monitoring and oversight</li>
+          </ul>
+          <p>Proper documentation is a cornerstone of compliance and must be developed alongside the AI system, not as an afterthought.</p>`
+        },
+        {
+          title: "Essential Elements of Technical Documentation",
+          content: `<p>According to the EU AI Act, technical documentation for high-risk AI systems must include:</p>
+          <ol>
+            <li><strong>General description</strong> of the AI system and its intended purpose</li>
+            <li><strong>System architecture</strong> describing the integration into products or overall design</li>
+            <li><strong>Data requirements</strong> including choices, data governance procedures, and preprocessing</li>
+            <li><strong>Development methodologies and processes</strong> including training, validation, and testing</li>
+            <li><strong>Human oversight measures</strong> and how they are integrated into the system</li>
+            <li><strong>Accuracy specifications</strong> and metrics used to determine compliance</li>
+            <li><strong>Risk management system</strong> documentation including identified risks and mitigations</li>
+            <li><strong>Change management procedures</strong> for ongoing updates and modifications</li>
+            <li><strong>Validation and testing procedures</strong> with results and metrics</li>
+          </ol>
+          <p>Each of these elements must be documented in sufficient detail to demonstrate compliance with all requirements of the EU AI Act.</p>`
+        },
+        {
+          title: "Declaration of Conformity",
+          content: `<p>The EU Declaration of Conformity is a formal declaration by the provider that a high-risk AI system complies with the requirements of the EU AI Act. The declaration must include:</p>
+          <ul>
+            <li>Name and address of the AI system provider</li>
+            <li>Statement that the Declaration of Conformity is issued under the sole responsibility of the provider</li>
+            <li>Identity of the AI system (name, version, etc.)</li>
+            <li>Statement that the AI system in question meets the requirements of the EU AI Act</li>
+            <li>References to any harmonized standards or common specifications applied</li>
+            <li>Where applicable, name and identification number of the notified body that performed the conformity assessment</li>
+            <li>Place and date of issue, name and signature of the authorized person</li>
+          </ul>
+          <p>The declaration must be kept up-to-date and translated into languages required by Member States where the AI system is made available.</p>`
+        },
+        {
+          title: "Risk Management Documentation",
+          content: `<p>The risk management system documentation is a critical component that must:</p>
+          <ol>
+            <li><strong>Identify and analyze</strong> known and foreseeable risks associated with the AI system</li>
+            <li><strong>Estimate and evaluate</strong> risks that may emerge during operation</li>
+            <li><strong>Document risk mitigations</strong> including design choices and controls</li>
+            <li><strong>Provide testing data</strong> demonstrating safety throughout the lifecycle</li>
+            <li><strong>Detail the post-market monitoring plan</strong> for identifying and addressing risks</li>
+          </ol>
+          <p>This documentation must be continuously updated throughout the system's lifecycle as new risks are identified or as the system evolves.</p>`
+        }
+      ],
+      assessments: [
+        {
+          question: "Which of the following is NOT typically included in technical documentation for high-risk AI systems?",
+          options: [
+            "System architecture",
+            "Human oversight measures",
+            "Source code in its entirety",
+            "Data governance procedures"
+          ],
+          correctAnswer: "Source code in its entirety"
+        },
+        {
+          question: "When must technical documentation be prepared for a high-risk AI system?",
+          options: [
+            "After the system has been on the market for 6 months",
+            "Only if specifically requested by authorities",
+            "Before the system is placed on the market",
+            "Within one year of system deployment"
+          ],
+          correctAnswer: "Before the system is placed on the market"
+        },
+        {
+          question: "What is the purpose of the EU Declaration of Conformity?",
+          options: [
+            "To provide a technical description of the AI system",
+            "To formally declare that the AI system complies with the EU AI Act",
+            "To advertise the system's capabilities to potential customers",
+            "To transfer liability to the end user"
+          ],
+          correctAnswer: "To formally declare that the AI system complies with the EU AI Act"
+        },
+        {
+          question: "Risk management documentation must be:",
+          options: [
+            "Created once and never modified",
+            "Updated only after a major system failure",
+            "Continuously updated throughout the system's lifecycle",
+            "Kept confidential and never shared with authorities"
+          ],
+          correctAnswer: "Continuously updated throughout the system's lifecycle"
+        }
+      ]
+    },
+    "developer": {
+      title: "Documentation Requirements for Developers",
+      sections: [
+        {
+          title: "Developer Documentation Responsibilities",
+          content: `<p>As a developer of high-risk AI systems, you have specific responsibilities for creating and maintaining technical documentation:</p>
+          <ul>
+            <li>Document all design decisions with clear justifications</li>
+            <li>Maintain detailed records of data sources, preprocessing, and validation</li>
+            <li>Record model architecture, hyperparameters, and training methodologies</li>
+            <li>Document testing procedures, metrics, and results in detail</li>
+            <li>Create clear documentation on system limitations and potential failure modes</li>
+            <li>Provide technical implementation details for human oversight mechanisms</li>
+          </ul>
+          <p>Your documentation should be thorough enough that another technical expert could understand how the system works and verify its compliance.</p>`
+        },
+        {
+          title: "Documenting AI System Development",
+          content: `<p>For development documentation, you should include:</p>
+          <ol>
+            <li><strong>Training data specifications:</strong>
+              <ul>
+                <li>Sources, collection methodologies, and preprocessing steps</li>
+                <li>Data cleaning and normalization procedures</li>
+                <li>Data segmentation (training, validation, testing)</li>
+                <li>Data quality assurance measures</li>
+              </ul>
+            </li>
+            <li><strong>Model development:</strong>
+              <ul>
+                <li>Algorithm selection with rationale</li>
+                <li>Model architecture and hyperparameter details</li>
+                <li>Training methodologies and convergence criteria</li>
+                <li>Performance metrics and validation approaches</li>
+                <li>Model optimization techniques</li>
+              </ul>
+            </li>
+            <li><strong>Testing and validation:</strong>
+              <ul>
+                <li>Test cases and scenarios</li>
+                <li>Performance metrics for different user groups or conditions</li>
+                <li>Edge case handling and stress testing results</li>
+                <li>Statistical significance of results</li>
+              </ul>
+            </li>
+          </ol>
+          <p>This detailed documentation is essential for conformity assessment and continuous improvement.</p>`
+        },
+        {
+          title: "Technical Implementation Documentation",
+          content: `<p>Document the technical implementation with:</p>
+          <ul>
+            <li><strong>System architecture diagrams</strong> showing components and data flows</li>
+            <li><strong>API specifications</strong> for all interfaces and integrations</li>
+            <li><strong>Runtime requirements</strong> including computational resources needed</li>
+            <li><strong>Deployment configurations</strong> for various environments</li>
+            <li><strong>Monitoring implementation</strong> for runtime performance and drift detection</li>
+            <li><strong>Logging mechanisms</strong> for tracking system behavior and decisions</li>
+            <li><strong>Security measures</strong> including authentication, encryption, and access controls</li>
+          </ul>
+          <p>Include version control information and change management procedures to track how the system evolves over time.</p>`
+        },
+        {
+          title: "Performance Metrics Documentation",
+          content: `<p>As a developer, you must document comprehensive performance metrics:</p>
+          <ul>
+            <li><strong>Accuracy metrics</strong> appropriate to the specific use case</li>
+            <li><strong>Robustness testing</strong> results under various environmental conditions</li>
+            <li><strong>Fairness metrics</strong> across different demographic groups</li>
+            <li><strong>Resource utilization</strong> including computational and memory requirements</li>
+            <li><strong>Response time</strong> and latency measurements</li>
+            <li><strong>Error rates</strong> with detailed breakdown by error type</li>
+            <li><strong>Confidence scores</strong> and their correlation with actual accuracy</li>
+          </ul>
+          <p>Document these metrics for the entire system and for critical components individually, providing a comprehensive performance profile.</p>`
+        }
+      ],
+      assessments: [
+        {
+          question: "As a developer, which aspect of data documentation is most critical for compliance?",
+          options: [
+            "Aesthetic presentation of data visualizations",
+            "Data sources, collection methods, and preprocessing steps",
+            "Marketing potential of the datasets",
+            "Speed of data processing only"
+          ],
+          correctAnswer: "Data sources, collection methods, and preprocessing steps"
+        },
+        {
+          question: "What should system architecture documentation include?",
+          options: [
+            "Only the AI model itself",
+            "Components, data flows, and integration points",
+            "Marketing materials for each component",
+            "Only third-party libraries used"
+          ],
+          correctAnswer: "Components, data flows, and integration points"
+        },
+        {
+          question: "For performance documentation, which of the following is NOT typically required?",
+          options: [
+            "Accuracy metrics appropriate to the use case",
+            "Competitive benchmarking against all market competitors",
+            "Robustness testing under various conditions",
+            "Fairness metrics across different demographic groups"
+          ],
+          correctAnswer: "Competitive benchmarking against all market competitors"
+        },
+        {
+          question: "Which of the following best describes good documentation of model development?",
+          options: [
+            "Brief summary of the final model only",
+            "Detailed tracking of algorithm selection, model architecture, hyperparameters, and validation approaches",
+            "List of developers who worked on the project",
+            "Only documenting successful approaches, not failed attempts"
+          ],
+          correctAnswer: "Detailed tracking of algorithm selection, model architecture, hyperparameters, and validation approaches"
+        }
+      ]
+    }
   }
 };
 

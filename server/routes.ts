@@ -1187,7 +1187,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-
   // Initialize continuous monitoring system
   initializeMonitoring().catch(err => console.error('Error initializing monitoring:', err));
 
