@@ -959,7 +959,7 @@ export const SystemRegistration: React.FC = () => {
       const abortController = new AbortController();
       let timeoutId: number | null = window.setTimeout(() => {
         abortController.abort();
-      }, 20000); // 20 second timeout (increased from 15 seconds)
+      }, 35000); // 35 second timeout (increased to prevent premature aborts)
       
       const response = await fetch('/api/suggest/system', {
         method: 'POST',
