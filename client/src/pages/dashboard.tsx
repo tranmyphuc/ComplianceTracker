@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
@@ -8,6 +8,7 @@ import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { UpcomingDeadlines } from "@/components/dashboard/upcoming-deadlines";
 import { Button } from "@/components/ui/button";
 import { BotIcon } from "lucide-react";
+import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);

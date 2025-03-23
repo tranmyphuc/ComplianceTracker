@@ -25,6 +25,8 @@ import {
   PieChartIcon,
   SmartphoneIcon,
   NetworkIcon,
+  HelpCircleIcon,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -288,6 +290,20 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             >
               <NetworkIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>AI Workflow Diagram</span>
+            </Link>
+
+            <Link 
+              href="/onboarding"
+              className={cn(
+                "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+                isActive("/onboarding") && "bg-primary/10 text-primary font-medium",
+                "mt-2 bg-purple-50"
+              )}
+              onClick={handleItemClick}
+            >
+              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0 text-purple-500" />
+              <span className="font-medium">Platform Tour</span>
+              <Badge variant="outline" className="ml-2 px-1.5 py-0.5 h-5 bg-purple-100 border-purple-200 text-purple-700 text-[10px]">New</Badge>
             </Link>
           </div>
 

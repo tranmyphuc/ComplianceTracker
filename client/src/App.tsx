@@ -15,16 +15,19 @@ import KnowledgeCenter from "@/pages/knowledge-center";
 import Reports from "@/pages/reports";
 import Training from "@/pages/training";
 import Workflow from "@/pages/workflow";
+import OnboardingPage from "@/pages/onboarding";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
 import React, { useEffect, lazy, Suspense } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RiskAssessmentGuides } from "./routes/lazy-imports";
 
 function Router() {
   const { user, loading } = useAuth();
   const [location, setLocation] = useLocation();
+  const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
 
   // Handle routing based on auth state
   useEffect(() => {
@@ -38,10 +41,17 @@ function Router() {
           setLocation("/login");
         }
       } else if (location === "/login" || location === "/register") {
-        setLocation("/");
+        // Check if onboarding is completed
+        const onboardingCompleted = localStorage.getItem("onboardingCompleted");
+        if (onboardingCompleted !== "true" && !hasCheckedOnboarding) {
+          setHasCheckedOnboarding(true);
+          setLocation("/onboarding");
+        } else {
+          setLocation("/");
+        }
       }
     }
-  }, [user, loading, location, setLocation]);
+  }, [user, loading, location, setLocation, hasCheckedOnboarding]);
 
   return (
     <Switch>
@@ -65,6 +75,7 @@ function Router() {
       <Route path="/reports" component={Reports} />
       <Route path="/training" component={Training} />
       <Route path="/workflow" component={Workflow} />
+      <Route path="/onboarding" component={OnboardingPage} />
       <Route path="/profile" component={Dashboard} />
       <Route path="/settings" component={Dashboard} />
       <Route component={NotFound} />
