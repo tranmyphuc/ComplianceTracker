@@ -1,57 +1,53 @@
-
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import TrainingPresentation from '@/components/training/presentation-mode';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from 'react';
+import { useParams, useLocation } from 'wouter';
+import { Button } from '../../components/ui/button';
 import { ChevronLeft } from 'lucide-react';
+import TrainingPresentation from '../../components/training/presentation-mode';
 
 const TrainingPresentationPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [userRole, setUserRole] = useState('technical');
+  const [params] = useParams();
+  const [, navigate] = useLocation();
   const [loading, setLoading] = useState(true);
   const [moduleTitle, setModuleTitle] = useState('');
-  const navigate = useNavigate();
+  const [userRole, setUserRole] = useState('technical');
+  const id = params.id;
 
   useEffect(() => {
-    // Fetch user info to determine role
-    const fetchUserInfo = async () => {
-      try {
-        const response = await fetch('/api/user/profile');
-        if (response.ok) {
-          const data = await response.json();
-          setUserRole(data.role || 'technical');
-        }
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-      }
-    };
+    // Fetch module info
+    if (!id) return;
 
-    // Fetch module metadata
-    const fetchModule = async () => {
-      if (!id) return;
-      
+    const fetchModuleInfo = async () => {
       try {
-        setLoading(true);
-        const response = await fetch(`/api/training/modules/${id}/metadata`);
-        if (response.ok) {
-          const data = await response.json();
-          setModuleTitle(data.title);
-          document.title = `Training: ${data.title} | EU AI Act Compliance`;
-        }
+        const response = await fetch(`/api/training/modules/${id}/info`);
+        const data = await response.json();
+        setModuleTitle(data.title);
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching module:', error);
-      } finally {
+        console.error('Error fetching module info:', error);
         setLoading(false);
       }
     };
 
-    fetchUserInfo();
-    fetchModule();
+    // Get user role/preferences
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch('/api/user/preferences');
+        const data = await response.json();
+        if (data.role) {
+          setUserRole(data.role);
+        }
+      } catch (error) {
+        console.error('Error fetching user preferences:', error);
+      }
+    };
+
+    fetchModuleInfo();
+    fetchUserRole();
   }, [id]);
 
   const handleCompletion = async () => {
     if (!id) return;
-    
+
     try {
       // Record completion
       await fetch('/api/training/complete', {
@@ -63,7 +59,7 @@ const TrainingPresentationPage: React.FC = () => {
           moduleId: id,
         }),
       });
-      
+
       // Redirect to certificate or dashboard
       navigate('/training/certificate/' + id);
     } catch (error) {
@@ -81,7 +77,7 @@ const TrainingPresentationPage: React.FC = () => {
         </Button>
         <h1 className="ml-4 text-lg font-medium">{loading ? 'Loading...' : moduleTitle}</h1>
       </header>
-      
+
       <main className="flex-1 overflow-hidden">
         {!loading && id && (
           <TrainingPresentation 
@@ -96,16 +92,3 @@ const TrainingPresentationPage: React.FC = () => {
 };
 
 export default TrainingPresentationPage;
-import { useParams } from 'wouter';
-
-export default function TrainingPresentation() {
-  const [params] = useParams();
-  
-  // Rest of your component implementation
-  return (
-    <div>
-      <h1>Training Presentation</h1>
-      {/* Your presentation content */}
-    </div>
-  );
-}
