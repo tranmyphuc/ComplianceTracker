@@ -363,33 +363,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
             AI Capabilities: ${systemData.aiCapabilities || 'Not provided'}
             Initial Risk Classification: ${systemData.riskClassification || 'Not determined'}
             System Category: ${systemData.systemCategory || 'Not categorized'}
-            
+
             Using the OFFICIAL EU AI Act assessment framework, analyze the following key risk parameters:
-            
+
             1. Technical Robustness and Safety (Article 15)
                - Accuracy, reliability, and cybersecurity measures
                - Resilience to errors, faults, and inconsistencies
-            
+
             2. Data and Data Governance (Article 10)
                - Training data quality, relevance, and representativeness
                - Data privacy compliance and data minimization
-            
+
             3. Transparency (Article 13)
                - Documentation of system capabilities and limitations
                - Disclosure to users that they are interacting with AI
-            
+
             4. Human Oversight (Article 14)
                - Measures allowing for human intervention
                - Ability to override system decisions
-            
+
             5. Accountability (Article 16-20)
                - Risk management procedures
                - Record-keeping and documentation compliance
-            
+
             6. Non-discrimination and Fairness
                - Measures to prevent unfair bias in system outputs
                - Impacts on vulnerable groups or protected characteristics
-            
+
             Format your response as a JSON with the following structure:
             {
               "riskFactors": [
@@ -409,11 +409,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 "Another mitigation strategy with clear compliance benefits"
               ]
             }
-            
+
             Use ONLY actual EU AI Act requirements for assessment, not generic considerations.
             Each risk factor MUST reference specific EU AI Act articles where applicable.
           `;
-          
+
           // Call DeepSeek API with the detailed parameters prompt
           const detailedAnalysisJson = await callDeepSeekApi(detailedPrompt, 'risk_parameters');
 
@@ -522,12 +522,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Log the input for debugging
       console.log("AI suggestion request:", { name, description });
-      
+
       // Check for specific AI systems first - this will prioritize certain keywords
       // to ensure correct identification even when the AI API fails
       let systemType = null;
       const inputText = (name || '').toLowerCase();
-      
+
       if (inputText.includes('gamma') || inputText.includes('gamma.app')) {
         systemType = 'gammaApp';
       } else if (inputText.includes('gemini')) {
@@ -537,7 +537,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else if (inputText.includes('deepseek') || inputText.includes('sgh')) {
         systemType = 'deepseek';
       }
-      
+
       console.log("Pre-detected system type:", systemType);
 
       const prompt = `
@@ -576,14 +576,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         // Clean up the response to handle markdown formatting (```json) or other formatting
         let cleanedResponse = response;
-        
+
         // Remove markdown code blocks if present
         if (cleanedResponse.includes('```json')) {
           cleanedResponse = cleanedResponse.replace(/```json\s*/, '').replace(/\s*```\s*$/, '');
         } else if (cleanedResponse.includes('```')) {
           cleanedResponse = cleanedResponse.replace(/```\s*/, '').replace(/\s*```\s*$/, '');
         }
-        
+
         // Try to find JSON within the text if it's still not valid
         if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
           const jsonStartIndex = cleanedResponse.indexOf('{');
@@ -592,28 +592,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
             cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
           }
         }
-        
+
         console.log("Cleaned API response for parsing:", cleanedResponse);
-        
+
         try {
           suggestions = JSON.parse(cleanedResponse);
         } catch (jsonError) {
           console.error("JSON parsing failed, attempting additional cleanup:", jsonError);
-          
+
           // Additional cleanup for problematic JSON
           const sanitizedResponse = cleanedResponse.replace(/[\u0000-\u001F\u007F-\u009F]/g, "")  // Remove control characters
             .replace(/,\s*}/g, '}')  // Remove trailing commas
             .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
             .replace(/\\/g, '\\\\')  // Escape backslashes
             .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3');  // Ensure property names are quoted
-          
+
           console.log("Attempting to parse sanitized JSON:", sanitizedResponse);
           suggestions = JSON.parse(sanitizedResponse);
         }
       } catch (error) {
         console.error("Error parsing DeepSeek response:", error);
         console.error("Raw response:", response);
-        
+
         // Provide a fallback response instead of returning an error
         suggestions = {
           name: name || "AI System",
@@ -629,7 +629,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           riskLevel: "Limited",
           confidenceScore: 60
         };
-        
+
         console.log("Using fallback suggestion data:", suggestions);
       }
 
@@ -756,54 +756,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Chatbot endpoint using DeepSeek AI
   app.post("/api/chatbot/query", handleChatbotQuery);
-  
+
   // Risk Assessment Routes
   app.get("/api/risk-assessments/system/:systemId", async (req: Request, res: Response) => {
     try {
       const systemId = req.params.systemId;
-      
+
       if (!systemId) {
         return res.status(400).json({ message: "System ID is required" });
       }
-      
+
       const assessments = await storage.getRiskAssessmentsForSystem(systemId);
       res.json(assessments);
     } catch (err) {
       handleError(err as Error, res);
     }
   });
-  
+
   app.get("/api/risk-assessments/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       const assessment = await storage.getRiskAssessment(id);
-      
+
       if (!assessment) {
         return res.status(404).json({ message: "Risk assessment not found" });
       }
-      
+
       res.json(assessment);
     } catch (err) {
       handleError(err as Error, res);
     }
   });
-  
+
   app.post("/api/risk-assessments", async (req: Request, res: Response) => {
     try {
       // Parse and validate the request data
       const validatedData = insertRiskAssessmentSchema.parse(req.body);
       const { systemId, ...assessmentData } = validatedData;
-      
+
       if (!systemId) {
         return res.status(400).json({ message: "System ID is required" });
       }
-      
+
       // Check if system exists
       const system = await storage.getAiSystemBySystemId(systemId);
       if (!system) {
         return res.status(404).json({ message: "System not found" });
       }
-      
+
       // Create risk assessment
       const newAssessment = await storage.createRiskAssessment({
         ...assessmentData,
@@ -811,7 +811,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         assessmentDate: new Date(),
         status: "Completed"
       });
-      
+
       // Create activity record for the assessment
       await storage.createActivity({
         type: "risk_assessment",
@@ -820,30 +820,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: assessmentData.createdBy || "system",
         metadata: { assessmentId: newAssessment.assessmentId }
       });
-      
+
       res.status(201).json(newAssessment);
     } catch (err) {
       handleError(err as Error, res);
     }
   });
-  
+
   app.put("/api/risk-assessments/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       const assessmentData = req.body;
-      
+
       const updatedAssessment = await storage.updateRiskAssessment(id, assessmentData);
-      
+
       if (!updatedAssessment) {
         return res.status(404).json({ message: "Risk assessment not found" });
       }
-      
+
       res.json(updatedAssessment);
     } catch (err) {
       handleError(err as Error, res);
     }
   });
-  
+
   // Risk assessment analysis endpoints
   app.get("/api/risk-assessment/:systemId/analyze", async (req: Request, res: Response) => {
     try {
@@ -853,7 +853,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       handleError(err as Error, res);
     }
   });
-  
+
   app.get("/api/risk-assessment/:systemId/prohibited", async (req: Request, res: Response) => {
     try {
       req.params = { ...req.params }; // Ensure params is mutable
@@ -862,7 +862,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       handleError(err as Error, res);
     }
   });
-  
+
   app.get("/api/risk-assessment/:systemId/report", async (req: Request, res: Response) => {
     try {
       req.params = { ...req.params }; // Ensure params is mutable
@@ -871,7 +871,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       handleError(err as Error, res);
     }
   });
-  
+
   app.get("/api/risk-assessment/:systemId/gaps", async (req: Request, res: Response) => {
     try {
       req.params = { ...req.params }; // Ensure params is mutable
@@ -1212,6 +1212,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/training/modules/:moduleId', getModuleContent);
   app.post('/api/training/progress', trackTrainingProgress);
   app.get('/api/training/progress', getUserProgress);
+  app.get('/api/training/certification', (req, res) => {
+    // This endpoint would generate and return certifications
+    // For now, just return mock data
+    res.json({
+      certificates: [
+        {
+          id: "cert-1",
+          moduleId: "1",
+          title: "EU AI Act Introduction",
+          completionDate: new Date().toISOString(),
+          score: 85
+        }
+      ]
+    });
+  });
 
   // API Key Management routes
   app.get('/api/ai-keys', getApiKeys);

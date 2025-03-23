@@ -26,6 +26,10 @@
   element: <RegulatoryArticle />
 },
 {
-  path: "/documentation/training",
-  element: <TrainingDocumentation />
+  path: "/documentation/training-documentation",
+  element: <TrainingDocumentation />,
+},
+{
+  path: "/training/module/:id",
+  element: <TrainingModule />,
 }

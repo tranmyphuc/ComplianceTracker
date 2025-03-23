@@ -1014,13 +1014,44 @@ export async function getModuleContent(req: Request, res: Response) {
       // Get role-specific content if available
       const roleContent = content[userRole] || content.default;
       
-      return res.json(roleContent);
+      // Format full module content for the enhanced UI
+      const enhancedContent = {
+        title: moduleData.title,
+        description: moduleData.description,
+        estimated_time: moduleData.estimatedTime,
+        content: {
+          slides: buildSlides(roleContent),
+          document: buildDocument(roleContent, moduleData.title),
+          exercises: buildExercises(roleContent, moduleId),
+          assessment: {
+            questions: roleContent.quiz || []
+          }
+        }
+      };
+      
+      return res.json(enhancedContent);
     }
     
     // Fall back to sample data if not in database
     if (MODULE_CONTENTS[moduleId]) {
       const roleContent = MODULE_CONTENTS[moduleId][userRole] || MODULE_CONTENTS[moduleId].default;
-      return res.json(roleContent);
+      
+      // Format full module content for the enhanced UI
+      const enhancedContent = {
+        title: MODULE_CONTENTS[moduleId].title,
+        description: MODULE_CONTENTS[moduleId].description,
+        estimated_time: MODULE_CONTENTS[moduleId].estimated_time,
+        content: {
+          slides: buildSlides(roleContent),
+          document: buildDocument(roleContent, MODULE_CONTENTS[moduleId].title),
+          exercises: buildExercises(roleContent, moduleId),
+          assessment: {
+            questions: roleContent.quiz || []
+          }
+        }
+      };
+      
+      return res.json(enhancedContent);
     }
     
     return res.status(404).json({ error: 'Module not found' });
@@ -1028,6 +1059,124 @@ export async function getModuleContent(req: Request, res: Response) {
     console.error('Error fetching module content:', error);
     return res.status(500).json({ error: 'Failed to fetch module content' });
   }
+}
+
+// Helper function to build slides from content
+function buildSlides(content: any) {
+  // If content already has slides, use them
+  if (content.slides) {
+    return content.slides;
+  }
+  
+  // Otherwise, parse content markdown into slides
+  const slides = [];
+  
+  if (content.content) {
+    // Split content by headers (# or ##)
+    const sections = content.content.split(/(?=# |## )/);
+    
+    sections.forEach((section: string) => {
+      // Extract title from the first line
+      const titleMatch = section.match(/^(# |## )(.*)/);
+      let title = titleMatch ? titleMatch[2] : "Introduction";
+      let sectionContent = section.replace(/^(# |## )(.*)/, ''); // Remove title
+      
+      slides.push({
+        title: title,
+        content: `<div class="markdown-content">${sectionContent}</div>`
+      });
+    });
+  }
+  
+  // Add intro slide if no slides were created
+  if (slides.length === 0) {
+    slides.push({
+      title: "Introduction",
+      content: "<p>No content available for this module.</p>"
+    });
+  }
+  
+  return slides;
+}
+
+// Helper function to build document HTML
+function buildDocument(content: any, title: string) {
+  if (content.document) {
+    return content.document;
+  }
+  
+  if (content.content) {
+    return `<div class="markdown-content">
+      <h1>${title}</h1>
+      ${content.content}
+    </div>`;
+  }
+  
+  return "<p>No documentation available for this module.</p>";
+}
+
+// Helper function to build exercises
+function buildExercises(content: any, moduleId: string) {
+  if (content.exercises) {
+    return content.exercises;
+  }
+  
+  // Generate default exercises based on module ID
+  const defaultExercises = [
+    {
+      title: "Apply Knowledge",
+      description: "<p>This exercise helps you apply the concepts learned in this module to practical scenarios.</p>",
+      tasks: [
+        "Review the key concepts presented in the module",
+        "Apply these concepts to your organization's context",
+        "Document the relevance and potential implementation challenges"
+      ]
+    },
+    {
+      title: "Self-Assessment",
+      description: "<p>Test your understanding by answering these questions without referring to the module content.</p>",
+      tasks: [
+        "Explain the main requirements covered in this module in your own words",
+        "Identify at least three ways these requirements impact your organization",
+        "Outline an implementation approach for your specific context"
+      ]
+    }
+  ];
+  
+  // Add module-specific exercises
+  if (moduleId === "1") {
+    defaultExercises.push({
+      title: "EU AI Act Scope Analysis",
+      description: "<p>Analyze how the EU AI Act applies to specific AI systems.</p>",
+      tasks: [
+        "List all AI systems currently in use in your organization",
+        "Determine which ones fall under the scope of the EU AI Act",
+        "Document your reasoning for each system"
+      ]
+    });
+  } else if (moduleId === "2") {
+    defaultExercises.push({
+      title: "Risk Classification Exercise",
+      description: "<p>Practice classifying AI systems according to the EU AI Act risk framework.</p>",
+      tasks: [
+        "Select three AI systems from different domains",
+        "Apply the risk classification methodology to each system",
+        "Document your classification process and results"
+      ]
+    });
+  } else if (moduleId === "3") {
+    defaultExercises.push({
+      title: "Technical Requirements Checklist",
+      description: "<p>Create a compliance checklist for technical requirements.</p>",
+      tasks: [
+        "Develop a checklist covering all technical requirements for high-risk AI systems",
+        "Apply this checklist to an existing or planned AI system",
+        "Identify compliance gaps and potential remediation actions"
+      ]
+    });
+  }
+  
+  return defaultExercises;
 }
 
 /**

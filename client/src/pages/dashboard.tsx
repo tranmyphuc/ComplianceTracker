@@ -9,6 +9,7 @@ import { UpcomingDeadlines } from "@/components/dashboard/upcoming-deadlines";
 import { Button } from "@/components/ui/button";
 import { BotIcon } from "lucide-react";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
+import { TrainingInsights } from "@/components/dashboard/training-insights"; // Added import
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -37,10 +38,10 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50">
       <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-      
+
       <div className="flex flex-1 overflow-hidden">
         <Sidebar className={sidebarOpen ? "" : "hidden"} onClose={() => setSidebarOpen(false)} isOpen={sidebarOpen} />
-        
+
         <main className="flex-1 overflow-y-auto pb-10">
           {showLegacyDashboard ? (
             /* Legacy Dashboard Content */
@@ -49,7 +50,7 @@ export default function Dashboard() {
                 {/* Put legacy dashboard content here if needed, 
                 or simply remove the toggle option if not required */}
               </div>
-              
+
               {/* Right Sidebar */}
               <div className="w-full md:w-80 p-4 md:p-6 space-y-6 lg:border-l lg:border-neutral-200">
                 <CriticalAlerts />
@@ -62,14 +63,30 @@ export default function Dashboard() {
             <div className="flex">
               <div className="flex-1">
                 <ExecutiveDashboard />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Existing dashboard components would go here */}
+                  <TrainingInsights data={{ // Added TrainingInsights component
+                    totalModules: 6,
+                    completedModules: 2,
+                    inProgressModules: 1,
+                    roleCompletionPercentage: 40,
+                    recentCertificates: [
+                      {
+                        id: "cert-1",
+                        title: "EU AI Act Introduction",
+                        date: "2 days ago"
+                      }
+                    ]
+                  }} />
+                </div>
               </div>
             </div>
           )}
         </main>
       </div>
-      
+
       <Footer />
-      
+
       {/* AI Chat Button (Mobile) */}
       <div className="fixed right-4 bottom-4 md:hidden z-50">
         <Button size="icon" className="h-12 w-12 rounded-full shadow-lg bg-[#7B1FA2] hover:bg-[#6A1B9A]">
