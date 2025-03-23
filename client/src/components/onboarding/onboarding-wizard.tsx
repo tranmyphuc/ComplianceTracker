@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { AIMascot } from "./ai-mascot";
+import { AIJack } from "./ai-jack";
 import { AnimatedJourneyTracker } from "./animated-journey-tracker";
 import { RegulatoryEmojiReaction } from "./regulatory-emoji-reaction";
 import { 
@@ -462,9 +462,9 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                     )}
                   </div>
                   
-                  {/* Mascot character - always visible */}
+                  {/* Jack character - always visible */}
                   <div className="flex justify-center">
-                    <AIMascot 
+                    <AIJack 
                       mood={currentStepData.mascotMood}
                       message={currentStepData.mascotMessage}
                       size="lg"

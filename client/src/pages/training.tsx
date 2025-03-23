@@ -10,8 +10,10 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/components/auth/auth-context";
 import { TrainingModules } from "@/components/training/training-modules";
-import { BookOpen, CheckCircle, ChevronLeft, FileText, GraduationCap, AlertCircle } from "lucide-react";
+import { BookOpen, CheckCircle, ChevronLeft, FileText, GraduationCap, AlertCircle, MenuIcon } from "lucide-react";
 import { motion } from "framer-motion";
+import { Sidebar } from "@/components/layout/sidebar";
+import { Header } from "@/components/layout/header";
 
 // Type definitions
 interface TrainingModule {
@@ -54,6 +56,7 @@ export default function Training() {
     total: number;
     passed: boolean;
   } | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Fetch all training modules
   const { data: modules, isLoading: isLoadingModules } = useQuery({
@@ -263,27 +266,34 @@ export default function Training() {
     }) : [];
   
   return (
-    <div className="container mx-auto py-6 max-w-5xl">
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">EU AI Act Training</h1>
-            <p className="text-muted-foreground">Learn about the EU AI Act and ensure your organization stays compliant</p>
-          </div>
-          {selectedModuleId && (
-            <Button 
-              variant="ghost" 
-              onClick={() => {
-                setSelectedModuleId(null);
-                setActiveTab("modules");
-              }}
-              className="flex items-center"
-            >
-              <ChevronLeft className="mr-1 h-4 w-4" /> Back to modules
-            </Button>
-          )}
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+      
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar className={sidebarOpen ? "" : "hidden"} />
+        
+        <main className="flex-1 overflow-y-auto pb-10">
+          <div className="container mx-auto py-6 max-w-5xl">
+            <div className="mb-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold">EU AI Act Training</h1>
+                  <p className="text-muted-foreground">Learn about the EU AI Act and ensure your organization stays compliant</p>
+                </div>
+                {selectedModuleId && (
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => {
+                      setSelectedModuleId(null);
+                      setActiveTab("modules");
+                    }}
+                    className="flex items-center"
+                  >
+                    <ChevronLeft className="mr-1 h-4 w-4" /> Back to modules
+                  </Button>
+                )}
+              </div>
+            </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
@@ -518,6 +528,9 @@ export default function Training() {
           )}
         </TabsContent>
       </Tabs>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
