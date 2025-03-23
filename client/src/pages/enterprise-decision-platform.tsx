@@ -77,10 +77,10 @@ export default function EnterprisePlatformPage() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <div className="flex-1">
-        <Header sidebarOpen={sidebarOpen} onSidebarOpenChange={setSidebarOpen} />
+        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
         
         <main className="flex-1 p-6 pt-16">
           <div className="container mx-auto">
