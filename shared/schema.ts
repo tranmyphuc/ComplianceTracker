@@ -29,6 +29,16 @@ export const aiSystems = pgTable("ai_systems", {
   trainingCompleteness: integer("training_completeness").default(0),
   description: text("description"),
   status: text("status").default("active"),
+  purpose: text("purpose"), // Primary purpose of the AI system
+  version: text("version"), // System version
+  aiCapabilities: text("ai_capabilities"), // Description of AI capabilities
+  trainingDatasets: text("training_datasets"), // Description of training data
+  usageContext: text("usage_context"), // Context in which the system is used
+  potentialImpact: text("potential_impact"), // Potential impact on users/society
+  keywords: jsonb("keywords").default([]), // Keywords for classification
+  expectedLifetime: text("expected_lifetime"), // Expected operational lifetime
+  maintenanceSchedule: text("maintenance_schedule"), // Maintenance schedule
+  deploymentScope: text("deployment_scope"), // Scope of deployment
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: text("created_by").references(() => users.uid),
