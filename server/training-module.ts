@@ -629,7 +629,7 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
         }
       ]
     }
-  },
+  },,
   "5": {
     "default": {
       title: "Governance Framework",
