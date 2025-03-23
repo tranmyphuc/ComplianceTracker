@@ -271,6 +271,17 @@ export const SystemRegistration: React.FC = () => {
         missing.push(field);
       }
     });
+    
+    // Validate the confirmation checkboxes in the final step
+    if (currentStep === 4) {
+      if (!formData.confirmAccuracy) {
+        errors.confirmAccuracy = "You must confirm that the information is accurate";
+      }
+      
+      if (!formData.confirmCompliance) {
+        errors.confirmCompliance = "You must confirm understanding of regulatory compliance";
+      }
+    }
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -278,7 +289,7 @@ export const SystemRegistration: React.FC = () => {
 
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields and confirm the statements",
         variant: "destructive"
       });
 
@@ -439,6 +450,7 @@ export const SystemRegistration: React.FC = () => {
         return (
           <ReviewSubmitStep 
             formData={formData} 
+            setFormData={setFormData}
             errors={validationErrors}
           />
         );
