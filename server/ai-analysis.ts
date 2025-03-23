@@ -728,12 +728,63 @@ function determineSystemCategoryFromData(data: Partial<AiSystem>): string {
     categoryScores['Computer Vision System'] += 5;
   }
 
-  if (allText.includes('machine learning') || allText.includes('ml') || allText.json')) {
+  if (allText.includes('machine learning') || allText.includes('ml')) {
+    categoryScores['Machine Learning System'] += 5;
+  }
+
+  // Find the highest scoring category
+  let highestScore = 0;
+  let highestCategory = 'Decision Support System'; // Default
+  
+  for (const [category, score] of Object.entries(categoryScores)) {
+    if (score > highestScore) {
+      highestScore = score;
+      highestCategory = category;
+    }
+  }
+  
+  return highestCategory;
+}
+
+/**
+ * Determine the risk level of an AI system
+ */
+export async function determineRiskLevel(data: Partial<AiSystem>): Promise<string> {
+  const prompt = `
+    You are an EU AI Act compliance expert. Based on the following AI system details,
+    determine the most appropriate risk classification according to the EU AI Act.
+
+    System Name: ${data.name || 'N/A'}
+    Description: ${data.description || 'N/A'}
+    Purpose: ${data.purpose || 'N/A'}
+    Department: ${data.department || 'N/A'}
+    AI Capabilities: ${data.aiCapabilities || 'N/A'}
+    Usage Context: ${data.usageContext || 'N/A'}
+    Potential Impact: ${data.potentialImpact || 'N/A'}
+
+    Consider these possible risk levels:
+    - Unacceptable Risk (prohibited applications under Article 5)
+    - High Risk (applications listed in Annex III)
+    - Limited Risk (systems with transparency obligations)
+    - Minimal Risk (all other systems)
+
+    Output your answer as a JSON with a single 'riskLevel' field containing one of these values.
+  `;
+
+  try {
+    const response = await callDeepSeekApi(prompt);
+    
+    try {
+      // First clean the response to handle markdown code blocks
+      let cleanedResponse = response;
+      
+      // Check for markdown code blocks and remove them
+      if (cleanedResponse.includes('```json')) {
         cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
       } else if (cleanedResponse.includes('```')) {
         cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
       }
-
+      
       // Extract JSON if embedded in text
       if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
         const jsonStartIndex = cleanedResponse.indexOf('{');
@@ -1003,7 +1054,7 @@ function determineRelevantArticlesFromData(data: Partial<AiSystem>): string[] {
  */
 export async function generateImprovements(data: Partial<AiSystem>): Promise<string[]> {
   // First, determine the risk level of the system to tailor suggestions
-  const riskLevel = data.riskLevel || await determineRiskLevel(data);
+  const riskLevel = data.riskLevel || determineRiskLevelFromData(data);
 
   const prompt = `
     You are an EU AI Act compliance expert. Based on the following AI system details,
@@ -1688,4 +1739,16 @@ export async function handleChatbotQuery(req: Request, res: Response) {
       if (cleanedResponse.includes('```json')) {
         cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
       } else if (cleanedResponse.includes('```')) {
-        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*
+        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
+      }
+      
+      return formattedResponse;
+    } catch (error) {
+      console.error('Error formatting chatbot response:', error);
+      return aiResponse;
+    }
+  } catch (error) {
+    console.error('Error handling chatbot query:', error);
+    return 'I apologize, but I encountered an error while processing your request. Please try again with a more specific question about EU AI Act compliance.';
+  }
+}

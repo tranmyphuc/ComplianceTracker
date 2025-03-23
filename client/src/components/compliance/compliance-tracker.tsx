@@ -243,7 +243,8 @@ export function ComplianceTracker() {
                   
                   <div className="flex flex-wrap gap-2 pt-2">
                     {/* Compliance status indicators */}
-                    <Badge variant={overallScore >= 80 ? "success" : overallScore >= 50 ? "outline" : "destructive"}>
+                    <Badge variant={overallScore >= 80 ? "default" : overallScore >= 50 ? "outline" : "destructive"} 
+                           className={overallScore >= 80 ? "bg-green-100 text-green-800 hover:bg-green-100" : ""}>
                       {overallScore >= 80 ? "Compliant" : overallScore >= 50 ? "In Progress" : "Action Required"}
                     </Badge>
                     
