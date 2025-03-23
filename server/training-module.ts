@@ -1282,7 +1282,7 @@ export const getTrainingModuleContent = async (moduleId: string, role: string = 
   // Here we're using the mock data
 
   // Find the module
-  const modules = await getTrainingModules();
+  const modules = await fetchTrainingModulesList();
   const module = modules.find(m => m.id === moduleId);
 
   if (!module) {
@@ -1307,7 +1307,7 @@ export const getTrainingModuleContent = async (moduleId: string, role: string = 
 
 export const getTrainingModuleMetadata = async (moduleId: string) => {
   // In a real implementation, this would fetch from database
-  const modules = await getTrainingModules();
+  const modules = await fetchTrainingModulesList();
   return modules.find(m => m.id === moduleId) || null;
 };
 
@@ -1321,7 +1321,7 @@ export const recordTrainingCompletion = async (userId: string, moduleId: string)
 export const getTrainingCertificate = async (certificateId: string) => {
   // In a real implementation, this would fetch from database
   // For now we return mock data
-  const modules = await getTrainingModules();
+  const modules = await fetchTrainingModulesList();
   const randomModule = modules[Math.floor(Math.random() * modules.length)];
 
   return {
@@ -1374,7 +1374,7 @@ export const exportTrainingModule = async (moduleId: string, format: string) => 
   return { content, filename, contentType };
 };
 
-export const getTrainingModules = async () => {
+export const fetchTrainingModulesList = async () => {
   // In a real implementation, this would fetch from database
   return [
     {

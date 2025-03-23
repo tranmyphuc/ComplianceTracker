@@ -22,7 +22,8 @@ import {
   determineRequiredDocs,
   analyzeDocument,
   analyzeSystemCompliance,
-  callDeepSeekApi
+  callDeepSeekApi,
+  determineRiskLevel
 } from "./ai-analysis";
 
 // Import compliance modules

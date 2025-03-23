@@ -18,7 +18,6 @@ import {
   BookOpen as BookOpenIcon, Clock as ClockIcon, CheckCircle, BarChart4 as BarChart4Icon,
   BookMarked, Award as AwardIcon, User as UserIcon, AlertCircle, Layers, Info
 } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
 
 
 type TrainingModule = {
@@ -60,7 +59,6 @@ export default function Training() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const navigate = useNavigate(); // Added useNavigate hook
   const [activeTab, setActiveTab] = useState("overview");
   const [modules, setModules] = useState<TrainingModule[]>([]);
   const [progress, setProgress] = useState<Progress>({});
@@ -323,14 +321,14 @@ export default function Training() {
           </div>
           <Button
             size="sm"
-            onClick={() => navigate(`/training/module/${module.id}`)}
+            onClick={() => setLocation(`/training/module/${module.id}`)}
           >
             {isCompleted ? "Review" : isStarted ? "Continue" : "Start"}
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
           <Button
             size="sm"
-            onClick={() => navigate(`/training/presentation/${module.id}`)} // Added presentation mode link
+            onClick={() => setLocation(`/training/presentation/${module.id}`)} // Added presentation mode link
           >
             Presentation
           </Button>
