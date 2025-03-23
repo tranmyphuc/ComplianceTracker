@@ -157,8 +157,30 @@ export async function callDeepSeekApi(prompt: string, detectedSystemType?: strin
         console.log('Using Gemini API as primary option');
         try {
           return await callGeminiApi(prompt);
+        } catch (geminiError) {
+          console.error('Gemini API error - checking for Google Search API:', geminiError);
+          
+          // If Gemini fails, try Google Search API
+          if (GOOGLE_SEARCH_API_KEY) {
+            try {
+              console.log('Attempting Google Search API as fallback...');
+              return await searchGoogleApi(prompt);
+            } catch (searchError) {
+              console.error('Google Search API fallback also failed - using simulation:', searchError);
+              return simulateDeepSeekResponse(prompt, detectedSystemType);
+            }
+          } else {
+            console.error('No Google Search API key available - using simulation');
+            return simulateDeepSeekResponse(prompt, detectedSystemType);
+          }
+        }
+      } else if (GOOGLE_SEARCH_API_KEY) {
+        // If no Gemini but Google Search is available
+        console.log('Using Google Search API as primary fallback');
+        try {
+          return await searchGoogleApi(prompt);
         } catch (error) {
-          console.error('Gemini API error - falling back to simulation:', error);
+          console.error('Google Search API error - falling back to simulation:', error);
           return simulateDeepSeekResponse(prompt, detectedSystemType);
         }
       } else {
@@ -207,11 +229,33 @@ export async function callDeepSeekApi(prompt: string, detectedSystemType?: strin
           console.log('Attempting Gemini API as fallback...');
           return await callGeminiApi(prompt);
         } catch (geminiError) {
-          console.error('Gemini API fallback also failed - using simulation:', geminiError);
+          console.error('Gemini API fallback also failed - checking Google Search API:', geminiError);
+          
+          // If Gemini fails, try Google Search API
+          if (GOOGLE_SEARCH_API_KEY) {
+            try {
+              console.log('Attempting Google Search API as final fallback...');
+              return await searchGoogleApi(prompt);
+            } catch (searchError) {
+              console.error('Google Search API fallback also failed - using simulation:', searchError);
+              return simulateDeepSeekResponse(prompt, detectedSystemType);
+            }
+          } else {
+            console.error('No Google Search API key available - using simulation');
+            return simulateDeepSeekResponse(prompt, detectedSystemType);
+          }
+        }
+      } else if (GOOGLE_SEARCH_API_KEY) {
+        // If no Gemini but Google Search is available
+        console.log('No Gemini API key - trying Google Search API as fallback');
+        try {
+          return await searchGoogleApi(prompt);
+        } catch (error) {
+          console.error('Google Search API error - falling back to simulation:', error);
           return simulateDeepSeekResponse(prompt, detectedSystemType);
         }
       } else {
-        console.log('Gemini API key not available, using simulation fallback with detected system type:', detectedSystemType);
+        console.log('No API keys available, using simulation fallback with detected system type:', detectedSystemType);
         return simulateDeepSeekResponse(prompt, detectedSystemType);
       }
     }
