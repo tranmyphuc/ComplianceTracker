@@ -813,7 +813,27 @@ export async function determineRiskLevel(data: Partial<AiSystem>): Promise<strin
     const response = await callDeepSeekApi(prompt);
     
     try {
-      const parsedResponse = JSON.parse(response);
+      // First clean the response to handle markdown code blocks
+      let cleanedResponse = response;
+      
+      // Check for markdown code blocks and remove them
+      if (cleanedResponse.includes('```json')) {
+        cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
+      } else if (cleanedResponse.includes('```')) {
+        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
+      }
+      
+      // Extract JSON if embedded in text
+      if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
+        const jsonStartIndex = cleanedResponse.indexOf('{');
+        const jsonEndIndex = cleanedResponse.lastIndexOf('}') + 1;
+        if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex) {
+          cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
+        }
+      }
+      
+      console.log("Cleaned risk level response:", cleanedResponse);
+      const parsedResponse = JSON.parse(cleanedResponse);
       return parsedResponse.riskLevel || 'Limited';
     } catch (parseError) {
       console.error('Error parsing risk level response:', parseError);
@@ -949,7 +969,27 @@ export async function determineRelevantArticles(data: Partial<AiSystem>): Promis
     const response = await callDeepSeekApi(prompt);
     
     try {
-      const parsedResponse = JSON.parse(response);
+      // First clean the response to handle markdown code blocks
+      let cleanedResponse = response;
+      
+      // Check for markdown code blocks and remove them
+      if (cleanedResponse.includes('```json')) {
+        cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
+      } else if (cleanedResponse.includes('```')) {
+        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
+      }
+      
+      // Extract JSON if embedded in text
+      if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
+        const jsonStartIndex = cleanedResponse.indexOf('{');
+        const jsonEndIndex = cleanedResponse.lastIndexOf('}') + 1;
+        if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex) {
+          cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
+        }
+      }
+      
+      console.log("Cleaned relevant articles response:", cleanedResponse);
+      const parsedResponse = JSON.parse(cleanedResponse);
       return parsedResponse.articles || determineRelevantArticlesFromData(data);
     } catch (parseError) {
       console.error('Error parsing relevant articles response:', parseError);
@@ -1075,7 +1115,27 @@ export async function generateImprovements(data: Partial<AiSystem>): Promise<str
     const response = await callDeepSeekApi(prompt);
     
     try {
-      const parsedResponse = JSON.parse(response);
+      // First clean the response to handle markdown code blocks
+      let cleanedResponse = response;
+      
+      // Check for markdown code blocks and remove them
+      if (cleanedResponse.includes('```json')) {
+        cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
+      } else if (cleanedResponse.includes('```')) {
+        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
+      }
+      
+      // Extract JSON if embedded in text
+      if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
+        const jsonStartIndex = cleanedResponse.indexOf('{');
+        const jsonEndIndex = cleanedResponse.lastIndexOf('}') + 1;
+        if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex) {
+          cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
+        }
+      }
+      
+      console.log("Cleaned improvements response:", cleanedResponse);
+      const parsedResponse = JSON.parse(cleanedResponse);
       return parsedResponse.improvements || generateImprovementsFromData(data, riskLevel);
     } catch (parseError) {
       console.error('Error parsing improvements response:', parseError);
@@ -1246,7 +1306,27 @@ export async function calculateComplianceScore(data: Partial<AiSystem>): Promise
   try {
     const response = await callDeepSeekApi(compliancePrompt);
     try {
-      const parsedResponse = JSON.parse(response);
+      // First clean the response to handle markdown code blocks
+      let cleanedResponse = response;
+      
+      // Check for markdown code blocks and remove them
+      if (cleanedResponse.includes('```json')) {
+        cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
+      } else if (cleanedResponse.includes('```')) {
+        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
+      }
+      
+      // Extract JSON if embedded in text
+      if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
+        const jsonStartIndex = cleanedResponse.indexOf('{');
+        const jsonEndIndex = cleanedResponse.lastIndexOf('}') + 1;
+        if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex) {
+          cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
+        }
+      }
+      
+      console.log("Cleaned compliance score response:", cleanedResponse);
+      const parsedResponse = JSON.parse(cleanedResponse);
       return parsedResponse.overallScore || 50;
     } catch (parseError) {
       console.error('Error parsing compliance score response:', parseError);
@@ -1426,8 +1506,27 @@ export async function analyzeDocument(data: any): Promise<any> {
     const response = await callDeepSeekApi(enhancedPrompt);
     
     try {
-      // Parse the response as JSON
-      const parsedResponse = JSON.parse(response);
+      // First clean the response to handle markdown code blocks
+      let cleanedResponse = response;
+      
+      // Check for markdown code blocks and remove them
+      if (cleanedResponse.includes('```json')) {
+        cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
+      } else if (cleanedResponse.includes('```')) {
+        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
+      }
+      
+      // Extract JSON if embedded in text
+      if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
+        const jsonStartIndex = cleanedResponse.indexOf('{');
+        const jsonEndIndex = cleanedResponse.lastIndexOf('}') + 1;
+        if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex) {
+          cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
+        }
+      }
+      
+      console.log("Cleaned document analysis response:", cleanedResponse);
+      const parsedResponse = JSON.parse(cleanedResponse);
       
       // Return the full detailed analysis
       return {
