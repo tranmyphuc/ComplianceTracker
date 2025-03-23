@@ -14,6 +14,7 @@ import RegisterSystem from "@/pages/register-system";
 import KnowledgeCenter from "@/pages/knowledge-center";
 import Reports from "@/pages/reports";
 import Training from "@/pages/training";
+import Workflow from "@/pages/workflow";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -63,6 +64,7 @@ function Router() {
       <Route path="/governance" component={Dashboard} />
       <Route path="/reports" component={Reports} />
       <Route path="/training" component={Training} />
+      <Route path="/workflow" component={Workflow} />
       <Route path="/profile" component={Dashboard} />
       <Route path="/settings" component={Dashboard} />
       <Route component={NotFound} />
