@@ -13,6 +13,11 @@ const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
+// Google Search API configuration
+const GOOGLE_SEARCH_API_KEY = process.env.GOOGLE_SEARCH_API_KEY;
+const GOOGLE_SEARCH_ENGINE_ID = 'f8dd79e8afd604b0d'; // Default search engine ID
+const GOOGLE_SEARCH_URL = 'https://www.googleapis.com/customsearch/v1';
+
 // Define response types for the APIs
 interface DeepSeekResponse {
   choices: {
@@ -30,6 +35,73 @@ interface GeminiResponse {
       }]
     }
   }];
+}
+
+interface GoogleSearchResult {
+  items: {
+    title: string;
+    snippet: string;
+    link: string;
+  }[];
+  searchInformation?: {
+    totalResults: string;
+  };
+}
+
+/**
+ * Search using Google Custom Search API
+ * This provides real data from the internet
+ */
+async function searchGoogleApi(query: string): Promise<string> {
+  try {
+    console.log('Calling Google Search API with query:', query);
+    
+    // Format the URL with API key and search engine ID
+    const url = `${GOOGLE_SEARCH_URL}?key=${GOOGLE_SEARCH_API_KEY}&cx=${GOOGLE_SEARCH_ENGINE_ID}&q=${encodeURIComponent(query)}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      },
+      // Add a timeout to prevent hanging requests
+      signal: AbortSignal.timeout(10000)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Google Search API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json() as GoogleSearchResult;
+    
+    // Check if we got any results
+    if (!data.items || data.items.length === 0) {
+      console.warn('No results found from Google Search API');
+      throw new Error('No search results found');
+    }
+    
+    // Format the results into a useful text response
+    // Take the top 3 results for most relevant information
+    const topResults = data.items.slice(0, 3);
+    
+    // Format the results into a readable text
+    let formattedResults = `Search Results for: "${query}"\n\n`;
+    
+    topResults.forEach((item, index) => {
+      formattedResults += `Source ${index + 1}: ${item.title}\n`;
+      formattedResults += `Excerpt: ${item.snippet}\n`;
+      formattedResults += `URL: ${item.link}\n\n`;
+    });
+    
+    // Add a total count
+    formattedResults += `Found ${data.searchInformation?.totalResults || 'multiple'} results in total.\n`;
+    
+    return formattedResults;
+  } catch (error) {
+    console.error('Google Search API error:', error);
+    throw error;
+  }
 }
 
 /**
