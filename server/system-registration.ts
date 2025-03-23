@@ -67,13 +67,33 @@ export interface SystemRegistrationOptions {
  */
 export async function registerSystem(options: SystemRegistrationOptions): Promise<any> {
   try {
+    // Preprocess input data to handle arrays
+    const preprocessedOptions = { ...options };
+    
+    // Convert array fields to strings if they're arrays
+    if (Array.isArray(preprocessedOptions.aiCapabilities)) {
+      preprocessedOptions.aiCapabilities = preprocessedOptions.aiCapabilities.join(', ');
+    }
+    
+    if (Array.isArray(preprocessedOptions.trainingDatasets)) {
+      preprocessedOptions.trainingDatasets = preprocessedOptions.trainingDatasets.join(', ');
+    }
+    
+    if (Array.isArray(preprocessedOptions.usageContext)) {
+      preprocessedOptions.usageContext = preprocessedOptions.usageContext.join(', ');
+    }
+    
+    if (Array.isArray(preprocessedOptions.potentialImpact)) {
+      preprocessedOptions.potentialImpact = preprocessedOptions.potentialImpact.join(', ');
+    }
+    
     // Validate input against schema
     const validatedData = insertAiSystemSchema.parse({
-      ...options,
+      ...preprocessedOptions,
       systemId: `sys_${Date.now()}`,
       status: 'active',
       implementationDate: new Date(),
-      keywords: options.keywords || []
+      keywords: preprocessedOptions.keywords || []
     });
     
     // Create the system
@@ -134,9 +154,29 @@ export async function updateSystem(id: number, updates: Partial<SystemRegistrati
       throw new BusinessLogicError(`System with ID ${id} not found`);
     }
     
+    // Preprocess update data to handle arrays
+    const preprocessedUpdates = { ...updates };
+    
+    // Convert array fields to strings if they're arrays
+    if (Array.isArray(preprocessedUpdates.aiCapabilities)) {
+      preprocessedUpdates.aiCapabilities = preprocessedUpdates.aiCapabilities.join(', ');
+    }
+    
+    if (Array.isArray(preprocessedUpdates.trainingDatasets)) {
+      preprocessedUpdates.trainingDatasets = preprocessedUpdates.trainingDatasets.join(', ');
+    }
+    
+    if (Array.isArray(preprocessedUpdates.usageContext)) {
+      preprocessedUpdates.usageContext = preprocessedUpdates.usageContext.join(', ');
+    }
+    
+    if (Array.isArray(preprocessedUpdates.potentialImpact)) {
+      preprocessedUpdates.potentialImpact = preprocessedUpdates.potentialImpact.join(', ');
+    }
+    
     // Apply updates
     const updatedSystem = await storage.updateAiSystem(id, {
-      ...updates,
+      ...preprocessedUpdates,
       updatedAt: new Date()
     });
     
@@ -144,7 +184,7 @@ export async function updateSystem(id: number, updates: Partial<SystemRegistrati
     await storage.createActivity({
       type: 'system_updated',
       description: `System "${updatedSystem.name}" was updated`,
-      userId: updates.createdBy || existingSystem.createdBy,
+      userId: preprocessedUpdates.createdBy || existingSystem.createdBy,
       systemId: existingSystem.systemId,
       timestamp: new Date(),
       metadata: { systemName: updatedSystem.name }

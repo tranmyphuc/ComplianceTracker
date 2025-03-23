@@ -172,7 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/systems", async (req: Request, res: Response) => {
     try {
-      // Preprocess dates before validation
+      // Preprocess data before validation
       const requestData = {...req.body};
 
       // Handle implementation date
@@ -215,10 +215,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         requestData.lastAssessmentDate = null;
       }
 
+      // Handle array fields that should be strings in the database
+      if (Array.isArray(requestData.aiCapabilities)) {
+        requestData.aiCapabilities = requestData.aiCapabilities.join(', ');
+      }
+      
+      if (Array.isArray(requestData.trainingDatasets)) {
+        requestData.trainingDatasets = requestData.trainingDatasets.join(', ');
+      }
+      
+      if (Array.isArray(requestData.usageContext)) {
+        requestData.usageContext = requestData.usageContext.join(', ');
+      }
+      
+      if (Array.isArray(requestData.potentialImpact)) {
+        requestData.potentialImpact = requestData.potentialImpact.join(', ');
+      }
+
       // Log the preprocessed data for debugging
       console.log('Preprocessed data:', {
         implementationDate: requestData.implementationDate,
-        lastAssessmentDate: requestData.lastAssessmentDate
+        lastAssessmentDate: requestData.lastAssessmentDate,
+        aiCapabilities: requestData.aiCapabilities,
+        trainingDatasets: requestData.trainingDatasets,
+        usageContext: requestData.usageContext,
+        potentialImpact: requestData.potentialImpact
       });
 
       const systemData = insertAiSystemSchema.parse(requestData);
@@ -280,6 +301,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
             requestData.lastAssessmentDate = null;
           }
         }
+      }
+
+      // Handle array fields that should be strings in the database
+      if (Array.isArray(requestData.aiCapabilities)) {
+        requestData.aiCapabilities = requestData.aiCapabilities.join(', ');
+      }
+      
+      if (Array.isArray(requestData.trainingDatasets)) {
+        requestData.trainingDatasets = requestData.trainingDatasets.join(', ');
+      }
+      
+      if (Array.isArray(requestData.usageContext)) {
+        requestData.usageContext = requestData.usageContext.join(', ');
+      }
+      
+      if (Array.isArray(requestData.potentialImpact)) {
+        requestData.potentialImpact = requestData.potentialImpact.join(', ');
       }
 
       const updatedSystem = await storage.updateAiSystem(id, requestData);
