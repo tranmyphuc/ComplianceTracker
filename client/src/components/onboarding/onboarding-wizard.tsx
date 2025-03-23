@@ -424,6 +424,18 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             Visit Knowledge Center <ArrowRight size={16} />
                           </Button>
                         </div>
+                        
+                        {/* Regulatory Emoji Reaction */}
+                        <div className="mt-6">
+                          <RegulatoryEmojiReaction 
+                            articleTitle="Article 5: Prohibited AI Practices"
+                            articleText="AI systems that deploy subliminal techniques beyond a person's consciousness or exploit vulnerabilities due to age or disability in order to materially distort behavior are prohibited under the EU AI Act."
+                            onReactionSubmit={(reaction, comment) => {
+                              console.log("Reaction:", reaction, "Comment:", comment);
+                              // In a real implementation, this would be sent to the server
+                            }}
+                          />
+                        </div>
                       </div>
                     )}
                     
