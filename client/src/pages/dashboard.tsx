@@ -13,13 +13,33 @@ import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showLegacyDashboard, setShowLegacyDashboard] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
+
+  // Check if the onboarding wizard should be shown
+  useEffect(() => {
+    if (!hasCheckedOnboarding) {
+      const onboardingCompleted = localStorage.getItem("onboardingCompleted");
+      if (onboardingCompleted !== "true") {
+        // Show onboarding for first-time visitors
+        setShowOnboarding(true);
+      }
+      setHasCheckedOnboarding(true);
+    }
+  }, [hasCheckedOnboarding]);
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = () => {
+    localStorage.setItem("onboardingCompleted", "true");
+    setShowOnboarding(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50">
       <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
       
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar className={sidebarOpen ? "" : "hidden"} />
+        <Sidebar className={sidebarOpen ? "" : "hidden"} onClose={() => setSidebarOpen(false)} isOpen={sidebarOpen} />
         
         <main className="flex-1 overflow-y-auto pb-10">
           {showLegacyDashboard ? (
@@ -56,6 +76,11 @@ export default function Dashboard() {
           <BotIcon className="h-6 w-6" />
         </Button>
       </div>
+
+      {/* Onboarding Wizard */}
+      {showOnboarding && (
+        <OnboardingWizard onComplete={handleOnboardingComplete} />
+      )}
     </div>
   );
 }
