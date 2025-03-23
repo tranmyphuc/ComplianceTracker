@@ -26,8 +26,24 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CircularProgressIndicator as CircularProgress } from "@/components/dashboard/circular-progress";
 
+interface DashboardSummary {
+  totalSystems: number;
+  highRiskSystems: number;
+  docCompleteness: number;
+  trainingCompleteness: number;
+  riskDistribution: {
+    high: number;
+    limited: number;
+    minimal: number;
+  };
+  departmentCompliance: Array<{
+    name: string;
+    complianceScore: number;
+  }>;
+}
+
 export function ExecutiveDashboard() {
-  const { data: summary, isLoading } = useQuery({
+  const { data: summary, isLoading } = useQuery<DashboardSummary>({
     queryKey: ["/api/dashboard/summary"],
   });
 
@@ -55,7 +71,7 @@ export function ExecutiveDashboard() {
         <h1 className="text-2xl font-semibold text-neutral-800">Executive Intelligence Dashboard</h1>
         <p className="text-neutral-500">AI-powered insights for strategic decision making</p>
         <p className="text-lg font-medium text-neutral-700 mt-3">
-          Good {getTimeOfDay()}, {summary?.user?.displayName || 'User'}. Here's your business overview for {formattedDate}
+          Good {getTimeOfDay()}, Admin. Here's your business overview for {formattedDate}
         </p>
       </div>
 
@@ -496,7 +512,7 @@ export function ExecutiveDashboard() {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="h-28 w-28 rounded-full border-8 border-primary flex items-center justify-center">
                       <div className="text-center">
-                        <div className="text-2xl font-bold">{summary?.totalSystems || 38}</div>
+                        <div className="text-2xl font-bold">{summary?.totalSystems ?? 38}</div>
                         <div className="text-xs text-neutral-500">Systems</div>
                       </div>
                     </div>
