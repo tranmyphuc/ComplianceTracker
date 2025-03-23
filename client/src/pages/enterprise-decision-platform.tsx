@@ -1,10 +1,31 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EnterpriseDecisionPlatform } from '@/components/strategic/enterprise-decision-platform';
 import { EnterpriseTourWizard } from '@/components/wizards/enterprise-wizard';
-import { TrendingUp, BarChart3, Lightbulb, PlayCircle } from 'lucide-react'; // Added PlayCircle icon
+import { 
+  TrendingUp, 
+  BarChart3, 
+  Lightbulb, 
+  PlayCircle, 
+  LineChart, 
+  PieChart, 
+  ArrowUpRight,
+  Cpu,
+  Activity,
+  Cog,
+  Rocket,
+  Zap,
+  Sparkles,
+  BookOpen,
+  LayoutGrid,
+  Diamond
+} from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 export default function EnterprisePage() {
   const [showWizard, setShowWizard] = useState(false);

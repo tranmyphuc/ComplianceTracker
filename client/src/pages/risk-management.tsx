@@ -86,6 +86,24 @@ interface RiskEvent {
   relatedControls?: string[];
 }
 
+interface RiskAssessment {
+  assessmentId: string;
+  systemId: string;
+  createdBy: string;
+  assessmentDate: string;
+  status: 'draft' | 'in_progress' | 'completed' | 'approved' | 'rejected' | 'requires_update';
+  riskLevel: 'unacceptable' | 'high' | 'limited' | 'minimal';
+  riskScore: number;
+  systemCategory?: string;
+  prohibitedUseChecks?: any[];
+  riskParameters?: any[];
+  euAiActArticles?: string[];
+  complianceGaps?: any[];
+  remediationActions?: any[];
+  evidenceDocuments?: any[];
+  summaryNotes?: string;
+}
+
 interface AiSystem {
   id: number;
   systemId: string;
