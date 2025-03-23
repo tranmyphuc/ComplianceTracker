@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Download, Copy, Certificate, List } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Copy, Award, List } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface PresentationProps {
@@ -25,7 +24,7 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
         setLoading(true);
         const response = await fetch(`/api/training/modules/${moduleId}?role=${role}`);
         const data = await response.json();
-        
+
         // Format data into slides
         const formattedSlides = [
           { type: 'title', title: data.title, subtitle: 'EU AI Act Compliance Training' },
@@ -37,7 +36,7 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
           { type: 'assessment', assessments: data.assessments, title: 'Knowledge Check' },
           { type: 'certificate', title: 'Module Complete', content: 'You have completed this module' }
         ];
-        
+
         setSlides(formattedSlides);
         setLoading(false);
       } catch (error) {
@@ -77,7 +76,7 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
   const downloadSlides = () => {
     // Generate markdown version of slides
     let markdown = `# ${slides[0]?.title || 'EU AI Act Training'}\n\n`;
-    
+
     slides.forEach(slide => {
       if (slide.type === 'content') {
         markdown += `## ${slide.title}\n\n`;
@@ -86,7 +85,7 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
         markdown += `${content}\n\n`;
       }
     });
-    
+
     // Create and download file
     const blob = new Blob([markdown], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
@@ -102,7 +101,7 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
   const copyContent = () => {
     // Generate text version of slides
     let content = `EU AI Act Training: ${slides[0]?.title || 'Module'}\n\n`;
-    
+
     slides.forEach(slide => {
       if (slide.type === 'content') {
         content += `${slide.title}\n\n`;
@@ -111,7 +110,7 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
         content += `${slideContent}\n\n`;
       }
     });
-    
+
     navigator.clipboard.writeText(content)
       .then(() => {
         alert('Content copied to clipboard!');
@@ -133,7 +132,7 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
             </div>
           </div>
         );
-      
+
       case 'content':
         return (
           <div className="h-full overflow-y-auto p-6">
@@ -141,7 +140,7 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
             <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: slide.content }} />
           </div>
         );
-      
+
       case 'assessment':
         return (
           <div className="h-full overflow-y-auto p-6">
@@ -169,11 +168,11 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
             </div>
           </div>
         );
-      
+
       case 'certificate':
         return (
           <div className="flex flex-col items-center justify-center h-full text-center p-8">
-            <Certificate size={64} className="text-primary mb-4" />
+            <Award size={64} className="text-primary mb-4" />
             <h2 className="text-2xl font-bold mb-2">Training Complete!</h2>
             <p className="text-lg mb-6">You have successfully completed this training module.</p>
             <div className="flex space-x-4">
@@ -187,7 +186,7 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
             </div>
           </div>
         );
-      
+
       default:
         return <div>Unknown slide type</div>;
     }
