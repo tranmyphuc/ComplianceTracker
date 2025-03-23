@@ -97,7 +97,9 @@ export function Header({ onMenuClick }: HeaderProps) {
 
             <div className="flex items-center ml-2 lg:ml-0">
               <div className="font-bold text-lg mr-1">SGH ASIA</div>
-              <span className="font-medium text-base">Enterprise AI Decision Platform</span>
+              <span className="font-medium text-xs xs:text-sm sm:text-base hidden xs:inline">
+                Enterprise AI <span className="hidden sm:inline">Decision Platform</span>
+              </span>
             </div>
           </div>
 
@@ -198,12 +200,15 @@ export function Header({ onMenuClick }: HeaderProps) {
 
       {/* Optional: New Feature Announcement Banner */}
       <div className="bg-[#7B1FA2]/10 border-b border-[#7B1FA2]/20 px-4 py-1.5 flex items-center justify-between">
-        <div className="flex items-center text-sm">
-          <Badge variant="outline" className="bg-[#7B1FA2] text-white border-none mr-2">New</Badge>
-          <span className="font-medium text-[#7B1FA2]">AI-powered strategic recommendations now available</span>
+        <div className="flex items-center text-xs sm:text-sm">
+          <Badge variant="outline" className="bg-[#7B1FA2] text-white border-none mr-2 text-[10px] sm:text-xs">New</Badge>
+          <span className="font-medium text-[#7B1FA2] line-clamp-1">
+            AI-powered strategic recommendations <span className="hidden xs:inline">now available</span>
+          </span>
         </div>
-        <Button variant="ghost" className="text-xs h-6 text-[#7B1FA2] hover:bg-[#7B1FA2]/10">
-          Learn More
+        <Button variant="ghost" className="text-[10px] sm:text-xs h-6 px-2 sm:px-3 text-[#7B1FA2] hover:bg-[#7B1FA2]/10 ml-1">
+          <span className="hidden xs:inline">Learn More</span>
+          <span className="inline xs:hidden">More</span>
         </Button>
       </div>
 

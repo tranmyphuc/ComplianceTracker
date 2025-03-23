@@ -58,7 +58,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
         "bg-gradient-to-b from-[#1976D2]/5 to-white border-r border-neutral-200 flex-shrink-0 transition-all duration-300 ease-in-out",
         "fixed lg:static inset-y-0 left-0 z-40",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-        "w-[280px] lg:w-64",
+        "w-[260px] sm:w-[280px] lg:w-64",
         className
       )}
     >
@@ -90,12 +90,12 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
           <Link 
             href="/"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <HomeIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <HomeIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Home/Dashboard</span>
           </Link>
           
@@ -182,72 +182,72 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
           <Link 
             href="/inventory"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/inventory") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <CpuIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <CpuIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>AI Systems</span>
           </Link>
 
           <Link 
             href="/risk-assessment"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/risk-assessment") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <ShieldIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <ShieldIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Risk Assessment</span>
           </Link>
 
           <Link 
             href="/documentation"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/documentation") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <FileTextIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <FileTextIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Documentation</span>
           </Link>
 
           <Link 
             href="/training"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/training") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <AwardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <AwardIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Training</span>
           </Link>
 
           <Link 
             href="/tasks"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/tasks") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <CheckSquareIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <CheckSquareIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Tasks</span>
           </Link>
 
           <Link 
             href="/reports"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/reports") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <BarChart3Icon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <BarChart3Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Reports</span>
           </Link>
 

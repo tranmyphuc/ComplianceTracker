@@ -1195,18 +1195,20 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="px-6 overflow-auto">
-          <TabsList className="grid grid-cols-4 md:grid-cols-8 w-full">
-            {tabs.map((tab) => (
-              <TabsTrigger 
-                key={tab.id}
-                value={tab.id}
-                className="flex items-center gap-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                {tab.icon}
-                <span className="hidden sm:inline">{tab.label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="overflow-x-auto pb-2">
+            <TabsList className="grid min-w-[700px] md:min-w-0 grid-cols-4 md:grid-cols-8 w-full">
+              {tabs.map((tab) => (
+                <TabsTrigger 
+                  key={tab.id}
+                  value={tab.id}
+                  className="flex items-center gap-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  {tab.icon}
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
         </div>
 
         <CardContent className="pt-6">
