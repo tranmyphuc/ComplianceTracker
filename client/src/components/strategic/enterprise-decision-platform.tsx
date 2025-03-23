@@ -1,85 +1,163 @@
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EnterpriseTourWizard } from "@/components/wizards/enterprise-wizard";
+import { BarChart, LineChart, PieChart } from "@/components/ui/chart";
+import { InfoIcon, ArrowRightIcon, PlayCircleIcon, BarChartIcon, PieChartIcon, ActivityIcon } from "lucide-react";
 
-import React from 'react';
-import { EnterpriseWizard } from '../wizards/enterprise-wizard';
+export function EnterpriseDecisionPlatform() {
+  const [showTour, setShowTour] = useState(false);
 
-interface EnterpriseDecisionPlatformProps {
-  onComplete: () => void;
-  onSkip?: () => void;
-}
+  if (showTour) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Enterprise Decision Platform</h2>
+            <p className="text-muted-foreground mt-2">
+              Strategic tools to support AI investment and compliance decisions
+            </p>
+          </div>
+          <Button variant="outline" onClick={() => setShowTour(false)}>
+            Exit Tour
+          </Button>
+        </div>
 
-export function EnterpriseDecisionPlatform({ onComplete, onSkip }: EnterpriseDecisionPlatformProps) {
-  // Define custom steps with images and detailed content
-  const platformTourSteps = [
-    {
-      id: "welcome",
-      title: "Welcome to the Enterprise AI Decision Platform",
-      subtitle: "Discover how our advanced AI-powered platform can transform your business",
-      content: "Our platform integrates cutting-edge AI technology with your business expertise to provide actionable insights and recommendations for better decision-making.",
-      mascotMood: "happy",
-      mascotMessage: "Hi there! I'm your AI assistant, ready to help you make smarter, data-driven decisions!",
-      icon: undefined,
-      imageSrc: "/assets/images/tour/welcome-dashboard.png"
-    },
-    {
-      id: "insights",
-      title: "AI-Powered Market Insights",
-      subtitle: "Access real-time market intelligence and predictive analytics",
-      content: "Our AI analyzes vast amounts of market data to identify patterns and trends that might be missed by human analysis, giving you a competitive edge in your industry.",
-      mascotMood: "explaining",
-      mascotMessage: "I can analyze industry trends and market conditions to help you stay ahead of the competition!",
-      icon: undefined,
-      imageSrc: "/assets/images/tour/market-insights.png"
-    },
-    {
-      id: "strategic-planning",
-      title: "Strategic Planning Tools",
-      subtitle: "Leverage AI-driven scenario planning and resource optimization",
-      content: "Use our advanced modeling tools to simulate various business scenarios and optimize resource allocation for maximum efficiency and profitability.",
-      mascotMood: "thinking",
-      mascotMessage: "Strategic planning becomes easier with models that can simulate thousands of business scenarios in seconds.",
-      icon: undefined,
-      imageSrc: "/assets/images/tour/strategic-planning.png"
-    },
-    {
-      id: "risk-assessment",
-      title: "Risk Intelligence Dashboard",
-      subtitle: "Identify and mitigate potential risks before they impact your business",
-      content: "Our risk assessment tools help you identify, quantify, and mitigate various business risks, ensuring your operations remain resilient in challenging environments.",
-      mascotMood: "alert",
-      mascotMessage: "I'll help you identify potential risks and develop strategies to mitigate them effectively.",
-      icon: undefined,
-      imageSrc: "/assets/images/tour/risk-dashboard.png"
-    },
-    {
-      id: "decision-support",
-      title: "AI Decision Support System",
-      subtitle: "Get personalized recommendations based on your business goals",
-      content: "Our AI analyzes your specific business context and provides tailored recommendations to help you achieve your strategic objectives more effectively.",
-      mascotMood: "confident",
-      mascotMessage: "By analyzing your business data, I can provide personalized recommendations aligned with your strategic goals.",
-      icon: undefined,
-      imageSrc: "/assets/images/tour/decision-support.png"
-    },
-    {
-      id: "get-started",
-      title: "Ready to Transform Your Decision-Making?",
-      subtitle: "Start exploring the platform to discover its full potential",
-      content: "Dive into our platform's features and start leveraging the power of AI to enhance your strategic decision-making processes and drive business growth.",
-      mascotMood: "excited",
-      mascotMessage: "You're all set! Start exploring the platform to see how AI can revolutionize your decision-making processes.",
-      icon: undefined,
-      imageSrc: "/assets/images/tour/get-started.png"
-    }
-  ];
+        <EnterpriseTourWizard />
+      </div>
+    );
+  }
 
   return (
-    <EnterpriseWizard
-      steps={platformTourSteps}
-      onComplete={onComplete}
-      onSkip={onSkip}
-      variant="default"
-      title="Enterprise AI Decision Platform"
-      description="Transform your decision-making with AI-powered insights"
-    />
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Enterprise Decision Platform</h2>
+          <p className="text-muted-foreground mt-2">
+            Strategic tools to support AI investment and compliance decisions
+          </p>
+        </div>
+        <Button 
+          onClick={() => setShowTour(true)}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <PlayCircleIcon className="h-4 w-4" />
+          Platform Tour
+        </Button>
+      </div>
+
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100">
+        <CardContent className="pt-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-blue-100">
+              <img 
+                src="/assets/images/tour/placeholder.png" 
+                alt="Decision Platform" 
+                className="h-32 w-auto object-contain"
+              />
+            </div>
+
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold text-blue-900 mb-2">EU AI Act Compliance Decision Platform</h3>
+              <p className="text-blue-700 mb-4">
+                Make strategic decisions about your AI investments and compliance priorities with our powerful analytics and decision support tools.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  size="sm" 
+                  onClick={() => setShowTour(true)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Take the Tour
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                >
+                  Learn More
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <BarChartIcon className="h-5 w-5 text-indigo-500" />
+              AI Portfolio Analysis
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Analyze your organization's AI portfolio to identify investment opportunities and compliance gaps
+            </p>
+            <Button className="w-full flex items-center justify-center gap-1">
+              Start Analysis
+              <ArrowRightIcon className="h-4 w-4 ml-1" />
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <ActivityIcon className="h-5 w-5 text-emerald-500" />
+              Compliance Cost Estimator
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Estimate costs for achieving and maintaining compliance across your AI systems
+            </p>
+            <Button className="w-full flex items-center justify-center gap-1">
+              Calculate Costs
+              <ArrowRightIcon className="h-4 w-4 ml-1" />
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <PieChartIcon className="h-5 w-5 text-amber-500" />
+              Risk/Value Matrix
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Map your AI systems according to business value and compliance risk
+            </p>
+            <Button className="w-full flex items-center justify-center gap-1">
+              View Matrix
+              <ArrowRightIcon className="h-4 w-4 ml-1" />
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Decision Support Tool</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-6">
+            Answer a few questions about your organization's AI strategy and compliance needs to receive personalized recommendations
+          </p>
+          <div className="flex gap-3">
+            <Button size="lg" className="flex items-center gap-2">
+              Start Guided Assessment
+              <ArrowRightIcon className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="lg">View Sample Report</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

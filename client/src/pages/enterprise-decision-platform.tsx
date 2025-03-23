@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EnterpriseDecisionPlatform } from '@/components/strategic/enterprise-decision-platform';
 import { Brain, TrendingUp, Target, BarChart3, Lightbulb, Sparkles, Network } from 'lucide-react';
@@ -126,7 +126,6 @@ export default function EnterprisePlatformPage() {
           </Card>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

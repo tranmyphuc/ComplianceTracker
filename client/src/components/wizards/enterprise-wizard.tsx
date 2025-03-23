@@ -284,3 +284,168 @@ export function EnterpriseWizard({
     </motion.div>
   );
 }
+
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+
+export function EnterpriseTourWizard() {
+  const [step, setStep] = useState(1);
+  const totalSteps = 5;
+
+  const nextStep = () => setStep(prev => Math.min(prev + 1, totalSteps));
+  const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
+
+  // Tour step content with images and descriptions
+  const tourSteps = [
+    {
+      title: "Welcome to Enterprise Decision Platform",
+      description: "This platform helps you make strategic decisions about AI investments and compliance with the EU AI Act.",
+      image: "/assets/images/tour/platform-overview.png",
+      alt: "Platform Overview",
+      features: [
+        "Comprehensive AI inventory management",
+        "Risk assessment and categorization",
+        "Compliance monitoring dashboard",
+        "Strategic decision support tools"
+      ]
+    },
+    {
+      title: "Analyzing Your AI Portfolio",
+      description: "Get a comprehensive view of your AI systems and their compliance status across your organization.",
+      image: "/assets/images/tour/portfolio-analysis.png",
+      alt: "Portfolio Analysis",
+      features: [
+        "Visual representation of AI systems by risk level",
+        "Compliance gap analysis",
+        "Department-level insights",
+        "Trend analysis and forecasting"
+      ]
+    },
+    {
+      title: "Risk Assessment Tools",
+      description: "Powerful tools to evaluate and mitigate risks in your AI implementations according to EU AI Act requirements.",
+      image: "/assets/images/tour/risk-assessment.png",
+      alt: "Risk Assessment Tools",
+      features: [
+        "Automated risk categorization",
+        "Guided assessment workflows",
+        "Evidence collection and documentation",
+        "Mitigation strategy recommendations"
+      ]
+    },
+    {
+      title: "Compliance Roadmap",
+      description: "Clear actionable steps to achieve and maintain compliance with the EU AI Act.",
+      image: "/assets/images/tour/compliance-roadmap.png",
+      alt: "Compliance Roadmap",
+      features: [
+        "Personalized compliance journey",
+        "Timeline and milestone tracking",
+        "Required documentation checklist",
+        "Implementation guidance for each step"
+      ]
+    },
+    {
+      title: "Decision Support Analytics",
+      description: "Advanced analytics to support your strategic decisions about AI investments and compliance priorities.",
+      image: "/assets/images/tour/decision-analytics.png",
+      alt: "Decision Analytics",
+      features: [
+        "Cost-benefit analysis for compliance measures",
+        "Resource allocation optimization",
+        "Impact assessment visualizations",
+        "Executive reporting and insights"
+      ]
+    }
+  ];
+
+  const currentStep = tourSteps[step - 1];
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="p-6">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4">Enterprise Decision Platform Tour</h3>
+
+        <div className="mb-8">
+          <div className="space-y-5">
+            <h4 className="text-lg font-medium text-primary">{currentStep.title}</h4>
+            <p className="text-gray-600">
+              {currentStep.description}
+            </p>
+
+            <div className="bg-gray-50 rounded-md p-4 border border-gray-100 overflow-hidden">
+              <div className="relative h-64 w-full mb-4">
+                {/* Fallback to placeholder if image doesn't exist */}
+                <img 
+                  src={currentStep.image} 
+                  alt={currentStep.alt}
+                  className="rounded-md object-cover w-full h-full"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = "/assets/images/tour/placeholder.png";
+                  }}
+                />
+              </div>
+
+              <div className="bg-white p-4 rounded-md border border-gray-100">
+                <h5 className="font-medium text-sm text-gray-700 mb-2">Key Features:</h5>
+                <ul className="space-y-1">
+                  {currentStep.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start">
+                      <div className="h-5 w-5 text-primary mr-2 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <span className="text-sm text-gray-600">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="outline" 
+            onClick={prevStep}
+            disabled={step === 1}
+            className="flex items-center gap-1"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            Previous
+          </Button>
+
+          <div className="flex items-center space-x-2">
+            {Array.from({length: totalSteps}).map((_, idx) => (
+              <div 
+                key={idx}
+                className={`h-2 w-2 rounded-full ${idx + 1 === step ? 'bg-primary' : 'bg-gray-300'}`}
+                onClick={() => setStep(idx + 1)}
+                style={{ cursor: 'pointer' }}
+              />
+            ))}
+          </div>
+
+          <Button 
+            onClick={step === totalSteps ? () => window.location.href = '/dashboard' : nextStep}
+            className="flex items-center gap-1"
+          >
+            {step === totalSteps ? 'Get Started' : 'Next'}
+            {step !== totalSteps && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
