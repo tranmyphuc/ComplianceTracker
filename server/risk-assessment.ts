@@ -265,81 +265,71 @@ export async function analyzeComplianceGaps(req: Request, res: Response) {
     // Run risk classification first to determine applicable requirements
     const riskLevel = await determineRiskLevel(system);
     
-    // If not high risk, there are fewer requirements
-    if (!riskLevel.includes('High')) {
-      return res.json({
+    // Generate a comprehensive gap analysis using DeepSeek API
+    const gapAnalysisPrompt = `
+      You are an EU AI Act compliance expert. Based on the following AI system details,
+      identify compliance gaps according to EU AI Act requirements.
+      
+      System Name: ${system.name || 'N/A'}
+      Description: ${system.description || 'N/A'}
+      Purpose: ${system.purpose || 'N/A'}
+      Department: ${system.department || 'N/A'}
+      Risk Level: ${riskLevel}
+      
+      For each EU AI Act requirement that applies to this system, assess the compliance status
+      and provide a detailed gap description. The requirements depend on the risk level.
+      
+      For High Risk systems, analyze Articles 9-15.
+      For Limited Risk systems, focus on transparency obligations in Article 52.
+      For Minimal Risk systems, focus on voluntary codes of conduct.
+      
+      Return your response as a JSON object with the following structure:
+      {
+        "gaps": [
+          {
+            "requirementCategory": "string",
+            "requirementReference": "string",
+            "requirementDescription": "string",
+            "complianceStatus": "NonCompliant|PartiallyCompliant|Unknown",
+            "gapDescription": "string"
+          }
+        ]
+      }
+      
+      The gaps array should contain at least 5 entries for High Risk systems, or 2-3 entries for other systems.
+    `;
+    
+    const response = await callDeepSeekApi(gapAnalysisPrompt);
+    
+    try {
+      const parsedResponse = JSON.parse(response);
+      
+      res.json({
+        systemId: system.systemId,
+        systemName: system.name,
+        riskLevel,
+        gaps: parsedResponse.gaps || []
+      });
+    } catch (parseError) {
+      // If parsing fails, format the raw response into a meaningful structure
+      console.error("Error parsing gap analysis response:", parseError);
+      
+      // Create a minimal structured response with the raw text
+      res.json({
         systemId: system.systemId,
         systemName: system.name,
         riskLevel,
         gaps: [
           {
-            requirementCategory: "Transparency",
-            requirementReference: "Article 52",
-            requirementDescription: "Transparency obligations for certain AI systems",
+            requirementCategory: "Analysis",
+            requirementReference: "Multiple",
+            requirementDescription: "AI-generated compliance assessment",
             complianceStatus: "Unknown",
-            gapDescription: "Assessment needed for transparency requirements"
+            gapDescription: response || "Could not parse AI analysis results."
           }
         ]
       });
     }
-    
-    // For high risk systems, analyze gaps for all requirements
-    res.json({
-      systemId: system.systemId,
-      systemName: system.name,
-      riskLevel,
-      gaps: [
-        {
-          requirementCategory: "RiskManagement",
-          requirementReference: "Article 9",
-          requirementDescription: "Risk management system implementation",
-          complianceStatus: "NonCompliant",
-          gapDescription: "No risk management system documented"
-        },
-        {
-          requirementCategory: "DataGovernance",
-          requirementReference: "Article 10",
-          requirementDescription: "Data governance measures",
-          complianceStatus: "PartiallyCompliant",
-          gapDescription: "Incomplete data quality criteria documentation"
-        },
-        {
-          requirementCategory: "TechnicalDocumentation",
-          requirementReference: "Article 11",
-          requirementDescription: "Technical documentation requirements",
-          complianceStatus: "NonCompliant",
-          gapDescription: "Missing technical documentation"
-        },
-        {
-          requirementCategory: "RecordKeeping",
-          requirementReference: "Article 12",
-          requirementDescription: "Record-keeping obligation",
-          complianceStatus: "Unknown",
-          gapDescription: "Logging capabilities not assessed"
-        },
-        {
-          requirementCategory: "Transparency",
-          requirementReference: "Article 13",
-          requirementDescription: "Transparency and information to users",
-          complianceStatus: "NonCompliant",
-          gapDescription: "No transparency information provided to users"
-        },
-        {
-          requirementCategory: "HumanOversight",
-          requirementReference: "Article 14",
-          requirementDescription: "Human oversight measures",
-          complianceStatus: "NonCompliant",
-          gapDescription: "No human oversight measures documented"
-        },
-        {
-          requirementCategory: "Accuracy",
-          requirementReference: "Article 15",
-          requirementDescription: "Accuracy, robustness and cybersecurity",
-          complianceStatus: "PartiallyCompliant",
-          gapDescription: "Incomplete accuracy metrics and security measures"
-        }
-      ]
-    });
   } catch (error) {
     handleError(error, res);
   }
