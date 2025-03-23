@@ -23,7 +23,7 @@ export interface WizardStep {
   id: string;
   title: string;
   subtitle: string;
-  mascotMood: "happy" | "explaining" | "thinking" | "surprised" | "warning" | "confused";
+  mascotMood: "happy" | "explaining" | "thinking" | "surprised" | "neutral" | "celebrating";
   mascotMessage: string;
   icon: React.ComponentType<{ className?: string }>;
   content?: React.ReactNode;
@@ -69,7 +69,7 @@ const defaultSteps: WizardStep[] = [
     id: "risk-intelligence",
     title: "Risk Intelligence & Compliance",
     subtitle: "Identify and mitigate potential risks while ensuring compliance with EU AI Act requirements",
-    mascotMood: "warning",
+    mascotMood: "thinking",
     mascotMessage: "Our risk assessment framework evaluates potential issues before they impact your business, keeping you compliant and secure.",
     icon: AlertTriangle
   },
@@ -263,7 +263,8 @@ export function EnterpriseWizard({
                           <AIJack
                             mood={currentStepData.mascotMood}
                             message={currentStepData.mascotMessage}
-                            size="large"
+                            size="lg"
+                            animate={true}
                           />
                         </div>
                       </motion.div>
