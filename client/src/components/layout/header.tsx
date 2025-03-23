@@ -1,20 +1,19 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
 import { 
-  Search, 
-  Bell, 
-  HelpCircle, 
-  User,
-  Monitor,
-  Database,
-  AlertTriangle,
-  FileText,
-  BookOpen,
-  List,
-  BarChart
-} from 'react-feather';
-import { cn } from '../../utils/cn';
-import logoSrc from '../../assets/sgh-logo-white.png';
+  SearchIcon, 
+  BellIcon, 
+  HelpCircleIcon, 
+  UserIcon,
+  MonitorIcon,
+  DatabaseIcon,
+  AlertTriangleIcon,
+  FileTextIcon,
+  BookOpenIcon,
+  ListIcon,
+  BarChartIcon
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const NavItem = ({ 
   icon: Icon, 
@@ -50,7 +49,7 @@ export const Header = () => {
         <div className="flex items-center">
           <Link to="/">
             <div className="flex items-center cursor-pointer">
-              <Monitor size={22} className="mr-2" />
+              <MonitorIcon size={22} className="mr-2" />
               <span className="font-bold text-lg">SGH ASIA</span>
             </div>
           </Link>
@@ -59,49 +58,49 @@ export const Header = () => {
         {/* Main navigation */}
         <nav className="hidden md:flex items-center space-x-1">
           <NavItem 
-            icon={Monitor} 
+            icon={MonitorIcon} 
             label="Dashboard" 
             to="/" 
             isActive={location === "/"} 
           />
 
           <NavItem 
-            icon={Database} 
+            icon={DatabaseIcon} 
             label="AI Systems" 
             to="/inventory" 
             isActive={location.startsWith("/inventory")} 
           />
 
           <NavItem 
-            icon={AlertTriangle} 
+            icon={AlertTriangleIcon} 
             label="Risk Assessment" 
             to="/risk-assessment" 
             isActive={location.startsWith("/risk-assessment")} 
           />
 
           <NavItem 
-            icon={FileText} 
+            icon={FileTextIcon} 
             label="Documentation" 
             to="/documentation" 
             isActive={location.startsWith("/documentation")} 
           />
 
           <NavItem 
-            icon={BookOpen} 
+            icon={BookOpenIcon} 
             label="Training" 
             to="/training" 
             isActive={location.startsWith("/training")} 
           />
 
           <NavItem 
-            icon={List} 
+            icon={ListIcon} 
             label="Tasks" 
             to="/tasks" 
             isActive={location === "/tasks"} 
           />
 
           <NavItem 
-            icon={BarChart} 
+            icon={BarChartIcon} 
             label="Reports" 
             to="/reports" 
             isActive={location === "/reports"} 
@@ -116,23 +115,23 @@ export const Header = () => {
               placeholder="Search..."
               className="w-48 px-3 py-1 text-sm rounded-md bg-background text-foreground border border-input focus:outline-none focus:ring-2 focus:ring-ring"
             />
-            <Search 
+            <SearchIcon 
               size={16} 
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" 
             />
           </div>
 
           <button className="relative p-1.5 rounded-full hover:bg-primary-dark transition-colors">
-            <Bell size={20} />
+            <BellIcon size={20} />
             <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-destructive"></span>
           </button>
 
           <button className="p-1.5 rounded-full hover:bg-primary-dark transition-colors">
-            <HelpCircle size={20} />
+            <HelpCircleIcon size={20} />
           </button>
 
           <button className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-dark hover:ring-2 hover:ring-background transition-all">
-            <User size={18} />
+            <UserIcon size={18} />
           </button>
         </div>
       </div>
