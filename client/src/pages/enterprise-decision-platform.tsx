@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EnterpriseDecisionPlatform } from '@/components/strategic/enterprise-decision-platform';
 import { Brain, TrendingUp, Target, BarChart3, Lightbulb, Sparkles, Network } from 'lucide-react';
 
@@ -31,47 +32,15 @@ export default function EnterprisePlatformPage() {
     setShowWizard(true);
   };
 
-  // Features list
-  const features = [
-    {
-      title: "AI-Powered Insights",
-      description: "Access real-time market intelligence and predictive analytics",
-      icon: Brain
-    },
-    {
-      title: "Strategic Planning",
-      description: "Leverage AI-driven scenario planning and optimization algorithms",
-      icon: Target
-    },
-    {
-      title: "Market Trends",
-      description: "Stay ahead of market trends with AI pattern recognition",
-      icon: TrendingUp
-    },
-    {
-      title: "Executive Dashboard",
-      description: "Customizable dashboard with decision-critical metrics",
-      icon: BarChart3
-    },
-    {
-      title: "Opportunity Detection",
-      description: "Automatically identify new business opportunities",
-      icon: Lightbulb
-    },
-    {
-      title: "Generative AI",
-      description: "Generate creative solutions to complex business challenges",
-      icon: Sparkles
-    },
-    {
-      title: "Data Integration",
-      description: "Connect all your business systems and data sources",
-      icon: Network
-    }
-  ];
-
   return (
     <div className="p-6 pt-4">
+      {showWizard && (
+        <EnterpriseDecisionPlatform 
+          onComplete={handleWizardComplete} 
+          onSkip={handleWizardComplete} 
+        />
+      )}
+
       <div className="container mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -109,42 +78,55 @@ export default function EnterprisePlatformPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Get Started</CardTitle>
               <CardDescription>Quick access to key platform features</CardDescription>
             </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {features.slice(0, 5).map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <div className="bg-primary/10 p-2 rounded-full mr-3">
-                      {React.createElement(feature.icon, { className: "h-4 w-4 text-primary" })}
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-3">
+                <Button variant="outline" className="justify-start h-auto py-3" onClick={() => setLocation("/market-insights")}>
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-3">
+                      <TrendingUp className="h-5 w-5 text-blue-600" />
                     </div>
-                    <div>
-                      <h3 className="text-sm font-medium">{feature.title}</h3>
-                      <p className="text-xs text-muted-foreground">{feature.description}</p>
+                    <div className="text-left">
+                      <div className="font-medium">Market Insights</div>
+                      <div className="text-sm text-muted-foreground">Access real-time market intelligence</div>
                     </div>
-                  </li>
-                ))}
-              </ul>
+                  </div>
+                </Button>
+
+                <Button variant="outline" className="justify-start h-auto py-3" onClick={() => setLocation("/risk-intelligence")}>
+                  <div className="flex items-center">
+                    <div className="bg-amber-100 p-2 rounded-lg mr-3">
+                      <BarChart3 className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium">Risk Intelligence</div>
+                      <div className="text-sm text-muted-foreground">Identify and mitigate business risks</div>
+                    </div>
+                  </div>
+                </Button>
+
+                <Button variant="outline" className="justify-start h-auto py-3" onClick={() => setLocation("/decision-support")}>
+                  <div className="flex items-center">
+                    <div className="bg-green-100 p-2 rounded-lg mr-3">
+                      <Lightbulb className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium">Decision Support</div>
+                      <div className="text-sm text-muted-foreground">AI-powered recommendations</div>
+                    </div>
+                  </div>
+                </Button>
+              </div>
             </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full" onClick={handleRestartWizard}>
-                Explore All Features
-              </Button>
-            </CardFooter>
           </Card>
         </div>
       </div>
-      
-      {/* Enterprise Decision Platform Wizard */}
-      {showWizard && (
-        <EnterpriseDecisionPlatform 
-          onComplete={handleWizardComplete} 
-        />
-      )}
+      <Footer />
     </div>
   );
 }
