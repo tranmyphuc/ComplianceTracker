@@ -529,7 +529,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const inputText = (name || '').toLowerCase();
 
       if (inputText.includes('gamma') || inputText.includes('gamma.app')) {
+        // Special handling for Gamma.app
         systemType = 'gammaApp';
+        
+        // Create specific suggestions for Gamma.app
+        const gammaAppSuggestions = {
+          name: name || "Gamma.app",
+          vendor: "Gamma",
+          version: "2.0",
+          department: "Marketing",
+          purpose: "Presentation and content creation platform with AI assistance",
+          aiCapabilities: "Natural Language Processing, Content Generation, Image Generation, Layout Design",
+          trainingDatasets: "Text and image datasets, presentation templates",
+          outputTypes: "Interactive presentations, documents, and visual content",
+          usageContext: "Business presentations, marketing materials, internal communications",
+          potentialImpact: "Improved productivity, enhanced communication, streamlined content creation",
+          riskLevel: "Limited",
+          confidenceScore: 95,
+          riskClassification: "Limited Risk",
+          euAiActArticles: ["Article 52", "Article 13"]
+        };
+        
+        // Return specific suggestions immediately for Gamma.app
+        return res.json(gammaAppSuggestions);
       } else if (inputText.includes('gemini')) {
         systemType = 'gemini';
       } else if (inputText.includes('claude')) {
