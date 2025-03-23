@@ -26,42 +26,31 @@ import { useLocation } from "wouter";
 import React, { useEffect, lazy, Suspense } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RiskAssessmentGuides } from "./routes/lazy-imports";
+import { 
+  RiskAssessmentGuides, 
+  RiskAssessmentDocumentation as LazyRiskAssessmentDocumentation,
+  TrainingDocumentation as LazyTrainingDocumentation,
+  TrainingModule as LazyTrainingModule,
+  TrainingPresentationPage as LazyTrainingPresentationPage,
+  TrainingCertificatePage as LazyTrainingCertificatePage
+} from "./routes/lazy-imports";
 
 function Router() {
   const { user, loading } = useAuth();
   const [location, setLocation] = useLocation();
   const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
 
-  // Handle routing based on auth state
+  // Temporary bypass of login check - login page removed
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        if (
-          location !== "/login" && 
-          location !== "/register" &&
-          !location.startsWith("/reset-password")
-        ) {
-          setLocation("/login");
-        }
-      } else if (location === "/login" || location === "/register") {
-        // Check if onboarding is completed
-        const onboardingCompleted = localStorage.getItem("onboardingCompleted");
-        if (onboardingCompleted !== "true" && !hasCheckedOnboarding) {
-          setHasCheckedOnboarding(true);
-          setLocation("/onboarding");
-        } else {
-          setLocation("/");
-        }
-      }
+    // Force authentication to be always available
+    if (location === "/login" || location === "/register") {
+      setLocation("/");
     }
-  }, [user, loading, location, setLocation, hasCheckedOnboarding]);
+  }, [location, setLocation]);
 
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
       <Route path="/inventory" component={Inventory} />
       <Route path="/risk-assessment" component={RiskAssessment} />
       <Route path="/risk-assessment/guides">
@@ -72,12 +61,47 @@ function Router() {
         )}
       </Route>
       <Route path="/documentation" component={Documentation} />
+      <Route path="/documentation/risk-assessment">
+        {() => (
+          <Suspense fallback={<div className="p-8 text-center">Loading documentation...</div>}>
+            <LazyRiskAssessmentDocumentation />
+          </Suspense>
+        )}
+      </Route>
+      <Route path="/documentation/training-documentation">
+        {() => (
+          <Suspense fallback={<div className="p-8 text-center">Loading documentation...</div>}>
+            <LazyTrainingDocumentation />
+          </Suspense>
+        )}
+      </Route>
       <Route path="/register-system" component={RegisterSystem} />
       <Route path="/knowledge-center" component={KnowledgeCenter} />
       <Route path="/compliance" component={Documentation} />
       <Route path="/governance" component={Dashboard} />
       <Route path="/reports" component={Reports} />
       <Route path="/training" component={Training} />
+      <Route path="/training/module/:id">
+        {(params) => (
+          <Suspense fallback={<div className="p-8 text-center">Loading training module...</div>}>
+            <LazyTrainingModule params={params} />
+          </Suspense>
+        )}
+      </Route>
+      <Route path="/training/presentation/:id">
+        {(params) => (
+          <Suspense fallback={<div className="p-8 text-center">Loading presentation...</div>}>
+            <LazyTrainingPresentationPage params={params} />
+          </Suspense>
+        )}
+      </Route>
+      <Route path="/training/certificate/:id">
+        {(params) => (
+          <Suspense fallback={<div className="p-8 text-center">Loading certificate...</div>}>
+            <LazyTrainingCertificatePage params={params} />
+          </Suspense>
+        )}
+      </Route>
       <Route path="/workflow" component={Workflow} />
       <Route path="/strategic-planning" component={StrategicPlanning} />
       <Route path="/regulatory-complexity" component={RegulatoryComplexity} />
