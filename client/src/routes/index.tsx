@@ -40,4 +40,8 @@
 {
   path: "/training/certificate/:id",
   element: <TrainingCertificatePage />,
+},
+{
+  path: "*",
+  element: <Suspense fallback={<PageLoader />}><NotFound /></Suspense>
 }
