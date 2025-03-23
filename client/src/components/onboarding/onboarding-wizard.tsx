@@ -4,6 +4,8 @@ import { useLocation, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { AIMascot } from "./ai-mascot";
+import { AnimatedJourneyTracker } from "./animated-journey-tracker";
+import { RegulatoryEmojiReaction } from "./regulatory-emoji-reaction";
 import { 
   CheckCircle, 
   ChevronRight, 
@@ -247,6 +249,16 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
               </CardHeader>
               
               <CardContent>
+                {/* Journey Tracker for all steps */}
+                {currentStep > 0 && (
+                  <div className="mb-6">
+                    <AnimatedJourneyTracker 
+                      currentStep={currentStep - 1} 
+                      onStepClick={(index) => setCurrentStep(index + 1)}
+                    />
+                  </div>
+                )}
+                
                 <div className="flex flex-col md:flex-row gap-8 items-center justify-between py-4">
                   <div className="w-full md:w-1/2">
                     {/* Content varies based on current step */}
