@@ -246,3 +246,6 @@ export function EnterpriseTourWizard({ onComplete, onSkip }: EnterpriseTourWizar
     </Card>
   );
 }
+
+// Export alias for backward compatibility
+export const EnterpriseWizard = EnterpriseTourWizard;

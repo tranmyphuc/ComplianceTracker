@@ -1743,13 +1743,15 @@ export async function handleChatbotQuery(req: Request, res: Response) {
         cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
       }
       
-      return formattedResponse;
+      return res.json({ response: formattedResponse });
     } catch (error) {
       console.error('Error formatting chatbot response:', error);
-      return aiResponse;
+      return res.json({ response: aiResponse });
     }
   } catch (error) {
     console.error('Error handling chatbot query:', error);
-    return 'I apologize, but I encountered an error while processing your request. Please try again with a more specific question about EU AI Act compliance.';
+    return res.status(500).json({ 
+      response: 'I apologize, but I encountered an error while processing your request. Please try again with a more specific question about EU AI Act compliance.' 
+    });
   }
 }

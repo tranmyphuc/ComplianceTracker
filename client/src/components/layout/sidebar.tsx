@@ -27,10 +27,13 @@ import {
   NetworkIcon,
   HelpCircleIcon,
   Sparkles,
+  SparklesIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { AiAssistantDialog } from "@/components/ai-assistant/assistant-dialog";
 
 interface SidebarProps {
   className?: string;
@@ -41,6 +44,7 @@ interface SidebarProps {
 export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
   const [location] = useLocation();
   const isMobile = useIsMobile();
+  const [assistantDialogOpen, setAssistantDialogOpen] = useState(false);
 
   const isActive = (path: string) => {
     if (path === "/" && location === "/") return true;
@@ -50,6 +54,14 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
 
   // Conditionally handle item click on mobile to close the sidebar
   const handleItemClick = () => {
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+  
+  // Handle AI Assistant button click
+  const handleAssistantClick = () => {
+    setAssistantDialogOpen(true);
     if (isMobile && onClose) {
       onClose();
     }
@@ -338,12 +350,18 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
           <div className="pt-8 mt-4">
             <Button 
               className="w-full flex items-center justify-center gap-1 sm:gap-2 bg-[#7B1FA2]/90 hover:bg-[#7B1FA2] text-xs sm:text-sm"
-              onClick={handleItemClick}
+              onClick={handleAssistantClick}
             >
-              <BotIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <SparklesIcon className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>AI Assistant</span>
             </Button>
           </div>
+
+          {/* AI Assistant Dialog */}
+          <AiAssistantDialog 
+            open={assistantDialogOpen}
+            onOpenChange={setAssistantDialogOpen}
+          />
 
           {/* Mobile-only footer links */}
           <div className="lg:hidden pt-8 pb-4">

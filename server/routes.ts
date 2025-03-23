@@ -1265,6 +1265,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Assistant chatbot endpoint is already defined above (line 822)
+
   //Risk Assessment Endpoints
   app.get('/api/risk-assessment/:systemId', analyzeSystemRisk);
   app.get('/api/risk-assessment/:systemId/prohibited', analyzeProhibitedUse);
