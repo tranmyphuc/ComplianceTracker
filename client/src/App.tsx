@@ -48,34 +48,35 @@ function Router() {
     }
   }, [location, setLocation]);
 
-  // Import route verification utility
-import { verifyRoutes } from "./utils/route-checker";
+  // Define all routes for verification
+  const allRoutes = [
+    "/",
+    "/inventory",
+    "/risk-assessment",
+    "/risk-assessment/guides",
+    "/documentation",
+    "/documentation/risk-assessment",
+    "/documentation/training-documentation", 
+    "/register-system",
+    "/knowledge-center",
+    "/compliance",
+    "/governance",
+    "/reports",
+    "/training",
+    "/training/module/:id",
+    "/training/presentation/:id",
+    "/training/certificate/:id",
+    // Add other routes from your application
+  ];
 
-// Verify all routes at startup
-const allRoutes = [
-  "/",
-  "/inventory",
-  "/risk-assessment",
-  "/risk-assessment/guides",
-  "/documentation",
-  "/documentation/risk-assessment",
-  "/documentation/training-documentation", 
-  "/register-system",
-  "/knowledge-center",
-  "/compliance",
-  "/governance",
-  "/reports",
-  "/training",
-  "/training/module/:id",
-  "/training/presentation/:id",
-  "/training/certificate/:id",
-  // Add other routes from your application
-];
+  // For debugging - route verification results
+  useEffect(() => {
+    import('./utils/route-checker').then(({ verifyRoutes }) => {
+      console.log('Route verification:', verifyRoutes(allRoutes));
+    });
+  }, []);
 
-// Log route verification results
-console.log('Route verification:', verifyRoutes(allRoutes));
-
-return (
+  return (
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/inventory" component={Inventory} />
