@@ -96,3 +96,16 @@ const TrainingPresentationPage: React.FC = () => {
 };
 
 export default TrainingPresentationPage;
+import { useParams } from 'wouter';
+
+export default function TrainingPresentation() {
+  const [params] = useParams();
+  
+  // Rest of your component implementation
+  return (
+    <div>
+      <h1>Training Presentation</h1>
+      {/* Your presentation content */}
+    </div>
+  );
+}
