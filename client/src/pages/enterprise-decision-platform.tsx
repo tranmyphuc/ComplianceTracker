@@ -3,14 +3,10 @@ import { useLocation } from 'wouter';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { EnterpriseDecisionPlatform } from '@/components/strategic/enterprise-decision-platform';
 import { Brain, TrendingUp, Target, BarChart3, Lightbulb, Sparkles, Network } from 'lucide-react';
 
 export default function EnterprisePlatformPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
   const [, setLocation] = useLocation();
 
@@ -76,13 +72,7 @@ export default function EnterprisePlatformPage() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      
-      <div className="flex-1">
-        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-        
-        <main className="flex-1 p-6 pt-16">
+    <div className="p-6 pt-4">
           <div className="container mx-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
