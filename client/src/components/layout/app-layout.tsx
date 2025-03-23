@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/footer";
 import { BotIcon, MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { MenuProvider } from "@/providers/menu-context"; // Added import
+import { MenuProvider } from "@/providers/menu-context";
 
 interface AppLayoutProps {
   children: React.ReactNode;
