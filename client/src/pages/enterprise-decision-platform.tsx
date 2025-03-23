@@ -1,56 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EnterpriseDecisionPlatform } from '@/components/strategic/enterprise-decision-platform';
-import { Brain, TrendingUp, Target, BarChart3, Lightbulb, Sparkles, Network } from 'lucide-react';
+import { EnterpriseTourWizard } from '@/components/wizards/enterprise-wizard';
+import { TrendingUp, BarChart3, Lightbulb } from 'lucide-react';
 
-export default function EnterprisePlatformPage() {
+export default function EnterprisePage() {
   const [showWizard, setShowWizard] = useState(false);
   const [, setLocation] = useLocation();
 
-  // Check if the wizard should be shown on first visit
-  useEffect(() => {
-    const wizardCompleted = localStorage.getItem("enterpriseWizardCompleted");
-    if (wizardCompleted !== "true") {
-      const timer = setTimeout(() => {
-        setShowWizard(true);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
-  // Handle wizard completion
-  const handleWizardComplete = () => {
-    localStorage.setItem("enterpriseWizardCompleted", "true");
-    setShowWizard(false);
-  };
-
-  // Handle restart wizard
   const handleRestartWizard = () => {
     setShowWizard(true);
   };
 
+  const handleWizardComplete = () => {
+    setShowWizard(false);
+  };
+
+  const handleWizardSkip = () => {
+    setShowWizard(false);
+  };
+
+  if (showWizard) {
+    return (
+      <div className="container mx-auto py-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold">✨ Enterprise AI Decision Platform</h1>
+            <p className="text-muted-foreground mt-1">
+              Tour of key features and capabilities
+            </p>
+          </div>
+          <Button variant="outline" onClick={() => setShowWizard(false)}>
+            Exit Tour
+          </Button>
+        </div>
+        <EnterpriseTourWizard 
+          onComplete={handleWizardComplete}
+          onSkip={handleWizardSkip}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 pt-4">
-      {showWizard && (
-        <EnterpriseDecisionPlatform 
-          onComplete={handleWizardComplete} 
-          onSkip={handleWizardComplete} 
-        />
-      )}
-
       <div className="container mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Enterprise AI Decision Platform</h1>
+            <h1 className="text-3xl font-bold">🚀 Enterprise AI Decision Platform</h1>
             <p className="text-muted-foreground mt-1">
               Transform your strategic decision-making with advanced AI
             </p>
           </div>
           <Button onClick={handleRestartWizard}>
-            Restart Tour
+            🔄 Restart Tour
           </Button>
         </div>
 
