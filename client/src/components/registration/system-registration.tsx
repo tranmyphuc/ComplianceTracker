@@ -1109,6 +1109,7 @@ export const SystemRegistration: React.FC = () => {
             {currentStep === 4 && (
               <ReviewSubmitStep 
                 formData={formData} 
+                setFormData={setFormData}
                 errors={validationErrors}
               />
             )}

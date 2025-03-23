@@ -45,7 +45,11 @@ export const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
   errors = {}
 }) => {
   const handleCheckboxChange = (name: string, checked: boolean) => {
-    setFormData((prev: any) => ({ ...prev, [name]: checked }));
+    if (typeof setFormData === 'function') {
+      setFormData((prev: any) => ({ ...prev, [name]: checked }));
+    } else {
+      console.error("setFormData is not a function in ReviewSubmitStep");
+    }
   };
 
   const getRiskLevelDisplay = () => {
