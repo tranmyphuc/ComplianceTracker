@@ -37,6 +37,13 @@ import {
   TrainingModulePage as LazyTrainingModulePage
 } from "./routes/lazy-imports.ts";
 
+// Placeholder components - replace with actual components
+const MarketIntelligenceView = () => <div>Market Intelligence</div>;
+const OperationsExcellenceView = () => <div>Operations Excellence</div>;
+const RiskManagementView = () => <div>Risk Management</div>;
+const GrowthInnovationView = () => <div>Growth & Innovation</div>;
+
+
 function Router() {
   const { user, loading } = useAuth();
   const [location, setLocation] = useLocation();
@@ -76,6 +83,9 @@ function Router() {
     "/onboarding",
     "/profile",
     "/settings",
+    "/market-intelligence",
+    "/operations-excellence",
+    "/growth-innovation"
   ];
 
   // For debugging - route verification results
@@ -178,6 +188,15 @@ function Router() {
       </Route>
       <Route path="/settings">
         {() => renderWithLayout(Dashboard)}
+      </Route>
+      <Route path="/market-intelligence">
+        {() => renderWithLayout(MarketIntelligenceView)}
+      </Route>
+      <Route path="/operations-excellence">
+        {() => renderWithLayout(OperationsExcellenceView)}
+      </Route>
+      <Route path="/growth-innovation">
+        {() => renderWithLayout(GrowthInnovationView)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}

@@ -18,7 +18,7 @@ import {
   LightbulbIcon,
   TrendingUpIcon,
   BriefcaseIcon,
-  ShieldIcon, 
+  ShieldIcon,
   TargetIcon,
   BarChart3Icon,
   BotIcon,
@@ -28,6 +28,11 @@ import {
   HelpCircleIcon,
   Sparkles,
   SparklesIcon,
+  TrendingUpIcon as TrendingUpIconLucide, // Added Lucide version
+  BriefcaseIcon as BriefcaseIconLucide, // Added Lucide version
+  PieChartIcon as PieChartIconLucide, // Added Lucide version
+  AlertTriangleIcon as AlertTriangleIconLucide, // Added Lucide version
+
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -58,7 +63,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
       onClose();
     }
   };
-  
+
   // Handle AI Assistant button click
   const handleAssistantClick = () => {
     setAssistantDialogOpen(true);
@@ -67,8 +72,21 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
     }
   };
 
+  const mainNavigationItems = [
+    { name: 'Dashboard', path: '/', icon: <HomeIcon className="w-5 h-5" /> },
+    { name: 'Strategic Planning', path: '/strategic-planning', icon: <TargetIcon className="w-5 h-5" /> },
+    { name: 'Market Intelligence', path: '/market-intelligence', icon: <PieChartIconLucide className="w-5 h-5" />, highlight: true },
+    { name: 'Operations Excellence', path: '/operations-excellence', icon: <BriefcaseIconLucide className="w-5 h-5" />, highlight: true },
+    { name: 'Risk Management', path: '/risk-management', icon: <AlertTriangleIconLucide className="w-5 h-5" />, highlight: true },
+    { name: 'Growth & Innovation', path: '/growth-innovation', icon: <TrendingUpIconLucide className="w-5 h-5" />, highlight: true },
+    { name: 'Settings', path: '/settings', icon: <SettingsIcon className="w-5 h-5" /> },
+
+
+  ];
+
+
   return (
-    <div 
+    <div
       className={cn(
         "bg-gradient-to-b from-[#1976D2]/5 to-white border-r border-neutral-200 flex-shrink-0 transition-all duration-300 ease-in-out",
         "fixed lg:static inset-y-0 left-0 z-40",
@@ -79,10 +97,10 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
     >
       {isMobile && (
         <div className="absolute right-2 top-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={onClose} 
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
             className="h-8 w-8 rounded-full"
           >
             <XIcon className="h-4 w-4" />
@@ -102,91 +120,25 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
           </div>
 
           {/* Navigation menu with icons and text */}
-          <Link 
-            href="/"
-            className={cn(
-              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-              isActive("/") && "bg-primary/10 text-primary font-medium"
-            )}
-            onClick={handleItemClick}
-          >
-            <HomeIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
-            <span>Home/Dashboard</span>
-          </Link>
+          <div className="space-y-1">
+            {mainNavigationItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.path}
+                className={cn(
+                  "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+                  isActive(item.path) && "bg-primary/10 text-primary font-medium"
+                )}
+                onClick={handleItemClick}
+              >
+                {item.icon}
+                <span>{item.name}</span>
+              </Link>
+            ))}
+          </div>
 
-          <Link 
-            href="/strategic-planning"
-            className={cn(
-              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-              isActive("/strategic-planning") && "bg-primary/10 text-primary font-medium"
-            )}
-            onClick={handleItemClick}
-          >
-            <TargetIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
-            <span>Strategic Planning</span>
-          </Link>
 
-          <Link 
-            href="/market-intelligence"
-            className={cn(
-              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-              isActive("/market-intelligence") && "bg-primary/10 text-primary font-medium"
-            )}
-            onClick={handleItemClick}
-          >
-            <PieChartIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
-            <span>Market Intelligence</span>
-          </Link>
-
-          <Link 
-            href="/operations-excellence"
-            className={cn(
-              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-              isActive("/operations-excellence") && "bg-primary/10 text-primary font-medium"
-            )}
-            onClick={handleItemClick}
-          >
-            <BriefcaseIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
-            <span>Operations Excellence</span>
-          </Link>
-
-          <Link 
-            href="/risk-management"
-            className={cn(
-              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-              isActive("/risk-management") && "bg-primary/10 text-primary font-medium"
-            )}
-            onClick={handleItemClick}
-          >
-            <AlertTriangleIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
-            <span>Risk Management</span>
-          </Link>
-
-          <Link 
-            href="/growth-innovation"
-            className={cn(
-              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-              isActive("/growth-innovation") && "bg-primary/10 text-primary font-medium"
-            )}
-            onClick={handleItemClick}
-          >
-            <TrendingUpIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
-            <span>Growth & Innovation</span>
-          </Link>
-
-          <Link 
-            href="/settings"
-            className={cn(
-              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-              isActive("/settings") && "bg-primary/10 text-primary font-medium"
-            )}
-            onClick={handleItemClick}
-          >
-            <SettingsIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
-            <span>Settings</span>
-          </Link>
-
-          {/* EU AI Act Compliance Section */}
+          {/* Rest of the original sidebar content remains unchanged */}
           <div className="mt-4 sm:mt-6 mb-2 sm:mb-3 px-3 py-1 sm:py-2">
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium text-neutral-600 uppercase tracking-wider">EU AI Act Compliance</p>
