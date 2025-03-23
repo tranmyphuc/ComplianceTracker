@@ -569,6 +569,399 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
         }
       ]
     }
+  },
+  "5": {
+    "default": {
+      title: "Governance Framework",
+      sections: [
+        {
+          title: "Governance Structure for AI Compliance",
+          content: `<p>An effective AI governance structure is essential for EU AI Act compliance. Organizations should establish:</p>
+          <ul>
+            <li><strong>AI Ethics Committee</strong> - A cross-functional body responsible for oversight of AI development and deployment practices</li>
+            <li><strong>AI Compliance Officer</strong> - A designated role responsible for ensuring regulatory compliance across all AI systems</li>
+            <li><strong>Clear Lines of Responsibility</strong> - Defined accountability for different aspects of compliance</li>
+            <li><strong>Documentation Processes</strong> - Procedures for creating and maintaining required documentation</li>
+            <li><strong>Review Mechanisms</strong> - Regular assessment processes for AI systems throughout their lifecycle</li>
+          </ul>
+          <p>The governance structure should be integrated with existing compliance and risk management frameworks while addressing the specific requirements of AI systems.</p>`
+        },
+        {
+          title: "Risk Management Framework",
+          content: `<p>A comprehensive risk management framework for AI systems should include:</p>
+          <ol>
+            <li><strong>Risk Identification</strong> - Systematic process to identify potential risks in AI systems</li>
+            <li><strong>Risk Assessment</strong> - Evaluation of probability and severity of identified risks</li>
+            <li><strong>Risk Mitigation</strong> - Implementation of controls to reduce risks to acceptable levels</li>
+            <li><strong>Monitoring and Review</strong> - Continuous monitoring of risks and effectiveness of controls</li>
+            <li><strong>Documentation</strong> - Thorough documentation of the entire risk management process</li>
+          </ol>
+          <p>The risk management framework should be tailored to the specific AI applications in use, with special attention to high-risk systems as defined by the EU AI Act.</p>`
+        },
+        {
+          title: "Monitoring Systems and Post-Market Surveillance",
+          content: `<p>The EU AI Act requires ongoing monitoring of high-risk AI systems after deployment. An effective monitoring system includes:</p>
+          <ul>
+            <li><strong>Performance Metrics</strong> - Continuous tracking of key performance indicators</li>
+            <li><strong>Drift Detection</strong> - Identifying changes in data distribution or system behavior</li>
+            <li><strong>Incident Reporting</strong> - Mechanisms for logging and reporting operational issues</li>
+            <li><strong>User Feedback Channels</strong> - Systematic collection and analysis of user feedback</li>
+            <li><strong>Regular Audits</strong> - Scheduled reviews of system performance and compliance</li>
+            <li><strong>Update Management</strong> - Controlled processes for implementing system updates</li>
+          </ul>
+          <p>Post-market surveillance is essential for maintaining compliance throughout the AI system lifecycle and responding to emerging risks.</p>`
+        },
+        {
+          title: "Human Oversight Implementation",
+          content: `<p>Human oversight is a key requirement for high-risk AI systems under the EU AI Act. Effective implementation includes:</p>
+          <ol>
+            <li><strong>Oversight Mechanisms</strong> - Technical means for human monitoring and intervention</li>
+            <li><strong>Clear Authority</strong> - Defined roles and authority for human overseers</li>
+            <li><strong>Training Programs</strong> - Comprehensive training for individuals providing oversight</li>
+            <li><strong>Decision Boundaries</strong> - Clear guidelines for when human intervention is required</li>
+            <li><strong>Override Capabilities</strong> - Technical ability to override system decisions</li>
+            <li><strong>Documentation</strong> - Recording of oversight activities and interventions</li>
+          </ol>
+          <p>Human oversight should be designed to be meaningful and effective, enabling timely intervention before harm occurs.</p>`
+        }
+      ],
+      assessments: [
+        {
+          question: "Which of the following is NOT typically part of an AI governance structure?",
+          options: [
+            "AI Ethics Committee",
+            "AI Compliance Officer",
+            "Fully Autonomous Decision System",
+            "Documentation Processes"
+          ],
+          correctAnswer: "Fully Autonomous Decision System"
+        },
+        {
+          question: "What is the primary purpose of post-market surveillance for AI systems?",
+          options: [
+            "To market the AI system to new customers",
+            "To maintain compliance and detect emerging risks throughout the system lifecycle",
+            "To eliminate the need for human oversight",
+            "To reduce documentation requirements"
+          ],
+          correctAnswer: "To maintain compliance and detect emerging risks throughout the system lifecycle"
+        },
+        {
+          question: "Human oversight for high-risk AI systems requires:",
+          options: [
+            "Complete replacement of AI decision-making with human judgment",
+            "Mechanisms for monitoring, understanding, and intervening in AI decisions when necessary",
+            "Limiting AI capabilities to prevent any autonomous operations",
+            "Removing human involvement from the AI decision process"
+          ],
+          correctAnswer: "Mechanisms for monitoring, understanding, and intervening in AI decisions when necessary"
+        },
+        {
+          question: "Which component of risk management involves determining how likely and severe potential harms might be?",
+          options: [
+            "Risk Identification",
+            "Risk Assessment",
+            "Risk Mitigation",
+            "Risk Documentation"
+          ],
+          correctAnswer: "Risk Assessment"
+        }
+      ]
+    },
+    "decision_maker": {
+      title: "Governance Framework for Decision Makers",
+      sections: [
+        {
+          title: "Strategic Governance Implementation",
+          content: `<p>As a decision-maker, implementing an effective AI governance framework requires strategic consideration of:</p>
+          <ul>
+            <li><strong>Organizational Structure</strong> - Determining where AI governance fits within the broader organization</li>
+            <li><strong>Resource Allocation</strong> - Budgeting for compliance activities, staffing, and tools</li>
+            <li><strong>Policy Development</strong> - Creating comprehensive policies for AI development and deployment</li>
+            <li><strong>Accountability Framework</strong> - Establishing clear accountability for compliance outcomes</li>
+            <li><strong>Culture Development</strong> - Fostering a culture that values ethical AI and compliance</li>
+          </ul>
+          <p>Decision-makers must ensure that governance structures are not merely performative but are embedded into operational processes with appropriate authority and resources.</p>`
+        },
+        {
+          title: "Board-Level Considerations",
+          content: `<p>For executives and board members, AI governance requires consideration of:</p>
+          <ol>
+            <li><strong>Regulatory Risk</strong> - Understanding potential penalties for non-compliance</li>
+            <li><strong>Reputational Impact</strong> - Considering how AI practices affect brand perception</li>
+            <li><strong>Strategic Alignment</strong> - Ensuring AI governance aligns with overall business strategy</li>
+            <li><strong>Oversight Responsibilities</strong> - Defining board-level oversight of AI systems</li>
+            <li><strong>Reporting Structures</strong> - Establishing clear reporting on AI compliance to board level</li>
+          </ol>
+          <p>Board-level engagement with AI governance is essential for ensuring organizational commitment and proper resource allocation.</p>`
+        },
+        {
+          title: "Compliance Investment Strategy",
+          content: `<p>Decision-makers must develop a strategic approach to compliance investment:</p>
+          <ul>
+            <li><strong>Risk-Based Prioritization</strong> - Allocating resources based on system risk levels</li>
+            <li><strong>Compliance Roadmap</strong> - Developing a timeline for implementing governance measures</li>
+            <li><strong>Technology Investment</strong> - Evaluating tools for monitoring, documentation, and risk management</li>
+            <li><strong>Staff Development</strong> - Training and hiring for necessary compliance capabilities</li>
+            <li><strong>Return on Investment Analysis</strong> - Considering business benefits of strong governance</li>
+          </ul>
+          <p>Compliance should be viewed not merely as a cost center but as risk management that protects business value and can create competitive advantage.</p>`
+        },
+        {
+          title: "Governance Effectiveness Metrics",
+          content: `<p>To ensure governance effectiveness, decision-makers should track:</p>
+          <ol>
+            <li><strong>Compliance Coverage</strong> - Percentage of AI systems covered by governance framework</li>
+            <li><strong>Incident Response Times</strong> - Speed of detecting and addressing AI system issues</li>
+            <li><strong>Documentation Completeness</strong> - Status of required documentation for high-risk systems</li>
+            <li><strong>Training Completion</strong> - Percentage of relevant staff with appropriate compliance training</li>
+            <li><strong>Audit Findings</strong> - Number and severity of findings in compliance audits</li>
+            <li><strong>Stakeholder Feedback</strong> - Input from users, customers, and other stakeholders</li>
+          </ol>
+          <p>Regular reporting on these metrics to senior leadership ensures visibility of governance effectiveness and areas for improvement.</p>`
+        }
+      ],
+      assessments: [
+        {
+          question: "As a decision-maker, which approach to AI governance is most effective?",
+          options: [
+            "Delegating all responsibility to the IT department",
+            "Focusing exclusively on technical controls",
+            "Integrating governance into organizational structure with clear accountability and resources",
+            "Implementing governance only after problems occur"
+          ],
+          correctAnswer: "Integrating governance into organizational structure with clear accountability and resources"
+        },
+        {
+          question: "Which metric best indicates the effectiveness of an AI governance framework?",
+          options: [
+            "Number of AI systems developed",
+            "Speed of AI development",
+            "Compliance coverage and incident response times",
+            "Cost reduction in AI development"
+          ],
+          correctAnswer: "Compliance coverage and incident response times"
+        },
+        {
+          question: "When allocating resources for AI compliance, decision-makers should prioritize:",
+          options: [
+            "Equal resources for all AI systems regardless of risk",
+            "Systems based on their risk level, with highest priority for high-risk systems",
+            "Only systems that have already experienced compliance issues",
+            "Marketing-related AI systems exclusively"
+          ],
+          correctAnswer: "Systems based on their risk level, with highest priority for high-risk systems"
+        },
+        {
+          question: "Board-level oversight of AI systems should include:",
+          options: [
+            "Direct technical supervision of AI development",
+            "Coding reviews of all AI systems",
+            "Regular reporting on AI compliance status and risks",
+            "Involvement in day-to-day AI operations"
+          ],
+          correctAnswer: "Regular reporting on AI compliance status and risks"
+        }
+      ]
+    }
+  },
+  "6": {
+    "default": {
+      title: "Implementation Case Studies",
+      sections: [
+        {
+          title: "Healthcare AI Compliance Case Study",
+          content: `<p>A major healthcare provider implemented a diagnostic support AI system that fell under the high-risk category. Their compliance journey illustrates key implementation steps:</p>
+          <ol>
+            <li><strong>Initial Risk Assessment</strong>: The organization conducted a comprehensive risk assessment that identified the system as high-risk due to its healthcare application and potential impact on patient outcomes.</li>
+            <li><strong>Data Governance Implementation</strong>: They established a robust data governance framework, ensuring training data was representative, had proper consent, and was regularly audited for quality.</li>
+            <li><strong>Technical Documentation</strong>: They created detailed technical documentation covering system architecture, data requirements, validation methodologies, and performance metrics.</li>
+            <li><strong>Human Oversight Design</strong>: The system was designed with clear human oversight mechanisms, including confidence scores for predictions and escalation paths for uncertain cases.</li>
+            <li><strong>Conformity Assessment</strong>: They conducted a thorough internal assessment followed by a third-party conformity assessment.</li>
+            <li><strong>Post-Market Monitoring</strong>: A continuous monitoring system was implemented to track performance in real-world settings.</li>
+          </ol>
+          <p>This implementation resulted in a compliant system that maintained high diagnostic accuracy while meeting all EU AI Act requirements.</p>`
+        },
+        {
+          title: "Financial Services Implementation",
+          content: `<p>A financial institution implemented an AI-based credit scoring system that needed to comply with the EU AI Act. Their approach included:</p>
+          <ul>
+            <li><strong>Fairness-by-design</strong>: They incorporated fairness metrics throughout the development process, testing for bias across different demographic groups.</li>
+            <li><strong>Explainability Implementation</strong>: The system was designed to provide clear explanations for credit decisions, showing which factors influenced the outcome.</li>
+            <li><strong>Documentation Automation</strong>: They implemented tooling to automatically generate and update parts of the technical documentation as the model evolved.</li>
+            <li><strong>Risk Management Integration</strong>: AI risk assessments were integrated into the organization's existing enterprise risk management framework.</li>
+            <li><strong>Regular Auditing</strong>: A schedule of regular audits was established to verify continued compliance.</li>
+          </ul>
+          <p>This implementation demonstrates how EU AI Act requirements can be integrated into existing financial services governance frameworks.</p>`
+        },
+        {
+          title: "Manufacturing Implementation Challenges",
+          content: `<p>A manufacturing company implementing a quality control AI system faced several challenges:</p>
+          <ol>
+            <li><strong>Data Scarcity</strong>: Limited examples of product defects made it difficult to build a balanced training dataset. Solution: They implemented synthetic data generation and data augmentation techniques.</li>
+            <li><strong>Documentation Burden</strong>: The technical documentation requirements seemed overwhelming. Solution: They adopted a phased approach, prioritizing critical components first.</li>
+            <li><strong>Performance vs. Explainability</strong>: More accurate models were less explainable. Solution: They implemented a dual-model approach with a complex model for predictions and a simpler model for explanations.</li>
+            <li><strong>Integration with Legacy Systems</strong>: The oversight mechanisms needed to work with existing production systems. Solution: They created an abstraction layer that enabled monitoring without disrupting production.</li>
+          </ol>
+          <p>This case study highlights common implementation challenges and practical approaches to overcome them while maintaining compliance.</p>`
+        },
+        {
+          title: "Implementation Best Practices",
+          content: `<p>From successful implementations across industries, several best practices have emerged:</p>
+          <ul>
+            <li><strong>Start with Inventory</strong>: Begin by inventorying all AI systems to identify which fall under the EU AI Act scope.</li>
+            <li><strong>Risk-Based Prioritization</strong>: Focus compliance efforts on high-risk systems first.</li>
+            <li><strong>Embed Compliance in Development</strong>: Integrate compliance requirements into the AI development lifecycle rather than treating them as an afterthought.</li>
+            <li><strong>Leverage Automation</strong>: Use tools to automate documentation, testing, and monitoring where possible.</li>
+            <li><strong>Cross-Functional Teams</strong>: Form teams with technical, legal, and domain expertise to address compliance holistically.</li>
+            <li><strong>Regular Reviews</strong>: Establish a cadence of regular compliance reviews as systems evolve.</li>
+            <li><strong>Continuous Training</strong>: Ensure ongoing training for all stakeholders involved in AI development and oversight.</li>
+          </ul>
+          <p>Organizations that adopt these practices typically achieve more efficient compliance while maintaining innovation velocity.</p>`
+        }
+      ],
+      assessments: [
+        {
+          question: "What is a key lesson from the healthcare AI implementation case study?",
+          options: [
+            "AI systems in healthcare cannot be compliant with the EU AI Act",
+            "Human oversight mechanisms are unnecessary if the AI is accurate enough",
+            "Integrating compliance considerations throughout the development lifecycle is essential",
+            "Technical documentation is optional for healthcare applications"
+          ],
+          correctAnswer: "Integrating compliance considerations throughout the development lifecycle is essential"
+        },
+        {
+          question: "Which approach did the financial services implementation use to address explainability requirements?",
+          options: [
+            "They obtained an exemption from explainability requirements",
+            "They designed the system to provide clear explanations for credit decisions",
+            "They eliminated the AI system entirely",
+            "They restricted the system to only process non-personal data"
+          ],
+          correctAnswer: "They designed the system to provide clear explanations for credit decisions"
+        },
+        {
+          question: "How did the manufacturing company address the challenge of data scarcity?",
+          options: [
+            "They ignored the requirement for representative data",
+            "They purchased personal data without consent",
+            "They implemented synthetic data generation and data augmentation techniques",
+            "They used only publicly available data"
+          ],
+          correctAnswer: "They implemented synthetic data generation and data augmentation techniques"
+        },
+        {
+          question: "According to the best practices, what should organizations do first when implementing EU AI Act compliance?",
+          options: [
+            "Hire external consultants",
+            "Create an inventory of AI systems to identify which fall under the EU AI Act scope",
+            "Implement monitoring systems for all AI applications",
+            "Develop new AI systems with built-in compliance"
+          ],
+          correctAnswer: "Create an inventory of AI systems to identify which fall under the EU AI Act scope"
+        }
+      ]
+    },
+    "developer": {
+      title: "Implementation Case Studies for Developers",
+      sections: [
+        {
+          title: "Technical Implementation Patterns",
+          content: `<p>From a developer perspective, several technical implementation patterns have emerged for achieving EU AI Act compliance:</p>
+          <ol>
+            <li><strong>Model Cards</strong>: Structured documentation of model characteristics, including training data, performance metrics, limitations, and ethical considerations.</li>
+            <li><strong>Data Sheets</strong>: Formalized documentation of dataset properties, including collection methodology, preprocessing steps, and potential biases.</li>
+            <li><strong>Explainability Wrappers</strong>: Implementation of model-agnostic explanation layers that can provide interpretable insights for any black-box model.</li>
+            <li><strong>Continuous Validation Pipelines</strong>: Automated testing frameworks that regularly validate model performance across various metrics and data distributions.</li>
+            <li><strong>Versioned Model Registry</strong>: Systems for tracking all model versions, associated artifacts, and approval workflows.</li>
+            <li><strong>Logging and Traceability</strong>: Comprehensive logging of model inputs, outputs, and decision factors for auditability.</li>
+          </ol>
+          <p>These technical patterns can be adapted and combined to address specific compliance requirements for different AI systems.</p>`
+        },
+        {
+          title: "Developer-Focused Implementation Tools",
+          content: `<p>Several tools have proven valuable for developers implementing EU AI Act compliance:</p>
+          <ul>
+            <li><strong>Fairness Libraries</strong>: Tools like AIF360 and Fairlearn for measuring and mitigating algorithmic bias.</li>
+            <li><strong>Explainability Frameworks</strong>: Libraries such as SHAP, LIME, and InterpretML for generating explanations of model decisions.</li>
+            <li><strong>Model and Data Documentation Tools</strong>: Automated documentation generators that maintain standardized documentation.</li>
+            <li><strong>Monitoring Solutions</strong>: Tools for detecting drift, performance degradation, and anomalies in production.</li>
+            <li><strong>Risk Assessment Frameworks</strong>: Structured approaches for assessing and documenting AI system risks.</li>
+            <li><strong>Visualization Tools</strong>: Ways to communicate complex model behavior to stakeholders and overseers.</li>
+          </ul>
+          <p>Leveraging these tools can significantly reduce the implementation burden while improving compliance quality.</p>`
+        },
+        {
+          title: "Code Architecture for Compliance",
+          content: `<p>Successful implementations often feature specific architectural considerations:</p>
+          <ol>
+            <li><strong>Separation of Concerns</strong>: Clearly delineated modules for data processing, model training, inference, and monitoring.</li>
+            <li><strong>Auditable Data Pipelines</strong>: Data processing workflows that maintain provenance and enable reproduction.</li>
+            <li><strong>Human-in-the-Loop Design Patterns</strong>: Architectures that facilitate meaningful human oversight at appropriate points.</li>
+            <li><strong>Confidence Scoring</strong>: Mechanisms to assess and communicate prediction confidence levels.</li>
+            <li><strong>Fallback Mechanisms</strong>: Graceful degradation paths when AI components cannot make reliable decisions.</li>
+            <li><strong>Compliance Metadata</strong>: Structured storage of compliance-related information alongside model artifacts.</li>
+          </ol>
+          <p>These architectural approaches make compliance more manageable and less likely to require major refactoring later.</p>`
+        },
+        {
+          title: "Testing Strategies for Compliance",
+          content: `<p>Comprehensive testing is essential for EU AI Act compliance. Key testing strategies include:</p>
+          <ul>
+            <li><strong>Adversarial Testing</strong>: Proactively identifying potential failure modes through challenging inputs.</li>
+            <li><strong>Fairness Testing</strong>: Evaluating model performance across different demographic groups to detect bias.</li>
+            <li><strong>Robustness Testing</strong>: Assessing model performance under various perturbations and edge cases.</li>
+            <li><strong>Performance Boundary Testing</strong>: Identifying conditions where the system's reliability degrades.</li>
+            <li><strong>Oversight Mechanism Testing</strong>: Verifying that human oversight controls function as intended.</li>
+            <li><strong>Documentation Completeness Testing</strong>: Validating that all required documentation elements are present and accurate.</li>
+          </ul>
+          <p>These testing approaches should be integrated into CI/CD pipelines to ensure continuous compliance throughout development.</p>`
+        }
+      ],
+      assessments: [
+        {
+          question: "Which technical implementation pattern is primarily focused on documenting dataset characteristics?",
+          options: [
+            "Model Cards",
+            "Data Sheets",
+            "Explainability Wrappers",
+            "Versioned Model Registry"
+          ],
+          correctAnswer: "Data Sheets"
+        },
+        {
+          question: "What is the primary purpose of implementing 'Confidence Scoring' in an AI system architecture?",
+          options: [
+            "To speed up model training",
+            "To improve model accuracy",
+            "To assess and communicate prediction reliability levels",
+            "To reduce computational requirements"
+          ],
+          correctAnswer: "To assess and communicate prediction reliability levels"
+        },
+        {
+          question: "Which testing strategy is specifically designed to identify potential biases in AI systems?",
+          options: [
+            "Adversarial Testing",
+            "Fairness Testing",
+            "Robustness Testing",
+            "Performance Boundary Testing"
+          ],
+          correctAnswer: "Fairness Testing"
+        },
+        {
+          question: "When implementing human oversight mechanisms, developers should focus on:",
+          options: [
+            "Minimizing the need for human involvement",
+            "Designing interfaces that facilitate meaningful human oversight at appropriate points",
+            "Ensuring humans can override the system but not understand it",
+            "Keeping human operators busy with constant verification tasks"
+          ],
+          correctAnswer: "Designing interfaces that facilitate meaningful human oversight at appropriate points"
+        }
+      ]
+    }
   }
 };
 
