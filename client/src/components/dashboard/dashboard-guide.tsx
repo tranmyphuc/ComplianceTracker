@@ -1,10 +1,22 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, FileText, HelpCircle, ShieldAlert, Users, AlertTriangle, Lightbulb, ChevronRight } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { 
+  HelpCircle, 
+  LayoutDashboard, 
+  ShieldAlert, 
+  FileCheck, 
+  BookOpen,
+  ArrowRight 
+} from 'lucide-react';
 
 const DashboardGuide: React.FC<{ open: boolean; onOpenChange: (open: boolean) => void }> = ({
   open,
@@ -34,232 +46,198 @@ const DashboardGuide: React.FC<{ open: boolean; onOpenChange: (open: boolean) =>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
-            <div className="bg-muted/50 p-4 rounded-lg border">
-              <h3 className="text-lg font-semibold mb-2">Platform Overview</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                The EU AI Act Compliance Platform helps organizations inventory, assess, and ensure compliance of their AI systems with the European Union's AI Act regulations.
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <h3 className="flex items-center gap-2 text-lg font-medium mb-2">
+                <LayoutDashboard className="h-5 w-5 text-primary" />
+                Platform Overview
+              </h3>
+              <p className="text-muted-foreground">
+                The EU AI Act Compliance Platform helps organizations register, assess, and monitor AI systems for compliance with the European Union's AI Act regulations.
               </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <Card className="p-4 flex flex-col items-center text-center">
-                  <div className="rounded-full bg-primary/10 p-3 mb-3">
-                    <Users className="h-6 w-6 text-primary" />
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="font-medium">Key Features:</h4>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">1</div>
+                  <div>
+                    <span className="font-medium">System Registration</span>
+                    <p className="text-sm text-muted-foreground">Register your AI systems and document their capabilities and use cases</p>
                   </div>
-                  <h4 className="font-medium mb-1">Step 1: System Registration</h4>
-                  <p className="text-sm text-muted-foreground">Register all AI systems in your organization's inventory</p>
-                </Card>
-                
-                <Card className="p-4 flex flex-col items-center text-center">
-                  <div className="rounded-full bg-primary/10 p-3 mb-3">
-                    <ShieldAlert className="h-6 w-6 text-primary" />
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">2</div>
+                  <div>
+                    <span className="font-medium">Risk Assessment</span>
+                    <p className="text-sm text-muted-foreground">Evaluate potential risks of your AI systems and get guidance on mitigation</p>
                   </div>
-                  <h4 className="font-medium mb-1">Step 2: Risk Assessment</h4>
-                  <p className="text-sm text-muted-foreground">Evaluate risk levels and compliance requirements</p>
-                </Card>
-                
-                <Card className="p-4 flex flex-col items-center text-center">
-                  <div className="rounded-full bg-primary/10 p-3 mb-3">
-                    <CheckCircle className="h-6 w-6 text-primary" />
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">3</div>
+                  <div>
+                    <span className="font-medium">Compliance Monitoring</span>
+                    <p className="text-sm text-muted-foreground">Continuously monitor compliance status and get alerted to new requirements</p>
                   </div>
-                  <h4 className="font-medium mb-1">Step 3: Documentation</h4>
-                  <p className="text-sm text-muted-foreground">Maintain required documentation and monitor compliance</p>
-                </Card>
-              </div>
-              
-              <div className="mt-4">
-                <Button onClick={() => setCurrentTab("registration")} className="mt-4 w-full gap-2">
-                  Start with System Registration <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">4</div>
+                  <div>
+                    <span className="font-medium">Documentation Generation</span>
+                    <p className="text-sm text-muted-foreground">Generate required compliance documentation automatically</p>
+                  </div>
+                </li>
+              </ul>
             </div>
           </TabsContent>
 
           <TabsContent value="registration" className="space-y-4">
-            <div className="bg-muted/50 p-4 rounded-lg border">
-              <h3 className="text-lg font-semibold mb-2">System Registration Guide</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                The first step to compliance is creating a comprehensive inventory of all AI systems used within your organization.
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <h3 className="flex items-center gap-2 text-lg font-medium mb-2">
+                <FileCheck className="h-5 w-5 text-primary" />
+                System Registration
+              </h3>
+              <p className="text-muted-foreground">
+                The first step in compliance is registering your AI systems to document their purposes, capabilities, and risk factors.
               </p>
-              
-              <div className="space-y-4">
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 1</div>
-                  <div className="mt-2 flex items-start">
-                    <Users className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">Navigate to System Registration</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Click on "System Registration" in the main navigation menu to access the registration form.</p>
-                    </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="font-medium">Registration Process:</h4>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">1</div>
+                  <div>
+                    <span className="font-medium">Navigate to System Registration</span>
+                    <p className="text-sm text-muted-foreground">Click on "System Registration" in the main navigation menu</p>
                   </div>
-                </div>
-                
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 2</div>
-                  <div className="mt-2 flex items-start">
-                    <FileText className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">Complete the Registration Form</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Fill in all required fields with accurate information about your AI system.</p>
-                      <div className="bg-amber-50 p-2 rounded mt-2 text-sm border-l-2 border-amber-400">
-                        <strong>Tip:</strong> Be as detailed as possible when describing your system's purpose and capabilities.
-                      </div>
-                    </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">2</div>
+                  <div>
+                    <span className="font-medium">Provide Basic Information</span>
+                    <p className="text-sm text-muted-foreground">Enter essential details about your AI system, including name, purpose, and domain</p>
                   </div>
-                </div>
-                
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 3</div>
-                  <div className="mt-2 flex items-start">
-                    <Lightbulb className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">Run AI Analysis</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Our DeepSeek-powered AI will analyze your system details to determine risk classification and compliance requirements.</p>
-                    </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">3</div>
+                  <div>
+                    <span className="font-medium">Document Technical Aspects</span>
+                    <p className="text-sm text-muted-foreground">Record technical specifications, data sources, and algorithms used</p>
                   </div>
-                </div>
-                
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 4</div>
-                  <div className="mt-2 flex items-start">
-                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">Review & Submit</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Review the AI analysis results and submit the registration to add the system to your inventory.</p>
-                    </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">4</div>
+                  <div>
+                    <span className="font-medium">Submit for Preliminary Classification</span>
+                    <p className="text-sm text-muted-foreground">The platform will analyze your system and suggest an initial risk classification</p>
                   </div>
-                </div>
-              </div>
-              
-              <Button onClick={() => setCurrentTab("risk")} className="mt-6 w-full gap-2">
-                Continue to Risk Assessment <ChevronRight className="h-4 w-4" />
-              </Button>
+                </li>
+              </ul>
             </div>
           </TabsContent>
 
           <TabsContent value="risk" className="space-y-4">
-            <div className="bg-muted/50 p-4 rounded-lg border">
-              <h3 className="text-lg font-semibold mb-2">Risk Assessment Guide</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                After registering your AI systems, the next step is to conduct thorough risk assessments to determine compliance requirements.
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <h3 className="flex items-center gap-2 text-lg font-medium mb-2">
+                <ShieldAlert className="h-5 w-5 text-primary" />
+                Risk Assessment
+              </h3>
+              <p className="text-muted-foreground">
+                The risk assessment module helps evaluate potential risks and compliance requirements based on the EU AI Act's risk categories.
               </p>
-              
-              <div className="space-y-4">
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 1</div>
-                  <div className="mt-2 flex items-start">
-                    <ShieldAlert className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">Navigate to Risk Assessment</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Click on "Risk Assessment" in the main navigation menu to access the assessment tools.</p>
-                    </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="font-medium">Risk Assessment Process:</h4>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">1</div>
+                  <div>
+                    <span className="font-medium">Review Preliminary Classification</span>
+                    <p className="text-sm text-muted-foreground">Check the suggested risk level for your registered system</p>
                   </div>
-                </div>
-                
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 2</div>
-                  <div className="mt-2 flex items-start">
-                    <AlertTriangle className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">Select a System to Assess</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Choose a registered AI system from your inventory to conduct its risk assessment.</p>
-                    </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">2</div>
+                  <div>
+                    <span className="font-medium">Complete Risk Questionnaire</span>
+                    <p className="text-sm text-muted-foreground">Answer detailed questions about your system's use cases and potential impacts</p>
                   </div>
-                </div>
-                
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 3</div>
-                  <div className="mt-2 flex items-start">
-                    <FileText className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">Complete the Assessment Questionnaire</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Answer all questions accurately to determine the risk level and applicable EU AI Act requirements.</p>
-                      <div className="bg-amber-50 p-2 rounded mt-2 text-sm border-l-2 border-amber-400">
-                        <strong>Important:</strong> Risk assessments must be thorough and honest to ensure proper compliance.
-                      </div>
-                    </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">3</div>
+                  <div>
+                    <span className="font-medium">Review Risk Analysis</span>
+                    <p className="text-sm text-muted-foreground">Examine the identified risks and their severity levels</p>
                   </div>
-                </div>
-                
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 4</div>
-                  <div className="mt-2 flex items-start">
-                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">Review Results & Document</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Review the assessment results and document any required compliance measures based on the identified risk level.</p>
-                    </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">4</div>
+                  <div>
+                    <span className="font-medium">Get Compliance Requirements</span>
+                    <p className="text-sm text-muted-foreground">Receive a list of specific compliance requirements based on your risk classification</p>
                   </div>
-                </div>
-              </div>
-              
-              <Button onClick={() => setCurrentTab("compliance")} className="mt-6 w-full gap-2">
-                Continue to Compliance Documentation <ChevronRight className="h-4 w-4" />
-              </Button>
+                </li>
+              </ul>
             </div>
           </TabsContent>
 
           <TabsContent value="compliance" className="space-y-4">
-            <div className="bg-muted/50 p-4 rounded-lg border">
-              <h3 className="text-lg font-semibold mb-2">Compliance Documentation Guide</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Maintaining proper documentation is crucial for EU AI Act compliance. Follow these steps to ensure you have all necessary documentation.
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <h3 className="flex items-center gap-2 text-lg font-medium mb-2">
+                <BookOpen className="h-5 w-5 text-primary" />
+                Compliance Monitoring
+              </h3>
+              <p className="text-muted-foreground">
+                The platform continuously monitors your systems' compliance status and alerts you to any changes in requirements or potential issues.
               </p>
-              
-              <div className="space-y-4">
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 1</div>
-                  <div className="mt-2 flex items-start">
-                    <FileText className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">View Required Documentation</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Access the system details page to view all documentation requirements based on the risk assessment.</p>
-                    </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="font-medium">Compliance Features:</h4>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">1</div>
+                  <div>
+                    <span className="font-medium">Compliance Dashboard</span>
+                    <p className="text-sm text-muted-foreground">View the overall compliance status of all your registered systems</p>
                   </div>
-                </div>
-                
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 2</div>
-                  <div className="mt-2 flex items-start">
-                    <FileText className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">Create Required Documents</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Use the document templates provided to create all required documentation for your AI system.</p>
-                      <div className="bg-amber-50 p-2 rounded mt-2 text-sm border-l-2 border-amber-400">
-                        <strong>Tip:</strong> The platform provides AI-assisted document generation to help create compliant documentation.
-                      </div>
-                    </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">2</div>
+                  <div>
+                    <span className="font-medium">Documentation Center</span>
+                    <p className="text-sm text-muted-foreground">Access and generate all required compliance documentation</p>
                   </div>
-                </div>
-                
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 3</div>
-                  <div className="mt-2 flex items-start">
-                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">Upload & Manage Documents</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Upload all required documents to the platform to maintain a complete compliance record.</p>
-                    </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">3</div>
+                  <div>
+                    <span className="font-medium">Regulatory Updates</span>
+                    <p className="text-sm text-muted-foreground">Stay informed about changes to the EU AI Act and other relevant regulations</p>
                   </div>
-                </div>
-                
-                <div className="relative border rounded-lg p-4 bg-white shadow-sm">
-                  <div className="absolute -top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded-full">Step 4</div>
-                  <div className="mt-2 flex items-start">
-                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-1" />
-                    <div>
-                      <h4 className="font-medium">Monitor Compliance Status</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Regularly check the dashboard to monitor compliance status and address any outstanding issues.</p>
-                    </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/20 text-primary font-medium">4</div>
+                  <div>
+                    <span className="font-medium">Audit Preparation</span>
+                    <p className="text-sm text-muted-foreground">Get guidance on preparing for compliance audits and inspections</p>
                   </div>
-                </div>
-              </div>
-              
-              <Button onClick={() => setCurrentTab("overview")} className="mt-6 w-full gap-2">
-                Return to Overview
-              </Button>
+                </li>
+              </ul>
             </div>
           </TabsContent>
         </Tabs>
+
+        <div className="flex justify-between mt-6">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Close Guide
+          </Button>
+          <Button className="gap-2">
+            Get Started <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
