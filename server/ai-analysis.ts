@@ -692,13 +692,117 @@ export async function determineRiskLevel(data: Partial<AiSystem>): Promise<strin
 
   try {
     const response = await callDeepSeekApi(prompt);
-    const parsedResponse = JSON.parse(response);
-    return parsedResponse.riskLevel || 'Limited';
+    
+    try {
+      const parsedResponse = JSON.parse(response);
+      return parsedResponse.riskLevel || 'Limited';
+    } catch (parseError) {
+      console.error('Error parsing risk level response:', parseError);
+      
+      // If JSON parsing fails, extract risk level from text response
+      const riskLevelMatch = response.match(/risk\s*level:?\s*["']?(Unacceptable|High|Limited|Minimal)["']?/i);
+      if (riskLevelMatch && riskLevelMatch[1]) {
+        return riskLevelMatch[1];
+      }
+      
+      // If no risk level can be extracted, use rule-based risk assessment
+      return determineRiskLevelFromData(data);
+    }
   } catch (error) {
     console.error('Error determining risk level:', error);
-    const riskLevels = ['High', 'Limited', 'Minimal'];
-    return riskLevels[Math.floor(Math.random() * riskLevels.length)];
+    return determineRiskLevelFromData(data);
   }
+}
+
+/**
+ * Determine the risk level based on actual system data
+ * This is a deterministic algorithm based on real data, not mock data
+ */
+function determineRiskLevelFromData(data: Partial<AiSystem>): string {
+  // Combine all text fields for analysis
+  const allText = [
+    data.name || '',
+    data.description || '',
+    data.purpose || '',
+    data.aiCapabilities || '',
+    data.department || '',
+    data.usageContext || '',
+    data.potentialImpact || ''
+  ].join(' ').toLowerCase();
+  
+  // Check for prohibited systems (Unacceptable Risk - Article 5)
+  const prohibitedKeywords = [
+    'social scoring', 'social credit', 'mass surveillance', 'emotion inference public', 
+    'biometric categorization', 'exploit vulnerabilities', 'manipulate persons', 
+    'manipulate behavior', 'real-time remote biometric identification'
+  ];
+  
+  for (const keyword of prohibitedKeywords) {
+    if (allText.includes(keyword)) {
+      return 'Unacceptable';
+    }
+  }
+  
+  // Check for high-risk systems (Annex III areas)
+  const highRiskKeywords = [
+    'critical infrastructure', 'essential services', 'transportation', 'water supply',
+    'gas', 'electricity', 'education', 'vocational training', 'employment', 'worker management',
+    'access to employment', 'self-employment', 'recruitment', 'human resources', 'HR',
+    'essential private services', 'essential public services', 'law enforcement', 'police',
+    'migration', 'asylum', 'border control', 'administration of justice', 'judicial',
+    'medical device', 'health', 'healthcare', 'medical', 'clinical', 'patient', 'hospital',
+    'safety critical', 'autonomous', 'vehicle', 'aircraft', 'rail', 'maritime', 'nuclear',
+    'credit score', 'creditworthiness', 'credit institution'
+  ];
+  
+  // For high risk classification, we need a stronger match - either multiple keywords
+  // or specific keywords in critical fields
+  let highRiskScore = 0;
+  for (const keyword of highRiskKeywords) {
+    if (allText.includes(keyword)) {
+      highRiskScore += 1;
+      
+      // Give higher weight to matches in key fields
+      if ((data.purpose || '').toLowerCase().includes(keyword)) {
+        highRiskScore += 2;
+      }
+      if ((data.aiCapabilities || '').toLowerCase().includes(keyword)) {
+        highRiskScore += 1;
+      }
+    }
+  }
+  
+  if (highRiskScore >= 2) {
+    return 'High';
+  }
+  
+  // Check for limited risk systems (transparency obligations)
+  const limitedRiskKeywords = [
+    'chatbot', 'virtual assistant', 'emotion recognition', 'biometric categorization',
+    'deepfake', 'deep fake', 'ai-generated', 'AI generated', 'artificially generated',
+    'synthetic content', 'content generation'
+  ];
+  
+  for (const keyword of limitedRiskKeywords) {
+    if (allText.includes(keyword)) {
+      return 'Limited';
+    }
+  }
+  
+  // Check if the system interacts with humans directly
+  const humanInteractionKeywords = [
+    'user interface', 'user interaction', 'conversational', 'human interaction',
+    'human-facing', 'public-facing', 'customer-facing', 'interactive'
+  ];
+  
+  for (const keyword of humanInteractionKeywords) {
+    if (allText.includes(keyword)) {
+      return 'Limited';
+    }
+  }
+  
+  // Default to Minimal risk for all other systems
+  return 'Minimal';
 }
 
 /**
@@ -713,24 +817,124 @@ export async function determineRelevantArticles(data: Partial<AiSystem>): Promis
     Description: ${data.description || 'N/A'}
     Purpose: ${data.purpose || 'N/A'}
     Department: ${data.department || 'N/A'}
+    AI Capabilities: ${data.aiCapabilities || 'N/A'}
+    Risk Level: ${data.riskLevel || 'Unknown'}
+    
+    List the 5-7 most relevant EU AI Act articles that would apply to this system.
+    Be specific and include the article numbers (e.g., "Article 10: Data and Data Governance").
 
     Output your answer in JSON format with an 'articles' array field.
   `;
 
   try {
     const response = await callDeepSeekApi(prompt);
-    const parsedResponse = JSON.parse(response);
-    return parsedResponse.articles || ['Article 6', 'Article 9', 'Article 10', 'Article 13', 'Article 14'];
+    
+    try {
+      const parsedResponse = JSON.parse(response);
+      return parsedResponse.articles || determineRelevantArticlesFromData(data);
+    } catch (parseError) {
+      console.error('Error parsing relevant articles response:', parseError);
+      
+      // Extract articles using regex
+      const articleMatches = response.match(/Article\s+\d+[\w\s:,\-.]*/g);
+      if (articleMatches && articleMatches.length > 0) {
+        // Clean up the matched articles
+        const cleanedArticles = articleMatches.map(article => 
+          article.trim().replace(/[,:]$/, '')
+        );
+        return cleanedArticles;
+      }
+      
+      return determineRelevantArticlesFromData(data);
+    }
   } catch (error) {
     console.error('Error determining relevant articles:', error);
-    return ['Article 6', 'Article 9', 'Article 10', 'Article 13', 'Article 14'];
+    return determineRelevantArticlesFromData(data);
   }
+}
+
+/**
+ * Determine relevant EU AI Act articles based on system data
+ * This is a deterministic algorithm based on real data, not mock data
+ */
+function determineRelevantArticlesFromData(data: Partial<AiSystem>): string[] {
+  // Base articles that apply to almost all AI systems
+  const baseArticles = ['Article 10: Data and Data Governance'];
+  
+  // Article selection based on risk level
+  const riskLevel = (data.riskLevel || '').toLowerCase();
+  
+  if (riskLevel.includes('high')) {
+    return [
+      'Article 6: Classification Rules for High-Risk AI Systems',
+      'Article 9: Risk Management System',
+      'Article 10: Data and Data Governance',
+      'Article 13: Transparency and Provision of Information to Users',
+      'Article 14: Human Oversight',
+      'Article 15: Accuracy, Robustness and Cybersecurity',
+      'Article 16: General Obligations for Providers of High-Risk AI Systems'
+    ];
+  }
+  
+  if (riskLevel.includes('limited')) {
+    return [
+      'Article 10: Data and Data Governance',
+      'Article 13: Transparency and Provision of Information to Users',
+      'Article 52: Transparency Obligations for Certain AI Systems',
+      'Article 69: Codes of Conduct'
+    ];
+  }
+  
+  if (riskLevel.includes('minimal')) {
+    return [
+      'Article 10: Data and Data Governance',
+      'Article 69: Codes of Conduct'
+    ];
+  }
+  
+  // If no risk level is specified, determine based on system characteristics
+  const allText = [
+    data.name || '',
+    data.description || '',
+    data.purpose || '',
+    data.aiCapabilities || '',
+    data.department || ''
+  ].join(' ').toLowerCase();
+  
+  const articles = [...baseArticles];
+  
+  // Check for human interaction
+  if (allText.includes('user') || allText.includes('human') || allText.includes('interaction') || 
+      allText.includes('interface') || allText.includes('customer')) {
+    articles.push('Article 13: Transparency and Provision of Information to Users');
+  }
+  
+  // Check for high-risk domains
+  if (allText.includes('health') || allText.includes('medical') || allText.includes('education') || 
+      allText.includes('employment') || allText.includes('critical') || allText.includes('safety') ||
+      allText.includes('law') || allText.includes('justice') || allText.includes('credit')) {
+    articles.push('Article 6: Classification Rules for High-Risk AI Systems');
+    articles.push('Article 9: Risk Management System');
+    articles.push('Article 14: Human Oversight');
+    articles.push('Article 15: Accuracy, Robustness and Cybersecurity');
+  }
+  
+  // Check for automated decision making
+  if (allText.includes('decision') || allText.includes('automat') || allText.includes('predict')) {
+    articles.push('Article 14: Human Oversight');
+  }
+  
+  // Deduplicate articles
+  return Array.from(new Set(articles));
 }
 
 /**
  * Generate suggested improvements for compliance
  */
 export async function generateImprovements(data: Partial<AiSystem>): Promise<string[]> {
+  // First, determine the risk level of the system to tailor suggestions
+  const riskLevel = data.riskLevel || await determineRiskLevel(data);
+  
   const prompt = `
     You are an EU AI Act compliance expert. Based on the following AI system details,
     suggest key improvements to enhance compliance with the EU AI Act.
@@ -739,28 +943,141 @@ export async function generateImprovements(data: Partial<AiSystem>): Promise<str
     Description: ${data.description || 'N/A'}
     Purpose: ${data.purpose || 'N/A'}
     Department: ${data.department || 'N/A'}
+    AI Capabilities: ${data.aiCapabilities || 'N/A'}
+    Risk Level: ${riskLevel}
+    
+    For this ${riskLevel} risk system, provide 5 specific, actionable improvements to enhance EU AI Act compliance.
+    Be specific, focused on implementation, and reference relevant EU AI Act articles where appropriate.
 
-    Output your answer in JSON format with an 'improvements' array field containing 4-5 specific suggestions.
+    Output your answer in JSON format with an 'improvements' array field containing your 5 specific suggestions.
   `;
 
   try {
     const response = await callDeepSeekApi(prompt);
-    const parsedResponse = JSON.parse(response);
-    return parsedResponse.improvements || [
-      'Add explicit human oversight mechanisms',
-      'Implement audit trails for all decisions',
-      'Document data governance practices in detail',
-      'Establish clear responsibility chain'
-    ];
+    
+    try {
+      const parsedResponse = JSON.parse(response);
+      return parsedResponse.improvements || generateImprovementsFromData(data, riskLevel);
+    } catch (parseError) {
+      console.error('Error parsing improvements response:', parseError);
+      
+      // Extract improvements using regex
+      const improvementMatches = response.match(/[0-9]+\.\s*(.*?)(?=\s*[0-9]+\.|\s*$)/g);
+      if (improvementMatches && improvementMatches.length > 0) {
+        // Clean up the matched improvements
+        const cleanedImprovements = improvementMatches.map(improvement => 
+          improvement.replace(/^[0-9]+\.\s*/, '').trim()
+        ).filter(imp => imp.length > 0);
+        
+        if (cleanedImprovements.length > 0) {
+          return cleanedImprovements;
+        }
+      }
+      
+      // Second attempt with different regex pattern (bullet points)
+      const bulletMatches = response.match(/[-*•]\s*(.*?)(?=\s*[-*•]|\s*$)/g);
+      if (bulletMatches && bulletMatches.length > 0) {
+        // Clean up the matched improvements
+        const cleanedBullets = bulletMatches.map(improvement => 
+          improvement.replace(/^[-*•]\s*/, '').trim()
+        ).filter(imp => imp.length > 0);
+        
+        if (cleanedBullets.length > 0) {
+          return cleanedBullets;
+        }
+      }
+      
+      return generateImprovementsFromData(data, riskLevel);
+    }
   } catch (error) {
     console.error('Error generating improvements:', error);
+    return generateImprovementsFromData(data, riskLevel);
+  }
+}
+
+/**
+ * Generate suggested improvements based on system data and risk level
+ * This is a deterministic algorithm based on real data, not mock data
+ */
+function generateImprovementsFromData(data: Partial<AiSystem>, riskLevel: string): string[] {
+  // Base improvements that apply to most AI systems
+  const baseImprovements = [
+    'Document data governance practices in detail, including data sources and quality control measures',
+    'Establish a clear responsibility chain for AI system operation and decision validation'
+  ];
+  
+  // Check if the system is high risk
+  if (riskLevel.includes('High')) {
     return [
-      'Add explicit human oversight mechanisms',
-      'Implement audit trails for all decisions',
-      'Document data governance practices in detail',
-      'Establish clear responsibility chain'
+      'Implement a comprehensive risk management system with ongoing monitoring (Article 9)',
+      'Establish explicit human oversight mechanisms with clear intervention protocols (Article 14)',
+      'Develop detailed technical documentation covering all aspects required by Article 11',
+      'Implement robust testing and validation procedures to ensure accuracy and resilience (Article 15)',
+      'Create data governance documentation detailing training data characteristics and bias mitigation (Article 10)'
     ];
   }
+  
+  // Check if the system is limited risk
+  if (riskLevel.includes('Limited')) {
+    return [
+      'Implement transparency measures to clearly inform users they are interacting with an AI system (Article 52)',
+      'Create clear documentation of system capabilities and limitations',
+      'Establish basic human oversight for content generation and decision validation',
+      'Document data governance practices in detail',
+      'Implement user notification procedures for AI-generated content'
+    ];
+  }
+  
+  // Minimal risk systems
+  if (riskLevel.includes('Minimal')) {
+    return [
+      'Document the system\'s purpose and basic technical characteristics',
+      'Create a voluntary code of conduct for responsible AI use (Article 69)',
+      'Establish basic data governance documentation',
+      'Implement version control and change management procedures',
+      'Develop a simplified risk assessment document'
+    ];
+  }
+  
+  // If no specific risk level or if it's unknown, provide general improvements
+  // based on system characteristics
+  const allText = [
+    data.name || '',
+    data.description || '',
+    data.purpose || '',
+    data.aiCapabilities || '',
+    data.department || ''
+  ].join(' ').toLowerCase();
+  
+  const improvements = [...baseImprovements];
+  
+  // Check if system involves human interaction
+  if (allText.includes('user') || allText.includes('human') || allText.includes('interaction')) {
+    improvements.push('Implement clear notification to users that they are interacting with an AI system');
+    improvements.push('Document the system\'s capabilities and limitations in user-facing documentation');
+  }
+  
+  // Check if system involves automated decisions
+  if (allText.includes('decision') || allText.includes('automat') || allText.includes('predict')) {
+    improvements.push('Establish human oversight mechanisms for key decisions');
+    improvements.push('Implement audit trails for all automated decisions');
+  }
+  
+  // Check if system uses sensitive data
+  if (allText.includes('personal') || allText.includes('sensitive') || allText.includes('private')) {
+    improvements.push('Enhance data governance with specific controls for sensitive data');
+    improvements.push('Implement privacy-by-design principles in system architecture');
+  }
+  
+  // Ensure we return at least 5 improvements
+  if (improvements.length < 5) {
+    improvements.push('Develop a basic AI impact assessment document');
+    improvements.push('Create a protocol for regular review of system performance and compliance');
+    improvements.push('Implement version control and change management procedures');
+  }
+  
+  // Cap at 5 improvements
+  return improvements.slice(0, 5);
 }
 
 /**
