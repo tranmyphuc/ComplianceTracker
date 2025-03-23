@@ -2,14 +2,37 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { BellIcon, Bot, MenuIcon, SearchIcon } from "lucide-react";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { 
+  BellIcon, 
+  Bot, 
+  MenuIcon, 
+  SearchIcon, 
+  HelpCircleIcon, 
+  BotIcon,
+  LayoutDashboardIcon,
+  CpuIcon,
+  ShieldCheckIcon,
+  FileTextIcon,
+  AwardIcon,
+  CheckSquareIcon,
+  BarChart3Icon,
+  LightbulbIcon,
+} from "lucide-react";
 import { getCurrentUser } from "@/lib/firebase";
 import { getAuth } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { AiAssistantDialog } from "@/components/ai-assistant/assistant-dialog";
 import { useAuth } from "@/components/auth/auth-context";
+import { Badge } from "@/components/ui/badge";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -50,85 +73,138 @@ export function Header({ onMenuClick }: HeaderProps) {
       .substring(0, 2);
   };
 
+  const getTimeOfDay = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "morning";
+    if (hour < 18) return "afternoon";
+    return "evening";
+  };
+
   return (
-    <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
+    <header className="sticky top-0 z-50">
       {/* Development Mode Banner */}
       <div className="bg-green-500 text-white text-center text-xs py-1 font-medium">
         DEVELOPMENT MODE - Automatically logged in as Admin
       </div>
-      <div className="flex items-center justify-between px-4 py-2 lg:px-6">
-        <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={onMenuClick} className="lg:hidden">
-            <MenuIcon className="h-5 w-5" />
-          </Button>
+      
+      {/* Main header with blue gradient */}
+      <div className="bg-gradient-to-r from-[#1976D2] to-[#1565C0] text-white shadow-sm">
+        <div className="flex items-center justify-between px-4 py-2 lg:px-6">
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" onClick={onMenuClick} className="lg:hidden text-white hover:bg-white/20">
+              <MenuIcon className="h-5 w-5" />
+            </Button>
 
-          <div className="flex items-center ml-2 lg:ml-0">
-            <div className="font-bold text-lg text-primary">SGH ASIA</div>
-            <span className="font-semibold text-lg">- EU AI Act</span>
+            <div className="flex items-center ml-2 lg:ml-0">
+              <div className="font-bold text-lg mr-1">SGH ASIA</div>
+              <span className="font-medium text-base">Enterprise AI Decision Platform</span>
+            </div>
           </div>
-          <div className="hidden sm:block text-sm text-neutral-500 -mt-1">
-            Your trusted partner for AI compliance excellence
+
+          {/* Center: Main navigation tabs */}
+          <div className="hidden lg:flex items-center space-x-1 mx-4">
+            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
+              <LayoutDashboardIcon className="h-4 w-4 mr-2" />
+              Dashboard
+            </Button>
+            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
+              <CpuIcon className="h-4 w-4 mr-2" />
+              AI Systems
+            </Button>
+            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
+              <ShieldCheckIcon className="h-4 w-4 mr-2" />
+              Risk Assessment
+            </Button>
+            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
+              <FileTextIcon className="h-4 w-4 mr-2" />
+              Documentation
+            </Button>
+            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
+              <AwardIcon className="h-4 w-4 mr-2" />
+              Training
+            </Button>
+            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
+              <CheckSquareIcon className="h-4 w-4 mr-2" />
+              Tasks
+            </Button>
+            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
+              <BarChart3Icon className="h-4 w-4 mr-2" />
+              Reports
+            </Button>
+          </div>
+
+          {/* Right-aligned items */}
+          <div className="flex items-center space-x-2 md:space-x-3">
+            {/* Search bar */}
+            <div className="relative hidden md:block w-64">
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input 
+                type="text" 
+                placeholder="Search..." 
+                className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20"
+              />
+            </div>
+
+            {/* Notifications */}
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/20">
+              <BellIcon className="h-5 w-5" />
+              <Badge className="absolute top-0 right-0 w-4 h-4 p-0 flex items-center justify-center bg-red-500 text-[10px]">3</Badge>
+            </Button>
+
+            {/* Help */}
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+              <HelpCircleIcon className="h-5 w-5" />
+            </Button>
+
+            {/* User profile */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="p-0.5 h-9 w-9 rounded-full bg-white/10 hover:bg-white/20">
+                  <Avatar className="h-8 w-8 border-2 border-white/20">
+                    <AvatarImage src="/placeholder-user.jpg" />
+                    <AvatarFallback className="text-white bg-primary">{user ? getInitials(user.displayName) : "U"}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user?.displayName || "User"}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <LayoutDashboardIcon className="mr-2 h-4 w-4" />
+                  <span>Dashboard</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <CpuIcon className="mr-2 h-4 w-4" />
+                  <span>AI Systems</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <LightbulbIcon className="mr-2 h-4 w-4" />
+                  <span>Strategic Planning</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
+      </div>
 
-        <div className="flex-1 max-w-xl mx-4 hidden md:block">
-          <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-            <Input 
-              type="text" 
-              placeholder="Search for systems, documents, or regulations..." 
-              className="pl-10 bg-neutral-100 border-neutral-200"
-            />
-          </div>
+      {/* Optional: New Feature Announcement Banner */}
+      <div className="bg-[#7B1FA2]/10 border-b border-[#7B1FA2]/20 px-4 py-1.5 flex items-center justify-between">
+        <div className="flex items-center text-sm">
+          <Badge variant="outline" className="bg-[#7B1FA2] text-white border-none mr-2">New</Badge>
+          <span className="font-medium text-[#7B1FA2]">AI-powered strategic recommendations now available</span>
         </div>
-
-        <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="icon" className="relative">
-            <BellIcon className="h-5 w-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span>
-          </Button>
-
-          <Button 
-            variant="default" 
-            className="hidden md:flex items-center"
-            size="sm"
-            onClick={() => setIsAssistantOpen(true)}
-          >
-            <Bot className="mr-1.5 h-4 w-4" />
-            AI Assistant
-          </Button>
-
-          <div className="border-l border-neutral-200 h-8 mx-1 hidden md:block"></div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="p-0 h-9 w-9 rounded-full">
-                <Avatar className="h-9 w-9">
-                  <AvatarFallback>{user ? getInitials(user.displayName) : "U"}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>
-                <div className="flex flex-col">
-                  <span>{user?.displayName || "User"}</span>
-                  <span className="text-xs text-neutral-500">{user?.email}</span>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/profile">Profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/settings">Settings</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <Button variant="ghost" className="text-xs h-6 text-[#7B1FA2] hover:bg-[#7B1FA2]/10">
+          Learn More
+        </Button>
       </div>
 
       <AiAssistantDialog 

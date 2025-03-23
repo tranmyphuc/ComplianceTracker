@@ -11,15 +11,23 @@ import {
   BookOpenIcon,
   SettingsIcon,
   HomeIcon,
-  PlusCircleIcon,
   BrainIcon,
-  SparklesIcon,
   XIcon,
   FileText,
   BookOpen,
+  LightbulbIcon,
+  TrendingUpIcon,
+  BriefcaseIcon,
+  ShieldIcon, 
+  TargetIcon,
+  BarChart3Icon,
+  BotIcon,
+  PieChartIcon,
+  SmartphoneIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Badge } from "@/components/ui/badge";
 
 interface SidebarProps {
   className?: string;
@@ -47,7 +55,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
   return (
     <div 
       className={cn(
-        "bg-white border-r border-neutral-200 flex-shrink-0 transition-all duration-300 ease-in-out",
+        "bg-gradient-to-b from-[#1976D2]/5 to-white border-r border-neutral-200 flex-shrink-0 transition-all duration-300 ease-in-out",
         "fixed lg:static inset-y-0 left-0 z-40",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         "w-[280px] lg:w-64",
@@ -70,12 +78,15 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
 
       <ScrollArea className="h-full">
         <div className="p-4 space-y-1">
-          {/* Mobile Logo */}
-          <div className="flex items-center mb-4 lg:hidden">
-            <div className="font-bold text-lg text-primary mr-1">SGH ASIA</div>
-            <span className="font-semibold text-base">EU AI Act</span>
+          {/* Company/user branding area */}
+          <div className="flex items-center mb-6 pb-4 border-b border-neutral-200">
+            <div className="flex flex-col">
+              <div className="font-bold text-lg text-primary">SGH ASIA</div>
+              <div className="text-xs text-neutral-600">Enterprise AI Decision Platform</div>
+            </div>
           </div>
 
+          {/* Navigation menu with icons and text */}
           <Link 
             href="/"
             className={cn(
@@ -85,11 +96,87 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             onClick={handleItemClick}
           >
             <HomeIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-            <span>Dashboard</span>
+            <span>Home/Dashboard</span>
+          </Link>
+          
+          <Link 
+            href="/strategic-planning"
+            className={cn(
+              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              isActive("/strategic-planning") && "bg-primary/10 text-primary font-medium"
+            )}
+            onClick={handleItemClick}
+          >
+            <TargetIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <span>Strategic Planning</span>
           </Link>
 
-          <div className="my-1 px-3 py-1.5">
-            <p className="text-xs font-medium text-neutral-400 uppercase tracking-wider">AI Systems</p>
+          <Link 
+            href="/market-intelligence"
+            className={cn(
+              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              isActive("/market-intelligence") && "bg-primary/10 text-primary font-medium"
+            )}
+            onClick={handleItemClick}
+          >
+            <PieChartIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <span>Market Intelligence</span>
+          </Link>
+          
+          <Link 
+            href="/operations-excellence"
+            className={cn(
+              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              isActive("/operations-excellence") && "bg-primary/10 text-primary font-medium"
+            )}
+            onClick={handleItemClick}
+          >
+            <BriefcaseIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <span>Operations Excellence</span>
+          </Link>
+          
+          <Link 
+            href="/risk-management"
+            className={cn(
+              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              isActive("/risk-management") && "bg-primary/10 text-primary font-medium"
+            )}
+            onClick={handleItemClick}
+          >
+            <AlertTriangleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <span>Risk Management</span>
+          </Link>
+          
+          <Link 
+            href="/growth-innovation"
+            className={cn(
+              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              isActive("/growth-innovation") && "bg-primary/10 text-primary font-medium"
+            )}
+            onClick={handleItemClick}
+          >
+            <TrendingUpIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <span>Growth & Innovation</span>
+          </Link>
+
+          <Link 
+            href="/settings"
+            className={cn(
+              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              isActive("/settings") && "bg-primary/10 text-primary font-medium"
+            )}
+            onClick={handleItemClick}
+          >
+            <SettingsIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <span>Settings</span>
+          </Link>
+
+          {/* EU AI Act Compliance Section */}
+          <div className="mt-6 mb-3 px-3 py-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium text-neutral-600 uppercase tracking-wider">EU AI Act Compliance</p>
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">92%</Badge>
+            </div>
           </div>
 
           <Link 
@@ -101,19 +188,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             onClick={handleItemClick}
           >
             <CpuIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-            <span>AI Inventory</span>
-          </Link>
-
-          <Link 
-            href="/register-system"
-            className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-              isActive("/register-system") && "bg-primary/10 text-primary font-medium"
-            )}
-            onClick={handleItemClick}
-          >
-            <BrainIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-            <span>Register System</span>
+            <span>AI Systems</span>
           </Link>
 
           <Link 
@@ -124,38 +199,9 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             )}
             onClick={handleItemClick}
           >
-            <AlertTriangleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <ShieldIcon className="h-5 w-5 mr-3 flex-shrink-0" />
             <span>Risk Assessment</span>
           </Link>
-
-          <div className="mt-3 mb-1 px-3 py-1.5">
-            <p className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Compliance</p>
-          </div>
-
-            <Link 
-              href="/risk-assessment/guides"
-              className={cn(
-                "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-                isActive("/risk-assessment/guides") && "bg-primary/10 text-primary font-medium"
-              )}
-              onClick={handleItemClick}
-            >
-              <FileText className="h-5 w-5 mr-3 flex-shrink-0" />
-              <span>Risk Assessment Guides</span>
-            </Link>
-            
-            <Link
-              href="/documentation/risk-assessment"
-              className={cn(
-                "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-                isActive("/documentation/risk-assessment") && "bg-primary/10 text-primary font-medium"
-              )}
-              onClick={handleItemClick}
-            >
-              <BookOpen className="h-5 w-5 mr-3 flex-shrink-0" />
-              <span>Full Documentation</span>
-            </Link>
-
 
           <Link 
             href="/documentation"
@@ -167,6 +213,18 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
           >
             <FileTextIcon className="h-5 w-5 mr-3 flex-shrink-0" />
             <span>Documentation</span>
+          </Link>
+
+          <Link 
+            href="/training"
+            className={cn(
+              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              isActive("/training") && "bg-primary/10 text-primary font-medium"
+            )}
+            onClick={handleItemClick}
+          >
+            <AwardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <span>Training</span>
           </Link>
 
           <Link 
@@ -189,11 +247,24 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             )}
             onClick={handleItemClick}
           >
-            <BarChartIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <BarChart3Icon className="h-5 w-5 mr-3 flex-shrink-0" />
             <span>Reports</span>
           </Link>
 
+          {/* Additional Links */}
           <div className="pt-4 mt-4 border-t border-neutral-200">
+            <Link 
+              href="/register-system"
+              className={cn(
+                "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+                isActive("/register-system") && "bg-primary/10 text-primary font-medium"
+              )}
+              onClick={handleItemClick}
+            >
+              <BrainIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+              <span>Register AI System</span>
+            </Link>
+            
             <Link 
               href="/knowledge-center"
               className={cn(
@@ -205,30 +276,17 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               <BookOpenIcon className="h-5 w-5 mr-3 flex-shrink-0" />
               <span>Knowledge Center</span>
             </Link>
+          </div>
 
-            <Link 
-              href="/training"
-              className={cn(
-                "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-                isActive("/training") && "bg-primary/10 text-primary font-medium"
-              )}
+          {/* AI Assistant button at bottom */}
+          <div className="pt-8 mt-4">
+            <Button 
+              className="w-full flex items-center justify-center gap-2 bg-[#7B1FA2]/90 hover:bg-[#7B1FA2]"
               onClick={handleItemClick}
             >
-              <AwardIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-              <span>Training</span>
-            </Link>
-
-            <Link 
-              href="/settings"
-              className={cn(
-                "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-                isActive("/settings") && "bg-primary/10 text-primary font-medium"
-              )}
-              onClick={handleItemClick}
-            >
-              <SettingsIcon className="h-5 w-5 mr-3 flex-shrink-0" />
-              <span>Settings</span>
-            </Link>
+              <BotIcon className="h-5 w-5" />
+              <span>AI Assistant</span>
+            </Button>
           </div>
 
           {/* Mobile-only footer links */}

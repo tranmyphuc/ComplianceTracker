@@ -1,0 +1,350 @@
+# Enterprise AI Decision Platform Dashboard Design for v0.dev
+
+## Comprehensive Dashboard Design Specification
+
+Create a professional, visually striking dashboard for our Enterprise AI Decision Platform with EU AI Act Compliance integration. Design a complete executive dashboard that showcases our platform's capabilities while maintaining a clean, modern aesthetic that makes complex AI functionality approachable and valuable to business users.
+
+## Overall Layout & Structure
+
+Design a full-screen dashboard with the following structure:
+
+1. **Top Navigation Bar:**
+   - Left: Company logo with "Enterprise AI Decision Platform" text
+   - Center: Main navigation tabs: "Dashboard" (active), "AI Systems", "Risk Assessment", "Documentation", "Training", "Tasks", "Reports"
+   - Right: Search bar, notifications bell, help icon, and user profile dropdown
+   - Subtle blue gradient background with white text
+   - Bottom border with subtle shadow for depth
+
+2. **Left Sidebar:**
+   - Company/user branding area at top
+   - Navigation menu with icons and text:
+     * Home/Dashboard (active)
+     * Strategic Planning
+     * Market Intelligence
+     * Operations Excellence
+     * Risk Management
+     * Growth & Innovation
+     * Settings
+   - "EU AI Act Compliance" section with compliance status indicator
+   - "AI Assistant" button with chat icon at bottom
+   - Collapsible with elegant animation
+
+3. **Main Content Area:**
+   - Page title "Executive Intelligence Dashboard" with subtitle "AI-powered insights for strategic decision making"
+   - Personalized welcome message: "Good morning, [Name]. Here's your business overview for Wednesday, June 12, 2024"
+   - Clean white background with subtle grid pattern
+   - Organized in visually distinct card-based sections with consistent styling
+
+4. **Header Banner (Optional):**
+   - New feature announcement: "New: AI-powered strategic recommendations now available"
+   - Subtle, dismissible banner with "Learn More" button
+
+## Key Dashboard Components
+
+### 1. KPI Overview Section
+Create a row of 4 KPI cards at the top of the main content area:
+
+- **Card 1: Business Performance**
+  * Large metric: "€4.2M" (Revenue)
+  * Trend indicator: Up 12% (green arrow)
+  * Small sparkline showing positive trend
+  * Subtitle: "Monthly Revenue"
+  * AI insight: "6% above forecast"
+
+- **Card 2: Operational Efficiency**
+  * Large metric: "87%"
+  * Trend indicator: Up 5% (green arrow)
+  * Circular progress visualization
+  * Subtitle: "Operational Efficiency"
+  * AI insight: "Improved in 3 key areas"
+
+- **Card 3: Market Position**
+  * Large metric: "32%"
+  * Trend indicator: Up 3% (green arrow)
+  * Small market share visualization
+  * Subtitle: "Market Share"
+  * AI insight: "Leading in 2 segments"
+
+- **Card 4: Compliance Status**
+  * Large metric: "92%"
+  * Trend indicator: Up 8% (green arrow)
+  * Progress bar visualization
+  * Subtitle: "EU AI Act Compliance"
+  * AI insight: "5 actions needed"
+
+Each card should have:
+- Clean white background with subtle shadow
+- Consistent padding and alignment
+- Interactive hover state with subtle animation
+- Click functionality to drill down to detailed view
+
+### 2. Strategic Insights Section
+Create a two-column layout below the KPI cards:
+
+- **Left Column (60% width): AI-Generated Insights**
+  * Card title: "Strategic Opportunities" with lightbulb icon
+  * 3 insight cards with:
+    - Insight title (e.g., "Market Expansion Opportunity")
+    - Brief description of the opportunity
+    - Impact estimate with confidence level
+    - AI icon indicating AI-generated content
+    - "Explore" button linking to detailed analysis
+  * "View All Insights" link at bottom
+  * Visual indication of insight priority/impact
+
+- **Right Column (40% width): Decision Support**
+  * Card title: "Pending Decisions" with checkmark icon
+  * List of 3-4 decisions requiring attention:
+    - Decision name with deadline
+    - Status indicator (Pending, In Review)
+    - Priority level (High, Medium, Low)
+    - Department label (Marketing, Operations, etc.)
+    - "Take Action" button
+  * "Manage All Decisions" link at bottom
+
+### 3. Business Performance Visualization
+Create a full-width card with tabs for different visualization options:
+
+- **Card Header:**
+  * Title: "Business Performance"
+  * Time period selector: "Last 30 Days" (dropdown)
+  * Tabs: "Revenue", "Customers", "Products", "Channels"
+  * "Revenue" tab active by default
+
+- **Visualization Area:**
+  * Professional line chart showing revenue over time
+  * Multiple lines comparing current period vs previous period
+  * Clear data points with hover tooltips
+  * Y-axis showing revenue amounts
+  * X-axis showing dates
+  * Grid lines for readability
+  * AI-identified trend markers highlighting significant changes
+
+- **Insights Panel:**
+  * Right-aligned panel showing 2-3 AI-generated insights about the data
+  * Each insight with relevant icon and concise explanation
+  * "View Full Analysis" button at bottom
+
+### 4. AI Compliance Center
+Create a dedicated card for EU AI Act compliance:
+
+- **Card Header:**
+  * Title: "EU AI Act Compliance" with shield icon
+  * Overall compliance score prominently displayed
+  * Status indicator: "On Track" with green icon
+
+- **Content Area:**
+  * Timeline visualization showing key compliance deadlines:
+    - August 2025: Prohibitions Effective (with checkmark)
+    - February 2026: High-Risk Requirements (in progress)
+    - August 2026: Full Compliance (upcoming)
+  * Progress indicator showing current position on timeline
+  * 3 priority actions needed with "View" buttons
+  * System inventory summary: "38 AI Systems Registered"
+  * Risk distribution visualization: donut chart showing High/Limited/Minimal risk
+
+- **Action Area:**
+  * "Compliance Dashboard" button linking to detailed view
+  * "Register New AI System" button for quick access
+
+### 5. Department Performance
+Create a horizontal card showing performance by department:
+
+- **Card Header:**
+  * Title: "Department Performance"
+  * View selector: "Performance", "Compliance", "Activities"
+
+- **Visualization:**
+  * Horizontal bar chart showing performance by department
+  * Departments on Y-axis: Marketing, Sales, Operations, Finance, HR, IT
+  * Performance metric on X-axis (0-100%)
+  * Each bar with:
+    - Fill color indicating performance level
+    - Marker showing target value
+    - Previous period indicator for comparison
+  * Sorting options: Alphabetical, Performance (high-low), Performance (low-high)
+
+- **Interaction:**
+  * Hover state showing detailed metrics
+  * Click functionality to drill down to department dashboard
+
+### 6. AI Assistant Preview
+Create an AI Assistant card that introduces the platform's AI capabilities:
+
+- **Card Design:**
+  * Visually distinct design with subtle AI-themed background
+  * Title: "Meet Your AI Decision Assistant"
+  * Subtitle: "Intelligent support for better business decisions"
+  * Modern AI assistant visualization (abstract, not human-like)
+
+- **Feature Highlights:**
+  * 3 key capabilities with icons:
+    - "Ask anything about your business data"
+    - "Get strategic recommendations based on your goals"
+    - "Automate compliance documentation and reporting"
+  * Example question bubbles floating around assistant
+  * "Try Now" button that opens assistant interface
+
+- **Interaction Area:**
+  * Quick action buttons for common queries
+  * Sample question the user can click: "What are our top growth opportunities this quarter?"
+
+### 7. Recent Activity & Notifications
+Create a condensed activity feed card:
+
+- **Card Design:**
+  * Title: "Recent Activity"
+  * Compact list of 5 recent activities
+  * Each activity with:
+    - User avatar
+    - Action description
+    - Relevant object (document, decision, etc.)
+    - Timestamp
+    - Link to the item
+  * Activity types with appropriate icons:
+    - System updates
+    - User actions
+    - AI-generated insights
+    - Compliance alerts
+  * "View All Activity" link at bottom
+
+### 8. Quick Actions Footer
+Create a row of quick action buttons at the bottom of the dashboard:
+
+- **Action Buttons:**
+  * "New Strategic Plan"
+  * "Run Market Analysis"
+  * "Register AI System"
+  * "Generate Report"
+  * "Schedule Training"
+
+- **Each Button:**
+  * Icon representing the action
+  * Text label
+  * Hover effect with brief description
+  * Click leads to appropriate creation wizard
+
+## Visual Design Elements
+
+1. **Color Scheme:**
+   - Primary: Professional blue (#1976D2) for headers and key elements
+   - Secondary: Complementary purple (#7B1FA2) for accents and highlights
+   - Success: Green (#4CAF50) for positive indicators
+   - Warning: Amber (#FFC107) for attention items
+   - Error: Red (#F44336) for critical alerts
+   - Neutral: Various gray tones for background and text hierarchy
+   - White (#FFFFFF) for card backgrounds
+   - Dark text (#212121) for readability
+
+2. **Typography:**
+   - Clean, modern sans-serif font family
+   - Clear hierarchy with different weights and sizes
+   - Headings: Semi-bold, larger size
+   - Body text: Regular weight, highly readable
+   - Metrics: Bold, prominent
+   - Consistent line height and letter spacing
+
+3. **Iconography:**
+   - Modern, consistent icon style throughout
+   - Meaningful icons that enhance understanding
+   - Interactive icons with subtle hover effects
+   - AI-specific iconography for AI-generated content
+
+4. **Data Visualizations:**
+   - Professional, clean chart designs
+   - Consistent color palette across all visualizations
+   - Clear labels and legends
+   - Appropriate visualization types for different data
+   - Interactive elements (hover, click, filter)
+   - Responsive sizing based on available space
+
+5. **Animation & Interaction:**
+   - Subtle loading animations for data-heavy elements
+   - Smooth transitions between states
+   - Meaningful hover effects indicating interactivity
+   - Elegant page transitions
+   - Purposeful animation that enhances understanding
+
+## Responsive Behavior
+
+Ensure the dashboard responds appropriately to different screen sizes:
+
+1. **Large Screens:**
+   - Full layout as described above
+   - Ample whitespace for readability
+   - Optimal visualization sizes
+
+2. **Medium Screens:**
+   - Collapsible sidebar (toggle button in header)
+   - Adjusted card layouts (2-column becomes 1-column)
+   - Responsive chart sizes
+
+3. **Small Screens:**
+   - Mobile-optimized navigation
+   - Stacked card layout
+   - Simplified visualizations
+   - Touch-friendly interaction targets
+
+## Interactive Elements
+
+1. **Filtering & Time Period Selection:**
+   - Global time period selector affecting all dashboard data
+   - Elegant dropdown for time period options
+   - Applied filter indicators
+   - Reset filters option
+
+2. **Drill-Down Capabilities:**
+   - All metrics and charts clickable for detailed view
+   - Breadcrumb navigation for returning to dashboard
+   - Context preservation when drilling down
+
+3. **User Customization:**
+   - Optional "Customize Dashboard" button in header
+   - Allows users to add/remove/rearrange dashboard components
+   - Save preferences functionality
+
+4. **AI Assistant Integration:**
+   - Accessible from persistent button in sidebar
+   - Expands into chat interface overlay
+   - Context-aware of current dashboard view
+   - Natural language query capabilities
+
+## Branded Elements
+
+1. **Company Branding:**
+   - Logo placement in top navigation
+   - Consistent color scheme matching brand guidelines
+   - Typography aligned with brand standards
+   - Cohesive visual language
+
+2. **Platform Positioning:**
+   - Subtle "Enterprise AI Decision Platform" branding
+   - Value proposition visible in dashboard elements
+   - Professional, trustworthy presentation
+   - Focus on business outcomes and value
+
+## Specific Details & Polish
+
+1. **Loading States:**
+   - Elegant loading indicators for data-heavy components
+   - Skeleton screens during initial load
+   - Progressive content loading
+
+2. **Empty States:**
+   - Thoughtful empty state designs when no data is available
+   - Clear explanations and next steps
+   - Visual illustrations for empty areas
+
+3. **Help & Guidance:**
+   - Subtle help indicators for complex features
+   - Tooltip guidance for unfamiliar elements
+   - First-time user guidance overlay option
+   - "What's New" feature highlights
+
+4. **Accessibility Considerations:**
+   - High contrast between text and backgrounds
+   - Alternative text for visual elements
+   - Keyboard navigation support
+   - Screen reader compatibility
+
+The dashboard should present a cohesive, professional experience that makes complex AI and compliance capabilities approachable and valuable to business users. It should balance data-rich visualizations with clean, uncluttered design to create an impressive yet functional executive intelligence center.
