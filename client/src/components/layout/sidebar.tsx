@@ -55,6 +55,12 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
     }
   };
 
+  const handleSidebarItemClick = () => {
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
   return (
     <div 
       className={cn(
@@ -96,7 +102,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <HomeIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Home/Dashboard</span>
@@ -108,7 +114,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/strategic-planning") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <TargetIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Strategic Planning</span>
@@ -120,7 +126,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/market-intelligence") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <PieChartIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Market Intelligence</span>
@@ -132,7 +138,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/operations-excellence") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <BriefcaseIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Operations Excellence</span>
@@ -144,7 +150,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/risk-management") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <AlertTriangleIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Risk Management</span>
@@ -156,7 +162,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/growth-innovation") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <TrendingUpIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Growth & Innovation</span>
@@ -168,7 +174,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/settings") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <SettingsIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Settings</span>
@@ -188,7 +194,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/inventory") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <CpuIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>AI Systems</span>
@@ -200,7 +206,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/risk-assessment") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <ShieldIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Risk Assessment</span>
@@ -212,7 +218,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/documentation") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <FileTextIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Documentation</span>
@@ -224,7 +230,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/training") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <AwardIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Training</span>
@@ -236,7 +242,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/documentation/training") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <FileTextIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Training Docs</span>
@@ -249,7 +255,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/tasks") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <CheckSquareIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Tasks</span>
@@ -261,7 +267,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/reports") && "bg-primary/10 text-primary font-medium"
             )}
-            onClick={handleItemClick}
+            onClick={handleSidebarItemClick}
           >
             <BarChart3Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Reports</span>
@@ -275,7 +281,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
                 "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
                 isActive("/register-system") && "bg-primary/10 text-primary font-medium"
               )}
-              onClick={handleItemClick}
+              onClick={handleSidebarItemClick}
             >
               <BrainIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>Register AI System</span>
@@ -287,7 +293,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
                 "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
                 isActive("/knowledge-center") && "bg-primary/10 text-primary font-medium"
               )}
-              onClick={handleItemClick}
+              onClick={handleSidebarItemClick}
             >
               <BookOpenIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>Knowledge Center</span>
@@ -299,7 +305,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
                 "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
                 isActive("/workflow") && "bg-primary/10 text-primary font-medium"
               )}
-              onClick={handleItemClick}
+              onClick={handleSidebarItemClick}
             >
               <NetworkIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>AI Workflow Diagram</span>
@@ -312,7 +318,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
                 isActive("/onboarding") && "bg-primary/10 text-primary font-medium",
                 "mt-2 bg-purple-50"
               )}
-              onClick={handleItemClick}
+              onClick={handleSidebarItemClick}
             >
               <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0 text-purple-500" />
               <span className="font-medium">Platform Tour</span>
@@ -326,7 +332,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
                 isActive("/enterprise-decision-platform") && "bg-primary/10 text-primary font-medium",
                 "mt-2 bg-blue-50"
               )}
-              onClick={handleItemClick}
+              onClick={handleSidebarItemClick}
             >
               <PieChartIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0 text-blue-500" />
               <span className="font-medium">Enterprise Decision Platform</span>
@@ -338,7 +344,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
           <div className="pt-8 mt-4">
             <Button 
               className="w-full flex items-center justify-center gap-1 sm:gap-2 bg-[#7B1FA2]/90 hover:bg-[#7B1FA2] text-xs sm:text-sm"
-              onClick={handleItemClick}
+              onClick={handleSidebarItemClick}
             >
               <BotIcon className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>AI Assistant</span>

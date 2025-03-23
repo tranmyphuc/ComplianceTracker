@@ -55,8 +55,8 @@ export const Header = () => {
           </Link>
         </div>
 
-        {/* Main navigation */}
-        <nav className="hidden md:flex items-center space-x-1">
+        {/* Main navigation - Removed to eliminate duplication */}
+        {/* <nav className="hidden md:flex items-center space-x-1">
           <NavItem 
             icon={MonitorIcon} 
             label="Dashboard" 
@@ -105,7 +105,7 @@ export const Header = () => {
             to="/reports" 
             isActive={location === "/reports"} 
           />
-        </nav>
+        </nav> */}
 
         {/* Right side controls */}
         <div className="flex items-center space-x-3">
