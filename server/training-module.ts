@@ -970,26 +970,38 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
  */
 export async function getTrainingModules(req: Request, res: Response) {
   try {
-    const modules = await db.select().from(trainingModules).orderBy(trainingModules.order);
-
-    // Fall back to sample data if no modules in database
-    if (!modules || modules.length === 0) {
-      return res.json(TRAINING_MODULES);
-    }
-
-    return res.json(modules.map(module => ({
-      id: module.moduleId,
-      title: module.title,
-      description: module.description,
-      estimated_time: module.estimatedTime,
-      topics: module.topics as string[],
-      role_relevance: module.roleRelevance as {
-        decision_maker: string;
-        developer: string;
-        operator: string;
-        user: string;
+    let moduleData = [];
+    
+    try {
+      // Try to get from database first
+      const modules = await db.select().from(trainingModules).orderBy(trainingModules.order);
+      
+      // If found in database, use that data
+      if (modules && modules.length > 0) {
+        moduleData = modules.map(module => ({
+          id: module.moduleId,
+          title: module.title,
+          description: module.description,
+          estimated_time: module.estimatedTime,
+          topics: module.topics as string[],
+          role_relevance: module.roleRelevance as {
+            decision_maker: string;
+            developer: string;
+            operator: string;
+            user: string;
+          }
+        }));
+      } else {
+        // Otherwise use sample data
+        moduleData = TRAINING_MODULES;
       }
-    })));
+    } catch (dbError) {
+      // If database query fails, fall back to sample data
+      console.error('Database error fetching training modules:', dbError);
+      moduleData = TRAINING_MODULES;
+    }
+    
+    return res.json(moduleData);
   } catch (error) {
     console.error('Error fetching training modules:', error);
     return res.status(500).json({ error: 'Failed to fetch training modules' });
