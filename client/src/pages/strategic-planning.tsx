@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DecisionMakerWizard } from "@/components/onboarding/decision-maker-wizard";
+import { EnterpriseWizard } from "@/components/wizards/enterprise-wizard";
 import { ComplianceTracker } from "@/components/compliance/compliance-tracker";
 import { BotIcon, Brain, Lightbulb, TrendingUp, Target, AlertTriangle, ChevronRight } from "lucide-react";
 
@@ -193,9 +193,14 @@ export default function StrategicPlanning() {
       
       <Footer />
       
-      {/* AI Decision Maker Wizard */}
+      {/* Enterprise Wizard */}
       {showDecisionMakerWizard && (
-        <DecisionMakerWizard onComplete={handleWizardComplete} />
+        <EnterpriseWizard
+          onComplete={handleWizardComplete}
+          variant="centered"
+          title="Strategic Planning Tools"
+          description="Optimize your strategic decision-making with AI"
+        />
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { DecisionMakerWizard } from '../onboarding/decision-maker-wizard';
+import { EnterpriseWizard } from '../wizards/enterprise-wizard';
 
 interface EnterpriseDecisionPlatformProps {
   onComplete: () => void;
@@ -7,8 +7,13 @@ interface EnterpriseDecisionPlatformProps {
 }
 
 export function EnterpriseDecisionPlatform({ onComplete, onSkip }: EnterpriseDecisionPlatformProps) {
-  // We're using the Decision Maker Wizard for both components as requested
   return (
-    <DecisionMakerWizard onComplete={onComplete} />
+    <EnterpriseWizard
+      onComplete={onComplete}
+      onSkip={onSkip}
+      variant="default"
+      title="Enterprise AI Decision Platform"
+      description="Transform your decision-making with AI-powered insights"
+    />
   );
 }
