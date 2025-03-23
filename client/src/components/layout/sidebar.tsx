@@ -79,9 +79,9 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
       <ScrollArea className="h-full">
         <div className="p-4 space-y-1">
           {/* Company/user branding area */}
-          <div className="flex items-center mb-6 pb-4 border-b border-neutral-200">
+          <div className="flex items-center mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-neutral-200">
             <div className="flex flex-col">
-              <div className="font-bold text-lg text-primary">SGH ASIA</div>
+              <div className="font-bold text-base sm:text-lg text-primary">SGH ASIA</div>
               <div className="text-xs text-neutral-600">Enterprise AI Decision Platform</div>
             </div>
           </div>
@@ -102,80 +102,80 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
           <Link 
             href="/strategic-planning"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/strategic-planning") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <TargetIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <TargetIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Strategic Planning</span>
           </Link>
 
           <Link 
             href="/market-intelligence"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/market-intelligence") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <PieChartIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <PieChartIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Market Intelligence</span>
           </Link>
           
           <Link 
             href="/operations-excellence"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/operations-excellence") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <BriefcaseIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <BriefcaseIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Operations Excellence</span>
           </Link>
           
           <Link 
             href="/risk-management"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/risk-management") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <AlertTriangleIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <AlertTriangleIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Risk Management</span>
           </Link>
           
           <Link 
             href="/growth-innovation"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/growth-innovation") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <TrendingUpIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <TrendingUpIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Growth & Innovation</span>
           </Link>
 
           <Link 
             href="/settings"
             className={cn(
-              "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
               isActive("/settings") && "bg-primary/10 text-primary font-medium"
             )}
             onClick={handleItemClick}
           >
-            <SettingsIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+            <SettingsIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Settings</span>
           </Link>
 
           {/* EU AI Act Compliance Section */}
-          <div className="mt-6 mb-3 px-3 py-2">
+          <div className="mt-4 sm:mt-6 mb-2 sm:mb-3 px-3 py-1 sm:py-2">
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium text-neutral-600 uppercase tracking-wider">EU AI Act Compliance</p>
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">92%</Badge>
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px] sm:text-xs">92%</Badge>
             </div>
           </div>
 
@@ -256,24 +256,24 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             <Link 
               href="/register-system"
               className={cn(
-                "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+                "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
                 isActive("/register-system") && "bg-primary/10 text-primary font-medium"
               )}
               onClick={handleItemClick}
             >
-              <BrainIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+              <BrainIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>Register AI System</span>
             </Link>
             
             <Link 
               href="/knowledge-center"
               className={cn(
-                "flex items-center px-3 py-2 text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+                "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
                 isActive("/knowledge-center") && "bg-primary/10 text-primary font-medium"
               )}
               onClick={handleItemClick}
             >
-              <BookOpenIcon className="h-5 w-5 mr-3 flex-shrink-0" />
+              <BookOpenIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>Knowledge Center</span>
             </Link>
           </div>
@@ -281,10 +281,10 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
           {/* AI Assistant button at bottom */}
           <div className="pt-8 mt-4">
             <Button 
-              className="w-full flex items-center justify-center gap-2 bg-[#7B1FA2]/90 hover:bg-[#7B1FA2]"
+              className="w-full flex items-center justify-center gap-1 sm:gap-2 bg-[#7B1FA2]/90 hover:bg-[#7B1FA2] text-xs sm:text-sm"
               onClick={handleItemClick}
             >
-              <BotIcon className="h-5 w-5" />
+              <BotIcon className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>AI Assistant</span>
             </Button>
           </div>
