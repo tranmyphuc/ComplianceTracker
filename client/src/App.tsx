@@ -17,6 +17,7 @@ import Training from "@/pages/training";
 import Workflow from "@/pages/workflow";
 import OnboardingPage from "@/pages/onboarding";
 import StrategicPlanning from "@/pages/strategic-planning";
+import RegulatoryComplexity from "@/pages/regulatory-complexity";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -77,6 +78,7 @@ function Router() {
       <Route path="/training" component={Training} />
       <Route path="/workflow" component={Workflow} />
       <Route path="/strategic-planning" component={StrategicPlanning} />
+      <Route path="/regulatory-complexity" component={RegulatoryComplexity} />
       <Route path="/onboarding" component={OnboardingPage} />
       <Route path="/profile" component={Dashboard} />
       <Route path="/settings" component={Dashboard} />
