@@ -1001,10 +1001,22 @@ export async function getTrainingModules(req: Request, res: Response) {
       moduleData = TRAINING_MODULES;
     }
     
+    if (!res || typeof res.json !== 'function') {
+      console.error('Response object is invalid in getTrainingModules');
+      throw new Error('Invalid response object');
+    }
+    
     return res.json(moduleData);
   } catch (error) {
     console.error('Error fetching training modules:', error);
-    return res.status(500).json({ error: 'Failed to fetch training modules' });
+    
+    // Safely handle response if it exists and has json method
+    if (res && typeof res.status === 'function' && typeof res.json === 'function') {
+      return res.status(500).json({ error: 'Failed to fetch training modules' });
+    } else {
+      console.error('Could not send error response - invalid response object');
+      throw error; // Re-throw to be caught by global error handler
+    }
   }
 }
 
