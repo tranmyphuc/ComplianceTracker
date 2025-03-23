@@ -751,7 +751,7 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
             <li><strong>Reputational Impact</strong> - Considering how AI practices affect brand perception</li>
             <li><strong>Strategic Alignment</strong> - Ensuring AI governance aligns with overall business strategy</li>
             <li><strong>Oversight Responsibilities</strong> - Defining board-level oversight of AI systems</li>
-            <li<li><strong>Reporting Structures</strong> - Establishing clear reporting on AI compliance to board level</li>
+<li><strong>Reporting Structures</strong> - Establishing clear reporting on AI compliance to board level</li>
           </ol>
           <p>Board-level engagement with AI governance is essential for ensuring organizational commitment and proper resource allocation.</p>`
         },
@@ -1116,8 +1116,7 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
           correctAnswer: "To focus resources on high-risk systems requiring extensive documentation"
         }
       ]
-    }
-  },
+    },
   "8": {
     "default": {
       title: "Data Governance for AI Compliance",
@@ -1435,8 +1434,7 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
         {
           question: "Why are most HR and employment AI applications classified as high-risk under the EU AI Act?",
           options: [
-            "They process large volumesof data",
-            "They have significant impact on individuals' rights and opportunities",
+            "They process large volumes of data",            "They have significant impact on individuals' rights and opportunities",
             "They are typically developed by large corporations",
             "They use more advanced algorithms than other sectors"
           ],
@@ -1456,6 +1454,87 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
     }
   }
 
+          <ul>
+            <li><strong>Fairness Libraries</strong>: Tools like AIF360 and Fairlearn for measuring and mitigating algorithmic bias.</li>
+            <li><strong>Explainability Frameworks</strong>: Libraries such as SHAP, LIME, and InterpretML for generating explanations of model decisions.</li>
+            <li><strong>Model and Data Documentation Tools</strong>: Automated documentation generators that maintain standardized documentation.</li>
+            <li><strong>Monitoring Solutions</strong>: Tools for detecting drift, performance degradation, and anomalies in production.</li>
+            <li><strong>Risk Assessment Frameworks</strong>: Structured approaches for assessing and documenting AI system risks.</li>
+            <li><strong>Visualization Tools</strong>: Ways to communicate complex model behavior to stakeholders and overseers.</li>
+          </ul>
+          <p>Leveraging these tools can significantly reduce the implementation burden while improving compliance quality.</p>`
+        },
+        {
+          title: "Code Architecture for Compliance",
+          content: `<p>Successful implementations often feature specific architectural considerations:</p>
+          <ol>
+            <li><strong>Separation of Concerns</strong>: Clearly delineated modules for data processing, model training, inference, and monitoring.</li>
+            <li><strong>Auditable Data Pipelines</strong>: Data processing workflows that maintain provenance and enable reproduction.</li>
+            <li><strong>Human-in-the-Loop Design Patterns</strong>: Architectures that facilitate meaningful human oversight at appropriate points.</li>
+            <li><strong>Confidence Scoring</strong>: Mechanisms to assess and communicate prediction confidence levels.</li>
+            <li><strong>Fallback Mechanisms</strong>: Graceful degradation paths when AI components cannot make reliable decisions.</li>
+            <li><strong>Compliance Metadata</strong>: Structured storage of compliance-related information alongside model artifacts.</li>
+          </ol>
+          <p>These architectural approaches make compliance more manageable and less likely to require major refactoring later.</p>`
+        },
+        {
+          title: "Testing Strategies for Compliance",
+          content: `<p>Comprehensive testing is essential for EU AI Act compliance. Key testing strategies include:</p>
+          <ul>
+            <li><strong>Adversarial Testing</strong>: Proactively identifying potential failure modes through challenging inputs.</li>
+            <li><strong>Fairness Testing</strong>: Evaluating model performance across different demographic groups to detect bias.</li>
+            <li><strong>Robustness Testing</strong>: Assessing model performance under various perturbations and edge cases.</li>
+            <li><strong>Performance Boundary Testing</strong>: Identifying conditions where the system's reliability degrades.</li>
+            <li><strong>Oversight Mechanism Testing</strong>: Verifying that human oversight controls function as intended.</li>
+            <li><strong>Documentation Completeness Testing</strong>: Validating that all required documentation elements are present and accurate.</li>
+          </ul>
+          <p>These testing approaches should be integrated into CI/CD pipelines to ensure continuous compliance throughout development.</p>`
+        }
+      ],
+      assessments: [
+        {
+          question: "Which technical implementation pattern is primarily focused on documenting dataset characteristics?",
+          options: [
+            "Model Cards",
+            "Data Sheets",
+            "Explainability Wrappers",
+            "Versioned Model Registry"
+          ],
+          correctAnswer: "Data Sheets"
+        },
+        {
+          question: "What is the primary purpose of implementing 'Confidence Scoring' in an AI system architecture?",
+          options: [
+            "To speed up model training",
+            "To improve model accuracy",
+            "To assess and communicate prediction reliability levels",
+            "To reduce computational requirements"
+          ],
+          correctAnswer: "To assess and communicate prediction reliability levels"
+        },
+        {
+          question: "Which testing strategy is specifically designed to identify potential biases in AI systems?",
+          options: [
+            "Adversarial Testing",
+            "Fairness Testing",
+            "Robustness Testing",
+            "Performance Boundary Testing"
+          ],
+          correctAnswer: "Fairness Testing"
+        },
+        {
+          question: "When implementing human oversight mechanisms, developers should focus on:",
+          options: [
+            "Minimizing the need for human involvement",
+            "Designing interfaces that facilitate meaningful human oversight at appropriate points",
+            "Ensuring humans can override the system but not understand it",
+            "Keeping human operators busy with constant verification tasks"
+          ],
+          correctAnswer: "Designing interfaces that facilitate meaningful human oversight at appropriate points"
+        }
+      ]
+    }
+  }
 };
 
 /**
