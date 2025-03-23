@@ -14,6 +14,7 @@ import {
   BarChartIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useComponentTracking } from '../app-wrapper'; // Added import for component tracking
 
 const NavItem = ({ 
   icon: Icon, 
@@ -39,9 +40,15 @@ const NavItem = ({
   );
 };
 
-export const Header = () => {
+export const Header: React.FC<{ preventDuplicate?: boolean }> = ({ preventDuplicate = false }) => {
   const [location] = useLocation();
   const headerId = React.useId();
+  const isAlreadyRendered = useComponentTracking('app-header'); // Added component tracking check
+
+  // Don't render if this instance is a duplicate and prevention is enabled
+  if (isAlreadyRendered && preventDuplicate) {
+    return null;
+  }
 
   return (
     <header id={`app-header-${headerId}`} data-component="app-header" className="sticky top-0 z-50 bg-primary text-white shadow-md">

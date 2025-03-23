@@ -190,18 +190,27 @@ function Router() {
 function App() {
   const [location] = useLocation();
 
-  // Add a check to detect duplicate layout elements
+  // Advanced UI element duplicate detection
   React.useEffect(() => {
-    const headers = document.querySelectorAll('[data-component="app-header"]');
-    const footers = document.querySelectorAll('[data-component="app-footer"]');
-
-    if (headers.length > 1) {
-      console.warn(`Found ${headers.length} header elements. This might cause UI issues.`);
-    }
-
-    if (footers.length > 1) {
-      console.warn(`Found ${footers.length} footer elements. This might cause UI issues.`);
-    }
+    // List of components to check for duplicates
+    const componentsToCheck = [
+      { selector: '[data-component="app-header"]', name: 'Header' },
+      { selector: '[data-component="app-footer"]', name: 'Footer' },
+      { selector: '[data-component="app-sidebar"]', name: 'Sidebar' }
+    ];
+    
+    // Check each component
+    componentsToCheck.forEach(comp => {
+      const elements = document.querySelectorAll(comp.selector);
+      if (elements.length > 1) {
+        console.warn(`UI Issue: Found ${elements.length} ${comp.name} elements. This is causing duplicate UI.`);
+        // Log element details for debugging
+        elements.forEach((el, i) => {
+          const parentInfo = el.parentElement?.className || 'unknown parent';
+          console.warn(`${comp.name} #${i+1} rendered in: ${parentInfo}`);
+        });
+      }
+    });
   }, [location]);
 
   return (

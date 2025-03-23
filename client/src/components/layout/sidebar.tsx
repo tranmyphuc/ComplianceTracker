@@ -31,16 +31,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
+import { useComponentTracking } from '../app-wrapper';
 
 interface SidebarProps {
   className?: string;
   isOpen?: boolean;
   onClose?: () => void;
+  preventDuplicate?: boolean;
 }
 
-export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
+export function Sidebar({ className, isOpen = true, onClose, preventDuplicate = false }: SidebarProps) {
   const [location] = useLocation();
   const isMobile = useIsMobile();
+  const isAlreadyRendered = useComponentTracking('app-sidebar');
+
+  // Don't render if this instance is a duplicate and prevention is enabled
+  if (isAlreadyRendered && preventDuplicate) {
+    return null;
+  }
 
   const isActive = (path: string) => {
     if (path === "/" && location === "/") return true;

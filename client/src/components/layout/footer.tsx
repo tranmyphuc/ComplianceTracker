@@ -2,22 +2,16 @@ import React from 'react';
 import { Link } from 'wouter';
 import { Shield } from 'lucide-react';
 
+import { useComponentTracking } from '../app-wrapper';
+
 export const Footer: React.FC<{ preventDuplicate?: boolean }> = ({ preventDuplicate = false }) => {
   const currentYear = new Date().getFullYear();
-  // Using React.useId() to create a unique ID for this component instance
-  const footerId = React.useId();
-
-  // Check if this footer is already rendered
-  React.useEffect(() => {
-    const footers = document.querySelectorAll('[data-component="app-footer"]');
-    if (footers.length > 1 && preventDuplicate) {
-      // This is a duplicate footer, hide it
-      const currentFooter = document.getElementById(footerId);
-      if (currentFooter) {
-        currentFooter.style.display = 'none';
-      }
-    }
-  }, [footerId, preventDuplicate]);
+  const isAlreadyRendered = useComponentTracking('app-footer');
+  
+  // Don't render if this instance is a duplicate and prevention is enabled
+  if (isAlreadyRendered && preventDuplicate) {
+    return null;
+  }
 
   return (
     <footer id={footerId} data-component="app-footer" className="bg-slate-900 text-white py-6 mt-auto">

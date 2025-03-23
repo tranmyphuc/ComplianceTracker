@@ -25,10 +25,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <MenuProvider>
       <div id={`app-layout-${layoutId}`} className="min-h-screen flex flex-col">
-        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+        <Header preventDuplicate={true} onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
         <div className="flex flex-1 overflow-hidden">
-          <Sidebar className={sidebarOpen ? "" : "hidden"} />
+          <Sidebar preventDuplicate={true} className={sidebarOpen ? "" : "hidden"} />
 
           <main className="flex-1 overflow-y-auto pb-10">
             {/* Mobile Sidebar Toggle Button */}
