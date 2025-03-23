@@ -103,6 +103,9 @@ export function EnterpriseTourWizard({ onComplete, onSkip }: EnterpriseTourWizar
   );
 }
 
+// Export EnterpriseTourWizard as EnterpriseWizard for backward compatibility
+export const EnterpriseWizard = EnterpriseTourWizard;
+
 
 export function EnterpriseTourContent() {
   const [currentStep, setCurrentStep] = useState(0);
