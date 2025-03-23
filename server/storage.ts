@@ -379,18 +379,246 @@ export class MemStorage implements IStorage {
     return updatedAssessment;
   }
 
-  createRiskManagementSystem(rms: any): Promise<any> { throw new Error("Method not implemented."); }
-  getRiskManagementSystemBySystemId(systemId: string): Promise<any> { throw new Error("Method not implemented."); }
-  updateRiskManagementSystem(rmsId: string, updates: any): Promise<any> { throw new Error("Method not implemented."); }
-  createRiskControl(control: any): Promise<any> { throw new Error("Method not implemented."); }
-  getRiskControlByControlId(controlId: string): Promise<any> { throw new Error("Method not implemented."); }
-  getRiskControlsBySystemId(systemId: string): Promise<any[]> { throw new Error("Method not implemented."); }
-  getRiskControlsByGapId(gapId: string): Promise<any[]> { throw new Error("Method not implemented."); }
-  updateRiskControl(controlId: string, updates: any): Promise<any> { throw new Error("Method not implemented."); }
-  createRiskEvent(event: any): Promise<any> { throw new Error("Method not implemented."); }
-  getRiskEventByEventId(eventId: string): Promise<any> { throw new Error("Method not implemented."); }
-  getRiskEventsBySystemId(systemId: string): Promise<any[]> { throw new Error("Method not implemented."); }
-  updateRiskEvent(eventId: string, updates: any): Promise<any> { throw new Error("Method not implemented."); }
+  // Risk Management System methods
+  async createRiskManagementSystem(rms: any): Promise<any> {
+    const id = `rms_${Date.now()}`;
+    const rmsWithId = { ...rms, id };
+    
+    // In a real implementation, this would insert the RMS into a database table
+    console.log(`Creating risk management system: ${JSON.stringify(rmsWithId, null, 2)}`);
+    
+    return rmsWithId;
+  }
+  
+  async getRiskManagementSystemBySystemId(systemId: string): Promise<any> {
+    // In a real implementation, this would query the database
+    console.log(`Getting risk management system for system ID: ${systemId}`);
+    
+    // Return a mock RMS for demonstration purposes
+    return {
+      rmsId: `RMS-${Date.now()}`,
+      systemId,
+      status: 'active',
+      createdDate: new Date(),
+      lastUpdateDate: new Date(),
+      lastReviewDate: null,
+      nextReviewDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days from now
+      reviewCycle: 'quarterly',
+      responsiblePerson: 'demo-user',
+      documentReference: null,
+      version: '1.0',
+      notes: 'Demonstration risk management system'
+    };
+  }
+  
+  async updateRiskManagementSystem(rmsId: string, updates: any): Promise<any> {
+    // In a real implementation, this would update the RMS in the database
+    console.log(`Updating risk management system ${rmsId}: ${JSON.stringify(updates, null, 2)}`);
+    
+    // Return a mock updated RMS
+    return {
+      rmsId,
+      ...updates,
+      lastUpdateDate: new Date()
+    };
+  }
+  
+  // Risk Control methods
+  async createRiskControl(control: any): Promise<any> {
+    // In a real implementation, this would insert the control into a database table
+    console.log(`Creating risk control: ${JSON.stringify(control, null, 2)}`);
+    
+    return control;
+  }
+  
+  async getRiskControlByControlId(controlId: string): Promise<any> {
+    // In a real implementation, this would query the database
+    console.log(`Getting risk control for control ID: ${controlId}`);
+    
+    // Return a mock control for demonstration purposes
+    return {
+      controlId,
+      systemId: 'demo-system',
+      name: 'Demo Control',
+      description: 'A demonstration risk control',
+      controlType: 'administrative',
+      implementationStatus: 'implemented',
+      effectiveness: 85,
+      implementationDate: new Date(),
+      lastReviewDate: new Date(),
+      nextReviewDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      responsiblePerson: 'demo-user',
+      relatedGaps: [],
+      documentationLinks: [],
+      testResults: null,
+      notes: null
+    };
+  }
+  
+  async getRiskControlsBySystemId(systemId: string): Promise<any[]> {
+    // In a real implementation, this would query the database
+    console.log(`Getting risk controls for system ID: ${systemId}`);
+    
+    // Return mock controls for demonstration purposes
+    return [
+      {
+        controlId: `CTRL-${Date.now()}-1`,
+        systemId,
+        name: 'Regular Data Quality Audits',
+        description: 'Periodic audits of training data for quality, biases, and representativeness',
+        controlType: 'preventive',
+        implementationStatus: 'implemented',
+        effectiveness: 80,
+        implementationDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        lastReviewDate: new Date(),
+        nextReviewDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+        responsiblePerson: 'demo-user',
+        relatedGaps: ['GAP-001'],
+        documentationLinks: [],
+        testResults: null,
+        notes: null
+      },
+      {
+        controlId: `CTRL-${Date.now()}-2`,
+        systemId,
+        name: 'Human Oversight Procedures',
+        description: 'Documented procedures for human oversight of system decisions',
+        controlType: 'detective',
+        implementationStatus: 'in-progress',
+        effectiveness: 60,
+        implementationDate: null,
+        lastReviewDate: null,
+        nextReviewDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+        responsiblePerson: 'demo-user',
+        relatedGaps: ['GAP-002'],
+        documentationLinks: [],
+        testResults: null,
+        notes: 'Implementation in progress'
+      }
+    ];
+  }
+  
+  async getRiskControlsByGapId(gapId: string): Promise<any[]> {
+    // In a real implementation, this would query the database
+    console.log(`Getting risk controls for gap ID: ${gapId}`);
+    
+    // Return mock controls for demonstration purposes
+    return [
+      {
+        controlId: `CTRL-${Date.now()}`,
+        systemId: 'demo-system',
+        name: 'Gap-Specific Control',
+        description: `Control addressing gap ${gapId}`,
+        controlType: 'corrective',
+        implementationStatus: 'planned',
+        effectiveness: null,
+        implementationDate: null,
+        lastReviewDate: null,
+        nextReviewDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        responsiblePerson: 'demo-user',
+        relatedGaps: [gapId],
+        documentationLinks: [],
+        testResults: null,
+        notes: 'Planned to address specific gap'
+      }
+    ];
+  }
+  
+  async updateRiskControl(controlId: string, updates: any): Promise<any> {
+    // In a real implementation, this would update the control in the database
+    console.log(`Updating risk control ${controlId}: ${JSON.stringify(updates, null, 2)}`);
+    
+    // Return a mock updated control
+    return {
+      controlId,
+      ...updates,
+      lastReviewDate: new Date()
+    };
+  }
+  
+  // Risk Event methods
+  async createRiskEvent(event: any): Promise<any> {
+    // In a real implementation, this would insert the event into a database table
+    console.log(`Creating risk event: ${JSON.stringify(event, null, 2)}`);
+    
+    return event;
+  }
+  
+  async getRiskEventByEventId(eventId: string): Promise<any> {
+    // In a real implementation, this would query the database
+    console.log(`Getting risk event for event ID: ${eventId}`);
+    
+    // Return a mock event for demonstration purposes
+    return {
+      eventId,
+      systemId: 'demo-system',
+      eventType: 'incident',
+      severity: 'medium',
+      description: 'A demonstration risk event',
+      detectionDate: new Date(),
+      reportedBy: 'demo-user',
+      status: 'open',
+      impact: 'Limited system availability',
+      rootCause: null,
+      mitigationActions: null,
+      recurrencePrevention: null,
+      closureDate: null,
+      relatedControls: []
+    };
+  }
+  
+  async getRiskEventsBySystemId(systemId: string): Promise<any[]> {
+    // In a real implementation, this would query the database
+    console.log(`Getting risk events for system ID: ${systemId}`);
+    
+    // Return mock events for demonstration purposes
+    return [
+      {
+        eventId: `EVT-${Date.now()}-1`,
+        systemId,
+        eventType: 'incident',
+        severity: 'low',
+        description: 'Minor data processing anomaly detected',
+        detectionDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        reportedBy: 'system',
+        status: 'closed',
+        impact: 'No user impact, internal anomaly only',
+        rootCause: 'Input data format variation',
+        mitigationActions: 'Updated data validation rules',
+        recurrencePrevention: 'Expanded input validation logic',
+        closureDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        relatedControls: []
+      },
+      {
+        eventId: `EVT-${Date.now()}-2`,
+        systemId,
+        eventType: 'compliance_issue',
+        severity: 'medium',
+        description: 'Transparency documentation gap identified during audit',
+        detectionDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        reportedBy: 'demo-user',
+        status: 'in-progress',
+        impact: 'Potential compliance issue with Article 13',
+        rootCause: 'Incomplete documentation update after system change',
+        mitigationActions: 'Updating documentation to reflect recent changes',
+        recurrencePrevention: null,
+        closureDate: null,
+        relatedControls: ['CTRL-001']
+      }
+    ];
+  }
+  
+  async updateRiskEvent(eventId: string, updates: any): Promise<any> {
+    // In a real implementation, this would update the event in the database
+    console.log(`Updating risk event ${eventId}: ${JSON.stringify(updates, null, 2)}`);
+    
+    // Return a mock updated event
+    return {
+      eventId,
+      ...updates,
+      status: updates.status || 'updated'
+    };
+  }
 }
 
 
