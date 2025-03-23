@@ -1648,7 +1648,27 @@ export async function analyzeSystemCompliance(systemId: string): Promise<any> {
       let parsedResponse;
       
       try {
-        parsedResponse = JSON.parse(response);
+        // First clean the response to handle markdown code blocks
+        let cleanedResponse = response;
+        
+        // Check for markdown code blocks and remove them
+        if (cleanedResponse.includes('```json')) {
+          cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
+        } else if (cleanedResponse.includes('```')) {
+          cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
+        }
+        
+        // Extract JSON if embedded in text
+        if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
+          const jsonStartIndex = cleanedResponse.indexOf('{');
+          const jsonEndIndex = cleanedResponse.lastIndexOf('}') + 1;
+          if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex) {
+            cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
+          }
+        }
+        
+        console.log("Cleaned compliance analysis response:", cleanedResponse);
+        parsedResponse = JSON.parse(cleanedResponse);
       } catch (parseError) {
         console.error('Error parsing compliance analysis response:', parseError);
         
@@ -1750,8 +1770,29 @@ export async function handleChatbotQuery(req: Request, res: Response) {
     // Enhanced response formatting
     let formattedResponse = aiResponse;
     try {
+      // First clean the response to handle markdown code blocks
+      let cleanedResponse = aiResponse;
+      
+      // Check for markdown code blocks and remove them
+      if (cleanedResponse.includes('```json')) {
+        cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
+      } else if (cleanedResponse.includes('```')) {
+        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
+      }
+      
+      // Extract JSON if embedded in text
+      if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
+        const jsonStartIndex = cleanedResponse.indexOf('{');
+        const jsonEndIndex = cleanedResponse.lastIndexOf('}') + 1;
+        if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex) {
+          cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
+        }
+      }
+      
+      console.log("Cleaned chatbot response for parsing:", cleanedResponse);
+      
       // First try to parse as JSON
-      const parsedResponse = JSON.parse(aiResponse);
+      const parsedResponse = JSON.parse(cleanedResponse);
 
       // Extract relevant information based on response structure
       if (parsedResponse.response) {
