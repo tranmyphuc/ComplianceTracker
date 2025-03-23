@@ -1,342 +1,195 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BrainIcon, BotIcon, CheckCircleIcon, AlertCircleIcon, HelpCircleIcon, InfoIcon } from "lucide-react";
-
-type MascotMood = "happy" | "thinking" | "celebrating" | "explaining" | "warning" | "question";
 
 interface AIJackProps {
-  mood?: MascotMood;
-  message?: string;
+  mood: 'neutral' | 'happy' | 'thinking' | 'explaining' | 'celebrating' | 'surprised';
+  size?: 'sm' | 'md' | 'lg';
   animate?: boolean;
-  size?: "sm" | "md" | "lg";
   className?: string;
 }
 
 export function AIJack({ 
-  mood = "happy", 
-  message, 
-  animate = true,
-  size = "md",
-  className = "" 
+  mood = 'neutral',
+  size = 'md',
+  animate = false,
+  className = ''
 }: AIJackProps) {
-  const [currentMood, setCurrentMood] = useState<MascotMood>(mood);
-  const [blinking, setBlinking] = useState(false);
-
-  // Random blinking effect
+  const [isAnimating, setIsAnimating] = useState(animate);
+  
+  // Reset animation state periodically if animation is enabled
   useEffect(() => {
-    if (animate) {
-      const blinkInterval = setInterval(() => {
-        setBlinking(true);
-        setTimeout(() => setBlinking(false), 200);
-      }, Math.random() * 3000 + 2000);
+    if (!animate) return;
+    
+    const interval = setInterval(() => {
+      setIsAnimating(true);
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+      }, 2000);
       
-      return () => clearInterval(blinkInterval);
-    }
+      return () => clearTimeout(timer);
+    }, 5000);
+    
+    return () => clearInterval(interval);
   }, [animate]);
-
-  // Change mood occasionally if animate is true
-  useEffect(() => {
-    if (animate) {
-      const moodChangeInterval = setInterval(() => {
-        const moods: MascotMood[] = ["happy", "thinking", "explaining"];
-        const randomMood = moods[Math.floor(Math.random() * moods.length)];
-        setCurrentMood(randomMood);
-        
-        // Return to original mood after a short time
-        setTimeout(() => {
-          setCurrentMood(mood);
-        }, 2000);
-      }, Math.random() * 15000 + 10000);
-      
-      return () => clearInterval(moodChangeInterval);
-    } else {
-      setCurrentMood(mood);
+  
+  // Determine size dimensions
+  const dimensions = {
+    sm: 'w-16 h-16',
+    md: 'w-24 h-24',
+    lg: 'w-32 h-32'
+  }[size];
+  
+  // Get expression based on mood
+  const getExpression = () => {
+    switch (mood) {
+      case 'happy':
+        return (
+          <>
+            <path d="M20,20 C20,24 24,28 30,28 C36,28 40,24 40,20" className="stroke-current stroke-2 fill-none" />
+            <circle cx="22" cy="14" r="2.5" className="fill-current" />
+            <circle cx="38" cy="14" r="2.5" className="fill-current" />
+          </>
+        );
+      case 'thinking':
+        return (
+          <>
+            <path d="M20,27 L40,27" className="stroke-current stroke-2 fill-none" />
+            <circle cx="22" cy="14" r="2.5" className="fill-current" />
+            <circle cx="38" cy="14" r="2.5" className="fill-current" />
+            <circle cx="46" cy="20" r="3" className="fill-current opacity-80" /> 
+          </>
+        );
+      case 'explaining':
+        return (
+          <>
+            <path d="M20,25 C20,29 24,30 30,30 C36,30 40,29 40,25" className="stroke-current stroke-2 fill-none" />
+            <circle cx="22" cy="14" r="2.5" className="fill-current" />
+            <circle cx="38" cy="14" r="2.5" className="fill-current" />
+            <path d="M42,20 L48,18 L46,24" className="stroke-current stroke-2 fill-none" />
+          </>
+        );
+      case 'celebrating':
+        return (
+          <>
+            <path d="M20,18 C20,24 24,30 30,30 C36,30 40,24 40,18" className="stroke-current stroke-2 fill-none" />
+            <path d="M22,13 C22,11 23,11 23,13" className="stroke-current stroke-2 fill-none" />
+            <path d="M38,13 C38,11 39,11 39,13" className="stroke-current stroke-2 fill-none" />
+            <path d="M15,10 L19,14" className="stroke-current stroke-2 fill-none" />
+            <path d="M45,10 L41,14" className="stroke-current stroke-2 fill-none" />
+          </>
+        );
+      case 'surprised':
+        return (
+          <>
+            <circle cx="30" cy="26" r="4" className="stroke-current stroke-2 fill-none" />
+            <circle cx="22" cy="14" r="3" className="stroke-current stroke-2 fill-none" />
+            <circle cx="38" cy="14" r="3" className="stroke-current stroke-2 fill-none" />
+          </>
+        );
+      case 'neutral':
+      default:
+        return (
+          <>
+            <path d="M20,26 L40,26" className="stroke-current stroke-2 fill-none" />
+            <circle cx="22" cy="14" r="2.5" className="fill-current" />
+            <circle cx="38" cy="14" r="2.5" className="fill-current" />
+          </>
+        );
     }
-  }, [animate, mood]);
-
-  // Size classes for the mascot
-  const sizeClasses = {
-    sm: "w-12 h-12",
-    md: "w-20 h-20",
-    lg: "w-32 h-32"
   };
   
-  // Eye expressions based on mood
-  const renderEyes = () => {
-    // Base eye style
-    const baseEyeStyle = "absolute bg-white rounded-full";
-    const eyeSize = size === "sm" ? "w-3 h-3" : size === "md" ? "w-4 h-4" : "w-6 h-6";
-    const leftEyePosition = size === "sm" ? "left-3 top-3" : size === "md" ? "left-5 top-6" : "left-8 top-9";
-    const rightEyePosition = size === "sm" ? "right-3 top-3" : size === "md" ? "right-5 top-6" : "right-8 top-9";
-    
-    // Pupil style
-    const basePupilStyle = "absolute bg-black rounded-full";
-    const pupilSize = size === "sm" ? "w-1.5 h-1.5" : size === "md" ? "w-2 h-2" : "w-3 h-3";
-    const pupilPosition = "inset-0 m-auto";
-    
-    // Blinking animation
-    if (blinking) {
-      return (
-        <>
-          <div className={`${baseEyeStyle} ${eyeSize} ${leftEyePosition} h-px`}></div>
-          <div className={`${baseEyeStyle} ${eyeSize} ${rightEyePosition} h-px`}></div>
-        </>
-      );
-    }
-
-    // Different eye expressions based on mood
-    switch (currentMood) {
-      case "thinking":
-        return (
-          <>
-            <div className={`${baseEyeStyle} ${eyeSize} ${leftEyePosition}`}>
-              <div className={`${basePupilStyle} ${pupilSize} ${pupilPosition} -translate-y-1/4 translate-x-1/4`}></div>
-            </div>
-            <div className={`${baseEyeStyle} ${eyeSize} ${rightEyePosition}`}>
-              <div className={`${basePupilStyle} ${pupilSize} ${pupilPosition} -translate-y-1/4 translate-x-1/4`}></div>
-            </div>
-          </>
-        );
-
-      case "celebrating":
-        return (
-          <>
-            <div className={`${baseEyeStyle} ${eyeSize} ${leftEyePosition}`}>
-              <div className={`${basePupilStyle} ${pupilSize} ${pupilPosition} star-shape`}></div>
-            </div>
-            <div className={`${baseEyeStyle} ${eyeSize} ${rightEyePosition}`}>
-              <div className={`${basePupilStyle} ${pupilSize} ${pupilPosition} star-shape`}></div>
-            </div>
-          </>
-        );
-
-      case "warning":
-        return (
-          <>
-            <div className={`${baseEyeStyle} ${eyeSize} ${leftEyePosition}`}>
-              <div className={`${basePupilStyle} ${pupilSize} ${pupilPosition} scale-y-125`}></div>
-            </div>
-            <div className={`${baseEyeStyle} ${eyeSize} ${rightEyePosition}`}>
-              <div className={`${basePupilStyle} ${pupilSize} ${pupilPosition} scale-y-125`}></div>
-            </div>
-          </>
-        );
-
-      case "question":
-        return (
-          <>
-            <div className={`${baseEyeStyle} ${eyeSize} ${leftEyePosition}`}>
-              <div className={`${basePupilStyle} ${pupilSize} ${pupilPosition}`}></div>
-            </div>
-            <div className={`${baseEyeStyle} ${eyeSize} ${rightEyePosition}`}>
-              <div className={`font-bold text-black ${size === "sm" ? "text-xs" : size === "md" ? "text-sm" : "text-base"} absolute inset-0 flex items-center justify-center`}>?</div>
-            </div>
-          </>
-        );
-
-      case "explaining":
-        return (
-          <>
-            <div className={`${baseEyeStyle} ${eyeSize} ${leftEyePosition}`}>
-              <div className={`${basePupilStyle} ${pupilSize} ${pupilPosition}`}></div>
-            </div>
-            <div className={`${baseEyeStyle} ${eyeSize} ${rightEyePosition}`}>
-              <div className={`${basePupilStyle} ${pupilSize} ${pupilPosition}`}></div>
-            </div>
-            <div className={`absolute ${size === "sm" ? "w-5 h-3" : size === "md" ? "w-8 h-5" : "w-12 h-7"} ${size === "sm" ? "top-7" : size === "md" ? "top-12" : "top-16"} rounded-full mx-auto left-0 right-0 bg-purple-100 flex items-center justify-center`}>
-              <div className={`${size === "sm" ? "w-0.5 h-0.5" : size === "md" ? "w-1 h-1" : "w-1.5 h-1.5"} rounded-full bg-purple-500 mx-0.5`}></div>
-              <div className={`${size === "sm" ? "w-0.5 h-0.5" : size === "md" ? "w-1 h-1" : "w-1.5 h-1.5"} rounded-full bg-purple-500 mx-0.5`}></div>
-              <div className={`${size === "sm" ? "w-0.5 h-0.5" : size === "md" ? "w-1 h-1" : "w-1.5 h-1.5"} rounded-full bg-purple-500 mx-0.5`}></div>
-            </div>
-          </>
-        );
-
-      case "happy":
-      default:
-        return (
-          <>
-            <div className={`${baseEyeStyle} ${eyeSize} ${leftEyePosition}`}>
-              <div className={`${basePupilStyle} ${pupilSize} ${pupilPosition}`}></div>
-            </div>
-            <div className={`${baseEyeStyle} ${eyeSize} ${rightEyePosition}`}>
-              <div className={`${basePupilStyle} ${pupilSize} ${pupilPosition}`}></div>
-            </div>
-          </>
-        );
-    }
-  };
-
-  // Mouth expressions based on mood
-  const renderMouth = () => {
-    // Base mouth position
-    const mouthPosition = size === "sm" ? "bottom-3" : size === "md" ? "bottom-5" : "bottom-8";
-    
-    // Different mouth expressions based on mood
-    switch (currentMood) {
-      case "thinking":
-        return (
-          <div className={`absolute ${mouthPosition} left-1/2 transform -translate-x-1/2 ${size === "sm" ? "w-3" : size === "md" ? "w-5" : "w-8"} ${size === "sm" ? "h-0.5" : size === "md" ? "h-0.5" : "h-1"} bg-black rounded`}></div>
-        );
-
-      case "celebrating":
-        return (
-          <div className={`absolute ${mouthPosition} left-1/2 transform -translate-x-1/2 ${size === "sm" ? "w-4" : size === "md" ? "w-7" : "w-10"} ${size === "sm" ? "h-2" : size === "md" ? "h-3" : "h-4"} bg-red-400 rounded-full flex items-center justify-center overflow-hidden`}>
-            <div className="absolute top-0 left-0 right-0 h-1/2 bg-pink-300 rounded-t-full"></div>
-          </div>
-        );
-
-      case "warning":
-        return (
-          <div className={`absolute ${mouthPosition} left-1/2 transform -translate-x-1/2 ${size === "sm" ? "w-3" : size === "md" ? "w-5" : "w-7"} ${size === "sm" ? "h-1" : size === "md" ? "h-1.5" : "h-2"} border-2 border-black rounded-full bg-white`}></div>
-        );
-
-      case "question":
-        return (
-          <div className={`absolute ${mouthPosition} left-1/2 transform -translate-x-1/2 ${size === "sm" ? "w-2" : size === "md" ? "w-3" : "w-4"} ${size === "sm" ? "h-2" : size === "md" ? "h-3" : "h-4"} border-2 border-black rounded-full bg-white`}></div>
-        );
-
-      case "explaining":
-        return (
-          <div className={`absolute ${mouthPosition} left-1/2 transform -translate-x-1/2 ${size === "sm" ? "w-3" : size === "md" ? "w-5" : "w-8"} ${size === "sm" ? "h-1" : size === "md" ? "h-2" : "h-3"} bg-black rounded-full`}>
-            <div className={`absolute left-1/2 transform -translate-x-1/2 ${size === "sm" ? "w-2" : size === "md" ? "w-3" : "w-5"} ${size === "sm" ? "h-0.5" : size === "md" ? "h-1" : "h-1.5"} bg-red-400 rounded-full top-1/4`}></div>
-          </div>
-        );
-
-      case "happy":
-      default:
-        return (
-          <div className={`absolute ${mouthPosition} left-1/2 transform -translate-x-1/2 ${size === "sm" ? "w-4" : size === "md" ? "w-6" : "w-9"} ${size === "sm" ? "h-2" : size === "md" ? "h-3" : "h-4"} bg-black rounded-full overflow-hidden`}>
-            <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-red-400 rounded-b-full"></div>
-          </div>
-        );
-    }
-  };
-
-  // Icon based on mood for the antenna
-  const renderAntennaIcon = () => {
-    const iconSize = size === "sm" ? "h-3 w-3" : size === "md" ? "h-5 w-5" : "h-7 w-7";
-    const iconPosition = "absolute -top-1 left-1/2 transform -translate-x-1/2 -translate-y-full";
-    
-    switch (currentMood) {
-      case "thinking":
-        return <BrainIcon className={`${iconSize} ${iconPosition} text-blue-400`} />;
-      case "celebrating":
-        return <CheckCircleIcon className={`${iconSize} ${iconPosition} text-green-400`} />;
-      case "warning":
-        return <AlertCircleIcon className={`${iconSize} ${iconPosition} text-yellow-400`} />;
-      case "question":
-        return <HelpCircleIcon className={`${iconSize} ${iconPosition} text-purple-400`} />;
-      case "explaining":
-        return <InfoIcon className={`${iconSize} ${iconPosition} text-blue-400`} />;
-      case "happy":
-      default:
-        return <BotIcon className={`${iconSize} ${iconPosition} text-purple-400`} />;
-    }
-  };
-
-  // Animation variants for the mascot
-  const mascotVariants = {
-    idle: {
-      y: [0, -5, 0],
-      transition: {
-        repeat: Infinity,
-        duration: 3,
-        ease: "easeInOut"
-      }
-    },
-    thinking: {
-      rotate: [0, -5, 5, -5, 0],
-      transition: {
-        repeat: Infinity,
-        duration: 2,
-        ease: "easeInOut"
-      }
-    },
-    celebrating: {
-      scale: [1, 1.1, 1],
-      rotate: [0, 5, -5, 5, 0],
-      transition: {
-        repeat: Infinity,
-        duration: 1,
-        ease: "easeInOut"
-      }
-    },
-    explaining: {
-      x: [0, -3, 3, -3, 0],
-      transition: {
-        repeat: Infinity,
-        duration: 1.5,
-        ease: "easeInOut"
-      }
-    },
-    warning: {
-      y: [0, -3, 0, -3, 0],
-      transition: {
-        repeat: Infinity,
-        duration: 0.5,
-        ease: "easeInOut"
-      }
-    },
-    question: {
-      rotate: [0, 10, 0, -10, 0],
-      transition: {
-        repeat: Infinity,
-        duration: 2,
-        ease: "easeInOut"
-      }
-    }
-  };
-
-  // Get the current animation variant based on mood
-  const getCurrentVariant = () => {
-    if (!animate) return undefined;
-    
-    switch (currentMood) {
-      case "thinking": return mascotVariants.thinking;
-      case "celebrating": return mascotVariants.celebrating;
-      case "explaining": return mascotVariants.explaining;
-      case "warning": return mascotVariants.warning;
-      case "question": return mascotVariants.question;
-      case "happy":
-      default: return mascotVariants.idle;
-    }
-  };
-
   return (
-    <div className={`relative flex flex-col items-center ${className}`}>
-      <motion.div 
-        className={`relative ${sizeClasses[size]} bg-blue-500 rounded-full overflow-hidden`}
-        animate={getCurrentVariant()}
+    <div className={`relative ${className}`}>
+      <motion.div
+        animate={isAnimating ? { y: [0, -5, 0, -5, 0] } : { y: 0 }}
+        transition={{ duration: 1 }}
+        className={`${dimensions} relative`}
       >
-        {/* Antenna */}
-        <div className={`absolute left-1/2 transform -translate-x-1/2 ${size === "sm" ? "w-1" : size === "md" ? "w-1.5" : "w-2"} ${size === "sm" ? "h-3" : size === "md" ? "h-4" : "h-6"} bg-gray-700 -top-0.5`}>
-          {renderAntennaIcon()}
-        </div>
+        <svg viewBox="0 0 60 60" className="w-full h-full text-primary">
+          {/* Head */}
+          <motion.circle 
+            cx="30" 
+            cy="30" 
+            r="24" 
+            className="fill-primary/10 stroke-primary stroke-2"
+            animate={isAnimating ? { scale: [1, 1.03, 1, 1.03, 1] } : { scale: 1 }}
+            transition={{ duration: 1 }}
+          />
+          
+          {/* Antenna */}
+          <motion.path 
+            d="M30,6 L30,1" 
+            className="stroke-current stroke-2"
+            animate={isAnimating ? { rotate: [-5, 5, -5, 5, 0] } : { rotate: 0 }}
+            transition={{ duration: 1 }}
+            style={{ transformOrigin: '30px 6px' }}
+          />
+          <circle cx="30" cy="1" r="1" className="fill-current" />
+          
+          {/* Face expression based on mood */}
+          {getExpression()}
+          
+          {/* Additional decorative elements */}
+          <path d="M12,25 L14,25" className="stroke-current stroke-2 opacity-70" />
+          <path d="M46,25 L48,25" className="stroke-current stroke-2 opacity-70" />
+          <path d="M21,42 C22,46 38,46 39,42" className="stroke-current stroke-1 opacity-50 fill-none" />
+        </svg>
         
-        {/* Face elements */}
-        {renderEyes()}
-        {renderMouth()}
-        
-        {/* Ears/Side protrusions */}
-        <div className={`absolute ${size === "sm" ? "w-1.5 h-3" : size === "md" ? "w-2 h-5" : "w-3 h-8"} bg-blue-600 rounded-l-full -left-0.5 top-1/2 transform -translate-y-1/2`}></div>
-        <div className={`absolute ${size === "sm" ? "w-1.5 h-3" : size === "md" ? "w-2 h-5" : "w-3 h-8"} bg-blue-600 rounded-r-full -right-0.5 top-1/2 transform -translate-y-1/2`}></div>
-      </motion.div>
-      
-      {/* Speech bubble message */}
-      {message && (
+        {/* Animated accent elements */}
         <AnimatePresence>
-          <motion.div 
-            className={`mt-2 bg-white rounded-xl border border-gray-200 shadow-sm p-3 ${size === "sm" ? "max-w-[150px]" : size === "md" ? "max-w-[250px]" : "max-w-[350px]"}`}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="absolute left-1/2 transform -translate-x-1/2 -top-2 w-4 h-4 bg-white border-t border-l border-gray-200 rotate-45"></div>
-            <p className={`text-center ${size === "sm" ? "text-xs" : size === "md" ? "text-sm" : "text-base"}`}>{message}</p>
-          </motion.div>
+          {isAnimating && mood === 'thinking' && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/6"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20">
+                <path d="M5,10 L15,10 M10,5 L10,15" className="stroke-primary stroke-2" />
+              </svg>
+            </motion.div>
+          )}
+          
+          {isAnimating && mood === 'celebrating' && (
+            <>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0 }}
+                className="absolute -top-1 -right-1"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                  <path d="M8,0 L9,6 L16,8 L9,10 L8,16 L7,10 L0,8 L7,6 Z" className="fill-yellow-400" />
+                </svg>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0 }}
+                className="absolute -top-2 -left-2"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14">
+                  <path d="M7,0 L8,5 L14,7 L8,9 L7,14 L6,9 L0,7 L6,5 Z" className="fill-green-400" />
+                </svg>
+              </motion.div>
+            </>
+          )}
+          
+          {isAnimating && mood === 'explaining' && (
+            <motion.div 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              className="absolute top-1/4 right-0 transform translate-x-full"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M0,12 L16,12 M11,6 L17,12 L11,18" className="stroke-primary stroke-2 fill-none" />
+              </svg>
+            </motion.div>
+          )}
         </AnimatePresence>
-      )}
+      </motion.div>
     </div>
   );
 }
