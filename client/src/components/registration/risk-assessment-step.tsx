@@ -34,7 +34,8 @@ interface RiskAssessmentStepProps {
 export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
   formData,
   setFormData,
-  aiSystemAnalysis
+  aiSystemAnalysis,
+  errors = {}
 }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -97,7 +98,10 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
             value={formData.riskLevel}
             onValueChange={(value) => handleSelectChange('riskLevel', value)}
           >
-            <SelectTrigger id="riskLevel">
+            <SelectTrigger 
+              id="riskLevel" 
+              className={errors.riskLevel ? "border-red-500" : ""}
+            >
               <SelectValue placeholder="Select risk level" />
             </SelectTrigger>
             <SelectContent>
@@ -107,10 +111,17 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
               <SelectItem value="unacceptable">Unacceptable Risk</SelectItem>
             </SelectContent>
           </Select>
-          {aiAnalysisRiskLevel && formData.riskLevel && formData.riskLevel !== aiAnalysisRiskLevel && (
-            <p className="text-xs text-amber-600 mt-1">
-              Note: Your selected risk level differs from the AI recommendation ({aiAnalysisRiskLevel}).
+          {errors.riskLevel ? (
+            <p className="text-sm text-red-500 flex items-center mt-1">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              {errors.riskLevel}
             </p>
+          ) : (
+            aiAnalysisRiskLevel && formData.riskLevel && formData.riskLevel !== aiAnalysisRiskLevel && (
+              <p className="text-xs text-amber-600 mt-1">
+                Note: Your selected risk level differs from the AI recommendation ({aiAnalysisRiskLevel}).
+              </p>
+            )
           )}
         </div>
 
@@ -122,9 +133,16 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
             placeholder="Describe potential impacts on individuals, organizations, or society"
             value={formData.potentialImpact}
             onChange={handleInputChange}
+            className={errors.potentialImpact ? "border-red-500" : ""}
             rows={3}
             required
           />
+          {errors.potentialImpact && (
+            <p className="text-sm text-red-500 flex items-center mt-1">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              {errors.potentialImpact}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">

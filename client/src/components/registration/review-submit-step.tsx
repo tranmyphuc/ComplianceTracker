@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import { Separator } from "../ui/separator";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
+import { AlertCircle } from "lucide-react";
 
 interface ReviewSubmitStepProps {
   formData: {
@@ -35,11 +36,13 @@ interface ReviewSubmitStepProps {
     [key: string]: any;
   };
   setFormData: React.Dispatch<React.SetStateAction<any>>;
+  errors?: Record<string, string>;
 }
 
 export const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
   formData,
-  setFormData
+  setFormData,
+  errors = {}
 }) => {
   const handleCheckboxChange = (name: string, checked: boolean) => {
     setFormData((prev: any) => ({ ...prev, [name]: checked }));
@@ -188,36 +191,54 @@ export const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
       </Card>
       
       <div className="space-y-4 pt-4">
-        <div className="space-y-2">
+        <div className={errors.confirmAccuracy ? "space-y-2 pb-2" : "space-y-2"}>
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="confirmAccuracy" 
               checked={formData.confirmAccuracy || false}
               onCheckedChange={(checked) => handleCheckboxChange('confirmAccuracy', checked === true)}
+              className={errors.confirmAccuracy ? "border-red-500" : ""}
             />
             <label
               htmlFor="confirmAccuracy"
-              className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className={errors.confirmAccuracy 
+                ? "text-sm leading-none text-red-500 peer-disabled:cursor-not-allowed peer-disabled:opacity-70" 
+                : "text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"}
             >
               I confirm that the information provided is accurate and complete
             </label>
           </div>
+          {errors.confirmAccuracy && (
+            <p className="text-sm text-red-500 flex items-center mt-1">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              {errors.confirmAccuracy}
+            </p>
+          )}
         </div>
         
-        <div className="space-y-2">
+        <div className={errors.confirmCompliance ? "space-y-2 pb-2" : "space-y-2"}>
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="confirmCompliance" 
               checked={formData.confirmCompliance || false}
               onCheckedChange={(checked) => handleCheckboxChange('confirmCompliance', checked === true)}
+              className={errors.confirmCompliance ? "border-red-500" : ""}
             />
             <label
               htmlFor="confirmCompliance"
-              className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className={errors.confirmCompliance 
+                ? "text-sm leading-none text-red-500 peer-disabled:cursor-not-allowed peer-disabled:opacity-70" 
+                : "text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"}
             >
               I understand that this system must comply with all relevant regulations, including the EU AI Act
             </label>
           </div>
+          {errors.confirmCompliance && (
+            <p className="text-sm text-red-500 flex items-center mt-1">
+              <AlertCircle className="h-4 w-4 mr-1" />
+              {errors.confirmCompliance}
+            </p>
+          )}
         </div>
       </div>
     </div>
