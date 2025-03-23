@@ -53,53 +53,43 @@ interface GoogleSearchResult {
  * This provides real data from the internet
  */
 async function searchGoogleApi(query: string): Promise<string> {
+  const googleSearchApiKey = getApiKey('google_search');
+  if (!googleSearchApiKey) {
+    throw new Error('No Google Search API key available');
+  }
+
   try {
-    console.log('Calling Google Search API with query:', query);
-    
-    // Format the URL with API key and search engine ID
-    const url = `${GOOGLE_SEARCH_URL}?key=${GOOGLE_SEARCH_API_KEY}&cx=${GOOGLE_SEARCH_ENGINE_ID}&q=${encodeURIComponent(query)}`;
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      },
-      // Add a timeout to prevent hanging requests
-      signal: AbortSignal.timeout(10000)
-    });
+    const response = await fetch(
+      `${GOOGLE_SEARCH_URL}?key=${googleSearchApiKey}&cx=${GOOGLE_SEARCH_ENGINE_ID}&q=${encodeURIComponent(query)}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Google Search API error: ${response.status} - ${errorText}`);
+      throw new Error(`Google Search API error: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json() as GoogleSearchResult;
-    
-    // Check if we got any results
-    if (!data.items || data.items.length === 0) {
-      console.warn('No results found from Google Search API');
-      throw new Error('No search results found');
+    const data = await response.json();
+
+    // Extract and format the search results into a coherent response
+    let resultText = "Based on search results:\n\n";
+
+    if (data.items && data.items.length > 0) {
+      data.items.slice(0, 5).forEach((item: any, index: number) => {
+        resultText += `${index + 1}. ${item.title}\n`;
+        resultText += `   ${item.snippet}\n\n`;
+      });
+    } else {
+      resultText += "No relevant search results found.";
     }
-    
-    // Format the results into a useful text response
-    // Take the top 3 results for most relevant information
-    const topResults = data.items.slice(0, 3);
-    
-    // Format the results into a readable text
-    let formattedResults = `Search Results for: "${query}"\n\n`;
-    
-    topResults.forEach((item, index) => {
-      formattedResults += `Source ${index + 1}: ${item.title}\n`;
-      formattedResults += `Excerpt: ${item.snippet}\n`;
-      formattedResults += `URL: ${item.link}\n\n`;
-    });
-    
-    // Add a total count
-    formattedResults += `Found ${data.searchInformation?.totalResults || 'multiple'} results in total.\n`;
-    
-    return formattedResults;
+
+    return resultText;
   } catch (error) {
-    console.error('Google Search API error:', error);
+    console.error('Error calling Google Search API:', error);
     throw error;
   }
 }
@@ -108,35 +98,40 @@ async function searchGoogleApi(query: string): Promise<string> {
  * Call the Gemini API with a prompt
  */
 async function callGeminiApi(prompt: string): Promise<string> {
+  const geminiApiKey = getApiKey('gemini');
+  if (!geminiApiKey) {
+    throw new Error('No Gemini API key available');
+  }
+
   try {
-    console.log('Calling Gemini API with prompt');
-    
-    const url = `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`;
-    const response = await fetch(url, {
+    const response = await fetch(`${GEMINI_API_URL}?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }]
-      }),
-      // Add a timeout to prevent hanging requests
-      signal: AbortSignal.timeout(10000)
+        contents: [
+          {
+            parts: [
+              { text: prompt }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 4000
+        }
+      })
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+      throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json() as GeminiResponse;
     return data.candidates[0].content.parts[0].text;
   } catch (error) {
-    console.error('Gemini API error:', error);
+    console.error('Error calling Gemini API:', error);
     throw error;
   }
 }
@@ -151,7 +146,7 @@ export async function callDeepSeekApi(prompt: string, detectedSystemType?: strin
     // Check if DeepSeek API key is present
     if (!DEEPSEEK_API_KEY) {
       console.log('DeepSeek API key not found, checking for Gemini API');
-      
+
       // Check if Gemini API key is present
       if (GEMINI_API_KEY) {
         console.log('Using Gemini API as primary option');
@@ -159,7 +154,7 @@ export async function callDeepSeekApi(prompt: string, detectedSystemType?: strin
           return await callGeminiApi(prompt);
         } catch (geminiError) {
           console.error('Gemini API error - checking for Google Search API:', geminiError);
-          
+
           // If Gemini fails, try Google Search API
           if (GOOGLE_SEARCH_API_KEY) {
             try {
@@ -223,14 +218,14 @@ export async function callDeepSeekApi(prompt: string, detectedSystemType?: strin
     } catch (deepseekError) {
       // If DeepSeek API call fails, try Gemini as backup
       console.error('DeepSeek API error - trying Gemini API as backup:', deepseekError);
-      
+
       if (GEMINI_API_KEY) {
         try {
           console.log('Attempting Gemini API as fallback...');
           return await callGeminiApi(prompt);
         } catch (geminiError) {
           console.error('Gemini API fallback also failed - checking Google Search API:', geminiError);
-          
+
           // If Gemini fails, try Google Search API
           if (GOOGLE_SEARCH_API_KEY) {
             try {
@@ -433,11 +428,11 @@ function simulateDeepSeekResponse(prompt: string, detectedSystemType?: string): 
         });
       }
     }
-    
+
     // Otherwise, determine the system type based on the description
     let matchedSystem = systemTypes.default;
     let highestMatchCount = 0;
-    
+
     // Use standard keyword matching algorithm for all inputs
     for (const [type, system] of Object.entries(systemTypes)) {
       if (type === 'default') continue;
@@ -445,13 +440,13 @@ function simulateDeepSeekResponse(prompt: string, detectedSystemType?: string): 
       // Use the input as entered by the user for matching without prioritization
       // Enhanced matching logic that looks at both prompt and description
       const textToSearch = (lowercasePrompt + " " + description.toLowerCase());
-      
+
       // Debug the textToSearch for every system type
       console.log(`Searching for keywords in: "${textToSearch}"`);
-      
+
       // Use type assertion to tell TypeScript that system.keywords exists
       const keywords = 'keywords' in system ? system.keywords as string[] : [];
-      
+
       const matchCount = keywords.reduce((count: number, keyword: string) => {
         // Give highest priority to exact matches with the input prompt
         if (lowercasePrompt.trim() === keyword) {
@@ -574,7 +569,7 @@ function simulateDeepSeekResponse(prompt: string, detectedSystemType?: string): 
     });
   } else if (lowercasePrompt.includes('chatbot') || lowercasePrompt.includes('eu ai act compliance assistant') || lowercasePrompt.includes('expert') || lowercasePrompt.length < 10) {
     // Handle chatbot queries for EU AI Act compliance assistant
-    
+
     // Handle very short questions or common conversation starters
     if (lowercasePrompt === 'hi' || lowercasePrompt === 'hello' || lowercasePrompt === 'hey') {
       return 'Hello! I\'m the SGH ASIA AI Assistant for EU AI Act compliance. How can I help you today with your compliance questions?';
@@ -643,13 +638,13 @@ export async function analyzeSystemCategory(data: Partial<AiSystem>): Promise<st
 
   try {
     const response = await callDeepSeekApi(prompt);
-    
+
     try {
       const parsedResponse = JSON.parse(response);
       return parsedResponse.category || 'Decision Support System';
     } catch (parseError) {
       console.error('Error parsing category response:', parseError);
-      
+
       // Extract category from text response using regex if JSON parsing fails
       const categoryMatch = response.match(/category[:\s]*(.*?)(?:[\n\.]|explanation)/i);
       if (categoryMatch && categoryMatch[1]) {
@@ -658,7 +653,7 @@ export async function analyzeSystemCategory(data: Partial<AiSystem>): Promise<st
           return extractedCategory;
         }
       }
-      
+
       // If no category can be extracted, use rule-based categorization
       return determineSystemCategoryFromData(data);
     }
@@ -681,7 +676,7 @@ function determineSystemCategoryFromData(data: Partial<AiSystem>): string {
     data.aiCapabilities || '',
     data.department || ''
   ].join(' ').toLowerCase();
-  
+
   // Create a scoring system for each category
   const categoryScores = {
     'Decision Support System': 0,
@@ -695,134 +690,50 @@ function determineSystemCategoryFromData(data: Partial<AiSystem>): string {
     'Computer Vision System': 0,
     'Machine Learning System': 0
   };
-  
+
   // Score based on keywords
   if (allText.includes('decision') || allText.includes('support') || allText.includes('assist')) {
     categoryScores['Decision Support System'] += 5;
   }
-  
+
   if (allText.includes('automat') || allText.includes('workflow') || allText.includes('process')) {
     categoryScores['Automation System'] += 5;
   }
-  
+
   if (allText.includes('recogni') || allText.includes('detect') || allText.includes('identify')) {
     categoryScores['Recognition System'] += 5;
   }
-  
+
   if (allText.includes('predict') || allText.includes('forecast') || allText.includes('future')) {
     categoryScores['Prediction System'] += 5;
   }
-  
+
   if (allText.includes('recommend') || allText.includes('suggest') || allText.includes('personali')) {
     categoryScores['Recommendation System'] += 5;
   }
-  
+
   if (allText.includes('generat') || allText.includes('create') || allText.includes('content')) {
     categoryScores['Content Generation System'] += 5;
   }
-  
+
   if (allText.includes('classif') || allText.includes('categori') || allText.includes('sort')) {
     categoryScores['Classification System'] += 5;
   }
-  
+
   if (allText.includes('language') || allText.includes('text') || allText.includes('nlp')) {
     categoryScores['Natural Language Processing System'] += 5;
   }
-  
+
   if (allText.includes('vision') || allText.includes('image') || allText.includes('camera') || allText.includes('visual')) {
     categoryScores['Computer Vision System'] += 5;
   }
-  
-  if (allText.includes('machine learning') || allText.includes('ml') || allText.includes('algorithm')) {
-    categoryScores['Machine Learning System'] += 5;
-  }
-  
-  // Find the category with the highest score
-  let highestScore = 0;
-  let highestCategory = 'Decision Support System'; // Default
-  
-  for (const [category, score] of Object.entries(categoryScores)) {
-    if (score > highestScore) {
-      highestScore = score;
-      highestCategory = category;
-    }
-  }
-  
-  // If no clear winner, use the department to influence the decision
-  if (highestScore === 0) {
-    const department = (data.department || '').toLowerCase();
-    
-    if (department.includes('medical') || department.includes('health')) {
-      return 'Decision Support System';
-    }
-    
-    if (department.includes('finance') || department.includes('sales')) {
-      return 'Prediction System';
-    }
-    
-    if (department.includes('marketing')) {
-      return 'Recommendation System';
-    }
-    
-    if (department.includes('operations') || department.includes('production')) {
-      return 'Automation System';
-    }
-    
-    if (department.includes('security') || department.includes('risk')) {
-      return 'Recognition System';
-    }
-    
-    // If still no match, use decision support as the default
-    return 'Decision Support System';
-  }
-  
-  return highestCategory;
-}
 
-/**
- * Determine the risk level of an AI system based on EU AI Act criteria
- */
-export async function determineRiskLevel(data: Partial<AiSystem>): Promise<string> {
-  const prompt = `
-    You are an EU AI Act compliance expert. Based on the following AI system details,
-    classify its risk level according to the EU AI Act (Unacceptable, High, Limited, or Minimal).
-
-    Be extremely specific and refer to exact relevant EU AI Act articles.
-
-    System Name: ${data.name || 'N/A'}
-    Description: ${data.description || 'N/A'}
-    Purpose: ${data.purpose || 'N/A'}
-    Department: ${data.department || 'N/A'}
-    Vendor: ${data.vendor || 'N/A'}
-    Version: ${data.version || 'N/A'}
-    AI Capabilities: ${data.aiCapabilities || 'N/A'}
-    Training Datasets: ${data.trainingDatasets || 'N/A'}
-    Usage Context: ${data.usageContext || 'N/A'}
-    Potential Impact: ${data.potentialImpact || 'N/A'}
-
-    Remember that:
-    - Unacceptable Risk: Systems explicitly prohibited under Article 5 (social scoring, biometric categorization, emotion recognition, etc.)
-    - High Risk: Systems in Annex III areas (critical infrastructure, education, employment, essential services, law enforcement, migration, administration of justice)
-    - Limited Risk: Systems with transparency obligations (chatbots, emotion recognition, deepfakes)
-    - Minimal Risk: All other AI systems
-
-    Output your answer in JSON format with a 'riskLevel' field and a detailed 'justification' field that cites specific EU AI Act articles.
-  `;
-
-  try {
-    const response = await callDeepSeekApi(prompt);
-    
-    try {
-      // First clean the response to handle markdown code blocks
-      let cleanedResponse = response;
-      
-      // Check for markdown code blocks and remove them
-      if (cleanedResponse.includes('```json')) {
+  if (allText.includes('machine learning') || allText.includes('ml') || allText.json')) {
         cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
       } else if (cleanedResponse.includes('```')) {
         cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
       }
-      
+
       // Extract JSON if embedded in text
       if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
         const jsonStartIndex = cleanedResponse.indexOf('{');
@@ -831,19 +742,19 @@ export async function determineRiskLevel(data: Partial<AiSystem>): Promise<strin
           cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
         }
       }
-      
+
       console.log("Cleaned risk level response:", cleanedResponse);
       const parsedResponse = JSON.parse(cleanedResponse);
       return parsedResponse.riskLevel || 'Limited';
     } catch (parseError) {
       console.error('Error parsing risk level response:', parseError);
-      
+
       // If JSON parsing fails, extract risk level from text response
       const riskLevelMatch = response.match(/risk\s*level:?\s*["']?(Unacceptable|High|Limited|Minimal)["']?/i);
       if (riskLevelMatch && riskLevelMatch[1]) {
         return riskLevelMatch[1];
       }
-      
+
       // If no risk level can be extracted, use rule-based risk assessment
       return determineRiskLevelFromData(data);
     }
@@ -868,20 +779,20 @@ function determineRiskLevelFromData(data: Partial<AiSystem>): string {
     data.usageContext || '',
     data.potentialImpact || ''
   ].join(' ').toLowerCase();
-  
+
   // Check for prohibited systems (Unacceptable Risk - Article 5)
   const prohibitedKeywords = [
     'social scoring', 'social credit', 'mass surveillance', 'emotion inference public', 
     'biometric categorization', 'exploit vulnerabilities', 'manipulate persons', 
     'manipulate behavior', 'real-time remote biometric identification'
   ];
-  
+
   for (const keyword of prohibitedKeywords) {
     if (allText.includes(keyword)) {
       return 'Unacceptable';
     }
   }
-  
+
   // Check for high-risk systems (Annex III areas)
   const highRiskKeywords = [
     'critical infrastructure', 'essential services', 'transportation', 'water supply',
@@ -893,14 +804,14 @@ function determineRiskLevelFromData(data: Partial<AiSystem>): string {
     'safety critical', 'autonomous', 'vehicle', 'aircraft', 'rail', 'maritime', 'nuclear',
     'credit score', 'creditworthiness', 'credit institution'
   ];
-  
+
   // For high risk classification, we need a stronger match - either multiple keywords
   // or specific keywords in critical fields
   let highRiskScore = 0;
   for (const keyword of highRiskKeywords) {
     if (allText.includes(keyword)) {
       highRiskScore += 1;
-      
+
       // Give higher weight to matches in key fields
       if ((data.purpose || '').toLowerCase().includes(keyword)) {
         highRiskScore += 2;
@@ -910,36 +821,36 @@ function determineRiskLevelFromData(data: Partial<AiSystem>): string {
       }
     }
   }
-  
+
   if (highRiskScore >= 2) {
     return 'High';
   }
-  
+
   // Check for limited risk systems (transparency obligations)
   const limitedRiskKeywords = [
     'chatbot', 'virtual assistant', 'emotion recognition', 'biometric categorization',
     'deepfake', 'deep fake', 'ai-generated', 'AI generated', 'artificially generated',
     'synthetic content', 'content generation'
   ];
-  
+
   for (const keyword of limitedRiskKeywords) {
     if (allText.includes(keyword)) {
       return 'Limited';
     }
   }
-  
+
   // Check if the system interacts with humans directly
   const humanInteractionKeywords = [
     'user interface', 'user interaction', 'conversational', 'human interaction',
     'human-facing', 'public-facing', 'customer-facing', 'interactive'
   ];
-  
+
   for (const keyword of humanInteractionKeywords) {
     if (allText.includes(keyword)) {
       return 'Limited';
     }
   }
-  
+
   // Default to Minimal risk for all other systems
   return 'Minimal';
 }
@@ -958,7 +869,7 @@ export async function determineRelevantArticles(data: Partial<AiSystem>): Promis
     Department: ${data.department || 'N/A'}
     AI Capabilities: ${data.aiCapabilities || 'N/A'}
     Risk Level: ${data.riskLevel || 'Unknown'}
-    
+
     List the 5-7 most relevant EU AI Act articles that would apply to this system.
     Be specific and include the article numbers (e.g., "Article 10: Data and Data Governance").
 
@@ -967,18 +878,18 @@ export async function determineRelevantArticles(data: Partial<AiSystem>): Promis
 
   try {
     const response = await callDeepSeekApi(prompt);
-    
+
     try {
       // First clean the response to handle markdown code blocks
       let cleanedResponse = response;
-      
+
       // Check for markdown code blocks and remove them
       if (cleanedResponse.includes('```json')) {
         cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
       } else if (cleanedResponse.includes('```')) {
         cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
       }
-      
+
       // Extract JSON if embedded in text
       if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
         const jsonStartIndex = cleanedResponse.indexOf('{');
@@ -987,13 +898,13 @@ export async function determineRelevantArticles(data: Partial<AiSystem>): Promis
           cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
         }
       }
-      
+
       console.log("Cleaned relevant articles response:", cleanedResponse);
       const parsedResponse = JSON.parse(cleanedResponse);
       return parsedResponse.articles || determineRelevantArticlesFromData(data);
     } catch (parseError) {
       console.error('Error parsing relevant articles response:', parseError);
-      
+
       // Extract articles using regex
       const articleMatches = response.match(/Article\s+\d+[\w\s:,\-.]*/g);
       if (articleMatches && articleMatches.length > 0) {
@@ -1003,7 +914,7 @@ export async function determineRelevantArticles(data: Partial<AiSystem>): Promis
         );
         return cleanedArticles;
       }
-      
+
       return determineRelevantArticlesFromData(data);
     }
   } catch (error) {
@@ -1019,10 +930,10 @@ export async function determineRelevantArticles(data: Partial<AiSystem>): Promis
 function determineRelevantArticlesFromData(data: Partial<AiSystem>): string[] {
   // Base articles that apply to almost all AI systems
   const baseArticles = ['Article 10: Data and Data Governance'];
-  
+
   // Article selection based on risk level
   const riskLevel = (data.riskLevel || '').toLowerCase();
-  
+
   if (riskLevel.includes('high')) {
     return [
       'Article 6: Classification Rules for High-Risk AI Systems',
@@ -1034,7 +945,7 @@ function determineRelevantArticlesFromData(data: Partial<AiSystem>): string[] {
       'Article 16: General Obligations for Providers of High-Risk AI Systems'
     ];
   }
-  
+
   if (riskLevel.includes('limited')) {
     return [
       'Article 10: Data and Data Governance',
@@ -1043,14 +954,14 @@ function determineRelevantArticlesFromData(data: Partial<AiSystem>): string[] {
       'Article 69: Codes of Conduct'
     ];
   }
-  
+
   if (riskLevel.includes('minimal')) {
     return [
       'Article 10: Data and Data Governance',
       'Article 69: Codes of Conduct'
     ];
   }
-  
+
   // If no risk level is specified, determine based on system characteristics
   const allText = [
     data.name || '',
@@ -1059,15 +970,15 @@ function determineRelevantArticlesFromData(data: Partial<AiSystem>): string[] {
     data.aiCapabilities || '',
     data.department || ''
   ].join(' ').toLowerCase();
-  
+
   const articles = [...baseArticles];
-  
+
   // Check for human interaction
   if (allText.includes('user') || allText.includes('human') || allText.includes('interaction') || 
       allText.includes('interface') || allText.includes('customer')) {
     articles.push('Article 13: Transparency and Provision of Information to Users');
   }
-  
+
   // Check for high-risk domains
   if (allText.includes('health') || allText.includes('medical') || allText.includes('education') || 
       allText.includes('employment') || allText.includes('critical') || allText.includes('safety') ||
@@ -1077,12 +988,12 @@ function determineRelevantArticlesFromData(data: Partial<AiSystem>): string[] {
     articles.push('Article 14: Human Oversight');
     articles.push('Article 15: Accuracy, Robustness and Cybersecurity');
   }
-  
+
   // Check for automated decision making
   if (allText.includes('decision') || allText.includes('automat') || allText.includes('predict')) {
     articles.push('Article 14: Human Oversight');
   }
-  
+
   // Deduplicate articles
   return Array.from(new Set(articles));
 }
@@ -1093,7 +1004,7 @@ function determineRelevantArticlesFromData(data: Partial<AiSystem>): string[] {
 export async function generateImprovements(data: Partial<AiSystem>): Promise<string[]> {
   // First, determine the risk level of the system to tailor suggestions
   const riskLevel = data.riskLevel || await determineRiskLevel(data);
-  
+
   const prompt = `
     You are an EU AI Act compliance expert. Based on the following AI system details,
     suggest key improvements to enhance compliance with the EU AI Act.
@@ -1104,7 +1015,7 @@ export async function generateImprovements(data: Partial<AiSystem>): Promise<str
     Department: ${data.department || 'N/A'}
     AI Capabilities: ${data.aiCapabilities || 'N/A'}
     Risk Level: ${riskLevel}
-    
+
     For this ${riskLevel} risk system, provide 5 specific, actionable improvements to enhance EU AI Act compliance.
     Be specific, focused on implementation, and reference relevant EU AI Act articles where appropriate.
 
@@ -1113,18 +1024,18 @@ export async function generateImprovements(data: Partial<AiSystem>): Promise<str
 
   try {
     const response = await callDeepSeekApi(prompt);
-    
+
     try {
       // First clean the response to handle markdown code blocks
       let cleanedResponse = response;
-      
+
       // Check for markdown code blocks and remove them
       if (cleanedResponse.includes('```json')) {
         cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
       } else if (cleanedResponse.includes('```')) {
         cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
       }
-      
+
       // Extract JSON if embedded in text
       if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
         const jsonStartIndex = cleanedResponse.indexOf('{');
@@ -1133,13 +1044,13 @@ export async function generateImprovements(data: Partial<AiSystem>): Promise<str
           cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
         }
       }
-      
+
       console.log("Cleaned improvements response:", cleanedResponse);
       const parsedResponse = JSON.parse(cleanedResponse);
       return parsedResponse.improvements || generateImprovementsFromData(data, riskLevel);
     } catch (parseError) {
       console.error('Error parsing improvements response:', parseError);
-      
+
       // Extract improvements using regex
       const improvementMatches = response.match(/[0-9]+\.\s*(.*?)(?=\s*[0-9]+\.|\s*$)/g);
       if (improvementMatches && improvementMatches.length > 0) {
@@ -1147,12 +1058,12 @@ export async function generateImprovements(data: Partial<AiSystem>): Promise<str
         const cleanedImprovements = improvementMatches.map(improvement => 
           improvement.replace(/^[0-9]+\.\s*/, '').trim()
         ).filter(imp => imp.length > 0);
-        
+
         if (cleanedImprovements.length > 0) {
           return cleanedImprovements;
         }
       }
-      
+
       // Second attempt with different regex pattern (bullet points)
       const bulletMatches = response.match(/[-*•]\s*(.*?)(?=\s*[-*•]|\s*$)/g);
       if (bulletMatches && bulletMatches.length > 0) {
@@ -1160,12 +1071,12 @@ export async function generateImprovements(data: Partial<AiSystem>): Promise<str
         const cleanedBullets = bulletMatches.map(improvement => 
           improvement.replace(/^[-*•]\s*/, '').trim()
         ).filter(imp => imp.length > 0);
-        
+
         if (cleanedBullets.length > 0) {
           return cleanedBullets;
         }
       }
-      
+
       return generateImprovementsFromData(data, riskLevel);
     }
   } catch (error) {
@@ -1184,7 +1095,7 @@ function generateImprovementsFromData(data: Partial<AiSystem>, riskLevel: string
     'Document data governance practices in detail, including data sources and quality control measures',
     'Establish a clear responsibility chain for AI system operation and decision validation'
   ];
-  
+
   // Check if the system is high risk
   if (riskLevel.includes('High')) {
     return [
@@ -1195,7 +1106,7 @@ function generateImprovementsFromData(data: Partial<AiSystem>, riskLevel: string
       'Create data governance documentation detailing training data characteristics and bias mitigation (Article 10)'
     ];
   }
-  
+
   // Check if the system is limited risk
   if (riskLevel.includes('Limited')) {
     return [
@@ -1206,7 +1117,7 @@ function generateImprovementsFromData(data: Partial<AiSystem>, riskLevel: string
       'Implement user notification procedures for AI-generated content'
     ];
   }
-  
+
   // Minimal risk systems
   if (riskLevel.includes('Minimal')) {
     return [
@@ -1217,7 +1128,7 @@ function generateImprovementsFromData(data: Partial<AiSystem>, riskLevel: string
       'Develop a simplified risk assessment document'
     ];
   }
-  
+
   // If no specific risk level or if it's unknown, provide general improvements
   // based on system characteristics
   const allText = [
@@ -1227,34 +1138,34 @@ function generateImprovementsFromData(data: Partial<AiSystem>, riskLevel: string
     data.aiCapabilities || '',
     data.department || ''
   ].join(' ').toLowerCase();
-  
+
   const improvements = [...baseImprovements];
-  
+
   // Check if system involves human interaction
   if (allText.includes('user') || allText.includes('human') || allText.includes('interaction')) {
     improvements.push('Implement clear notification to users that they are interacting with an AI system');
     improvements.push('Document the system\'s capabilities and limitations in user-facing documentation');
   }
-  
+
   // Check if system involves automated decisions
   if (allText.includes('decision') || allText.includes('automat') || allText.includes('predict')) {
     improvements.push('Establish human oversight mechanisms for key decisions');
     improvements.push('Implement audit trails for all automated decisions');
   }
-  
+
   // Check if system uses sensitive data
   if (allText.includes('personal') || allText.includes('sensitive') || allText.includes('private')) {
     improvements.push('Enhance data governance with specific controls for sensitive data');
     improvements.push('Implement privacy-by-design principles in system architecture');
   }
-  
+
   // Ensure we return at least 5 improvements
   if (improvements.length < 5) {
     improvements.push('Develop a basic AI impact assessment document');
     improvements.push('Create a protocol for regular review of system performance and compliance');
     improvements.push('Implement version control and change management procedures');
   }
-  
+
   // Cap at 5 improvements
   return improvements.slice(0, 5);
 }
@@ -1268,7 +1179,7 @@ export async function calculateComplianceScore(data: Partial<AiSystem>): Promise
     You are an EU AI Act compliance expert. Based on the following AI system details,
     calculate a compliance score from 0-100 that represents how well this system aligns with
     EU AI Act requirements.
-    
+
     System Name: ${data.name || 'N/A'}
     Description: ${data.description || 'N/A'}
     Purpose: ${data.purpose || 'N/A'}
@@ -1279,7 +1190,7 @@ export async function calculateComplianceScore(data: Partial<AiSystem>): Promise
     Training Datasets: ${data.trainingDatasets || 'N/A'}
     Usage Context: ${data.usageContext || 'N/A'}
     Risk Level: ${data.riskLevel || 'Unknown'}
-    
+
     Consider the following compliance categories in your evaluation:
     1. Documentation completeness (20 points max)
     2. Risk management procedures (20 points max)
@@ -1287,7 +1198,7 @@ export async function calculateComplianceScore(data: Partial<AiSystem>): Promise
     4. Transparency measures (15 points max) 
     5. Human oversight provisions (15 points max)
     6. Technical robustness (15 points max)
-    
+
     Output your response as a JSON object with this structure:
     {
       "overallScore": number,
@@ -1308,14 +1219,14 @@ export async function calculateComplianceScore(data: Partial<AiSystem>): Promise
     try {
       // First clean the response to handle markdown code blocks
       let cleanedResponse = response;
-      
+
       // Check for markdown code blocks and remove them
       if (cleanedResponse.includes('```json')) {
         cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
       } else if (cleanedResponse.includes('```')) {
         cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
       }
-      
+
       // Extract JSON if embedded in text
       if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
         const jsonStartIndex = cleanedResponse.indexOf('{');
@@ -1324,13 +1235,13 @@ export async function calculateComplianceScore(data: Partial<AiSystem>): Promise
           cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
         }
       }
-      
+
       console.log("Cleaned compliance score response:", cleanedResponse);
       const parsedResponse = JSON.parse(cleanedResponse);
       return parsedResponse.overallScore || 50;
     } catch (parseError) {
       console.error('Error parsing compliance score response:', parseError);
-      
+
       // If we can't parse the JSON, use a deterministic algorithm instead
       // This is a fallback, not mock data, as it's based on actual system parameters
       let score = 50; // Base score
@@ -1345,27 +1256,27 @@ export async function calculateComplianceScore(data: Partial<AiSystem>): Promise
         data.version ? 2 : 0,
         data.aiCapabilities ? 2 : 0
       ].reduce((sum, val) => sum + val, 0);
-      
+
       // Risk level affects overall compliance requirements (affects 20 pts)
       const riskScore = 
         !data.riskLevel ? 5 :  // Unknown risk
         data.riskLevel === 'High' ? 5 :  // High risk with no extra controls
         data.riskLevel === 'Limited' ? 15 :  // Limited risk is easier to comply
         data.riskLevel === 'Minimal' ? 20 : 10;  // Minimal risk has least requirements
-      
+
       // Technical completeness (affects 10 pts)
       const technicalScore = [
         data.trainingDatasets ? 5 : 0,
         data.usageContext ? 5 : 0
       ].reduce((sum, val) => sum + val, 0);
-      
+
       score = documentationScore + riskScore + technicalScore;
-      
+
       return Math.min(score, 100); // Cap at 100
     }
   } catch (error) {
     console.error('Error calculating compliance score:', error);
-    
+
     // Deterministic algorithm as above, since this is just a fallback
     let score = 50;
     if (data.name) score += 5;
@@ -1417,7 +1328,7 @@ export function determineRequiredDocs(data: Partial<AiSystem>): string[] {
 export async function analyzeDocument(data: any): Promise<any> {
   // First, determine the relevant EU AI Act requirements for this document type
   let relevantRequirements = [];
-  
+
   switch(data.type) {
     case 'technical_documentation':
       relevantRequirements = [
@@ -1466,7 +1377,7 @@ export async function analyzeDocument(data: any): Promise<any> {
         'Risk mitigation measures'
       ];
   }
-  
+
   // Create an enhanced prompt that includes specific requirements for evaluation
   const enhancedPrompt = `
     You are an expert EU AI Act compliance auditor analyzing the following document for completeness
@@ -1477,16 +1388,16 @@ export async function analyzeDocument(data: any): Promise<any> {
     Content: ${data.content || 'N/A'}
     Related System: ${data.systemName || 'N/A'}
     System Risk Level: ${data.systemRiskLevel || 'Unknown'}
-    
+
     This document should address the following key requirements:
     ${relevantRequirements.map(req => `- ${req}`).join('\n')}
-    
+
     Please provide:
     1. A detailed assessment of the document's completeness (as a percentage)
     2. Specific suggestions for improving the document
     3. A rating for each key requirement (0-10 scale)
     4. Identification of any missing critical elements
-    
+
     Output your answer in JSON format with:
     {
       "completeness": number (0-100),
@@ -1504,18 +1415,18 @@ export async function analyzeDocument(data: any): Promise<any> {
   try {
     // Call the DeepSeek API with our enhanced prompt
     const response = await callDeepSeekApi(enhancedPrompt);
-    
+
     try {
       // First clean the response to handle markdown code blocks
       let cleanedResponse = response;
-      
+
       // Check for markdown code blocks and remove them
       if (cleanedResponse.includes('```json')) {
         cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
       } else if (cleanedResponse.includes('```')) {
-        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
+        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*\s*/g, '');
       }
-      
+
       // Extract JSON if embedded in text
       if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
         const jsonStartIndex = cleanedResponse.indexOf('{');
@@ -1524,10 +1435,10 @@ export async function analyzeDocument(data: any): Promise<any> {
           cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
         }
       }
-      
+
       console.log("Cleaned document analysis response:", cleanedResponse);
       const parsedResponse = JSON.parse(cleanedResponse);
-      
+
       // Return the full detailed analysis
       return {
         documentId: data.id || undefined,
@@ -1542,12 +1453,12 @@ export async function analyzeDocument(data: any): Promise<any> {
       };
     } catch (parseError) {
       console.error('Error parsing document analysis response:', parseError);
-      
+
       // If parsing fails, extract what we can from the text response
       // This still uses the API response, not mock data
       const completenessMatch = response.match(/completeness.*?(\d+)/i);
       const completeness = completenessMatch ? parseInt(completenessMatch[1], 10) : null;
-      
+
       // Extract suggestions using regex
       const suggestionPattern = /suggestions?:?\s*([\s\S]*?)(?:strengths|requirements|missing|$)/i;
       const suggestionsMatch = response.match(suggestionPattern);
@@ -1557,7 +1468,7 @@ export async function analyzeDocument(data: any): Promise<any> {
             .filter(item => item.trim().length > 0)
             .map(item => item.trim())
         : [];
-      
+
       // Calculate completeness based on content length compared to requirements if not found
       const calculatedCompleteness = completeness || Math.min(
         100, 
@@ -1566,7 +1477,7 @@ export async function analyzeDocument(data: any): Promise<any> {
           Math.floor((data.content?.length || 0) / 100) // 1% per 100 chars, capped at 100%
         )
       );
-      
+
       return {
         documentId: data.id || undefined,
         documentType: data.type,
@@ -1578,11 +1489,11 @@ export async function analyzeDocument(data: any): Promise<any> {
     }
   } catch (error) {
     console.error('Error analyzing document:', error);
-    
+
     // Calculate a completeness score based on deterministic factors
     // Not mock data because this is based on the actual document's properties
     const contentLength = (data.content?.length || 0);
-    
+
     // Longer content tends to be more complete, but with diminishing returns
     // This is a deterministic algorithm based on real document data
     const calculatedCompleteness = Math.min(
@@ -1592,10 +1503,10 @@ export async function analyzeDocument(data: any): Promise<any> {
         20 + Math.floor(contentLength / 200) // +1% per 200 chars
       )
     );
-    
+
     // Generate suggestions based on the missing requirements
     const basicRequirements = relevantRequirements.slice(0, 3); // Use top 3 requirements
-    
+
     return {
       documentId: data.id || undefined,
       documentType: data.type,
@@ -1614,50 +1525,50 @@ export async function analyzeSystemCompliance(systemId: string): Promise<any> {
   try {
     // Fetch the system details from the database
     const system = await storage.getAiSystemBySystemId(systemId);
-    
+
     if (!system) {
       throw new Error(`System with ID ${systemId} not found`);
     }
-    
+
     // Calculate compliance score using the real data-driven method
     const complianceScore = await calculateComplianceScore(system);
-    
+
     // Generate detailed compliance analysis using DeepSeek API
     const compliancePrompt = `
       You are an EU AI Act compliance expert. Based on the following AI system details,
       analyze its compliance with EU AI Act requirements:
-      
+
       System Name: ${system.name || 'N/A'}
       Description: ${system.description || 'N/A'}
       Vendor: ${system.vendor || 'N/A'}
       Department: ${system.department || 'N/A'}
       Risk Level: ${system.riskLevel || 'Unknown'}
-      
+
       Identify specific gaps in compliance and provide actionable recommendations
       to improve compliance. Format your response as a JSON object with:
-      
+
       {
         "gaps": [string array of specific compliance gaps],
         "recommendations": [string array of specific recommendations],
         "articles": [string array of relevant EU AI Act articles]
       }
     `;
-    
+
     try {
       const response = await callDeepSeekApi(compliancePrompt);
       let parsedResponse;
-      
+
       try {
         // First clean the response to handle markdown code blocks
         let cleanedResponse = response;
-        
+
         // Check for markdown code blocks and remove them
         if (cleanedResponse.includes('```json')) {
           cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
         } else if (cleanedResponse.includes('```')) {
           cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
         }
-        
+
         // Extract JSON if embedded in text
         if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
           const jsonStartIndex = cleanedResponse.indexOf('{');
@@ -1666,30 +1577,30 @@ export async function analyzeSystemCompliance(systemId: string): Promise<any> {
             cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
           }
         }
-        
+
         console.log("Cleaned compliance analysis response:", cleanedResponse);
         parsedResponse = JSON.parse(cleanedResponse);
       } catch (parseError) {
         console.error('Error parsing compliance analysis response:', parseError);
-        
+
         // Extract useful information from text response using regex
         const gaps = response.match(/gaps?:?\s*([\s\S]*?)(?:recommendations|$)/i)?.[1]
           ?.split(/[-•*]/)
           ?.filter(item => item.trim().length > 0)
           ?.map(item => item.trim()) || [];
-          
+
         const recommendations = response.match(/recommendations?:?\s*([\s\S]*?)(?:articles|$)/i)?.[1]
           ?.split(/[-•*]/)
           ?.filter(item => item.trim().length > 0)
           ?.map(item => item.trim()) || [];
-          
+
         parsedResponse = {
           gaps: gaps.length > 0 ? gaps : ["Compliance documentation incomplete"],
           recommendations: recommendations.length > 0 ? recommendations : ["Develop comprehensive documentation"],
           articles: ["Article 10", "Article 13"]
         };
       }
-      
+
       return {
         systemId,
         score: complianceScore,
@@ -1699,7 +1610,7 @@ export async function analyzeSystemCompliance(systemId: string): Promise<any> {
       };
     } catch (apiError) {
       console.error('Error calling DeepSeek API for compliance analysis:', apiError);
-      
+
       // Use the calculateComplianceScore response with minimal gap analysis
       // This is deterministic based on real system data, not mock data
       return {
@@ -1772,84 +1683,9 @@ export async function handleChatbotQuery(req: Request, res: Response) {
     try {
       // First clean the response to handle markdown code blocks
       let cleanedResponse = aiResponse;
-      
+
       // Check for markdown code blocks and remove them
       if (cleanedResponse.includes('```json')) {
         cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
       } else if (cleanedResponse.includes('```')) {
-        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
-      }
-      
-      // Extract JSON if embedded in text
-      if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
-        const jsonStartIndex = cleanedResponse.indexOf('{');
-        const jsonEndIndex = cleanedResponse.lastIndexOf('}') + 1;
-        if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex) {
-          cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
-        }
-      }
-      
-      console.log("Cleaned chatbot response for parsing:", cleanedResponse);
-      
-      // First try to parse as JSON
-      const parsedResponse = JSON.parse(cleanedResponse);
-
-      // Extract relevant information based on response structure
-      if (parsedResponse.response) {
-        formattedResponse = parsedResponse.response;
-      } else if (parsedResponse.riskLevel && parsedResponse.justification) {
-        formattedResponse = `Risk Level: ${parsedResponse.riskLevel}\n\n${parsedResponse.justification}`;
-      } else if (parsedResponse.category) {
-        formattedResponse = `Category: ${parsedResponse.category}`;
-      } else if (parsedResponse.articles) {
-        formattedResponse = `Relevant Articles: ${parsedResponse.articles.join(', ')}\n\n${parsedResponse.explanation || ''}`;
-      } else if (parsedResponse.improvements) {
-        formattedResponse = `Suggested Improvements:\n- ${parsedResponse.improvements.join('\n- ')}`;
-      } else {
-        // Handle generic JSON response
-        formattedResponse = Object.entries(parsedResponse)
-          .map(([key, value]) => {
-            if (Array.isArray(value)) {
-              return `${key.charAt(0).toUpperCase() + key.slice(1)}:\n- ${value.join('\n- ')}`;
-            } else {
-              return `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`;
-            }
-          })
-          .join('\n\n');
-      }
-    } catch (e) {
-      // Not JSON, format the text response for better readability
-      formattedResponse = aiResponse
-        .replace(/^(\d+\.\s|\-\s|\*\s)/gm, '\n$1') // Add newlines before lists
-        .replace(/(\w|\.|\:)\n(\w)/g, '$1\n\n$2'); // Double newlines between paragraphs
-    }
-
-    // Create an audit record of this interaction
-    try {
-      await storage.createActivity({
-        type: "ai_interaction",
-        description: `AI assistant query: "${query.substring(0, 50)}${query.length > 50 ? '...' : ''}"`,
-        userId: req.body.userId || "system",
-        timestamp: new Date(),
-        metadata: { query, responseLength: formattedResponse.length }
-      });
-      console.log("AI Assistant conversation success:", { 
-        query: query.substring(0, 20), 
-        responseLength: formattedResponse.length 
-      });
-    } catch (auditErr) {
-      console.error("Error logging AI interaction:", auditErr);
-    }
-
-    return res.json({ response: formattedResponse });
-  } catch (err) {
-    console.error("Error handling chatbot query:", err);
-
-    // Provide a graceful fallback
-    return res.json({ 
-      response: "I apologize, but I encountered an issue processing your request. Please try again with a more specific question about EU AI Act compliance." 
-    });
-  }
-}
-
-// AI-powered system suggestion functionality is now handled in routes.ts
+        cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*

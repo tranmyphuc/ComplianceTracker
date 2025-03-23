@@ -48,6 +48,13 @@ import {
 } from './regulatory-updates';
 import { analyzeSystemRisk, analyzeProhibitedUse, generateRiskReport, analyzeComplianceGaps } from './risk-assessment';
 import { getTrainingModules, getModuleContent, trackTrainingProgress, getUserProgress } from './training-module';
+import { 
+  getApiKeys, 
+  addApiKey, 
+  updateApiKey, 
+  deleteApiKey, 
+  testApiKey 
+} from './ai-key-management';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -1206,6 +1213,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/training/modules/:moduleId', getModuleContent);
   app.post('/api/training/progress', trackTrainingProgress);
   app.get('/api/training/progress', getUserProgress);
+
+  // API Key Management routes
+  app.get('/api/ai-keys', getApiKeys);
+  app.post('/api/ai-keys', addApiKey);
+  app.put('/api/ai-keys/:id', updateApiKey);
+  app.delete('/api/ai-keys/:id', deleteApiKey);
+  app.get('/api/ai-keys/test/:provider', testApiKey);
 
   // AI Analysis endpoints
   app.post('/api/analyze-system-category', async (req: Request, res: Response) => {
