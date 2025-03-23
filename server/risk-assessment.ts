@@ -1,336 +1,717 @@
 
+/**
+ * Risk Assessment Module
+ * 
+ * Handles EU AI Act risk assessments for AI systems.
+ */
+
 import { Request, Response } from 'express';
-import { callDeepSeekApi } from './ai-analysis';
+import { v4 as uuidv4 } from 'uuid';
 import { storage } from './storage';
-import { handleError } from './error-handling';
-
-interface RiskAssessmentResult {
-  systemCategory: string;
-  riskLevel: string;
-  riskJustification: string;
-  complianceScore: number;
-  relevantArticles: string[];
-  requiredDocumentation: string[];
-  suggestedImprovements: string[];
-}
-
-/**
- * Analyze system risk based on EU AI Act criteria
- */
-export async function analyzeSystemRisk(req: Request, res: Response) {
-  try {
-    const { systemId } = req.params;
-    
-    if (!systemId) {
-      return res.status(400).json({ message: "System ID is required" });
-    }
-    
-    // Get the system details from the database
-    const system = await storage.getAiSystemBySystemId(systemId);
-    
-    if (!system) {
-      return res.status(404).json({ message: "System not found" });
-    }
-    
-    // Run comprehensive risk analysis
-    const riskLevel = await determineRiskLevel(system);
-    const systemCategory = await analyzeSystemCategory(system);
-    const relevantArticles = await determineRelevantArticles(system);
-    const suggestedImprovements = await generateImprovements(system);
-    const requiredDocumentation = determineRequiredDocs(system);
-    const complianceScore = calculateComplianceScore(system);
-    
-    // Create risk assessment record
-    const assessmentData = {
-      systemId: system.systemId,
-      assessmentDate: new Date(),
-      riskLevel,
-      systemCategory,
-      relevantArticles,
-      requiredDocumentation,
-      suggestedImprovements,
-      complianceScore
-    };
-    
-    // Save the assessment (this would be implemented in the storage module)
-    // const assessment = await storage.createRiskAssessment(assessmentData);
-    
-    // Return the assessment results
-    res.json({
-      systemId: system.systemId,
-      systemName: system.name,
-      systemCategory,
-      riskLevel,
-      riskJustification: getRiskJustification(riskLevel, system),
-      complianceScore,
-      relevantArticles,
-      requiredDocumentation,
-      suggestedImprovements
-    });
-  } catch (error) {
-    handleError(error, res);
-  }
-}
-
-/**
- * Generate risk justification based on risk level and system details
- */
-function getRiskJustification(riskLevel: string, system: any): string {
-  if (riskLevel.includes('High')) {
-    if (system.department?.toLowerCase().includes('hr') || 
-        system.purpose?.toLowerCase().includes('hiring') ||
-        system.purpose?.toLowerCase().includes('recruitment')) {
-      return 'This system is classified as High Risk under EU AI Act Annex III because it is used for employment, worker management, and access to self-employment (Article 6.2). Systems used for recruitment or selection of candidates require rigorous compliance with all high-risk system obligations.';
-    } else if (system.purpose?.toLowerCase().includes('biometric') || 
-               system.capabilities?.toLowerCase().includes('facial')) {
-      return 'This system is classified as High Risk under EU AI Act Annex III because it involves biometric identification (Article 6.2). Biometric systems require rigorous compliance with all high-risk system obligations.';
-    } else {
-      return 'This system is classified as High Risk based on its purpose and potential impact on fundamental rights or safety. It requires full compliance with EU AI Act high-risk system obligations.';
-    }
-  } else if (riskLevel.includes('Limited')) {
-    return 'This system is classified as Limited Risk, requiring specific transparency obligations but not the full compliance requirements of high-risk systems.';
-  } else {
-    return 'This system is classified as Minimal Risk under the EU AI Act. While no specific obligations apply beyond existing law, voluntary codes of practice are recommended.';
-  }
-}
-
-/**
- * Analyze a system to determine prohibited usage
- */
-export async function analyzeProhibitedUse(req: Request, res: Response) {
-  try {
-    const { systemId } = req.params;
-    
-    if (!systemId) {
-      return res.status(400).json({ message: "System ID is required" });
-    }
-    
-    // Get the system details from the database
-    const system = await storage.getAiSystemBySystemId(systemId);
-    
-    if (!system) {
-      return res.status(404).json({ message: "System not found" });
-    }
-    
-    // Perform prohibited use analysis
-    const prohibitedUsePrompt = `
-      You are an EU AI Act compliance expert. Based on the following AI system details,
-      determine if this system violates any prohibited use cases under Article 5 of the EU AI Act.
-      
-      System Name: ${system.name || 'N/A'}
-      Description: ${system.description || 'N/A'}
-      Purpose: ${system.purpose || 'N/A'}
-      Department: ${system.department || 'N/A'}
-      Capabilities: ${system.aiCapabilities || 'N/A'}
-      
-      Article 5 prohibits:
-      1. Social scoring systems affecting fundamental rights
-      2. Exploitation of vulnerabilities of specific groups
-      3. Subliminal manipulation techniques
-      4. Real-time remote biometric identification in public spaces (with limited exceptions)
-      
-      Provide a detailed analysis of whether this system falls under any prohibited categories.
-      Return your answer in JSON format with isProhibited (boolean) and analysis (string) fields.
-    `;
-    
-    const response = await callDeepSeekApi(prohibitedUsePrompt);
-    
-    try {
-      const parsedResponse = JSON.parse(response);
-      res.json({
-        systemId: system.systemId,
-        systemName: system.name,
-        isProhibited: parsedResponse.isProhibited || false,
-        analysis: parsedResponse.analysis || response
-      });
-    } catch (e) {
-      // If parsing fails, return the raw response
-      res.json({
-        systemId: system.systemId,
-        systemName: system.name,
-        isProhibited: response.toLowerCase().includes('prohibited') || false,
-        analysis: response
-      });
-    }
-  } catch (error) {
-    handleError(error, res);
-  }
-}
-
-/**
- * Generate a full risk assessment report
- */
-export async function generateRiskReport(req: Request, res: Response) {
-  try {
-    const { systemId } = req.params;
-    
-    if (!systemId) {
-      return res.status(400).json({ message: "System ID is required" });
-    }
-    
-    // Get the system details from the database
-    const system = await storage.getAiSystemBySystemId(systemId);
-    
-    if (!system) {
-      return res.status(404).json({ message: "System not found" });
-    }
-    
-    // Run comprehensive risk analysis
-    const riskLevel = await determineRiskLevel(system);
-    const systemCategory = await analyzeSystemCategory(system);
-    const relevantArticles = await determineRelevantArticles(system);
-    const suggestedImprovements = await generateImprovements(system);
-    const requiredDocumentation = determineRequiredDocs(system);
-    const complianceScore = calculateComplianceScore(system);
-    
-    // Generate the report content
-    const reportPrompt = `
-      You are an EU AI Act compliance expert generating a comprehensive risk assessment report.
-      Create a detailed, professionally formatted risk assessment report based on the following information:
-      
-      System Name: ${system.name || 'N/A'}
-      Description: ${system.description || 'N/A'}
-      Purpose: ${system.purpose || 'N/A'}
-      Department: ${system.department || 'N/A'}
-      Capabilities: ${system.aiCapabilities || 'N/A'}
-      Risk Level: ${riskLevel}
-      System Category: ${systemCategory}
-      Compliance Score: ${complianceScore}%
-      Relevant Articles: ${relevantArticles.join(', ')}
-      Required Documentation: ${requiredDocumentation.join(', ')}
-      
-      Include the following sections:
-      1. Executive Summary
-      2. System Overview
-      3. Risk Classification Analysis
-      4. Regulatory Requirements
-      5. Gap Analysis
-      6. Remediation Recommendations
-      7. Conclusion
-      
-      Format the report with proper headings, subheadings, and professional language.
-    `;
-    
-    const reportContent = await callDeepSeekApi(reportPrompt);
-    
-    res.json({
-      systemId: system.systemId,
-      systemName: system.name,
-      reportDate: new Date(),
-      reportContent,
-      assessmentSummary: {
-        riskLevel,
-        systemCategory,
-        complianceScore,
-        relevantArticles,
-        requiredDocumentation,
-        suggestedImprovements
-      }
-    });
-  } catch (error) {
-    handleError(error, res);
-  }
-}
-
-/**
- * These functions are imported from ai-analysis.ts
- */
 import { 
-  analyzeSystemCategory, 
-  determineRiskLevel, 
-  determineRelevantArticles, 
-  generateImprovements, 
-  determineRequiredDocs, 
-  calculateComplianceScore 
-} from './ai-analysis';
+  AppError, 
+  BusinessLogicError, 
+  ResourceNotFoundError 
+} from './error-handling';
+import { AIModel, callAI, safeJsonParse } from './ai-service';
+
+// Risk assessment status types
+export enum AssessmentStatus {
+  DRAFT = 'draft',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  REQUIRES_UPDATE = 'requires_update'
+}
+
+// Risk levels based on EU AI Act
+export enum RiskLevel {
+  UNACCEPTABLE = 'unacceptable',
+  HIGH = 'high',
+  LIMITED = 'limited',
+  MINIMAL = 'minimal'
+}
+
+// Risk parameters based on EU AI Act
+export interface RiskParameter {
+  name: string;
+  article: string;
+  description: string;
+  score: number;
+  evidence?: string;
+  notes?: string;
+}
+
+// Gap types for compliance
+export interface ComplianceGap {
+  parameter: string;
+  description: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  remediation: string;
+  dueDate?: Date;
+  assignedTo?: string;
+  status: 'open' | 'in_progress' | 'resolved';
+}
+
+// Risk assessment model
+export interface RiskAssessment {
+  assessmentId: string;
+  systemId: string;
+  createdBy: string;
+  assessmentDate: Date;
+  status: AssessmentStatus;
+  riskLevel: RiskLevel;
+  riskScore: number;
+  systemCategory?: string;
+  prohibitedUseChecks?: any[];
+  riskParameters?: RiskParameter[];
+  euAiActArticles?: string[];
+  complianceGaps?: ComplianceGap[];
+  remediationActions?: any[];
+  evidenceDocuments?: any[];
+  summaryNotes?: string;
+}
 
 /**
- * Create compliance gap analysis
+ * Create a new risk assessment
  */
-export async function analyzeComplianceGaps(req: Request, res: Response) {
+export async function createRiskAssessment(assessment: Partial<RiskAssessment>): Promise<RiskAssessment> {
   try {
-    const { systemId } = req.params;
-    
-    if (!systemId) {
-      return res.status(400).json({ message: "System ID is required" });
+    // Check if system exists
+    const system = await storage.getAiSystemBySystemId(assessment.systemId);
+    if (!system) {
+      throw new ResourceNotFoundError('System', assessment.systemId);
     }
     
-    // Get the system details from the database
+    // Create assessment with default values
+    const newAssessment = await storage.createRiskAssessment({
+      ...assessment,
+      assessmentId: `ra_${uuidv4()}`,
+      assessmentDate: assessment.assessmentDate || new Date(),
+      status: assessment.status || AssessmentStatus.DRAFT,
+      riskLevel: assessment.riskLevel || RiskLevel.MINIMAL,
+      riskScore: assessment.riskScore || 0
+    });
+    
+    // Create activity record
+    await storage.createActivity({
+      type: 'risk_assessment_created',
+      description: `Risk assessment initiated for ${system.name}`,
+      userId: assessment.createdBy,
+      systemId: system.systemId,
+      timestamp: new Date(),
+      metadata: { assessmentId: newAssessment.assessmentId }
+    });
+    
+    return newAssessment;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    
+    throw new BusinessLogicError('Failed to create risk assessment', error);
+  }
+}
+
+/**
+ * Update an existing risk assessment
+ */
+export async function updateRiskAssessment(
+  assessmentId: string, 
+  updates: Partial<RiskAssessment>,
+  userId: string
+): Promise<RiskAssessment> {
+  try {
+    // Get existing assessment
+    const assessment = await storage.getRiskAssessmentByAssessmentId(assessmentId);
+    
+    if (!assessment) {
+      throw new ResourceNotFoundError('Risk assessment', assessmentId);
+    }
+    
+    // Apply updates
+    const updatedAssessment = await storage.updateRiskAssessment(assessment.id, updates);
+    
+    // Create activity record
+    await storage.createActivity({
+      type: 'risk_assessment_updated',
+      description: `Risk assessment updated for system ID ${assessment.systemId}`,
+      userId: userId,
+      systemId: assessment.systemId,
+      timestamp: new Date(),
+      metadata: { assessmentId: assessment.assessmentId }
+    });
+    
+    return updatedAssessment;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    
+    throw new BusinessLogicError('Failed to update risk assessment', error);
+  }
+}
+
+/**
+ * Submit risk assessment for approval
+ */
+export async function submitRiskAssessment(
+  assessmentId: string,
+  userId: string,
+  notes?: string
+): Promise<RiskAssessment> {
+  try {
+    // Get existing assessment
+    const assessment = await storage.getRiskAssessmentByAssessmentId(assessmentId);
+    
+    if (!assessment) {
+      throw new ResourceNotFoundError('Risk assessment', assessmentId);
+    }
+    
+    // Update status
+    const updatedAssessment = await storage.updateRiskAssessment(assessment.id, {
+      status: AssessmentStatus.COMPLETED,
+      summaryNotes: notes || assessment.summaryNotes
+    });
+    
+    // Create activity record
+    await storage.createActivity({
+      type: 'risk_assessment_submitted',
+      description: `Risk assessment submitted for approval for system ID ${assessment.systemId}`,
+      userId: userId,
+      systemId: assessment.systemId,
+      timestamp: new Date(),
+      metadata: { assessmentId: assessment.assessmentId }
+    });
+    
+    return updatedAssessment;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    
+    throw new BusinessLogicError('Failed to submit risk assessment', error);
+  }
+}
+
+/**
+ * Approve risk assessment
+ */
+export async function approveRiskAssessment(
+  assessmentId: string,
+  userId: string,
+  notes?: string
+): Promise<RiskAssessment> {
+  try {
+    // Get existing assessment
+    const assessment = await storage.getRiskAssessmentByAssessmentId(assessmentId);
+    
+    if (!assessment) {
+      throw new ResourceNotFoundError('Risk assessment', assessmentId);
+    }
+    
+    // Update status
+    const updatedAssessment = await storage.updateRiskAssessment(assessment.id, {
+      status: AssessmentStatus.APPROVED,
+      summaryNotes: notes ? `${assessment.summaryNotes || ''}\n\nApproval Notes: ${notes}` : assessment.summaryNotes
+    });
+    
+    // Get system
+    const system = await storage.getAiSystemBySystemId(assessment.systemId);
+    
+    // Update system with assessment results
+    if (system) {
+      await storage.updateAiSystem(system.id, {
+        riskLevel: assessment.riskLevel,
+        riskScore: assessment.riskScore,
+        lastAssessmentDate: new Date()
+      });
+    }
+    
+    // Create activity record
+    await storage.createActivity({
+      type: 'risk_assessment_approved',
+      description: `Risk assessment approved for ${system?.name || 'unknown system'}`,
+      userId: userId,
+      systemId: assessment.systemId,
+      timestamp: new Date(),
+      metadata: { assessmentId: assessment.assessmentId }
+    });
+    
+    return updatedAssessment;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    
+    throw new BusinessLogicError('Failed to approve risk assessment', error);
+  }
+}
+
+/**
+ * Reject risk assessment
+ */
+export async function rejectRiskAssessment(
+  assessmentId: string,
+  userId: string,
+  reason: string
+): Promise<RiskAssessment> {
+  try {
+    // Get existing assessment
+    const assessment = await storage.getRiskAssessmentByAssessmentId(assessmentId);
+    
+    if (!assessment) {
+      throw new ResourceNotFoundError('Risk assessment', assessmentId);
+    }
+    
+    // Update status
+    const updatedAssessment = await storage.updateRiskAssessment(assessment.id, {
+      status: AssessmentStatus.REJECTED,
+      summaryNotes: `${assessment.summaryNotes || ''}\n\nRejection Reason: ${reason}`
+    });
+    
+    // Create activity record
+    await storage.createActivity({
+      type: 'risk_assessment_rejected',
+      description: `Risk assessment rejected for system ID ${assessment.systemId}`,
+      userId: userId,
+      systemId: assessment.systemId,
+      timestamp: new Date(),
+      metadata: { 
+        assessmentId: assessment.assessmentId,
+        reason
+      }
+    });
+    
+    return updatedAssessment;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    
+    throw new BusinessLogicError('Failed to reject risk assessment', error);
+  }
+}
+
+/**
+ * Analyze system risk
+ */
+export async function analyzeSystemRisk(req: Request, res: Response): Promise<void> {
+  try {
+    const systemId = req.params.systemId;
+    
+    // Get system
     const system = await storage.getAiSystemBySystemId(systemId);
     
     if (!system) {
-      return res.status(404).json({ message: "System not found" });
+      throw new ResourceNotFoundError('System', systemId);
     }
     
-    // Run risk classification first to determine applicable requirements
-    const riskLevel = await determineRiskLevel(system);
-    
-    // Generate a comprehensive gap analysis using DeepSeek API
-    const gapAnalysisPrompt = `
-      You are an EU AI Act compliance expert. Based on the following AI system details,
-      identify compliance gaps according to EU AI Act requirements.
+    // Call AI for risk analysis
+    const prompt = `
+      Perform a comprehensive EU AI Act risk assessment for the following AI system:
       
-      System Name: ${system.name || 'N/A'}
-      Description: ${system.description || 'N/A'}
-      Purpose: ${system.purpose || 'N/A'}
-      Department: ${system.department || 'N/A'}
-      Risk Level: ${riskLevel}
+      System Name: ${system.name}
+      Description: ${system.description || 'Not provided'}
+      Department: ${system.department || 'Not provided'}
+      Purpose: ${system.purpose || 'Not provided'}
+      Vendor: ${system.vendor || 'Not provided'}
+      Version: ${system.version || 'Not provided'}
+      AI Capabilities: ${system.aiCapabilities || 'Not provided'}
+      Training Datasets: ${system.trainingDatasets || 'Not provided'}
+      Usage Context: ${system.usageContext || 'Not provided'}
+      Potential Impact: ${system.potentialImpact || 'Not provided'}
       
-      For each EU AI Act requirement that applies to this system, assess the compliance status
-      and provide a detailed gap description. The requirements depend on the risk level.
+      Based on the EU AI Act classification framework, analyze this system and provide:
+      1. Risk Level: Unacceptable, High, Limited, or Minimal risk
+      2. Risk Score: Numerical score from 0-100 representing overall risk
+      3. Risk Justification: Detailed explanation of risk classification
+      4. System Category: Primary category under EU AI Act 
+      5. Key Risk Factors: List of the main risk factors
       
-      For High Risk systems, analyze Articles 9-15.
-      For Limited Risk systems, focus on transparency obligations in Article 52.
-      For Minimal Risk systems, focus on voluntary codes of conduct.
-      
-      Return your response as a JSON object with the following structure:
+      Format your response as a JSON with the following structure:
       {
-        "gaps": [
-          {
-            "requirementCategory": "string",
-            "requirementReference": "string",
-            "requirementDescription": "string",
-            "complianceStatus": "NonCompliant|PartiallyCompliant|Unknown",
-            "gapDescription": "string"
-          }
+        "riskLevel": "High, Limited, Minimal, or Unacceptable",
+        "riskScore": number from 0-100,
+        "justification": "Detailed text explanation of risk classification",
+        "systemCategory": "Category name",
+        "keyRiskFactors": [
+          "Risk factor 1",
+          "Risk factor 2",
+          "Risk factor 3"
+        ],
+        "applicableArticles": [
+          "Article X: Brief description",
+          "Article Y: Brief description"
         ]
       }
-      
-      The gaps array should contain at least 5 entries for High Risk systems, or 2-3 entries for other systems.
     `;
     
-    const response = await callDeepSeekApi(gapAnalysisPrompt);
+    const response = await callAI({
+      prompt,
+      model: AIModel.DEEPSEEK
+    });
     
-    try {
-      const parsedResponse = JSON.parse(response);
-      
-      res.json({
-        systemId: system.systemId,
-        systemName: system.name,
-        riskLevel,
-        gaps: parsedResponse.gaps || []
+    // Parse AI response
+    const analysis = safeJsonParse(response.text);
+    
+    res.json(analysis);
+  } catch (error) {
+    console.error('Error in analyzeSystemRisk:', error);
+    
+    if (error instanceof AppError) {
+      res.status(error.statusCode).json({
+        error: error.type,
+        message: error.message,
+        details: error.details
       });
-    } catch (parseError) {
-      // If parsing fails, format the raw response into a meaningful structure
-      console.error("Error parsing gap analysis response:", parseError);
-      
-      // Create a minimal structured response with the raw text
-      res.json({
-        systemId: system.systemId,
-        systemName: system.name,
-        riskLevel,
-        gaps: [
-          {
-            requirementCategory: "Analysis",
-            requirementReference: "Multiple",
-            requirementDescription: "AI-generated compliance assessment",
-            complianceStatus: "Unknown",
-            gapDescription: response || "Could not parse AI analysis results."
-          }
-        ]
+    } else {
+      res.status(500).json({
+        error: 'internal_server_error',
+        message: 'An unexpected error occurred during risk analysis'
       });
     }
+  }
+}
+
+/**
+ * Analyze prohibited use cases
+ */
+export async function analyzeProhibitedUse(req: Request, res: Response): Promise<void> {
+  try {
+    const systemId = req.params.systemId;
+    
+    // Get system
+    const system = await storage.getAiSystemBySystemId(systemId);
+    
+    if (!system) {
+      throw new ResourceNotFoundError('System', systemId);
+    }
+    
+    // Call AI for prohibited use analysis
+    const prompt = `
+      Analyze the following AI system against EU AI Act Article 5 prohibited practices:
+      
+      System Name: ${system.name}
+      Description: ${system.description || 'Not provided'}
+      Department: ${system.department || 'Not provided'}
+      Purpose: ${system.purpose || 'Not provided'}
+      Vendor: ${system.vendor || 'Not provided'}
+      Version: ${system.version || 'Not provided'}
+      AI Capabilities: ${system.aiCapabilities || 'Not provided'}
+      Training Datasets: ${system.trainingDatasets || 'Not provided'}
+      Usage Context: ${system.usageContext || 'Not provided'}
+      Potential Impact: ${system.potentialImpact || 'Not provided'}
+      
+      Article 5 of the EU AI Act prohibits the following AI practices:
+      1. Subliminal manipulation resulting in physical/psychological harm
+      2. Exploitation of vulnerabilities of specific groups resulting in physical/psychological harm
+      3. Social scoring by public authorities
+      4. Real-time remote biometric identification in publicly accessible spaces for law enforcement
+         (with specific exceptions)
+      5. Emotion recognition in workplace/educational settings
+      6. AI for categorizing people based on biometrics according to ethnicity, political views, etc.
+      7. AI systems for untargeted scraping of facial images
+      
+      For each prohibited practice, assess whether this system potentially violates or complies with Article 5.
+      
+      Format your response as a JSON with the following structure:
+      {
+        "prohibitedPractices": [
+          {
+            "practice": "Name of prohibited practice",
+            "article": "Specific article reference",
+            "compliant": true/false,
+            "riskLevel": "None, Low, Medium, High",
+            "justification": "Detailed explanation",
+            "mitigationAdvice": "Advice if non-compliant or at risk"
+          }
+        ],
+        "overallAssessment": "Overall assessment text",
+        "isCompliant": true/false
+      }
+    `;
+    
+    const response = await callAI({
+      prompt,
+      model: AIModel.DEEPSEEK
+    });
+    
+    // Parse AI response
+    const analysis = safeJsonParse(response.text);
+    
+    res.json(analysis);
   } catch (error) {
-    handleError(error, res);
+    console.error('Error in analyzeProhibitedUse:', error);
+    
+    if (error instanceof AppError) {
+      res.status(error.statusCode).json({
+        error: error.type,
+        message: error.message,
+        details: error.details
+      });
+    } else {
+      res.status(500).json({
+        error: 'internal_server_error',
+        message: 'An unexpected error occurred during prohibited use analysis'
+      });
+    }
+  }
+}
+
+/**
+ * Generate risk assessment report
+ */
+export async function generateRiskReport(req: Request, res: Response): Promise<void> {
+  try {
+    const systemId = req.params.systemId;
+    
+    // Get system
+    const system = await storage.getAiSystemBySystemId(systemId);
+    
+    if (!system) {
+      throw new ResourceNotFoundError('System', systemId);
+    }
+    
+    // Get latest assessment
+    const assessments = await storage.getRiskAssessmentsForSystem(systemId);
+    const latestAssessment = assessments.sort((a, b) => 
+      new Date(b.assessmentDate).getTime() - new Date(a.assessmentDate).getTime()
+    )[0];
+    
+    // Call AI for report generation
+    const prompt = `
+      Generate a comprehensive EU AI Act compliance risk assessment report for the following AI system:
+      
+      System Name: ${system.name}
+      Description: ${system.description || 'Not provided'}
+      Department: ${system.department || 'Not provided'}
+      Purpose: ${system.purpose || 'Not provided'}
+      Vendor: ${system.vendor || 'Not provided'}
+      Version: ${system.version || 'Not provided'}
+      AI Capabilities: ${system.aiCapabilities || 'Not provided'}
+      Risk Level: ${latestAssessment?.riskLevel || system.riskLevel || 'Not determined'}
+      
+      ${latestAssessment ? `
+      Assessment Date: ${new Date(latestAssessment.assessmentDate).toISOString().split('T')[0]}
+      Assessment Status: ${latestAssessment.status}
+      Risk Score: ${latestAssessment.riskScore}
+      ` : ''}
+      
+      Format your report as a JSON with the following structure:
+      {
+        "executiveSummary": "Brief executive summary",
+        "systemOverview": "Overview of the system",
+        "methodology": "Assessment methodology used",
+        "riskClassification": {
+          "level": "Risk level",
+          "score": number,
+          "justification": "Detailed justification"
+        },
+        "keyFindings": [
+          {
+            "area": "Finding area",
+            "description": "Detailed description",
+            "severity": "Low, Medium, High, Critical"
+          }
+        ],
+        "regulatoryImplications": {
+          "applicableArticles": [
+            {
+              "article": "Article reference",
+              "title": "Article title",
+              "requirements": "Key requirements",
+              "complianceStatus": "Compliant or Non-compliant or Partially compliant"
+            }
+          ]
+        },
+        "recommendations": [
+          {
+            "title": "Recommendation title",
+            "description": "Detailed description",
+            "priority": "Low, Medium, High",
+            "timeframe": "Immediate, Short-term, Medium-term, Long-term"
+          }
+        ],
+        "conclusion": "Overall conclusion"
+      }
+    `;
+    
+    const response = await callAI({
+      prompt,
+      model: AIModel.DEEPSEEK,
+      temperature: 0.3
+    });
+    
+    // Parse AI response
+    const report = safeJsonParse(response.text);
+    
+    res.json({
+      ...report,
+      generatedAt: new Date(),
+      assessmentId: latestAssessment?.assessmentId,
+      systemId: system.systemId,
+      systemName: system.name
+    });
+  } catch (error) {
+    console.error('Error in generateRiskReport:', error);
+    
+    if (error instanceof AppError) {
+      res.status(error.statusCode).json({
+        error: error.type,
+        message: error.message,
+        details: error.details
+      });
+    } else {
+      res.status(500).json({
+        error: 'internal_server_error',
+        message: 'An unexpected error occurred during report generation'
+      });
+    }
+  }
+}
+
+/**
+ * Analyze compliance gaps
+ */
+export async function analyzeComplianceGaps(req: Request, res: Response): Promise<void> {
+  try {
+    const systemId = req.params.systemId;
+    
+    // Get system
+    const system = await storage.getAiSystemBySystemId(systemId);
+    
+    if (!system) {
+      throw new ResourceNotFoundError('System', systemId);
+    }
+    
+    // Get documents for the system
+    const documents = await storage.getDocumentsForSystem(systemId);
+    
+    // Call AI for gap analysis
+    const prompt = `
+      Perform a compliance gap analysis for the following AI system under the EU AI Act:
+      
+      System Name: ${system.name}
+      Description: ${system.description || 'Not provided'}
+      Department: ${system.department || 'Not provided'}
+      Purpose: ${system.purpose || 'Not provided'}
+      Vendor: ${system.vendor || 'Not provided'}
+      Risk Level: ${system.riskLevel || 'Not determined'}
+      
+      The system has the following documentation:
+      ${documents.map(doc => `- ${doc.title} (${doc.type})`).join('\n')}
+      
+      Based on the EU AI Act requirements, identify compliance gaps in the following areas:
+      1. Technical documentation
+      2. Risk management
+      3. Data governance
+      4. Human oversight
+      5. Transparency
+      6. Accuracy and robustness
+      
+      For each area, analyze whether there are:
+      - Missing documentation
+      - Insufficient processes
+      - Missing technical controls
+      - Inadequate testing or validation
+      
+      Format your response as a JSON with the following structure:
+      {
+        "complianceGaps": [
+          {
+            "area": "Area name",
+            "description": "Detailed description of the gap",
+            "severity": "Critical, High, Medium, Low",
+            "euAiActReference": "Relevant article reference",
+            "remediation": "Suggested remediation"
+          }
+        ],
+        "overallComplianceStatus": "text assessment of overall compliance",
+        "missingDocumentation": [
+          "List of missing documentation"
+        ],
+        "priorityActions": [
+          "List of priority actions"
+        ]
+      }
+    `;
+    
+    const response = await callAI({
+      prompt,
+      model: AIModel.DEEPSEEK
+    });
+    
+    // Parse AI response
+    const analysis = safeJsonParse(response.text);
+    
+    res.json(analysis);
+  } catch (error) {
+    console.error('Error in analyzeComplianceGaps:', error);
+    
+    if (error instanceof AppError) {
+      res.status(error.statusCode).json({
+        error: error.type,
+        message: error.message,
+        details: error.details
+      });
+    } else {
+      res.status(500).json({
+        error: 'internal_server_error',
+        message: 'An unexpected error occurred during gap analysis'
+      });
+    }
+  }
+}
+
+/**
+ * Schedule periodic reassessment
+ */
+export async function scheduleReassessment(systemId: string, interval: string): Promise<any> {
+  try {
+    // Get system
+    const system = await storage.getAiSystemBySystemId(systemId);
+    
+    if (!system) {
+      throw new ResourceNotFoundError('System', systemId);
+    }
+    
+    // Calculate next assessment date
+    let nextAssessmentDate = new Date();
+    
+    switch (interval) {
+      case 'monthly':
+        nextAssessmentDate.setMonth(nextAssessmentDate.getMonth() + 1);
+        break;
+      case 'quarterly':
+        nextAssessmentDate.setMonth(nextAssessmentDate.getMonth() + 3);
+        break;
+      case 'semi-annual':
+        nextAssessmentDate.setMonth(nextAssessmentDate.getMonth() + 6);
+        break;
+      case 'annual':
+        nextAssessmentDate.setFullYear(nextAssessmentDate.getFullYear() + 1);
+        break;
+      default:
+        nextAssessmentDate.setMonth(nextAssessmentDate.getMonth() + 6);
+    }
+    
+    // Create deadline
+    const deadline = await storage.createDeadline({
+      title: `Reassessment of ${system.name}`,
+      description: `Scheduled ${interval} reassessment of AI system "${system.name}"`,
+      date: nextAssessmentDate,
+      type: 'reassessment',
+      relatedSystemId: systemId
+    });
+    
+    return deadline;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    
+    throw new BusinessLogicError('Failed to schedule reassessment', error);
   }
 }
