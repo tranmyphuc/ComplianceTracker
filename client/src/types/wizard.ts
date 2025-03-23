@@ -1,3 +1,4 @@
+
 export interface WizardStep {
   title: string;
   description: string;
@@ -15,9 +16,13 @@ export interface WizardField {
 }
 
 export interface TourStep {
+  id: string;
   title: string;
-  description: string;
-  image: string;
-  alt: string;
-  features: string[];
+  subtitle: string;
+  content: string;
+  mascotMood: string;
+  mascotMessage: string;
+  icon: any;
+  imageSrc: string;
+  features?: string[];
 }

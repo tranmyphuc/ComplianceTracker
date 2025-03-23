@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EnterpriseDecisionPlatform } from '@/components/strategic/enterprise-decision-platform';
 import { EnterpriseTourWizard } from '@/components/wizards/enterprise-wizard';
-import { TrendingUp, BarChart3, Lightbulb } from 'lucide-react';
+import { TrendingUp, BarChart3, Lightbulb, PlayCircle } from 'lucide-react'; // Added PlayCircle icon
 
 export default function EnterprisePage() {
   const [showWizard, setShowWizard] = useState(false);
@@ -54,7 +54,8 @@ export default function EnterprisePage() {
               Transform your strategic decision-making with advanced AI
             </p>
           </div>
-          <Button onClick={handleRestartWizard}>
+          <Button onClick={handleRestartWizard} className="flex items-center gap-2">
+            <PlayCircle className="h-4 w-4" /> {/* Added PlayCircle icon */}
             🔄 Restart Tour
           </Button>
         </div>

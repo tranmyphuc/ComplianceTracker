@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,7 +21,7 @@ export function EnterpriseDecisionPlatform({ onComplete, onSkip }: EnterpriseDec
           <div>
             <h2 className="text-3xl font-bold tracking-tight">🚀 Enterprise Decision Platform</h2>
             <p className="text-muted-foreground mt-2">
-              Strategic tools to support AI investment and compliance decisions
+              Strategic tools to support AI investment and compliance decisions ✨
             </p>
           </div>
           <Button variant="outline" onClick={() => setShowTour(false)}>
@@ -41,7 +40,7 @@ export function EnterpriseDecisionPlatform({ onComplete, onSkip }: EnterpriseDec
         <div>
           <h2 className="text-3xl font-bold tracking-tight">🚀 Enterprise Decision Platform</h2>
           <p className="text-muted-foreground mt-2">
-            Strategic tools to support AI investment and compliance decisions
+            Strategic tools to support AI investment and compliance decisions ✨
           </p>
         </div>
         <Button 
