@@ -47,7 +47,7 @@ import {
   subscribeToUpdates
 } from './regulatory-updates';
 import { analyzeSystemRisk, analyzeProhibitedUse, generateRiskReport, analyzeComplianceGaps } from './risk-assessment';
-import { getModuleContent, trackTrainingProgress, getUserProgress, getTrainingModuleContent, getTrainingModuleMetadata, recordTrainingCompletion, getTrainingCertificate, exportTrainingModule, fetchTrainingModulesList } from './training-module';
+import { getTrainingModules, getModuleContent, trackTrainingProgress, getUserProgress, getTrainingModuleContent, getTrainingModuleMetadata, recordTrainingCompletion, getTrainingCertificate, exportTrainingModule } from './training-module';
 import { 
   getApiKeys, 
   addApiKey, 
@@ -55,6 +55,9 @@ import {
   deleteApiKey, 
   testApiKey 
 } from './ai-key-management';
+import * as riskAssessment from './risk-assessment';
+import * as riskManagement from './risk-management'; // Added import
+
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -898,7 +901,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/risk-assessment/:systemId/gaps", async (req: Request, res: Response) => {
     try {
       req.params = { ...req.params }; // Ensure params is mutable
-      await analyzeComplianceGaps(req, res);
+      awaitanalyzeComplianceGaps(req, res);
     } catch (err) {
       handleError(res, err as Error);
     }
@@ -1233,7 +1236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Training module routes
   app.get('/api/training/modules', async (req, res) => {
     try {
-      const modules = await fetchTrainingModulesList();
+      const modules = await getTrainingModules();
       res.json(modules);
     } catch (error) {
       handleError(res, error, 'Error retrieving training modules');
@@ -1336,6 +1339,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       handleError(res, error as Error);
     }
   });
+
+  //Risk Assessment Endpoints
+  app.get('/api/risk-assessment/:systemId', analyzeSystemRisk);
+  app.get('/api/risk-assessment/:systemId/prohibited', analyzeProhibitedUse);
+  app.get('/api/risk-assessment/:systemId/report', generateRiskReport);
+  app.get('/api/risk-assessment/:systemId/gaps', analyzeComplianceGaps);
 
   // Initialize continuous monitoring system
   initializeMonitoring().catch(err => console.error('Error initializing monitoring:', err));
