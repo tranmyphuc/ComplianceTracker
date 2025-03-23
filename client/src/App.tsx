@@ -20,6 +20,9 @@ import StrategicPlanning from "@/pages/strategic-planning";
 import RegulatoryComplexity from "@/pages/regulatory-complexity";
 import EnterpriseDecisionPlatform from "@/pages/enterprise-decision-platform";
 import RiskManagement from "@/pages/risk-management";
+import MarketIntelligence from "@/pages/market-intelligence";
+import OperationsExcellence from "@/pages/operations-excellence";
+import GrowthInnovation from "@/pages/growth-innovation";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -36,12 +39,6 @@ import {
   TrainingCertificatePage as LazyTrainingCertificatePage,
   TrainingModulePage as LazyTrainingModulePage
 } from "./routes/lazy-imports.ts";
-
-// Placeholder components - replace with actual components
-const MarketIntelligenceView = () => <div>Market Intelligence</div>;
-const OperationsExcellenceView = () => <div>Operations Excellence</div>;
-const RiskManagementView = () => <div>Risk Management</div>;
-const GrowthInnovationView = () => <div>Growth & Innovation</div>;
 
 
 function Router() {
@@ -190,13 +187,13 @@ function Router() {
         {() => renderWithLayout(Dashboard)}
       </Route>
       <Route path="/market-intelligence">
-        {() => renderWithLayout(MarketIntelligenceView)}
+        {() => renderWithLayout(MarketIntelligence)}
       </Route>
       <Route path="/operations-excellence">
-        {() => renderWithLayout(OperationsExcellenceView)}
+        {() => renderWithLayout(OperationsExcellence)}
       </Route>
       <Route path="/growth-innovation">
-        {() => renderWithLayout(GrowthInnovationView)}
+        {() => renderWithLayout(GrowthInnovation)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}

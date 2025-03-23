@@ -1,83 +1,225 @@
-
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { Badge } from "../ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Separator } from "../ui/separator";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
 
 interface ReviewSubmitStepProps {
-  formData: any;
-  errors: Record<string, string>;
+  formData: {
+    name: string;
+    description: string;
+    purpose: string;
+    version: string;
+    department: string;
+    vendor: string;
+    internalOwner: string;
+    aiCapabilities: string;
+    trainingDatasets: string;
+    usageContext: string;
+    humansInLoop: boolean;
+    dataSources: string;
+    dataProtection: string;
+    usesPersonalData: boolean;
+    usesSensitiveData: boolean;
+    riskLevel: string;
+    potentialImpact: string;
+    mitigationMeasures: string;
+    vulnerabilities: string;
+    impactsAutonomous: boolean;
+    impactsVulnerableGroups: boolean;
+    usesDeepLearning: boolean;
+    isTransparent: boolean;
+    confirmAccuracy: boolean;
+    confirmCompliance: boolean;
+    [key: string]: any;
+  };
+  setFormData: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({ formData, errors }) => {
-  const renderSection = (title: string, fields: { label: string; key: string }[]) => (
-    <div className="mb-6">
-      <h3 className="text-lg font-medium mb-2">{title}</h3>
-      <Card>
-        <CardContent className="pt-4">
-          <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {fields.map(({ label, key }) => (
-              <div key={key} className="col-span-1">
-                <dt className="text-sm font-medium text-gray-500">{label}</dt>
-                <dd className="mt-1 text-sm text-gray-900">{formData[key] || 'Not provided'}</dd>
-              </div>
-            ))}
-          </dl>
-        </CardContent>
-      </Card>
-    </div>
-  );
+export const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
+  formData,
+  setFormData
+}) => {
+  const handleCheckboxChange = (name: string, checked: boolean) => {
+    setFormData((prev: any) => ({ ...prev, [name]: checked }));
+  };
+
+  const getRiskLevelDisplay = () => {
+    switch (formData.riskLevel) {
+      case 'minimal': return { label: 'Minimal Risk', color: 'bg-green-100 text-green-800' };
+      case 'limited': return { label: 'Limited Risk', color: 'bg-blue-100 text-blue-800' };
+      case 'high': return { label: 'High Risk', color: 'bg-amber-100 text-amber-800' };
+      case 'unacceptable': return { label: 'Unacceptable Risk', color: 'bg-red-100 text-red-800' };
+      default: return { label: 'Not Specified', color: 'bg-gray-100 text-gray-800' };
+    }
+  };
+
+  const riskLevel = getRiskLevelDisplay();
 
   return (
-    <div className="space-y-4">
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold">Review & Submit</h2>
-        <p className="text-gray-500">
-          Please review all information before submitting your AI system registration.
-        </p>
-      </div>
-
-      <ScrollArea className="h-[500px] pr-4">
-        {renderSection('Basic Information', [
-          { label: 'System Name', key: 'name' },
-          { label: 'Vendor/Provider', key: 'vendor' },
-          { label: 'Department', key: 'department' },
-          { label: 'Version', key: 'version' },
-          { label: 'Description', key: 'description' },
-          { label: 'Purpose', key: 'purpose' },
-        ])}
-
-        <Separator className="my-4" />
-
-        {renderSection('Technical Details', [
-          { label: 'AI Capabilities', key: 'aiCapabilities' },
-          { label: 'Training Datasets', key: 'trainingDatasets' },
-          { label: 'Usage Context', key: 'usageContext' },
-          { label: 'Potential Impact', key: 'potentialImpact' },
-        ])}
-
-        <Separator className="my-4" />
-
-        {renderSection('Risk Assessment', [
-          { label: 'Risk Level', key: 'riskLevel' },
-          { label: 'Initial Risk Classification', key: 'initialRiskClassification' },
-          { label: 'System Category', key: 'systemCategory' },
-          { label: 'Applicable EU AI Act Articles', key: 'applicableArticles' },
-        ])}
-
-        {Object.keys(errors).length > 0 && (
-          <div className="mt-6 p-4 border border-red-300 bg-red-50 rounded-md">
-            <h4 className="text-red-800 font-medium mb-2">Please correct the following errors:</h4>
-            <ul className="list-disc pl-5 text-red-700">
-              {Object.entries(errors).map(([field, message]) => (
-                <li key={field}>{message}</li>
-              ))}
-            </ul>
+    <div className="space-y-6">
+      <Card className="border-2 border-dashed border-gray-200 bg-gray-50">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle>{formData.name || 'Unnamed System'}</CardTitle>
+              <CardDescription>System Review</CardDescription>
+            </div>
+            <Badge className={riskLevel.color}>{riskLevel.label}</Badge>
           </div>
-        )}
-      </ScrollArea>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm font-medium mb-2">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-500">Description</p>
+                  <p>{formData.description || 'Not provided'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Purpose</p>
+                  <p>{formData.purpose || 'Not provided'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Version</p>
+                  <p>{formData.version || 'Not provided'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Department</p>
+                  <p>{formData.department || 'Not provided'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Vendor/Provider</p>
+                  <p>{formData.vendor || 'Not provided'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Internal Owner</p>
+                  <p>{formData.internalOwner || 'Not provided'}</p>
+                </div>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <div>
+              <h3 className="text-sm font-medium mb-2">Technical Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-500">AI Capabilities</p>
+                  <p>{formData.aiCapabilities || 'Not provided'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Training Datasets</p>
+                  <p>{formData.trainingDatasets || 'Not provided'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Usage Context</p>
+                  <p>{formData.usageContext || 'Not provided'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Human Oversight</p>
+                  <p>{formData.humansInLoop ? 'Yes' : 'No'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Data Processing</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {formData.usesPersonalData && (
+                      <Badge variant="outline">Personal Data</Badge>
+                    )}
+                    {formData.usesSensitiveData && (
+                      <Badge variant="outline">Sensitive Data</Badge>
+                    )}
+                    {!formData.usesPersonalData && !formData.usesSensitiveData && (
+                      <span>No personal or sensitive data</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <div>
+              <h3 className="text-sm font-medium mb-2">Risk Assessment</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-500">Potential Impact</p>
+                  <p>{formData.potentialImpact || 'Not provided'}</p>
+                </div>
+                {formData.vulnerabilities && (
+                  <div>
+                    <p className="text-gray-500">Vulnerabilities</p>
+                    <p>{formData.vulnerabilities}</p>
+                  </div>
+                )}
+                {formData.mitigationMeasures && (
+                  <div>
+                    <p className="text-gray-500">Mitigation Measures</p>
+                    <p>{formData.mitigationMeasures}</p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-gray-500">Risk Factors</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {formData.impactsAutonomous && (
+                      <Badge variant="outline">Autonomous Decisions</Badge>
+                    )}
+                    {formData.impactsVulnerableGroups && (
+                      <Badge variant="outline">Impacts Vulnerable Groups</Badge>
+                    )}
+                    {formData.usesDeepLearning && (
+                      <Badge variant="outline">Deep Learning</Badge>
+                    )}
+                    {formData.isTransparent && (
+                      <Badge variant="outline" className="bg-green-50">Transparent</Badge>
+                    )}
+                    {!formData.impactsAutonomous && !formData.impactsVulnerableGroups && 
+                     !formData.usesDeepLearning && !formData.isTransparent && (
+                      <span>None specified</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <div className="space-y-4 pt-4">
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="confirmAccuracy" 
+              checked={formData.confirmAccuracy || false}
+              onCheckedChange={(checked) => handleCheckboxChange('confirmAccuracy', checked === true)}
+            />
+            <label
+              htmlFor="confirmAccuracy"
+              className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              I confirm that the information provided is accurate and complete
+            </label>
+          </div>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="confirmCompliance" 
+              checked={formData.confirmCompliance || false}
+              onCheckedChange={(checked) => handleCheckboxChange('confirmCompliance', checked === true)}
+            />
+            <label
+              htmlFor="confirmCompliance"
+              className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              I understand that this system must comply with all relevant regulations, including the EU AI Act
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
-
-export default ReviewSubmitStep;
