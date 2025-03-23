@@ -10,10 +10,18 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/components/auth/auth-context";
 import { TrainingModules } from "@/components/training/training-modules";
-import { BookOpen, CheckCircle, ChevronLeft, FileText, GraduationCap, AlertCircle, MenuIcon } from "lucide-react";
+import { 
+  BookOpen, 
+  CheckCircle, 
+  ChevronLeft, 
+  FileText, 
+  GraduationCap, 
+  AlertCircle
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 // Type definitions
 interface TrainingModule {
@@ -270,7 +278,7 @@ export default function Training() {
       <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
       
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar className={sidebarOpen ? "" : "hidden"} />
+        <Sidebar className={sidebarOpen ? "" : "hidden"} onClose={() => setSidebarOpen(false)} isOpen={sidebarOpen} />
         
         <main className="flex-1 overflow-y-auto pb-10">
           <div className="container mx-auto py-6 max-w-5xl">
@@ -295,242 +303,244 @@ export default function Training() {
               </div>
             </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="modules" disabled={!!selectedModuleId}>
-            <BookOpen className="mr-2 h-4 w-4" /> Training Modules
-          </TabsTrigger>
-          <TabsTrigger value="content" disabled={!selectedModuleId}>
-            <FileText className="mr-2 h-4 w-4" /> Module Content
-          </TabsTrigger>
-        </TabsList>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="modules" disabled={!!selectedModuleId}>
+                  <BookOpen className="mr-2 h-4 w-4" /> Training Modules
+                </TabsTrigger>
+                <TabsTrigger value="content" disabled={!selectedModuleId}>
+                  <FileText className="mr-2 h-4 w-4" /> Module Content
+                </TabsTrigger>
+              </TabsList>
 
-        <TabsContent value="modules">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <GraduationCap className="mr-2 h-5 w-5" /> Available Training Modules
-              </CardTitle>
-              <CardDescription>
-                Select a module to start or continue your training on the EU AI Act
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <TrainingModules
-                modules={filteredModules}
-                progress={userProgress}
-                isLoading={isLoadingModules || isLoadingProgress}
-                onSelectModule={handleSelectModule}
-                isModuleLocked={isModuleLocked}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+              <TabsContent value="modules">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <GraduationCap className="mr-2 h-5 w-5" /> Available Training Modules
+                    </CardTitle>
+                    <CardDescription>
+                      Select a module to start or continue your training on the EU AI Act
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <TrainingModules
+                      modules={filteredModules}
+                      progress={userProgress}
+                      isLoading={isLoadingModules || isLoadingProgress}
+                      onSelectModule={handleSelectModule}
+                      isModuleLocked={isModuleLocked}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-        <TabsContent value="content">
-          {isLoadingContent ? (
-            <Card>
-              <CardHeader>
-                <div className="h-7 bg-gray-200 rounded w-1/2 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse mt-2"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ) : moduleContent ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>{moduleContent.title}</CardTitle>
-                  <CardDescription>
-                    {selectedModuleId && Array.isArray(modules) && 
-                      modules.find(m => m.id === selectedModuleId)?.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-6">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Progress</span>
-                      <span>{userProgress && typeof userProgress === 'object' && selectedModuleId ? 
-                        userProgress[selectedModuleId]?.completion || 0 : 0}%</span>
-                    </div>
-                    <Progress value={userProgress && typeof userProgress === 'object' && selectedModuleId ? 
-                      userProgress[selectedModuleId]?.completion || 0 : 0} />
-                  </div>
-
-                  {/* Content or Assessment display */}
-                  {moduleContent.sections && activeSection < moduleContent.sections.length ? (
-                    /* Content Section */
-                    <div className="space-y-4">
-                      <h2 className="text-xl font-bold mb-2">
-                        {moduleContent.sections[activeSection].title}
-                      </h2>
-                      <div 
-                        className="prose max-w-none" 
-                        dangerouslySetInnerHTML={{ 
-                          __html: moduleContent.sections[activeSection].content 
-                        }} 
-                      />
-                    </div>
-                  ) : (
-                    /* Assessment Section */
-                    assessmentCompleted ? (
+              <TabsContent value="content">
+                {isLoadingContent ? (
+                  <Card>
+                    <CardHeader>
+                      <div className="h-7 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse mt-2"></div>
+                    </CardHeader>
+                    <CardContent>
                       <div className="space-y-4">
-                        <h2 className="text-xl font-bold mb-2">Assessment Results</h2>
-                        
-                        {assessmentResults && (
-                          <div className="space-y-4">
-                            <Alert variant={assessmentResults.passed ? "default" : "destructive"}>
-                              <div className="flex items-center">
-                                {assessmentResults.passed ? (
-                                  <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
-                                ) : (
-                                  <AlertCircle className="h-5 w-5 mr-2" />
-                                )}
-                                <AlertTitle>
-                                  {assessmentResults.passed ? 
-                                    "Congratulations! You've passed the assessment." :
-                                    "Assessment not passed"
-                                  }
-                                </AlertTitle>
-                              </div>
-                              <AlertDescription>
-                                You answered {assessmentResults.correct} out of {assessmentResults.total} questions correctly 
-                                ({Math.round((assessmentResults.correct / assessmentResults.total) * 100)}%).
-                              </AlertDescription>
-                            </Alert>
-                            
-                            {assessmentResults.passed ? (
-                              <div className="p-4 bg-green-50 border border-green-200 rounded-md">
-                                <p className="text-green-800 font-medium">
-                                  You have successfully completed this module. You can now proceed to the next module.
-                                </p>
-                              </div>
-                            ) : (
-                              <div className="p-4 bg-amber-50 border border-amber-200 rounded-md">
-                                <p className="text-amber-800 font-medium">
-                                  Review the module content and try again to improve your understanding of the EU AI Act.
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
                       </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <h2 className="text-xl font-bold mb-2">Module Assessment</h2>
-                        <p className="mb-4">Complete this assessment to validate your understanding of the module content.</p>
-                        
-                        {moduleContent.assessments && moduleContent.assessments.map((assessment, index) => (
-                          <div key={index} className="border rounded-md p-4 mb-4">
-                            <p className="font-medium mb-2">{index + 1}. {assessment.question}</p>
-                            <div className="space-y-2 mt-3">
-                              {assessment.options.map((option, optionIndex) => (
-                                <div key={optionIndex} className="flex items-center">
-                                  <input
-                                    type="radio"
-                                    id={`q${index}-opt${optionIndex}`}
-                                    name={`question-${index}`}
-                                    className="mr-2"
-                                    checked={assessmentResponses[index] === option}
-                                    onChange={() => {
-                                      setAssessmentResponses({
-                                        ...assessmentResponses,
-                                        [index]: option
-                                      });
-                                    }}
-                                  />
-                                  <label htmlFor={`q${index}-opt${optionIndex}`}>{option}</label>
+                    </CardContent>
+                  </Card>
+                ) : moduleContent ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>{moduleContent.title}</CardTitle>
+                        <CardDescription>
+                          {selectedModuleId && Array.isArray(modules) && 
+                            modules.find(m => m.id === selectedModuleId)?.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="mb-6">
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Progress</span>
+                            <span>{userProgress && typeof userProgress === 'object' && selectedModuleId ? 
+                              userProgress[selectedModuleId]?.completion || 0 : 0}%</span>
+                          </div>
+                          <Progress value={userProgress && typeof userProgress === 'object' && selectedModuleId ? 
+                            userProgress[selectedModuleId]?.completion || 0 : 0} />
+                        </div>
+
+                        {/* Content or Assessment display */}
+                        {moduleContent.sections && activeSection < moduleContent.sections.length ? (
+                          /* Content Section */
+                          <div className="space-y-4">
+                            <h2 className="text-xl font-bold mb-2">
+                              {moduleContent.sections[activeSection].title}
+                            </h2>
+                            <div 
+                              className="prose max-w-none" 
+                              dangerouslySetInnerHTML={{ 
+                                __html: moduleContent.sections[activeSection].content 
+                              }} 
+                            />
+                          </div>
+                        ) : (
+                          /* Assessment Section */
+                          assessmentCompleted ? (
+                            <div className="space-y-4">
+                              <h2 className="text-xl font-bold mb-2">Assessment Results</h2>
+                              
+                              {assessmentResults && (
+                                <div className="space-y-4">
+                                  <Alert variant={assessmentResults.passed ? "default" : "destructive"}>
+                                    <div className="flex items-center">
+                                      {assessmentResults.passed ? (
+                                        <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
+                                      ) : (
+                                        <AlertCircle className="h-5 w-5 mr-2" />
+                                      )}
+                                      <AlertTitle>
+                                        {assessmentResults.passed ? 
+                                          "Congratulations! You've passed the assessment." :
+                                          "Assessment not passed"
+                                        }
+                                      </AlertTitle>
+                                    </div>
+                                    <AlertDescription>
+                                      You answered {assessmentResults.correct} out of {assessmentResults.total} questions correctly 
+                                      ({Math.round((assessmentResults.correct / assessmentResults.total) * 100)}%).
+                                    </AlertDescription>
+                                  </Alert>
+                                  
+                                  {assessmentResults.passed ? (
+                                    <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+                                      <p className="text-green-800 font-medium">
+                                        You have successfully completed this module. You can now proceed to the next module.
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-md">
+                                      <p className="text-amber-800 font-medium">
+                                        Review the module content and try again to improve your understanding of the EU AI Act.
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              <h2 className="text-xl font-bold mb-2">Module Assessment</h2>
+                              <p className="mb-4">Complete this assessment to validate your understanding of the module content.</p>
+                              
+                              {moduleContent.assessments && moduleContent.assessments.map((assessment, index) => (
+                                <div key={index} className="border rounded-md p-4 mb-4">
+                                  <p className="font-medium mb-2">{index + 1}. {assessment.question}</p>
+                                  <div className="space-y-2 mt-3">
+                                    {assessment.options.map((option, optionIndex) => (
+                                      <div key={optionIndex} className="flex items-center">
+                                        <input
+                                          type="radio"
+                                          id={`q${index}-opt${optionIndex}`}
+                                          name={`question-${index}`}
+                                          className="mr-2"
+                                          checked={assessmentResponses[index] === option}
+                                          onChange={() => {
+                                            setAssessmentResponses({
+                                              ...assessmentResponses,
+                                              [index]: option
+                                            });
+                                          }}
+                                        />
+                                        <label htmlFor={`q${index}-opt${optionIndex}`}>{option}</label>
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
                               ))}
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  )}
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                  {/* Navigation buttons based on current section */}
-                  {moduleContent.sections && (
-                    <>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          if (activeSection > 0) {
-                            setActiveSection(activeSection - 1);
-                          } else if (selectedModuleId) {
-                            // Go back to modules list
-                            setSelectedModuleId(null);
-                            setActiveTab("modules");
-                          }
-                        }}
-                        disabled={activeSection === 0 && !selectedModuleId}
-                      >
-                        Previous
+                          )
+                        )}
+                      </CardContent>
+                      <CardFooter className="flex justify-between">
+                        {/* Navigation buttons based on current section */}
+                        {moduleContent.sections && (
+                          <>
+                            <Button 
+                              variant="outline" 
+                              onClick={() => {
+                                if (activeSection > 0) {
+                                  setActiveSection(activeSection - 1);
+                                } else if (selectedModuleId) {
+                                  // Go back to modules list
+                                  setSelectedModuleId(null);
+                                  setActiveTab("modules");
+                                }
+                              }}
+                              disabled={activeSection === 0 && !selectedModuleId}
+                            >
+                              Previous
+                            </Button>
+                            
+                            {activeSection < moduleContent.sections.length - 1 ? (
+                              <Button onClick={() => setActiveSection(activeSection + 1)}>
+                                Next
+                              </Button>
+                            ) : activeSection === moduleContent.sections.length - 1 ? (
+                              <Button onClick={() => setActiveSection(activeSection + 1)}>
+                                Go to Assessment
+                              </Button>
+                            ) : !assessmentCompleted ? (
+                              <Button onClick={handleSubmitAssessment}>
+                                Submit Assessment
+                              </Button>
+                            ) : (
+                              <Button 
+                                onClick={handleStartNextModule}
+                                disabled={!assessmentResults?.passed}
+                              >
+                                {assessmentResults?.passed ? 
+                                  "Start Next Module" : 
+                                  "Retry Assessment"
+                                }
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </CardFooter>
+                    </Card>
+                  </motion.div>
+                ) : (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Module Not Found</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p>The requested training module could not be found. Please select a different module.</p>
+                    </CardContent>
+                    <CardFooter>
+                      <Button onClick={() => {
+                        setSelectedModuleId(null);
+                        setActiveTab("modules");
+                      }}>
+                        Return to Modules
                       </Button>
-                      
-                      {activeSection < moduleContent.sections.length - 1 ? (
-                        <Button onClick={() => setActiveSection(activeSection + 1)}>
-                          Next
-                        </Button>
-                      ) : activeSection === moduleContent.sections.length - 1 ? (
-                        <Button onClick={() => setActiveSection(activeSection + 1)}>
-                          Go to Assessment
-                        </Button>
-                      ) : !assessmentCompleted ? (
-                        <Button onClick={handleSubmitAssessment}>
-                          Submit Assessment
-                        </Button>
-                      ) : (
-                        <Button 
-                          onClick={handleStartNextModule}
-                          disabled={!assessmentResults?.passed}
-                        >
-                          {assessmentResults?.passed ? 
-                            "Start Next Module" : 
-                            "Retry Assessment"
-                          }
-                        </Button>
-                      )}
-                    </>
-                  )}
-                </CardFooter>
-              </Card>
-            </motion.div>
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Module Not Found</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>The requested training module could not be found. Please select a different module.</p>
-              </CardContent>
-              <CardFooter>
-                <Button onClick={() => {
-                  setSelectedModuleId(null);
-                  setActiveTab("modules");
-                }}>
-                  Return to Modules
-                </Button>
-              </CardFooter>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+                    </CardFooter>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>
+      
+      <Footer />
     </div>
   );
 }
