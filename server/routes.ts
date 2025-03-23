@@ -1274,10 +1274,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Training module routes
   app.get('/api/training/modules', async (req, res) => {
     try {
-      const modules = await getTrainingModules();
-      res.json(modules);
+      await getTrainingModules(req, res);
     } catch (error) {
-      handleError(res, error, 'Error retrieving training modules');
+      console.error('Error in training modules route handler:', error);
+      handleError(res, error as Error, 'Error retrieving training modules');
     }
   });
 
