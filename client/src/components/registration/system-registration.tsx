@@ -762,7 +762,7 @@ export const SystemRegistration: React.FC = () => {
   };
 
   // Extract data from uploaded file
-  const extractFromFile = () => {
+  const extractFromFile = async () => {
     if (!uploadedFile) {
       toast({
         title: "Error",
@@ -775,7 +775,7 @@ export const SystemRegistration: React.FC = () => {
     setExtractionInProgress(true);
     setAiExtractionStatus('extracting');
 
-    // Simulate file processing progress
+    // Show processing progress
     const progressInterval = setInterval(() => {
       setExtractionProgress(prev => {
         const newProgress = prev + (Math.random() * 10);
@@ -783,37 +783,112 @@ export const SystemRegistration: React.FC = () => {
       });
     }, 300);
 
-    // In a real implementation, this would send the file to an API
-    // For now, simulate file processing
-    setTimeout(() => {
+    try {
+      // Read file content
+      const reader = new FileReader();
+      
+      // Create a promise to handle the FileReader
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        reader.onload = (e) => {
+          if (typeof e.target?.result === 'string') {
+            resolve(e.target.result);
+          } else {
+            reject(new Error('Failed to read file as text'));
+          }
+        };
+        reader.onerror = () => reject(reader.error);
+        
+        // Read the file as text
+        if (uploadedFile.type === 'application/pdf') {
+          // For PDFs, extract the filename since we can't read PDF content directly in browser
+          resolve(`AI System from document: ${uploadedFile.name}`);
+        } else {
+          reader.readAsText(uploadedFile);
+        }
+      });
+      
+      // Set a timeout to ensure the request doesn't hang indefinitely
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+      // Use the suggest/system endpoint with the extracted text
+      const response = await fetch('/api/suggest/system', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: uploadedFile.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "),
+          description: fileContent.substring(0, 5000) // Limit to first 5000 chars
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const results = await response.json();
       clearInterval(progressInterval);
       setExtractionProgress(100);
-
-      // Generate mock results based on filename
-      const mockResults = {
-        name: uploadedFile.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "),
-        description: `This AI system was extracted from the uploaded documentation. It appears to be a ${
-          uploadedFile.name.toLowerCase().includes("chatbot") 
-            ? "conversational AI system" 
-            : "machine learning model for data analysis"
-        }.`,
-        vendor: "Extracted from documentation",
-        version: "1.0",
-        department: "IT",
-        purpose: "Automatically extracted from documentation. Please review and update.",
-        riskLevel: "Limited",
-        confidenceScore: 65
-      };
-
-      setAiResults(mockResults);
-      setConfidenceScore(65);
+      
+      // Verify results
+      if (!results || typeof results !== 'object') {
+        throw new Error('Invalid response format');
+      }
+      
+      setAiResults(results);
+      setConfidenceScore(results.confidenceScore || 70);
       setAiExtractionStatus('success');
+
+      toast({
+        title: "File Processed Successfully",
+        description: "We've extracted AI system details from your file."
+      });
 
       setTimeout(() => {
         setExtractionProgress(0);
         setExtractionInProgress(false);
       }, 1000);
-    }, 3000);
+
+    } catch (error) {
+      console.error('Error extracting from file:', error);
+      clearInterval(progressInterval);
+      setExtractionProgress(0);
+      setAiExtractionStatus('error');
+      setExtractionInProgress(false);
+
+      let errorMessage = "There was an error processing your file.";
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        errorMessage = "Request timed out. The service might be experiencing delays.";
+      } else if (error instanceof Error) {
+        errorMessage = `Error: ${error.message}`;
+      }
+
+      toast({
+        title: "File Processing Failed",
+        description: errorMessage + " Please try again or enter details manually.",
+        variant: "destructive"
+      });
+      
+      // Generate fallback results to avoid breaking the UI
+      setAiResults({
+        name: uploadedFile.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "),
+        vendor: "Unknown",
+        version: "1.0",
+        department: "Information Technology",
+        purpose: "AI system extracted from document",
+        aiCapabilities: "Natural Language Processing",
+        trainingDatasets: "Proprietary data",
+        outputTypes: "Text, Recommendations",
+        usageContext: "Business operations",
+        potentialImpact: "Improved efficiency",
+        riskLevel: "Limited",
+        confidenceScore: 60
+      });
+    }
   };
 
   // Apply a specific field from AI results
@@ -880,6 +955,10 @@ export const SystemRegistration: React.FC = () => {
     }, 500);
 
     try {
+      // Set a timeout to ensure the request doesn't hang indefinitely
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      
       const response = await fetch('/api/suggest/system', {
         method: 'POST',
         headers: {
@@ -888,8 +967,11 @@ export const SystemRegistration: React.FC = () => {
         body: JSON.stringify({
           name: formData.name || aiTextInput,
           description: formData.description || aiTextInput
-        })
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -898,17 +980,21 @@ export const SystemRegistration: React.FC = () => {
       const results = await response.json();
       clearInterval(progressInterval);
       setExtractionProgress(100);
+      
+      // Verify that we have valid results
+      if (!results || typeof results !== 'object') {
+        throw new Error('Invalid response format');
+      }
+      
       setAiResults(results);
       setConfidenceScore(results.confidenceScore || 75);
       setAiExtractionStatus('success');
 
       // If we received suggestions, show a success message
-      if (results) {
-        toast({
-          title: "AI Suggestions Generated",
-          description: "AI suggestions have been generated based on your input.",
-        });
-      }
+      toast({
+        title: "AI Suggestions Generated",
+        description: "AI suggestions have been generated based on your input.",
+      });
 
       setTimeout(() => {
         setExtractionProgress(0);
@@ -921,10 +1007,33 @@ export const SystemRegistration: React.FC = () => {
       setAiExtractionStatus('error');
       setExtractionInProgress(false);
 
+      let errorMessage = "There was an error generating AI suggestions.";
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        errorMessage = "Request timed out. The AI service might be experiencing delays.";
+      } else if (error instanceof Error) {
+        errorMessage = `Error: ${error.message}`;
+      }
+
       toast({
-        title: "Suggestion Failed",
-        description: "There was an error generating AI suggestions. Please try again.",
+        title: "Suggestion Process Failed",
+        description: errorMessage + " Please try again or enter details manually.",
         variant: "destructive"
+      });
+      
+      // Generate empty results to avoid breaking the UI
+      setAiResults({
+        name: formData.name || aiTextInput || "AI System",
+        vendor: "Unknown",
+        version: "1.0",
+        department: "Information Technology",
+        purpose: formData.description || aiTextInput || "AI system for business operations",
+        aiCapabilities: "Natural Language Processing",
+        trainingDatasets: "Proprietary data",
+        outputTypes: "Text, Recommendations",
+        usageContext: "Business operations",
+        potentialImpact: "Improved efficiency",
+        riskLevel: "Limited",
+        confidenceScore: 60
       });
     }
   };
