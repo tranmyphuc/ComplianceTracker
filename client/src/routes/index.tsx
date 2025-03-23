@@ -1,5 +1,3 @@
-
-
 // Documentation Routes
 {
   path: "documentation",
@@ -14,3 +12,20 @@
   path: "risk-assessment/guides",
   element: <Suspense fallback={<PageLoader />}><RiskAssessmentGuides /></Suspense>
 },
+// ... other routes ...
+{
+  path: "/knowledge/regulatory",
+  element: <RegulatoryContent />
+},
+{
+  path: "/knowledge/glossary",
+  element: <Glossary />
+},
+{
+  path: "/knowledge/regulatory/:articleId",
+  element: <RegulatoryArticle />
+},
+{
+  path: "/documentation/training",
+  element: <TrainingDocumentation />
+}

@@ -13,7 +13,6 @@ import {
   HomeIcon,
   BrainIcon,
   XIcon,
-  SmileIcon,
   FileText,
   BookOpen,
   LightbulbIcon,
@@ -102,7 +101,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             <HomeIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Home/Dashboard</span>
           </Link>
-          
+
           <Link 
             href="/strategic-planning"
             className={cn(
@@ -126,7 +125,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             <PieChartIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Market Intelligence</span>
           </Link>
-          
+
           <Link 
             href="/operations-excellence"
             className={cn(
@@ -138,7 +137,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             <BriefcaseIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Operations Excellence</span>
           </Link>
-          
+
           <Link 
             href="/risk-management"
             className={cn(
@@ -150,7 +149,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             <AlertTriangleIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Risk Management</span>
           </Link>
-          
+
           <Link 
             href="/growth-innovation"
             className={cn(
@@ -232,6 +231,19 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
           </Link>
 
           <Link 
+            href="/documentation/training"
+            className={cn(
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              isActive("/documentation/training") && "bg-primary/10 text-primary font-medium"
+            )}
+            onClick={handleItemClick}
+          >
+            <FileTextIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
+            <span>Training Docs</span>
+          </Link>
+
+
+          <Link 
             href="/tasks"
             className={cn(
               "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
@@ -268,7 +280,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               <BrainIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>Register AI System</span>
             </Link>
-            
+
             <Link 
               href="/knowledge-center"
               className={cn(
@@ -280,7 +292,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
               <BookOpenIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>Knowledge Center</span>
             </Link>
-            
+
             <Link 
               href="/workflow"
               className={cn(
@@ -291,20 +303,6 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             >
               <NetworkIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span>AI Workflow Diagram</span>
-            </Link>
-            
-            <Link 
-              href="/regulatory-complexity"
-              className={cn(
-                "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-                isActive("/regulatory-complexity") && "bg-primary/10 text-primary font-medium",
-                "bg-cyan-50"
-              )}
-              onClick={handleItemClick}
-            >
-              <SmileIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0 text-cyan-600" />
-              <span>Complexity Meter</span>
-              <Badge variant="outline" className="ml-2 px-1.5 py-0.5 h-5 bg-cyan-100 border-cyan-200 text-cyan-700 text-[10px]">New</Badge>
             </Link>
 
             <Link 
@@ -342,7 +340,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
           </div>
         </div>
       </ScrollArea>
-      
+
       {/* Overlay for mobile */}
       {isMobile && isOpen && (
         <div 
