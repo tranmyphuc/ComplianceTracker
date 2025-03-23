@@ -10,7 +10,7 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Initialize to false to hide sidebar initially
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50">
