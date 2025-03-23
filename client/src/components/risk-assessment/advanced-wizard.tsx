@@ -702,14 +702,27 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
           })
       };
       
+      // Set up an abort controller with timeout to prevent hanging requests
+      const abortController = new AbortController();
+      let timeoutId: number | null = window.setTimeout(() => {
+        abortController.abort();
+      }, 25000); // 25 second timeout
+      
       const result = await apiRequest(`/api/suggest/system`, {
         method: 'POST',
         body: JSON.stringify({
           data: aiData,
           analysis_type: 'risk_assessment',
           category: category
-        })
+        }),
+        signal: abortController.signal
       });
+      
+      // Clear the timeout when request completes
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
       
       if (result) {
         setAiSuggestions(prev => ({
@@ -730,9 +743,20 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
       }
     } catch (error) {
       console.error("Error getting AI assistance:", error);
+      
+      let errorMessage = "Unable to generate AI recommendations. Proceed with manual assessment.";
+      
+      // Check for abort errors (timeout)
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        errorMessage = "Request timed out. The AI service might be experiencing delays.";
+      } else if (error instanceof Error) {
+        // Log the specific error but show a generic message to the user
+        console.error(`AI suggestion error details: ${error.message}`);
+      }
+      
       toast({
         title: "AI Analysis Failed",
-        description: "Unable to generate AI recommendations. Proceed with manual assessment.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
