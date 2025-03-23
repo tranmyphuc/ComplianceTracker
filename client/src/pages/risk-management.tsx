@@ -545,7 +545,7 @@ export default function RiskManagement() {
                 <div className="flex justify-between items-center">
                   <span className="text-xs">Open</span>
                   <Badge variant="outline" className="text-xs">
-                    {mockRiskEvents?.filter(e => e.status === 'new' || e.status === 'under_investigation').length || 0}
+                    {mockRiskEvents?.filter((e: RiskEvent) => e.status === 'new' || e.status === 'under_investigation').length || 0}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
