@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import AIJackImage from "../../assets/ai-jack-image.png";
-import { Smile, Brain, ClipboardList, Zap, Trophy } from "lucide-react";
 
 type AIJackMood = "happy" | "thinking" | "explaining" | "surprised" | "celebrating";
 
@@ -123,28 +121,32 @@ export function AIJack({
       >
         <div className={`rounded-full overflow-hidden ${sizeClasses[size]}`}>
           <img 
-            src={AIJackImage} 
+            src="/ai-jack-fallback.png" 
             alt="AI Jack"
             className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%234f46e5" /><text x="50" y="55" font-family="Arial" font-size="30" fill="white" text-anchor="middle">AI</text></svg>';
+            }}
           />
         </div>
         
         {/* Mood indicator */}
-        <div className="absolute bottom-0 right-0 rounded-full p-1.5 bg-white shadow-md">
+        <div className="absolute bottom-0 right-0 rounded-full p-1 bg-white shadow-md">
           {mood === "happy" && (
-            <Smile className="w-5 h-5 text-green-500" />
+            <span className="text-lg">😊</span>
           )}
           {mood === "thinking" && (
-            <Brain className="w-5 h-5 text-blue-500" />
+            <span className="text-lg">🤔</span>
           )}
           {mood === "explaining" && (
-            <ClipboardList className="w-5 h-5 text-purple-500" />
+            <span className="text-lg">📝</span>
           )}
           {mood === "surprised" && (
-            <Zap className="w-5 h-5 text-amber-500" />
+            <span className="text-lg">😲</span>
           )}
           {mood === "celebrating" && (
-            <Trophy className="w-5 h-5 text-pink-500" />
+            <span className="text-lg">🎉</span>
           )}
         </div>
       </motion.div>
