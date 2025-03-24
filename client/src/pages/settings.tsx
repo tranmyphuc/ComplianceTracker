@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent, 
   CardDescription, 
   CardHeader, 
-  CardTitle 
+  CardTitle,
+  CardFooter 
 } from "@/components/ui/card";
 import { 
   Tabs, 
@@ -33,7 +34,46 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { BellIcon, CheckIcon, RefreshCwIcon, Shield, ShieldCheck, User } from "lucide-react";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { 
+  BellIcon, 
+  CheckIcon, 
+  RefreshCwIcon, 
+  Shield, 
+  ShieldCheck, 
+  User, 
+  Key, 
+  Plus, 
+  Trash2, 
+  Edit2, 
+  Check, 
+  AlertTriangle, 
+  X, 
+  Play 
+} from "lucide-react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { apiRequest } from "@/lib/queryClient";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -73,10 +113,16 @@ export default function Settings() {
         </div>
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="account">Account</TabsTrigger>
+            <TabsTrigger value="api-keys">
+              <div className="flex items-center gap-1.5">
+                <Key className="h-4 w-4" />
+                <span>API Keys</span>
+              </div>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="general">
