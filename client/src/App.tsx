@@ -88,7 +88,8 @@ function Router() {
     "/market-intelligence",
     "/operations-excellence",
     "/growth-innovation",
-    "/guides/platform-introduction" // Added route
+    "/guides/platform-introduction", // Added route
+    "/guides/platform-guide" // Added route
   ];
 
   // For debugging - route verification results
@@ -209,6 +210,9 @@ function Router() {
       </Route>
       <Route path="/guides/platform-introduction"> {/* Added route */}
         {() => renderWithLayout(PlatformIntroduction)}
+      </Route> {/* Added route */}
+      <Route path="/guides/platform-guide"> {/* Added route */}
+        {() => renderWithLayout(PlatformGuide)}
       </Route> {/* Added route */}
       <Route>
         {() => renderWithLayout(NotFound)}

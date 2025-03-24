@@ -118,8 +118,11 @@ export default function PlatformGuide() {
             api?.on("select", () => {
               setCurrentSlide(api.selectedScrollSnap());
             });
+            // Initial slide setup
+            if (api && currentSlide > 0) {
+              api.scrollTo(currentSlide);
+            }
           }}
-          currentIndex={currentSlide}
         >
           <CarouselContent className="-ml-1">
             {slides.map((slide, index) => (
