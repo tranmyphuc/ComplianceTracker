@@ -734,6 +734,143 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // New endpoint for analyzing risk from text input
+  app.post("/api/analyze/risk-from-text", async (req: Request, res: Response) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ error: 'Valid text input is required' });
+      }
+      
+      // Create a structured system object from the text
+      const systemData: Partial<AiSystem> = {
+        description: text,
+        // Extract potential name if first line looks like a title
+        name: text.split('\n')[0].length < 80 ? text.split('\n')[0] : undefined
+      };
+      
+      // Use existing AI analysis functions to determine risk
+      const riskLevel = await determineRiskLevel(systemData);
+      const category = await analyzeSystemCategory(systemData);
+      const articles = await determineRelevantArticles(systemData);
+      const improvements = await generateImprovements(systemData);
+      
+      // Check for keywords that affect risk classification
+      const prohibitedKeywords = [];
+      const highRiskKeywords = [];
+      const limitedRiskKeywords = [];
+      
+      // Check for prohibited keywords (Unacceptable Risk - Article 5)
+      const prohibitedTerms = [
+        'social scoring', 'social credit', 'mass surveillance', 'emotion inference public', 
+        'biometric categorization', 'exploit vulnerabilities', 'manipulate persons', 
+        'manipulate behavior', 'real-time remote biometric identification'
+      ];
+      
+      // Check for high-risk keywords (Annex III areas)
+      const highRiskTerms = [
+        'critical infrastructure', 'essential services', 'transportation', 'water supply',
+        'gas', 'electricity', 'education', 'vocational training', 'employment', 'worker management',
+        'access to employment', 'self-employment', 'recruitment', 'human resources', 'HR',
+        'essential private services', 'essential public services', 'law enforcement', 'police',
+        'migration', 'asylum', 'border control', 'administration of justice', 'judicial',
+        'medical device', 'health', 'healthcare', 'medical', 'clinical', 'patient', 'hospital',
+        'safety critical', 'autonomous', 'vehicle', 'aircraft', 'rail', 'maritime', 'nuclear',
+        'credit score', 'creditworthiness', 'credit institution'
+      ];
+      
+      // Check for limited risk keywords (transparency obligations)
+      const limitedRiskTerms = [
+        'chatbot', 'virtual assistant', 'emotion recognition', 'biometric categorization',
+        'deepfake', 'deep fake', 'ai-generated', 'AI generated', 'artificially generated',
+        'synthetic content', 'content generation'
+      ];
+      
+      const lowerText = text.toLowerCase();
+      
+      for (const term of prohibitedTerms) {
+        if (lowerText.includes(term)) {
+          prohibitedKeywords.push(term);
+        }
+      }
+      
+      for (const term of highRiskTerms) {
+        if (lowerText.includes(term)) {
+          highRiskKeywords.push(term);
+        }
+      }
+      
+      for (const term of limitedRiskTerms) {
+        if (lowerText.includes(term)) {
+          limitedRiskKeywords.push(term);
+        }
+      }
+      
+      // Identify risk factors
+      const riskFactors = [];
+      
+      // Check for data privacy concerns
+      if (lowerText.includes('personal data') || 
+          lowerText.includes('sensitive data') || 
+          lowerText.includes('private information')) {
+        riskFactors.push({
+          factor: 'Data Privacy', 
+          level: 'High'
+        });
+      }
+      
+      // Check for autonomous decision-making
+      if (lowerText.includes('autonomous') || 
+          lowerText.includes('automated decision') || 
+          lowerText.includes('without human oversight')) {
+        riskFactors.push({
+          factor: 'Autonomous Decision-Making', 
+          level: 'High'
+        });
+      }
+      
+      // Check for safety-critical applications
+      if (lowerText.includes('safety critical') || 
+          lowerText.includes('life critical') || 
+          lowerText.includes('life and death')) {
+        riskFactors.push({
+          factor: 'Safety-Critical Application', 
+          level: 'High'
+        });
+      }
+      
+      // Check for vulnerable populations
+      if (lowerText.includes('children') || 
+          lowerText.includes('elderly') || 
+          lowerText.includes('vulnerable') ||
+          lowerText.includes('minority') ||
+          lowerText.includes('disabilities')) {
+        riskFactors.push({
+          factor: 'Impact on Vulnerable Populations', 
+          level: 'High'
+        });
+      }
+      
+      // Compile the results
+      const result = {
+        riskLevel,
+        systemCategory: category,
+        relevantArticles: articles,
+        suggestedImprovements: improvements,
+        analysis: {
+          prohibitedKeywords,
+          highRiskKeywords,
+          limitedRiskKeywords,
+          riskFactors
+        }
+      };
+      
+      res.json(result);
+    } catch (err) {
+      handleError(res, err as Error);
+    }
+  });
 
   app.post("/api/alerts", async (req: Request, res: Response) => {
     try {
