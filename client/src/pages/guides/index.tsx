@@ -100,7 +100,6 @@ const guides: Guide[] = [
     icon: GraduationCap,
     order: 6
   },
-  // Make sure to import Presentation from 'lucide-react' at the top of the file
   {
     id: "common-questions",
     title: "Common Questions",
@@ -109,15 +108,6 @@ const guides: Guide[] = [
     path: "/guides/common-questions",
     icon: AlertCircle,
     order: 7
-  },
-  {
-    id: "platform-introduction",
-    title: "Platform Introduction",
-    description: "Visual introduction to the EU AI Act Compliance Platform",
-    category: "getting-started",
-    path: "/guides/platform-introduction",
-    icon: Presentation,
-    order: 1
   }
 ];
 
@@ -276,5 +266,178 @@ export default function GuidesIndex() {
           </div>
         </div>
       </div>
+  );
+}
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, Lightbulb, BookOpen, BarChart4, ShieldCheck, Check } from "lucide-react";
+
+export default function GuidesIndex() {
+  return (
+    <div className="container mx-auto py-8 max-w-7xl">
+      <div className="flex flex-col gap-2 mb-8">
+        <h1 className="text-3xl font-bold">Guides & Resources</h1>
+        <p className="text-muted-foreground">
+          Explore our comprehensive guides to help you navigate the EU AI Act compliance requirements
+        </p>
+      </div>
+
+      {/* Featured Guide */}
+      <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <div className="bg-blue-600 text-white p-1 rounded">
+              <FileText className="h-5 w-5" />
+            </div>
+            <span>Featured Guide</span>
+          </CardTitle>
+          <CardDescription>
+            Visual platform tour with Jack from SGH ASIA
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-6 items-center">
+            <div className="w-full md:w-1/2">
+              <h2 className="text-xl font-semibold mb-3">EU AI Act Compliance Platform Guide</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Take a guided tour through our platform with Jack from SGH ASIA. Discover key features and learn how our solution can transform regulatory compliance into a strategic advantage for your organization.
+              </p>
+              <Button asChild>
+                <Link href="/guides/platform-guide">
+                  View Guide
+                </Link>
+              </Button>
+            </div>
+            <div className="w-full md:w-1/2">
+              <div className="aspect-video bg-white rounded-lg border overflow-hidden">
+                <img 
+                  src="/assets/image_1742743429066.png" 
+                  alt="EU AI Act Compliance Platform"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              Risk Assessment Guide
+            </CardTitle>
+            <CardDescription>
+              Learn how to assess AI systems against EU AI Act risk criteria
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-6">
+              This guide explains the EU AI Act risk categories and provides a step-by-step process for
+              evaluating your AI systems.
+            </p>
+            <Button variant="outline" size="sm" asChild className="w-full">
+              <Link to="/risk-assessment/guides">
+                View Guide
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+              Platform Overview
+            </CardTitle>
+            <CardDescription>
+              Comprehensive overview of the platform features
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-6">
+              Explore all features of the EU AI Act Compliance Platform and learn how each component
+              helps with your compliance journey.
+            </p>
+            <Button variant="outline" size="sm" asChild className="w-full">
+              <Link to="/guides/platform-overview">
+                View Guide
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart4 className="h-5 w-5 text-primary" />
+              Documentation Guide
+            </CardTitle>
+            <CardDescription>
+              Learn about required documentation for compliance
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-6">
+              This guide explains the documentation requirements for AI systems under the EU AI Act
+              and how our platform helps you manage them.
+            </p>
+            <Button variant="outline" size="sm" asChild className="w-full">
+              <Link to="/documentation">
+                View Guide
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-primary" />
+              Getting Started
+            </CardTitle>
+            <CardDescription>
+              First steps with the EU AI Act Compliance Platform
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-6">
+              A beginner's guide to help you set up and start using the platform effectively for your
+              organization's compliance needs.
+            </p>
+            <Button variant="outline" size="sm" asChild className="w-full">
+              <Link to="/onboarding">
+                View Guide
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Check className="h-5 w-5 text-primary" />
+              Compliance Checklist
+            </CardTitle>
+            <CardDescription>
+              Comprehensive checklist for EU AI Act compliance
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-6">
+              A detailed checklist covering all requirements for EU AI Act compliance, organized by
+              risk category and implementation deadline.
+            </p>
+            <Button variant="outline" size="sm" asChild className="w-full">
+              <Link to="/knowledge-center">
+                View Guide
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
