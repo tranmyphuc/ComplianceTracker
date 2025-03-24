@@ -1329,7 +1329,7 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
                               <SelectValue placeholder="Select an AI system" />
                             </SelectTrigger>
                             <SelectContent>
-                              {allSystems?.map((system) => (
+                              {Array.isArray(allSystems) && allSystems.map((system) => (
                                 <SelectItem key={system.id} value={system.systemId}>
                                   {system.name} ({system.systemId})
                                 </SelectItem>
@@ -1359,47 +1359,49 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
                     <div className="col-span-2 border rounded-lg p-4 space-y-4">
                       <div className="flex justify-between items-center">
                         <h4 className="font-medium">System Details</h4>
-                        <Badge variant="outline" className={`
-                          ${systemData?.riskLevel === 'High' ? 'bg-red-50 text-red-700 border-red-200' :
-                            systemData?.riskLevel === 'Limited' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                            'bg-green-50 text-green-700 border-green-200'}
-                        `}>
-                          {systemData?.riskLevel || 'Unknown'} Risk
-                        </Badge>
+                        {systemData && (
+                          <Badge variant="outline" className={`
+                            ${systemData.riskLevel === 'High' ? 'bg-red-50 text-red-700 border-red-200' :
+                              systemData.riskLevel === 'Limited' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                              'bg-green-50 text-green-700 border-green-200'}
+                          `}>
+                            {systemData.riskLevel || 'Unknown'} Risk
+                          </Badge>
+                        )}
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <h5 className="text-sm font-medium">System Name</h5>
-                          <p className="text-sm">{systemData?.name}</p>
+                          <p className="text-sm">{systemData?.name || 'N/A'}</p>
                         </div>
                         <div>
                           <h5 className="text-sm font-medium">Department</h5>
-                          <p className="text-sm">{systemData?.department}</p>
+                          <p className="text-sm">{systemData?.department || 'N/A'}</p>
                         </div>
                         <div>
                           <h5 className="text-sm font-medium">Vendor</h5>
-                          <p className="text-sm">{systemData?.vendor}</p>
+                          <p className="text-sm">{systemData?.vendor || 'N/A'}</p>
                         </div>
                         <div>
                           <h5 className="text-sm font-medium">Version</h5>
-                          <p className="text-sm">{systemData?.version}</p>
+                          <p className="text-sm">{systemData?.version || 'N/A'}</p>
                         </div>
                       </div>
                       
                       <div>
                         <h5 className="text-sm font-medium">Description</h5>
-                        <p className="text-sm">{systemData?.description}</p>
+                        <p className="text-sm">{systemData?.description || 'No description provided.'}</p>
                       </div>
                       
                       <div>
                         <h5 className="text-sm font-medium">Purpose</h5>
-                        <p className="text-sm">{systemData?.purpose}</p>
+                        <p className="text-sm">{systemData?.purpose || 'No purpose provided.'}</p>
                       </div>
                       
                       <div>
                         <h5 className="text-sm font-medium">AI Capabilities</h5>
-                        <p className="text-sm">{systemData?.aiCapabilities}</p>
+                        <p className="text-sm">{systemData?.aiCapabilities || 'No capabilities information provided.'}</p>
                       </div>
                     </div>
                   )
