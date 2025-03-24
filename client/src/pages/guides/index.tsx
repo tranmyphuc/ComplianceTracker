@@ -100,6 +100,7 @@ const guides: Guide[] = [
     icon: GraduationCap,
     order: 6
   },
+  // Make sure to import Presentation from 'lucide-react' at the top of the file
   {
     id: "common-questions",
     title: "Common Questions",
@@ -108,6 +109,15 @@ const guides: Guide[] = [
     path: "/guides/common-questions",
     icon: AlertCircle,
     order: 7
+  },
+  {
+    id: "platform-introduction",
+    title: "Platform Introduction",
+    description: "Visual introduction to the EU AI Act Compliance Platform",
+    category: "getting-started",
+    path: "/guides/platform-introduction",
+    icon: Presentation,
+    order: 1
   }
 ];
 

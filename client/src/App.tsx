@@ -3,7 +3,6 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { AiAssistantButton } from "@/components/ai-assistant/assistant-button";
-import { VoiceAssistantButton } from "@/components/voice-assistant";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Inventory from "@/pages/inventory";
@@ -41,6 +40,7 @@ import {
   TrainingCertificatePage as LazyTrainingCertificatePage,
   TrainingModulePage as LazyTrainingModulePage
 } from "./routes/lazy-imports.ts";
+import PlatformIntroduction from './pages/guides/platform-introduction'; //Added import
 
 
 function Router() {
@@ -86,7 +86,8 @@ function Router() {
     "/settings",
     "/market-intelligence",
     "/operations-excellence",
-    "/growth-innovation"
+    "/growth-innovation",
+    "/guides/platform-introduction" // Added route
   ];
 
   // For debugging - route verification results
@@ -205,6 +206,9 @@ function Router() {
       <Route path="/growth-innovation">
         {() => renderWithLayout(GrowthInnovation)}
       </Route>
+      <Route path="/guides/platform-introduction"> {/* Added route */}
+        {() => renderWithLayout(PlatformIntroduction)}
+      </Route> {/* Added route */}
       <Route>
         {() => renderWithLayout(NotFound)}
       </Route>
@@ -219,7 +223,6 @@ function App() {
         <ToastProvider>
           <Router />
           <AiAssistantButton />
-          <VoiceAssistantButton />
           <Toaster />
         </ToastProvider>
       </AuthProvider>
