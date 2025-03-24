@@ -446,6 +446,47 @@ export class MemStorage implements IStorage {
   getRiskEventByEventId(eventId: string): Promise<any> { throw new Error("Method not implemented."); }
   getRiskEventsBySystemId(systemId: string): Promise<any[]> { throw new Error("Method not implemented."); }
   updateRiskEvent(eventId: string, updates: any): Promise<any> { throw new Error("Method not implemented."); }
+
+  // Approval Item operations
+  createApprovalItem(item: InsertApprovalItem): Promise<ApprovalItem> { throw new Error("Method not implemented."); }
+  getApprovalItem(id: number): Promise<ApprovalItem | undefined> { throw new Error("Method not implemented."); }
+  getApprovalItemByWorkflowId(workflowId: string): Promise<ApprovalItem | undefined> { throw new Error("Method not implemented."); }
+  getAllApprovalItems(options?: { 
+    status?: string;
+    moduleType?: string;
+    priority?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<ApprovalItem[]> { throw new Error("Method not implemented."); }
+  updateApprovalItem(workflowId: string, updates: Partial<ApprovalItem>): Promise<ApprovalItem | undefined> { throw new Error("Method not implemented."); }
+  
+  // Approval Assignment operations
+  createApprovalAssignment(assignment: InsertApprovalAssignment): Promise<ApprovalAssignment> { throw new Error("Method not implemented."); }
+  getApprovalAssignment(id: number): Promise<ApprovalAssignment | undefined> { throw new Error("Method not implemented."); }
+  getApprovalAssignmentsByWorkflowId(workflowId: string): Promise<ApprovalAssignment[]> { throw new Error("Method not implemented."); }
+  getApprovalAssignmentsByUserId(userId: string): Promise<ApprovalAssignment[]> { throw new Error("Method not implemented."); }
+  updateApprovalAssignment(id: number, updates: Partial<ApprovalAssignment>): Promise<ApprovalAssignment | undefined> { throw new Error("Method not implemented."); }
+  
+  // Approval History operations
+  createApprovalHistory(history: InsertApprovalHistory): Promise<ApprovalHistory> { throw new Error("Method not implemented."); }
+  getApprovalHistoryByWorkflowId(workflowId: string): Promise<ApprovalHistory[]> { throw new Error("Method not implemented."); }
+  
+  // Approval Notification operations
+  createApprovalNotification(notification: InsertApprovalNotification): Promise<ApprovalNotification> { throw new Error("Method not implemented."); }
+  getApprovalNotificationsByUserId(userId: string, options?: {
+    isRead?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<ApprovalNotification[]> { throw new Error("Method not implemented."); }
+  markNotificationsAsRead(notificationIds: number[]): Promise<void> { throw new Error("Method not implemented."); }
+  
+  // Approval Settings operations
+  getApprovalSettings(userId: string): Promise<ApprovalSettings | undefined> { throw new Error("Method not implemented."); }
+  createApprovalSettings(settings: InsertApprovalSettings): Promise<ApprovalSettings> { throw new Error("Method not implemented."); }
+  updateApprovalSettings(userId: string, updates: Partial<ApprovalSettings>): Promise<ApprovalSettings | undefined> { throw new Error("Method not implemented."); }
 }
 
 

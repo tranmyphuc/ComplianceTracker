@@ -1571,6 +1571,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize continuous monitoring system
   initializeMonitoring().catch(err => console.error('Error initializing monitoring:', err));
 
+  // ==========================================
+  // Approval Workflow Routes
+  // ==========================================
+
+  // Create a new approval workflow
+  app.post("/api/approval-workflows", createApprovalWorkflow);
+
+  // Get approval workflows with filtering and pagination
+  app.get("/api/approval-workflows", getApprovalWorkflows);
+
+  // Get a specific approval workflow by ID
+  app.get("/api/approval-workflows/:id", getApprovalWorkflowById);
+
+  // Update an approval workflow status
+  app.put("/api/approval-workflows/:id/status", updateApprovalStatus);
+
+  // Assign an approval workflow to a user
+  app.post("/api/approval-workflows/:id/assign", assignApprovalWorkflow);
+
+  // Get user notifications with pagination
+  app.get("/api/notifications", getUserNotifications);
+
+  // Mark notifications as read
+  app.put("/api/notifications/mark-read", markNotificationsAsRead);
+
+  // Get unread notification count
+  app.get("/api/notifications/unread-count", getUnreadNotificationCount);
+
+  // Get user approval settings
+  app.get("/api/approval-settings", getUserApprovalSettings);
+
+  // Update user approval settings
+  app.put("/api/approval-settings", updateUserApprovalSettings);
+
+  // Get approval statistics
+  app.get("/api/approval-statistics", getApprovalStatistics);
+
+  // Schedule reminder checks (this would typically be called by a cron job)
+  app.post("/api/approval-workflows/schedule-reminders", async (req: Request, res: Response) => {
+    try {
+      await scheduleReminders();
+      res.json({ success: true, message: "Reminders scheduled successfully" });
+    } catch (err) {
+      handleError(res, err as Error);
+    }
+  });
+
   // Setup HTTP server
   const httpServer = createServer(app);
   return httpServer;
