@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
@@ -11,8 +11,10 @@ import {
   SelectValue 
 } from "../ui/select";
 import { Badge } from "../ui/badge";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Bot, SparklesIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Button } from "../ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface RiskAssessmentStepProps {
   formData: {
@@ -29,14 +31,25 @@ interface RiskAssessmentStepProps {
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   aiSystemAnalysis?: any;
   errors?: Record<string, string>;
+  sghAsiaAiResults?: any;
+  setSghAsiaAiResults: React.Dispatch<React.SetStateAction<any>>;
+  sghAsiaAiInProgress: boolean;
+  setSghAsiaAiInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
   formData,
   setFormData,
   aiSystemAnalysis,
-  errors = {}
+  errors = {},
+  sghAsiaAiResults,
+  setSghAsiaAiResults,
+  sghAsiaAiInProgress,
+  setSghAsiaAiInProgress
 }) => {
+  const { toast } = useToast();
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev: any) => ({ ...prev, [name]: value }));
@@ -50,27 +63,115 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
     setFormData((prev: any) => ({ ...prev, [name]: checked }));
   };
 
+  // Handle AI Risk Analysis
+  const analyzeRiskWithAI = async () => {
+    if (isAnalyzing) return;
+    
+    setIsAnalyzing(true);
+    setSghAsiaAiInProgress(true);
+    
+    try {
+      const response = await fetch('/api/analyze/system', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const results = await response.json();
+      setSghAsiaAiResults(results);
+
+      // Update risk level in form
+      if (results.riskLevel) {
+        setFormData(prev => ({
+          ...prev,
+          riskLevel: results.riskLevel
+        }));
+      }
+
+      // Generate potential impact if empty
+      if (!formData.potentialImpact && results.potentialImpact) {
+        setFormData(prev => ({
+          ...prev,
+          potentialImpact: results.potentialImpact
+        }));
+      }
+
+      toast({
+        title: "AI Analysis Complete",
+        description: "SGH ASIA AI has analyzed your system and suggested a risk level.",
+      });
+    } catch (error) {
+      console.error('Error analyzing risk:', error);
+      toast({
+        title: "Analysis Failed",
+        description: "There was an error analyzing your AI system. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+      setSghAsiaAiInProgress(false);
+    }
+  };
+
   // Use AI analysis to highlight risk levels
-  const showAiAnalysis = !!aiSystemAnalysis;
+  const showAiAnalysis = !!sghAsiaAiResults;
   
   const aiAnalysisRiskLevel = showAiAnalysis 
-    ? aiSystemAnalysis.riskLevel || 'unknown'
+    ? sghAsiaAiResults.riskLevel || 'unknown'
     : null;
     
   const aiAnalysisCategory = showAiAnalysis 
-    ? aiSystemAnalysis.category || null
+    ? sghAsiaAiResults.category || null
     : null;
     
-  const relevantArticles = showAiAnalysis && Array.isArray(aiSystemAnalysis.relevantArticles)
-    ? aiSystemAnalysis.relevantArticles
+  const relevantArticles = showAiAnalysis && Array.isArray(sghAsiaAiResults.relevantArticles)
+    ? sghAsiaAiResults.relevantArticles
     : [];
     
-  const suggestedImprovements = showAiAnalysis && Array.isArray(aiSystemAnalysis.suggestedImprovements)
-    ? aiSystemAnalysis.suggestedImprovements
+  const suggestedImprovements = showAiAnalysis && Array.isArray(sghAsiaAiResults.suggestedImprovements)
+    ? sghAsiaAiResults.suggestedImprovements
     : [];
 
   return (
     <div className="space-y-6">
+      {/* SGH AI Assistant Risk Analyzer Banner */}
+      <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-lg p-4 shadow-md border border-blue-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-white rounded-full p-2 h-10 w-10 flex items-center justify-center">
+              <Bot className="h-6 w-6 text-blue-700" />
+            </div>
+            <div>
+              <h3 className="font-medium text-white">SGH AI Risk Analyzer</h3>
+              <p className="text-blue-100 text-sm">Auto-analyze system risk level based on Steps 1 & 2</p>
+            </div>
+          </div>
+          <Button 
+            onClick={analyzeRiskWithAI} 
+            disabled={isAnalyzing || sghAsiaAiInProgress}
+            className="bg-white text-blue-800 hover:bg-blue-50 flex items-center gap-2"
+          >
+            {isAnalyzing ? (
+              <>
+                <div className="h-4 w-4 border-2 border-blue-800 border-t-transparent rounded-full animate-spin"></div>
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <SparklesIcon className="h-4 w-4" />
+                Suggest Risk Level
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
       {showAiAnalysis && (
         <Alert variant={aiAnalysisRiskLevel === "high" ? "destructive" : "default"}>
           <AlertCircle className="h-4 w-4" />
@@ -93,7 +194,18 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
       
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="riskLevel">Estimated Risk Level <span className="text-red-500">*</span></Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="riskLevel">Estimated Risk Level <span className="text-red-500">*</span></Label>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={analyzeRiskWithAI} 
+              disabled={isAnalyzing || sghAsiaAiInProgress}
+              className="h-7 px-2 text-xs text-blue-700"
+            >
+              {isAnalyzing ? "Analyzing..." : "Use SGH AI Suggestion"}
+            </Button>
+          </div>
           <Select
             value={formData.riskLevel}
             onValueChange={(value) => handleSelectChange('riskLevel', value)}
