@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -85,6 +86,7 @@ interface RiskWizardProps {
 
 export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWizardProps) {
   const { toast } = useToast();
+  const [_, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState('system-info');
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [assessmentResult, setAssessmentResult] = useState<AssessmentResult | null>(null);
@@ -858,15 +860,53 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
       // Set assessment result
       setAssessmentResult(result);
       
-      // Call onComplete callback if provided
-      if (onComplete) {
-        onComplete(result);
+      // Save assessment to database
+      try {
+        const response = await apiRequest('/api/risk-assessments', {
+          method: 'POST',
+          data: {
+            assessmentId: result.assessmentId,
+            systemId: result.systemId,
+            date: result.date,
+            assessor: result.assessor,
+            riskLevel: result.riskLevel,
+            overallScore: result.overallScore,
+            prohibitedUse: result.prohibitedUse,
+            prohibitedJustification: result.prohibitedJustification || "",
+            recommendations: result.recommendations,
+            requiredDocumentation: result.requiredDocumentation,
+            relevantArticles: result.relevantArticles,
+            complianceGaps: result.complianceGaps,
+            nextSteps: result.nextSteps,
+            categoryScores: JSON.stringify(result.categoryScores)
+          }
+        });
+        
+        console.log("Assessment saved:", response);
+        
+        // Call onComplete callback if provided
+        if (onComplete) {
+          onComplete(result);
+        }
+        
+        toast({
+          title: "Risk Assessment Complete",
+          description: `Your assessment has been saved and will redirect to Risk Management.`,
+        });
+        
+        // Redirect to Risk Management page after a short delay
+        // Use window.location for navigation since we're in a callback
+        setTimeout(() => {
+          window.location.href = '/risk-management';
+        }, 1500);
+      } catch (saveError) {
+        console.error("Error saving assessment:", saveError);
+        toast({
+          title: "Save Error",
+          description: "The assessment was completed but could not be saved. Please try again.",
+          variant: "destructive"
+        });
       }
-      
-      toast({
-        title: "Risk Assessment Complete",
-        description: `Your system has been classified as ${riskLevel} risk.`,
-      });
     } catch (error) {
       console.error("Error completing assessment:", error);
       toast({
