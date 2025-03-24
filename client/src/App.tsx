@@ -41,6 +41,7 @@ import {
   TrainingModulePage as LazyTrainingModulePage
 } from "./routes/lazy-imports.ts";
 import PlatformIntroduction from './pages/guides/platform-introduction'; //Added import
+import PlatformGuide from './pages/guides/platform-guide'; //Added import
 
 
 function Router() {
