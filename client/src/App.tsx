@@ -25,6 +25,9 @@ import OperationsExcellence from "@/pages/operations-excellence";
 import GrowthInnovation from "@/pages/growth-innovation";
 import TextRiskAnalyzerPage from "@/pages/risk-assessment/text-analyzer";
 import ApprovalWorkflowPage from "@/pages/approval-workflow";
+import GuidesIndex from "@/pages/guides";
+import PlatformOverviewGuide from "@/pages/guides/platform-overview";
+import RiskAssessmentGuide from "@/pages/guides/risk-assessment-guide";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -86,7 +89,10 @@ function Router() {
     "/settings",
     "/market-intelligence",
     "/operations-excellence",
-    "/growth-innovation"
+    "/growth-innovation",
+    "/guides",
+    "/guides/platform-overview",
+    "/guides/risk-assessment-guide"
   ];
 
   // For debugging - route verification results
@@ -204,6 +210,15 @@ function Router() {
       </Route>
       <Route path="/growth-innovation">
         {() => renderWithLayout(GrowthInnovation)}
+      </Route>
+      <Route path="/guides">
+        {() => renderWithLayout(GuidesIndex)}
+      </Route>
+      <Route path="/guides/platform-overview">
+        {() => renderWithLayout(PlatformOverviewGuide)}
+      </Route>
+      <Route path="/guides/risk-assessment-guide">
+        {() => renderWithLayout(RiskAssessmentGuide)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}
