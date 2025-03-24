@@ -959,6 +959,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chatbot endpoint using DeepSeek AI
   app.post("/api/chatbot/query", handleChatbotQuery);
 
+  // Risk Management Routes
+  app.get("/api/risk-management/assessments", async (req: Request, res: Response) => {
+    try {
+      // Get all risk assessments for risk management
+      const assessments = await storage.getAllRiskAssessments();
+      res.json(assessments);
+    } catch (err) {
+      handleError(res, err as Error);
+    }
+  });
+
+  app.get("/api/risk-management/systems", async (req: Request, res: Response) => {
+    try {
+      // Get all AI systems with their associated risk assessments
+      const systems = await storage.getAllAiSystems();
+      const result = await Promise.all(systems.map(async (system) => {
+        const assessments = await storage.getRiskAssessmentsForSystem(system.systemId);
+        return {
+          ...system,
+          assessments: assessments || []
+        };
+      }));
+      res.json(result);
+    } catch (err) {
+      handleError(res, err as Error);
+    }
+  });
+
   // Risk Assessment Routes
   app.get("/api/risk-assessments/system/:systemId", async (req: Request, res: Response) => {
     try {

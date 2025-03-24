@@ -54,6 +54,7 @@ export interface IStorage {
   getRiskAssessment(id: number): Promise<RiskAssessment | undefined>;
   getRiskAssessmentByAssessmentId(assessmentId: string): Promise<RiskAssessment | undefined>;
   getRiskAssessmentsForSystem(systemId: string): Promise<RiskAssessment[]>;
+  getAllRiskAssessments(): Promise<RiskAssessment[]>;
   createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment>;
   updateRiskAssessment(id: number, assessment: Partial<RiskAssessment>): Promise<RiskAssessment | undefined>;
 
