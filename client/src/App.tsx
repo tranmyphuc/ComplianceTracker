@@ -210,13 +210,13 @@ function Router() {
         {() => renderWithLayout(GrowthInnovation)}
       </Route>
       <Route path="/guides">
-        {() => renderWithLayout(lazy(() => import('./pages/guides')))}
+        {() => renderSuspense(lazy(() => import('./pages/guides')))}
       </Route>
       <Route path="/guides/platform-introduction"> {/* Added route */}
-        {() => renderWithLayout(PlatformIntroduction)}
+        {() => renderSuspense(PlatformIntroduction)}
       </Route> {/* Added route */}
       <Route path="/guides/platform-guide"> {/* Added route */}
-        {() => renderWithLayout(PlatformGuide)}
+        {() => renderSuspense(PlatformGuide)}
       </Route> {/* Added route */}
       <Route>
         {() => renderWithLayout(NotFound)}
