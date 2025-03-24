@@ -2,6 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Improved Mobile Responsiveness */
+@layer utilities {
+  .responsive-container {
+    @apply container px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
+  }
+  
+  .responsive-grid {
+    @apply grid gap-4 sm:gap-6 lg:gap-8;
+  }
+  
+  .responsive-card {
+    @apply shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+  
+  /* Extra padding for mobile touch targets */
+  .mobile-friendly-button {
+    @apply py-2.5 px-4 sm:py-2 sm:px-3;
+  }
+  
+  /* Better scrolling experience on mobile */
+  .smooth-scroll {
+    @apply scroll-smooth overscroll-contain;
+  }
+  
+  /* Responsive text sizes */
+  .responsive-heading {
+    @apply text-2xl sm:text-3xl font-bold;
+  }
+  
+  .responsive-subheading {
+    @apply text-lg sm:text-xl font-semibold;
+  }
+}
+
+/* Improved touch experience for mobile */
+@media (max-width: 640px) {
+  button, 
+  [role="button"],
+  .interactive-element {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  input, 
+  select, 
+  textarea {
+    @apply text-base;
+  }
+}
+
+/* Enhance dark mode for mobile devices */
+@media (prefers-color-scheme: dark) {
+  .dark body {
+    @apply bg-gray-950;
+  }
+}
+
 @layer base {
   :root {
     --background: 210 40% 98%;
