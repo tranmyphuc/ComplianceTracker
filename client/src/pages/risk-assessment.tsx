@@ -10,9 +10,11 @@ import {
   ShieldCheckIcon, 
   ArrowRightIcon,
   InfoIcon,
-  ClipboardListIcon
+  ClipboardListIcon,
+  FileTextIcon,
+  ScanTextIcon
 } from "lucide-react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 
 export default function RiskAssessment() {
   const [activeTab, setActiveTab] = useState("advanced-wizard");
@@ -29,9 +31,37 @@ export default function RiskAssessment() {
 
   return (
     <div className="p-4 md:p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-neutral-800">Risk Assessment</h1>
-        <p className="text-neutral-500 mt-1">Evaluate and classify AI systems based on EU AI Act requirements</p>
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-semibold text-neutral-800">Risk Assessment</h1>
+          <p className="text-neutral-500 mt-1">Evaluate and classify AI systems based on EU AI Act requirements</p>
+        </div>
+        
+        <div className="flex gap-2">
+          <Link href="/risk-assessment/text-analyzer">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-1"
+            >
+              <ScanTextIcon className="h-4 w-4" />
+              <span className="hidden sm:inline-block">Text Risk Analyzer</span>
+              <span className="inline-block sm:hidden">Analyze Text</span>
+            </Button>
+          </Link>
+          
+          <Link href="/register-system">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1"
+            >
+              <RocketIcon className="h-4 w-4" />
+              <span className="hidden sm:inline-block">Register New System</span>
+              <span className="inline-block sm:hidden">Register</span>
+            </Button>
+          </Link>
+        </div>
       </div>
       
       {systemId ? (
@@ -75,17 +105,6 @@ export default function RiskAssessment() {
               <span className="inline-block sm:hidden">Standard</span>
             </TabsTrigger>
           </TabsList>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1"
-            onClick={() => navigate("/register-system")}
-          >
-            <RocketIcon className="h-4 w-4" />
-            <span className="hidden sm:inline-block">Register New System</span>
-            <span className="inline-block sm:hidden">Register</span>
-          </Button>
         </div>
         
         <TabsContent value="advanced-wizard" className="mt-6">

@@ -23,6 +23,7 @@ import RiskManagement from "@/pages/risk-management";
 import MarketIntelligence from "@/pages/market-intelligence";
 import OperationsExcellence from "@/pages/operations-excellence";
 import GrowthInnovation from "@/pages/growth-innovation";
+import TextRiskAnalyzerPage from "@/pages/risk-assessment/text-analyzer";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -60,6 +61,7 @@ function Router() {
     "/inventory",
     "/risk-assessment",
     "/risk-assessment/guides",
+    "/risk-assessment/text-analyzer",
     "/documentation",
     "/documentation/risk-assessment",
     "/documentation/training-documentation", 
