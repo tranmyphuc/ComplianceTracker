@@ -122,6 +122,11 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
     queryKey: ['/api/systems', systemId],
     enabled: !!systemId,
   });
+  
+  // Query all systems for dropdown
+  const { data: allSystems, isLoading: isAllSystemsLoading } = useQuery({
+    queryKey: ['/api/systems'],
+  });
 
   // Tabs configuration
   const tabs = [
@@ -1298,6 +1303,47 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
               <Separator />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* System selector or display section */}
+                <div className="col-span-2 mb-4">
+                  {!systemId && (
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="font-medium mb-2">Select an Existing AI System</h4>
+                        <p className="text-sm text-neutral-500 mb-4">
+                          Choose an existing AI system from the dropdown to perform a comprehensive risk assessment,
+                          or enter details manually below if you're assessing a new system.
+                        </p>
+                        
+                        {isAllSystemsLoading ? (
+                          <Skeleton className="h-10 w-full" />
+                        ) : (
+                          <Select
+                            onValueChange={(value) => {
+                              if (value) {
+                                // Navigate to the same page with systemId parameter
+                                navigate(`/risk-assessment?systemId=${value}`);
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select an AI system" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {allSystems?.map((system) => (
+                                <SelectItem key={system.id} value={system.systemId}>
+                                  {system.name} ({system.systemId})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </div>
+                      <Separator />
+                      <h4 className="font-medium pt-2">Or Enter AI System Details Manually</h4>
+                    </div>
+                  )}
+                </div>
+                
                 {systemId ? (
                   // If system is selected, show its information
                   isSystemLoading ? (
