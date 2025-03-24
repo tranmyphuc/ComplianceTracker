@@ -24,10 +24,6 @@ import MarketIntelligence from "@/pages/market-intelligence";
 import OperationsExcellence from "@/pages/operations-excellence";
 import GrowthInnovation from "@/pages/growth-innovation";
 import TextRiskAnalyzerPage from "@/pages/risk-assessment/text-analyzer";
-import ApprovalWorkflowPage from "@/pages/approval-workflow";
-import GuidesIndex from "@/pages/guides";
-import PlatformOverviewGuide from "@/pages/guides/platform-overview";
-import RiskAssessmentGuide from "@/pages/guides/risk-assessment-guide";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -71,6 +67,7 @@ function Router() {
     "/documentation/training-documentation", 
     "/register-system",
     "/knowledge-center",
+    "/knowledge-center/iso42001",
     "/compliance",
     "/governance",
     "/reports",
@@ -83,16 +80,12 @@ function Router() {
     "/strategic-planning",
     "/regulatory-complexity",
     "/workflow",
-    "/approval-workflow",
     "/onboarding",
     "/profile",
     "/settings",
     "/market-intelligence",
     "/operations-excellence",
-    "/growth-innovation",
-    "/guides",
-    "/guides/platform-overview",
-    "/guides/risk-assessment-guide"
+    "/growth-innovation"
   ];
 
   // For debugging - route verification results
@@ -154,6 +147,9 @@ function Router() {
       <Route path="/knowledge-center">
         {() => renderWithLayout(KnowledgeCenter)}
       </Route>
+      <Route path="/knowledge-center/iso42001">
+        {() => renderSuspense(lazy(() => import('./pages/knowledge-center/iso42001')))}
+      </Route>
       <Route path="/compliance">
         {() => renderWithLayout(Documentation)}
       </Route>
@@ -177,9 +173,6 @@ function Router() {
       </Route>
       <Route path="/workflow">
         {() => renderWithLayout(Workflow)}
-      </Route>
-      <Route path="/approval-workflow">
-        {() => renderWithLayout(ApprovalWorkflowPage)}
       </Route>
       <Route path="/strategic-planning">
         {() => renderWithLayout(StrategicPlanning)}
@@ -210,15 +203,6 @@ function Router() {
       </Route>
       <Route path="/growth-innovation">
         {() => renderWithLayout(GrowthInnovation)}
-      </Route>
-      <Route path="/guides">
-        {() => renderWithLayout(GuidesIndex)}
-      </Route>
-      <Route path="/guides/platform-overview">
-        {() => renderWithLayout(PlatformOverviewGuide)}
-      </Route>
-      <Route path="/guides/risk-assessment-guide">
-        {() => renderWithLayout(RiskAssessmentGuide)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}
