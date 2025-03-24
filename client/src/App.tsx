@@ -88,6 +88,7 @@ function Router() {
     "/market-intelligence",
     "/operations-excellence",
     "/growth-innovation",
+    "/guides",
     "/guides/platform-introduction", // Added route
     "/guides/platform-guide" // Added route
   ];
@@ -207,6 +208,9 @@ function Router() {
       </Route>
       <Route path="/growth-innovation">
         {() => renderWithLayout(GrowthInnovation)}
+      </Route>
+      <Route path="/guides">
+        {() => renderWithLayout(lazy(() => import('./pages/guides')))}
       </Route>
       <Route path="/guides/platform-introduction"> {/* Added route */}
         {() => renderWithLayout(PlatformIntroduction)}
