@@ -2,6 +2,40 @@ import { pgTable, text, serial, integer, boolean, timestamp, jsonb, uuid } from 
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Enums for approval workflow
+export enum ApprovalStatus {
+  PENDING = "pending",
+  IN_REVIEW = "in_review",
+  APPROVED = "approved",
+  REJECTED = "rejected",
+  CANCELLED = "cancelled"
+}
+
+export enum ApprovalPriority {
+  HIGH = "high",
+  MEDIUM = "medium",
+  LOW = "low"
+}
+
+export enum ModuleType {
+  RISK_ASSESSMENT = "risk_assessment",
+  SYSTEM_REGISTRATION = "system_registration", 
+  DOCUMENT = "document",
+  TRAINING = "training"
+}
+
+export enum NotificationFrequency {
+  IMMEDIATELY = "immediately",
+  DAILY = "daily",
+  WEEKLY = "weekly"
+}
+
+export enum Language {
+  ENGLISH = "en",
+  VIETNAMESE = "vi",
+  GERMAN = "de"
+}
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   uid: text("uid").notNull().unique(),
@@ -133,6 +167,85 @@ export const trainingProgress = pgTable("training_progress", {
   completion: integer("completion").default(0),
   assessmentScore: integer("assessment_score"),
   lastAttemptDate: timestamp("last_attempt_date"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Approval workflow tables
+export const approvalItems = pgTable("approval_items", {
+  id: serial("id").primaryKey(),
+  workflowId: text("workflow_id").notNull().unique(), // Unique identifier for the approval workflow
+  moduleType: text("module_type").notNull(), // risk_assessment, system_registration, document, training
+  moduleId: text("module_id").notNull(), // ID of the item being approved (assessmentId, systemId, etc.)
+  name: text("name").notNull(), // Name of the item
+  description: text("description"),
+  submittedBy: text("submitted_by").references(() => users.uid),
+  submitterName: text("submitter_name"), // Display name of submitter
+  department: text("department"),
+  submittedDate: timestamp("submitted_date").defaultNow(),
+  dueDate: timestamp("due_date"),
+  status: text("status").default("pending").notNull(), // pending, in_review, approved, rejected, cancelled
+  priority: text("priority").default("medium").notNull(), // high, medium, low
+  details: jsonb("details"), // JSON object with additional details specific to the module type
+  language: text("language").default("en").notNull(), // en, vi, de
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const approvalAssignments = pgTable("approval_assignments", {
+  id: serial("id").primaryKey(),
+  workflowId: text("workflow_id").references(() => approvalItems.workflowId).notNull(),
+  assignedTo: text("assigned_to").references(() => users.uid).notNull(),
+  assignedBy: text("assigned_by").references(() => users.uid),
+  assignedDate: timestamp("assigned_date").defaultNow(),
+  dueDate: timestamp("due_date"),
+  isAutoAssigned: boolean("is_auto_assigned").default(false),
+  status: text("status").default("pending").notNull(), // pending, in_progress, completed
+  priority: text("priority").default("medium").notNull(), // high, medium, low
+  comments: text("comments"),
+  completedDate: timestamp("completed_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const approvalHistory = pgTable("approval_history", {
+  id: serial("id").primaryKey(),
+  workflowId: text("workflow_id").references(() => approvalItems.workflowId).notNull(),
+  actionType: text("action_type").notNull(), // submitted, assigned, reviewed, approved, rejected, reassigned, cancelled
+  actionBy: text("action_by").references(() => users.uid),
+  actionByName: text("action_by_name"), // Display name of the person who performed the action
+  actionDate: timestamp("action_date").defaultNow(),
+  details: jsonb("details"), // JSON object with additional details about the action
+  comments: text("comments"),
+  previousStatus: text("previous_status"),
+  newStatus: text("new_status"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const approvalNotifications = pgTable("approval_notifications", {
+  id: serial("id").primaryKey(),
+  workflowId: text("workflow_id").references(() => approvalItems.workflowId).notNull(),
+  userId: text("user_id").references(() => users.uid).notNull(),
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  priority: text("priority").default("medium").notNull(), // high, medium, low
+  type: text("type").notNull(), // assignment, update, reminder, deadline
+  relatedAction: text("related_action"), // Reference to an action in the approval history
+  language: text("language").default("en").notNull(), // en, vi, de
+});
+
+export const approvalSettings = pgTable("approval_settings", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").references(() => users.uid).notNull(),
+  autoAssignEnabled: boolean("auto_assign_enabled").default(true),
+  defaultAssignees: jsonb("default_assignees").default([]), // Array of user IDs for auto-assignment
+  notificationFrequency: text("notification_frequency").default("immediately").notNull(), // immediately, daily, weekly
+  emailNotificationsEnabled: boolean("email_notifications_enabled").default(true),
+  language: text("language").default("en").notNull(), // en, vi, de
+  departmentRules: jsonb("department_rules").default([]), // Rules for department-based routing
+  moduleTypeRules: jsonb("module_type_rules").default([]), // Rules for module-type-based routing
+  createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
