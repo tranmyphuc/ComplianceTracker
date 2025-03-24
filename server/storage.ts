@@ -347,6 +347,11 @@ export class MemStorage implements IStorage {
       .sort((a, b) => b.assessmentDate.getTime() - a.assessmentDate.getTime());
   }
 
+  async getAllRiskAssessments(): Promise<RiskAssessment[]> {
+    return Array.from(this.riskAssessments.values())
+      .sort((a, b) => b.assessmentDate.getTime() - a.assessmentDate.getTime());
+  }
+
   async createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment> {
     const id = this.riskAssessmentIdCounter++;
     const now = new Date();
@@ -609,6 +614,13 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(riskAssessments)
       .where(eq(riskAssessments.systemId, systemId))
+      .orderBy(desc(riskAssessments.assessmentDate));
+  }
+
+  async getAllRiskAssessments(): Promise<RiskAssessment[]> {
+    return await db
+      .select()
+      .from(riskAssessments)
       .orderBy(desc(riskAssessments.assessmentDate));
   }
 

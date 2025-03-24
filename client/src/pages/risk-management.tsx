@@ -159,22 +159,26 @@ export default function RiskManagement() {
     queryKey: ['/api/systems'],
   });
 
-  // Fetch risk management systems
+  // Fetch all risk assessments for Risk Management
+  const { data: riskAssessments, isLoading: isLoadingAssessments } = useQuery({
+    queryKey: ['/api/risk-management/assessments'],
+  });
+
+  // Fetch risk management systems with assessments
   const { data: riskManagementSystems, isLoading: isLoadingRms, refetch: refetchRms } = useQuery({
     queryKey: ['/api/risk-management/systems'],
-    enabled: false, // Will be enabled when endpoint is available
   });
 
   // Fetch risk controls for the selected system
   const { data: riskControls, isLoading: isLoadingControls, refetch: refetchControls } = useQuery({
     queryKey: ['/api/risk-management/controls', selectedSystem],
-    enabled: !!selectedSystem && false, // Will be enabled when endpoint is available
+    enabled: !!selectedSystem && false, // Will be enabled later when endpoint is available
   });
 
   // Fetch risk events for the selected system
   const { data: riskEvents, isLoading: isLoadingEvents, refetch: refetchEvents } = useQuery({
     queryKey: ['/api/risk-management/events', selectedSystem],
-    enabled: !!selectedSystem && false, // Will be enabled when endpoint is available
+    enabled: !!selectedSystem && false, // Will be enabled later when endpoint is available
   });
 
   // Simulate data for development (remove this when backend is available)
