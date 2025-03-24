@@ -24,6 +24,7 @@ import MarketIntelligence from "@/pages/market-intelligence";
 import OperationsExcellence from "@/pages/operations-excellence";
 import GrowthInnovation from "@/pages/growth-innovation";
 import TextRiskAnalyzerPage from "@/pages/risk-assessment/text-analyzer";
+import ApprovalWorkflowPage from "@/pages/approval-workflow";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -79,6 +80,7 @@ function Router() {
     "/strategic-planning",
     "/regulatory-complexity",
     "/workflow",
+    "/approval-workflow",
     "/onboarding",
     "/profile",
     "/settings",
@@ -169,6 +171,9 @@ function Router() {
       </Route>
       <Route path="/workflow">
         {() => renderWithLayout(Workflow)}
+      </Route>
+      <Route path="/approval-workflow">
+        {() => renderWithLayout(ApprovalWorkflowPage)}
       </Route>
       <Route path="/strategic-planning">
         {() => renderWithLayout(StrategicPlanning)}

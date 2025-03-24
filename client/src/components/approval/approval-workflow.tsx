@@ -154,8 +154,8 @@ export const ApprovalWorkflow = () => {
       apiRequest("/api/approval/workflows", {
         params: {
           status: activeTab !== "all" ? activeTab : undefined,
-          page: currentPage,
-          limit: pageSize,
+          page: currentPage.toString(),
+          limit: pageSize.toString(),
           search: searchTerm || undefined,
         },
       }),
