@@ -94,14 +94,30 @@ export function RiskAssessmentWizard({ systemId }: { systemId?: string }) {
     setAiAnalysisLoading(true);
     
     try {
-      const response = await fetch(`/api/risk-assessment/${systemId}`);
+      // Use the correct endpoint to analyze the system risk
+      const response = await fetch(`/api/risk-assessment/${systemId}/analyze`);
       
       if (!response.ok) {
-        throw new Error("Failed to analyze system risk");
+        throw new Error(`Failed to analyze system risk: ${response.status} ${response.statusText}`);
       }
       
       const data = await response.json();
-      setAiAnalysisResults(data);
+      
+      if (!data) {
+        throw new Error("Analysis returned empty results");
+      }
+      
+      // Transform the data to match the expected structure if needed
+      const formattedData = {
+        complianceScore: data.riskScore || 0,
+        systemCategory: data.systemCategory || "Unknown",
+        riskLevel: data.riskLevel?.toLowerCase() || "unknown",
+        keyRiskFactors: data.keyRiskFactors || [],
+        relevantArticles: data.applicableArticles || [],
+        justification: data.justification || "",
+      };
+      
+      setAiAnalysisResults(formattedData);
       
       toast({
         title: "AI Analysis Complete",
