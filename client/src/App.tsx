@@ -128,6 +128,9 @@ function Router() {
       <Route path="/risk-assessment/guides">
         {() => renderSuspense(RiskAssessmentGuides)}
       </Route>
+      <Route path="/risk-assessment/text-analyzer">
+        {() => renderWithLayout(TextRiskAnalyzerPage)}
+      </Route>
       <Route path="/documentation">
         {() => renderWithLayout(Documentation)}
       </Route>

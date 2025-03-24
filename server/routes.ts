@@ -11,6 +11,7 @@ import {
   insertRiskAssessmentSchema,
   loginSchema,
   registerSchema,
+  AiSystem
 } from "@shared/schema";
 import { ZodError } from "zod";
 import { 
