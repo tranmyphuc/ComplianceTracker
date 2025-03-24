@@ -6,7 +6,12 @@ import {
   alerts, type Alert, type InsertAlert,
   deadlines, type Deadline, type InsertDeadline,
   documents, type Document, type InsertDocument,
-  riskAssessments, type RiskAssessment, type InsertRiskAssessment
+  riskAssessments, type RiskAssessment, type InsertRiskAssessment,
+  approvalItems, type ApprovalItem, type InsertApprovalItem,
+  approvalAssignments, type ApprovalAssignment, type InsertApprovalAssignment,
+  approvalHistory, type ApprovalHistory, type InsertApprovalHistory,
+  approvalNotifications, type ApprovalNotification, type InsertApprovalNotification,
+  approvalSettings, type ApprovalSettings, type InsertApprovalSettings
 } from "@shared/schema";
 
 // Implement storage interface with CRUD operations
@@ -82,6 +87,50 @@ export interface IStorage {
   getRiskEventByEventId(eventId: string): Promise<any>;
   getRiskEventsBySystemId(systemId: string): Promise<any[]>;
   updateRiskEvent(eventId: string, updates: any): Promise<any>;
+
+  /**
+   * Approval Workflow operations
+   */
+  // Approval Item operations
+  createApprovalItem(item: InsertApprovalItem): Promise<ApprovalItem>;
+  getApprovalItem(id: number): Promise<ApprovalItem | undefined>;
+  getApprovalItemByWorkflowId(workflowId: string): Promise<ApprovalItem | undefined>;
+  getAllApprovalItems(options?: { 
+    status?: string;
+    moduleType?: string;
+    priority?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<ApprovalItem[]>;
+  updateApprovalItem(workflowId: string, updates: Partial<ApprovalItem>): Promise<ApprovalItem | undefined>;
+  
+  // Approval Assignment operations
+  createApprovalAssignment(assignment: InsertApprovalAssignment): Promise<ApprovalAssignment>;
+  getApprovalAssignment(id: number): Promise<ApprovalAssignment | undefined>;
+  getApprovalAssignmentsByWorkflowId(workflowId: string): Promise<ApprovalAssignment[]>;
+  getApprovalAssignmentsByUserId(userId: string): Promise<ApprovalAssignment[]>;
+  updateApprovalAssignment(id: number, updates: Partial<ApprovalAssignment>): Promise<ApprovalAssignment | undefined>;
+  
+  // Approval History operations
+  createApprovalHistory(history: InsertApprovalHistory): Promise<ApprovalHistory>;
+  getApprovalHistoryByWorkflowId(workflowId: string): Promise<ApprovalHistory[]>;
+  
+  // Approval Notification operations
+  createApprovalNotification(notification: InsertApprovalNotification): Promise<ApprovalNotification>;
+  getApprovalNotificationsByUserId(userId: string, options?: {
+    isRead?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<ApprovalNotification[]>;
+  markNotificationsAsRead(notificationIds: number[]): Promise<void>;
+  
+  // Approval Settings operations
+  getApprovalSettings(userId: string): Promise<ApprovalSettings | undefined>;
+  createApprovalSettings(settings: InsertApprovalSettings): Promise<ApprovalSettings>;
+  updateApprovalSettings(userId: string, updates: Partial<ApprovalSettings>): Promise<ApprovalSettings | undefined>;
 }
 
 export class MemStorage implements IStorage {

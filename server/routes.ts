@@ -27,6 +27,22 @@ import {
   determineRiskLevel
 } from "./ai-analysis";
 
+// Import approval workflow functions
+import {
+  createApprovalWorkflow,
+  getApprovalWorkflows,
+  getApprovalWorkflowById,
+  updateApprovalStatus,
+  assignApprovalWorkflow,
+  getUserNotifications,
+  markNotificationsAsRead,
+  getUnreadNotificationCount,
+  getUserApprovalSettings,
+  updateUserApprovalSettings,
+  getApprovalStatistics,
+  scheduleReminders
+} from "./approval-workflow";
+
 // Import compliance modules
 import { 
   calculateComprehensiveScore, 
