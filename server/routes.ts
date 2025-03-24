@@ -1077,7 +1077,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/risk-assessment/:systemId/gaps", async (req: Request, res: Response) => {
     try {
       req.params = { ...req.params }; // Ensure params is mutable
-      awaitanalyzeComplianceGaps(req, res);
+      await analyzeComplianceGaps(req, res);
     } catch (err) {
       handleError(res, err as Error);
     }
@@ -1455,7 +1455,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/training/complete', async (req, res) => {
     try {
       // In a real app, this would be authenticated via middleware
-      const userId = req.user?.id || 'demo-user';
+      const userId = req.body.userId || 'demo-user';
       const { moduleId } = req.body;
 
       if (!moduleId) {
@@ -1465,7 +1465,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const certificateId = await recordTrainingCompletion(userId, moduleId);
       res.json({ success: true, certificateId });
     } catch (error) {
-      handleError(res, error, 'Error recording training completion');
+      handleError(res, error as Error, 'Error recording training completion');
     }
   });
 
