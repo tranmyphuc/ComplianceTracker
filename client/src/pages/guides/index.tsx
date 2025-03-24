@@ -160,44 +160,44 @@ export default function GuidesIndex() {
 
             {CATEGORIES.map(category => (
               <TabsContent key={category.id} value={category.id} className="space-y-4">
-                  {filteredGuides.length > 0 ? (
-                    filteredGuides.map(guide => (
-                      <Link key={guide.id} href={guide.path}>
-                        <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
-                          <CardHeader className="pb-2">
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2">
-                                <guide.icon className="h-5 w-5 text-blue-500" />
-                                <CardTitle className="text-lg">{guide.title}</CardTitle>
-                                {guide.isNew && (
-                                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">
-                                    New
-                                  </span>
-                                )}
-                              </div>
-                              <ChevronRight className="h-5 w-5 text-gray-400" />
+                {filteredGuides.length > 0 ? (
+                  filteredGuides.map(guide => (
+                    <Link key={guide.id} href={guide.path}>
+                      <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
+                        <CardHeader className="pb-2">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <guide.icon className="h-5 w-5 text-blue-500" />
+                              <CardTitle className="text-lg">{guide.title}</CardTitle>
+                              {guide.isNew && (
+                                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">
+                                  New
+                                </span>
+                              )}
                             </div>
-                            <CardDescription className="mt-1">{guide.description}</CardDescription>
-                          </CardHeader>
-                        </Card>
-                      </Link>
-                    ))
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">No guides found matching your search criteria.</p>
-                      <Button 
-                        variant="link" 
-                        onClick={() => {
-                          setSearchQuery("");
-                          setActiveCategory("all");
-                        }}
-                      >
-                        Clear filters
-                      </Button>
-                    </div>
-                  )}
-                </TabsContent>
-              ))}
+                            <ChevronRight className="h-5 w-5 text-gray-400" />
+                          </div>
+                          <CardDescription className="mt-1">{guide.description}</CardDescription>
+                        </CardHeader>
+                      </Card>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">No guides found matching your search criteria.</p>
+                    <Button 
+                      variant="link" 
+                      onClick={() => {
+                        setSearchQuery("");
+                        setActiveCategory("all");
+                      }}
+                    >
+                      Clear filters
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
+            ))}
             </Tabs>
           </div>
 
