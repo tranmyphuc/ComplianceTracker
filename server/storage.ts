@@ -13,6 +13,8 @@ import {
   approvalNotifications, type ApprovalNotification, type InsertApprovalNotification,
   approvalSettings, type ApprovalSettings, type InsertApprovalSettings
 } from "@shared/schema";
+import { eq, desc, or, like, sql } from "drizzle-orm";
+import { db } from "./db";
 
 // Implement storage interface with CRUD operations
 export interface IStorage {
@@ -1018,6 +1020,239 @@ export class DatabaseStorage implements IStorage {
       console.error('Error in updateRiskEvent:', error);
       throw error;
     }
+  }
+
+  // Approval Item operations
+  async createApprovalItem(item: InsertApprovalItem): Promise<ApprovalItem> {
+    const now = new Date();
+    const newItem = {
+      ...item,
+      createdAt: now,
+      updatedAt: now
+    };
+    const result = await db.insert(approvalItems).values(newItem).returning();
+    return result[0];
+  }
+
+  async getApprovalItem(id: number): Promise<ApprovalItem | undefined> {
+    const result = await db.select().from(approvalItems).where(eq(approvalItems.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getApprovalItemByWorkflowId(workflowId: string): Promise<ApprovalItem | undefined> {
+    const result = await db.select().from(approvalItems).where(eq(approvalItems.workflowId, workflowId)).limit(1);
+    return result[0];
+  }
+
+  async getAllApprovalItems(options?: { 
+    status?: string;
+    moduleType?: string;
+    priority?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<ApprovalItem[]> {
+    let query = db.select().from(approvalItems);
+    
+    // Apply filters
+    if (options?.status) {
+      query = query.where(eq(approvalItems.status, options.status));
+    }
+    
+    if (options?.moduleType) {
+      query = query.where(eq(approvalItems.moduleType, options.moduleType));
+    }
+    
+    if (options?.priority) {
+      query = query.where(eq(approvalItems.priority, options.priority));
+    }
+    
+    if (options?.search) {
+      query = query.where(
+        or(
+          like(approvalItems.title, `%${options.search}%`),
+          like(approvalItems.description, `%${options.search}%`)
+        )
+      );
+    }
+    
+    // Apply sorting
+    if (options?.sortBy) {
+      const column = approvalItems[options.sortBy as keyof typeof approvalItems];
+      if (column) {
+        query = options.sortOrder === 'asc' 
+          ? query.orderBy(column) 
+          : query.orderBy(desc(column));
+      } else {
+        query = query.orderBy(desc(approvalItems.updatedAt));
+      }
+    } else {
+      query = query.orderBy(desc(approvalItems.updatedAt));
+    }
+    
+    // Apply pagination
+    if (options?.page && options?.limit) {
+      const offset = (options.page - 1) * options.limit;
+      query = query.limit(options.limit).offset(offset);
+    }
+    
+    return await query;
+  }
+
+  async updateApprovalItem(workflowId: string, updates: Partial<ApprovalItem>): Promise<ApprovalItem | undefined> {
+    const updatedItem = {
+      ...updates,
+      updatedAt: new Date()
+    };
+    
+    const result = await db
+      .update(approvalItems)
+      .set(updatedItem)
+      .where(eq(approvalItems.workflowId, workflowId))
+      .returning();
+      
+    return result[0];
+  }
+  
+  // Approval Assignment operations
+  async createApprovalAssignment(assignment: InsertApprovalAssignment): Promise<ApprovalAssignment> {
+    const now = new Date();
+    const newAssignment = {
+      ...assignment,
+      assignedAt: now
+    };
+    
+    const result = await db.insert(approvalAssignments).values(newAssignment).returning();
+    return result[0];
+  }
+  
+  async getApprovalAssignment(id: number): Promise<ApprovalAssignment | undefined> {
+    const result = await db
+      .select()
+      .from(approvalAssignments)
+      .where(eq(approvalAssignments.id, id))
+      .limit(1);
+      
+    return result[0];
+  }
+  
+  async getApprovalAssignmentsByWorkflowId(workflowId: string): Promise<ApprovalAssignment[]> {
+    return await db
+      .select()
+      .from(approvalAssignments)
+      .where(eq(approvalAssignments.workflowId, workflowId))
+      .orderBy(approvalAssignments.assignedAt);
+  }
+  
+  async getApprovalAssignmentsByUserId(userId: string): Promise<ApprovalAssignment[]> {
+    return await db
+      .select()
+      .from(approvalAssignments)
+      .where(eq(approvalAssignments.assignedTo, userId))
+      .orderBy(desc(approvalAssignments.assignedAt));
+  }
+  
+  async updateApprovalAssignment(id: number, updates: Partial<ApprovalAssignment>): Promise<ApprovalAssignment | undefined> {
+    const result = await db
+      .update(approvalAssignments)
+      .set(updates)
+      .where(eq(approvalAssignments.id, id))
+      .returning();
+      
+    return result[0];
+  }
+  
+  // Approval History operations
+  async createApprovalHistory(history: InsertApprovalHistory): Promise<ApprovalHistory> {
+    const newHistory = {
+      ...history,
+      timestamp: new Date()
+    };
+    
+    const result = await db.insert(approvalHistory).values(newHistory).returning();
+    return result[0];
+  }
+  
+  async getApprovalHistoryByWorkflowId(workflowId: string): Promise<ApprovalHistory[]> {
+    return await db
+      .select()
+      .from(approvalHistory)
+      .where(eq(approvalHistory.workflowId, workflowId))
+      .orderBy(desc(approvalHistory.timestamp));
+  }
+  
+  // Approval Notification operations
+  async createApprovalNotification(notification: InsertApprovalNotification): Promise<ApprovalNotification> {
+    const newNotification = {
+      ...notification,
+      createdAt: new Date(),
+      isRead: false
+    };
+    
+    const result = await db.insert(approvalNotifications).values(newNotification).returning();
+    return result[0];
+  }
+  
+  async getApprovalNotificationsByUserId(userId: string, options?: {
+    isRead?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<ApprovalNotification[]> {
+    let query = db
+      .select()
+      .from(approvalNotifications)
+      .where(eq(approvalNotifications.userId, userId));
+      
+    // Filter by read status if specified
+    if (options?.isRead !== undefined) {
+      query = query.where(eq(approvalNotifications.isRead, options.isRead));
+    }
+    
+    // Apply pagination
+    if (options?.page && options?.limit) {
+      const offset = (options.page - 1) * options.limit;
+      query = query.limit(options.limit).offset(offset);
+    }
+    
+    // Sort by creation date (newest first)
+    query = query.orderBy(desc(approvalNotifications.createdAt));
+    
+    return await query;
+  }
+  
+  async markNotificationsAsRead(notificationIds: number[]): Promise<void> {
+    await db
+      .update(approvalNotifications)
+      .set({ isRead: true, readAt: new Date() })
+      .where(sql`id = ANY(${notificationIds})`);
+  }
+  
+  // Approval Settings operations
+  async getApprovalSettings(userId: string): Promise<ApprovalSettings | undefined> {
+    const result = await db
+      .select()
+      .from(approvalSettings)
+      .where(eq(approvalSettings.userId, userId))
+      .limit(1);
+      
+    return result[0];
+  }
+  
+  async createApprovalSettings(settings: InsertApprovalSettings): Promise<ApprovalSettings> {
+    const result = await db.insert(approvalSettings).values(settings).returning();
+    return result[0];
+  }
+  
+  async updateApprovalSettings(userId: string, updates: Partial<ApprovalSettings>): Promise<ApprovalSettings | undefined> {
+    const result = await db
+      .update(approvalSettings)
+      .set(updates)
+      .where(eq(approvalSettings.userId, userId))
+      .returning();
+      
+    return result[0];
   }
 }
 
