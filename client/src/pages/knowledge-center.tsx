@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { BookOpenIcon, BookIcon, GavelIcon, HelpCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Link } from "wouter";
 
 export default function KnowledgeCenter() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -96,7 +96,7 @@ export default function KnowledgeCenter() {
                 Overview of ISO 42001, the international standard for AI management systems and how it complements EU AI Act compliance.
               </p>
               <Button variant="outline" size="sm" asChild className="w-full">
-                <Link href="/knowledge-center/iso42001">
+                <Link to="/knowledge-center/iso42001">
                   Read More
                 </Link>
               </Button>
