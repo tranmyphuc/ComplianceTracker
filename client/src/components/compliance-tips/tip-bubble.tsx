@@ -4,7 +4,9 @@ import {
   X as XIcon, 
   ChevronRight as ChevronRightIcon,
   ThumbsUp as ThumbsUpIcon,
-  ThumbsDown as ThumbsDownIcon
+  ThumbsDown as ThumbsDownIcon,
+  Minimize2 as MinimizeIcon,
+  Maximize2 as MaximizeIcon
 } from 'lucide-react';
 import { 
   Card, 
@@ -61,11 +63,12 @@ export function TipBubble({
   onFeedback,
   animate = true,
   autoDismiss = false,
-  autoDismissDelay = 15000,
+  autoDismissDelay = 20000, // Changed to 20 seconds as requested
   jackStyle = false,
 }: TipBubbleProps) {
   const [visible, setVisible] = useState<boolean>(true);
   const [feedbackGiven, setFeedbackGiven] = useState<boolean>(false);
+  const [minimized, setMinimized] = useState<boolean>(false);
   
   // Handle auto-dismiss
   useEffect(() => {
@@ -86,6 +89,14 @@ export function TipBubble({
     if (onDismiss) {
       onDismiss(tip.id);
     }
+  };
+  
+  const handleMinimize = () => {
+    setMinimized(true);
+  };
+  
+  const handleMaximize = () => {
+    setMinimized(false);
   };
   
   const handleFeedback = (isHelpful: boolean) => {
