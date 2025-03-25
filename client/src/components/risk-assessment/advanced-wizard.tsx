@@ -881,7 +881,7 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
           remediationActions: result.recommendations || [],
           evidenceDocuments: result.requiredDocumentation || [], 
           summaryNotes: "Comprehensive risk assessment completed via advanced wizard",
-          createdBy: assessmentMeta.assessorName || "admin",
+          createdBy: "admin-01", // Using a valid uid from users table
           status: "completed" // Ensure status field is included
         };
         
