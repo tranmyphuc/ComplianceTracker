@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { AiAssistantButton } from "@/components/ai-assistant/assistant-button";
 import NotFound from "@/pages/not-found";
-import Dashboard from "@/pages/dashboard";
+import Dashboard from "@/pages";
 import Inventory from "@/pages/inventory";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
@@ -33,8 +33,8 @@ import { Button } from "@/components/ui/button";
 import { AppLayout } from "@/components/layout/app-layout";
 import { ComplianceTipProvider } from "@/components/compliance-tips";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { 
-  RiskAssessmentGuides, 
+import {
+  RiskAssessmentGuides,
   RiskAssessmentDocumentation as LazyRiskAssessmentDocumentation,
   TrainingDocumentation as LazyTrainingDocumentation,
   TrainingGuidesPage as LazyTrainingGuidesPage,
@@ -42,25 +42,43 @@ import {
   TrainingCertificatePage as LazyTrainingCertificatePage,
   TrainingModulePage as LazyTrainingModulePage
 } from "./routes/lazy-imports.ts";
-import PlatformIntroduction from './pages/guides/platform-introduction'; 
-import PlatformGuide from './pages/guides/platform-guide'; 
+import PlatformIntroduction from './pages/guides/platform-introduction';
+import PlatformGuide from './pages/guides/platform-guide';
 import DemoScenarios from '@/pages/demo-scenarios';
 import HealthcareScenario from '@/pages/demo-scenarios/healthcare-ai-diagnostics';
 import VendorManagement from '@/pages/vendor-management';
+import { TranslationsProvider, useTranslationsContext } from "@/contexts/TranslationsContext";
+import ISO42001 from "@/pages/knowledge-center/iso42001";
+import Compliance from "@/pages/compliance";
+import Governance from "@/pages/governance";
+import TrainingModule from "@/pages/training/module";
+import TrainingPresentation from "@/pages/training/presentation";
+import TrainingCertificate from "@/pages/training/certificate";
+import Onboarding from "@/pages/onboarding";
+import Profile from "@/pages/profile";
+import Settings from "@/pages/settings";
+import ApiKeys from "@/pages/settings/api-keys";
+import Guides from "@/pages/guides";
+import FintechScenario from "@/pages/demo-scenarios/fintech-fraud-detection";
+import ManufacturingScenario from "@/pages/demo-scenarios/manufacturing-predictive-maintenance";
+import RetailScenario from "@/pages/demo-scenarios/retail-recommendation-engine";
+import PublicSectorScenario from "@/pages/demo-scenarios/public-sector-ai";
+import TextAnalyzer from "@/pages/risk-assessment/text-analyzer";
 
 
-function Router() {
-  const { user, loading } = useAuth();
-  const [location, setLocation] = useLocation();
-  const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
+function App() {
+  const translations = useTranslationsContext();
+  console.log("Firebase Config:", {
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    hasApiKey: !!import.meta.env.VITE_FIREBASE_API_KEY,
+    hasAppId: !!import.meta.env.VITE_FIREBASE_APP_ID,
+    hasMessagingSenderId: !!import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    hasStorageBucket: !!import.meta.env.VITE_FIREBASE_STORAGE_BUCKET
+  });
 
-  useEffect(() => {
-    if (location === "/login" || location === "/register") {
-      setLocation("/");
-    }
-  }, [location, setLocation]);
-
-  const allRoutes = [
+  // Add all registered routes for verification
+  const routes = [
     "/",
     "/inventory",
     "/risk-assessment",
@@ -68,7 +86,7 @@ function Router() {
     "/risk-assessment/text-analyzer",
     "/documentation",
     "/documentation/risk-assessment",
-    "/documentation/training-documentation", 
+    "/documentation/training-documentation",
     "/register-system",
     "/knowledge-center",
     "/knowledge-center/iso42001",
@@ -92,173 +110,95 @@ function Router() {
     "/operations-excellence",
     "/growth-innovation",
     "/guides",
-    "/guides/platform-introduction", 
+    "/guides/platform-introduction",
     "/guides/platform-guide",
     "/demo-scenarios",
-    "/demo-scenarios/healthcare-ai-diagnostics"
+    "/demo-scenarios/healthcare-ai-diagnostics",
+    "/demo-scenarios/fintech-fraud-detection",
+    "/demo-scenarios/manufacturing-predictive-maintenance",
+    "/demo-scenarios/retail-recommendation-engine",
+    "/demo-scenarios/public-sector-ai"
   ];
 
-  useEffect(() => {
-    import('./utils/route-checker').then(({ verifyRoutes }) => {
-      console.log('Route verification:', verifyRoutes(allRoutes));
-    });
-  }, []);
+  // Check for duplicate routes
+  const duplicateRoutes = routes.filter((item, index) => routes.indexOf(item) !== index);
 
-  const renderWithLayout = (Component: any, props?: any) => {
-    return (
-      <AppLayout>
-        <Component {...props} />
-      </AppLayout>
-    );
-  };
+  console.log("All registered routes:", routes);
+  console.log("Route verification:", {
+    totalRoutes: routes.length,
+    duplicates: duplicateRoutes,
+  });
 
-  const renderSuspense = (Component: any, props?: any) => {
-    return (
-      <AppLayout>
-        <Suspense fallback={<div className="p-8 text-center">Loading content...</div>}>
-          <Component {...props} />
-        </Suspense>
-      </AppLayout>
-    );
-  };
+  // Initialize Firebase
+  console.log("Firebase initialized successfully");
+
+  if (translations.loading) {
+    return <div>Loading translations...</div>;
+  }
 
   return (
-    <Switch>
-      <Route path="/">
-        {() => renderWithLayout(Dashboard)}
-      </Route>
-      <Route path="/inventory">
-        {() => renderWithLayout(Inventory)}
-      </Route>
-      <Route path="/risk-assessment">
-        {() => renderWithLayout(RiskAssessment)}
-      </Route>
-      <Route path="/risk-assessment/guides">
-        {() => renderSuspense(RiskAssessmentGuides)}
-      </Route>
-      <Route path="/risk-assessment/text-analyzer">
-        {() => renderWithLayout(TextRiskAnalyzerPage)}
-      </Route>
-      <Route path="/documentation">
-        {() => renderWithLayout(Documentation)}
-      </Route>
-      <Route path="/documentation/risk-assessment">
-        {() => renderSuspense(LazyRiskAssessmentDocumentation)}
-      </Route>
-      <Route path="/documentation/training-documentation">
-        {() => renderSuspense(LazyTrainingDocumentation)}
-      </Route>
-      <Route path="/register-system">
-        {() => renderWithLayout(RegisterSystem)}
-      </Route>
-      <Route path="/knowledge-center">
-        {() => renderWithLayout(KnowledgeCenter)}
-      </Route>
-      <Route path="/knowledge-center/iso42001">
-        {() => renderSuspense(lazy(() => import('./pages/knowledge-center/iso42001')))}
-      </Route>
-      <Route path="/compliance">
-        {() => renderWithLayout(Documentation)}
-      </Route>
-      <Route path="/governance">
-        {() => renderWithLayout(Dashboard)}
-      </Route>
-      <Route path="/reports">
-        {() => renderWithLayout(Reports)}
-      </Route>
-      <Route path="/training">
-        {() => renderWithLayout(Training)}
-      </Route>
-      <Route path="/training/module/:id">
-        {(params) => renderSuspense(LazyTrainingModulePage, { id: params.id })}
-      </Route>
-      <Route path="/training/presentation/:id">
-        {(params) => renderSuspense(LazyTrainingPresentationPage, { id: params.id })}
-      </Route>
-      <Route path="/training/certificate/:id">
-        {(params) => renderSuspense(LazyTrainingCertificatePage, { id: params.id })}
-      </Route>
-      <Route path="/workflow">
-        {() => renderWithLayout(Workflow)}
-      </Route>
-      <Route path="/strategic-planning">
-        {() => renderWithLayout(StrategicPlanning)}
-      </Route>
-      <Route path="/regulatory-complexity">
-        {() => renderWithLayout(RegulatoryComplexity)}
-      </Route>
-      <Route path="/enterprise-decision-platform">
-        {() => renderWithLayout(EnterpriseDecisionPlatform)}
-      </Route>
-      <Route path="/risk-management">
-        {() => renderWithLayout(RiskManagement)}
-      </Route>
-      <Route path="/onboarding">
-        {() => renderWithLayout(OnboardingPage)}
-      </Route>
-      <Route path="/profile">
-        {() => renderWithLayout(Dashboard)}
-      </Route>
-      <Route path="/settings">
-        {() => renderWithLayout(Dashboard)} {/*Existing route remains*/}
-      </Route>
-      <Route path="/settings/api-keys">
-        {() => renderWithLayout(Dashboard)} {/* Placeholder for future API key management page*/}
-      </Route>
-      <Route path="/market-intelligence">
-        {() => renderWithLayout(MarketIntelligence)}
-      </Route>
-      <Route path="/operations-excellence">
-        {() => renderWithLayout(OperationsExcellence)}
-      </Route>
-      <Route path="/growth-innovation">
-        {() => renderWithLayout(GrowthInnovation)}
-      </Route>
-      <Route path="/guides">
-        {() => renderSuspense(lazy(() => import('./pages/guides')))}
-      </Route>
-      <Route path="/guides/platform-introduction">
-        {() => renderSuspense(PlatformIntroduction)}
-      </Route>
-      <Route path="/guides/platform-guide">
-        {() => renderSuspense(PlatformGuide)}
-      </Route>
-      <Route path="/demo-scenarios">
-        {() => renderSuspense(DemoScenarios)}
-      </Route>
-      <Route path="/demo-scenarios/healthcare-ai-diagnostics">
-        {() => renderSuspense(HealthcareScenario)}
-      </Route>
-      <Route>
-        {() => renderWithLayout(NotFound)}
-      </Route>
-    </Switch>
+    <>
+      <AuthProvider>
+        <LanguageProvider>
+          <ComplianceTipsProvider>
+            <AppLayout>
+              <Switch>
+                <Route path="/" component={Dashboard} />
+                <Route path="/inventory" component={Inventory} />
+                <Route path="/risk-assessment" component={RiskAssessment} />
+                <Route path="/risk-assessment/guides" component={RiskAssessmentGuides} />
+                <Route path="/risk-assessment/text-analyzer" component={TextAnalyzer} />
+                <Route path="/documentation" component={Documentation} />
+                <Route path="/documentation/risk-assessment" component={LazyRiskAssessmentDocumentation} />
+                <Route path="/documentation/training-documentation" component={LazyTrainingDocumentation} />
+                <Route path="/register-system" component={RegisterSystem} />
+                <Route path="/knowledge-center" component={KnowledgeCenter} />
+                <Route path="/knowledge-center/iso42001" component={ISO42001} />
+                <Route path="/compliance" component={Compliance} />
+                <Route path="/governance" component={Governance} />
+                <Route path="/reports" component={Reports} />
+                <Route path="/training" component={Training} />
+                <Route path="/training/module/:id" component={TrainingModule} />
+                <Route path="/training/presentation/:id" component={TrainingPresentation} />
+                <Route path="/training/certificate/:id" component={TrainingCertificate} />
+                <Route path="/risk-management" component={RiskManagement} />
+                <Route path="/enterprise-decision-platform" component={EnterpriseDecisionPlatform} />
+                <Route path="/strategic-planning" component={StrategicPlanning} />
+                <Route path="/regulatory-complexity" component={RegulatoryComplexity} />
+                <Route path="/workflow" component={Workflow} />
+                <Route path="/onboarding" component={Onboarding} />
+                <Route path="/profile" component={Profile} />
+                <Route path="/settings" component={Settings} />
+                <Route path="/settings/api-keys" component={ApiKeys} />
+                <Route path="/market-intelligence" component={MarketIntelligence} />
+                <Route path="/operations-excellence" component={OperationsExcellence} />
+                <Route path="/growth-innovation" component={GrowthInnovation} />
+                <Route path="/guides" component={Guides} />
+                <Route path="/guides/platform-introduction" component={PlatformIntroduction} />
+                <Route path="/guides/platform-guide" component={PlatformGuide} />
+                <Route path="/demo-scenarios" component={DemoScenarios} />
+                <Route path="/demo-scenarios/healthcare-ai-diagnostics" component={HealthcareScenario} />
+                <Route path="/demo-scenarios/fintech-fraud-detection" component={FintechScenario} />
+                <Route path="/demo-scenarios/manufacturing-predictive-maintenance" component={ManufacturingScenario} />
+                <Route path="/demo-scenarios/retail-recommendation-engine" component={RetailScenario} />
+                <Route path="/demo-scenarios/public-sector-ai" component={PublicSectorScenario} />
+              </Switch>
+            </AppLayout>
+          </ComplianceTipsProvider>
+        </LanguageProvider>
+      </AuthProvider>
+      <Toaster />
+    </>
   );
 }
 
-// Wrap Router with providers
-function WrappedRouter() {
-  return (
-    <LanguageProvider>
-      <Router />
-    </LanguageProvider>
-  );
-}
-
-function App() {
+export default function AppWithProviders() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ToastProvider>
-          <ComplianceTipProvider jackStyle={true}>
-            <WrappedRouter />
-            <AiAssistantButton />
-            <Toaster />
-          </ComplianceTipProvider>
-        </ToastProvider>
-      </AuthProvider>
+      <TranslationsProvider>
+        <App />
+        <AiAssistantButton />
+      </TranslationsProvider>
     </QueryClientProvider>
   );
 }
-
-export default App;
