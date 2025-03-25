@@ -74,6 +74,8 @@ import {
 } from './ai-key-management';
 import * as riskAssessment from './risk-assessment';
 import * as riskManagement from './risk-management'; // Added import
+import { regulatoryRoutes } from './routes/regulatory-routes';
+import { initializeRegulationUpdates } from './regulatory-service';
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1617,6 +1619,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       handleError(res, err as Error);
     }
   });
+
+  // Regulatory Updates Routes
+  // ==========================================
+  
+  // Register regulatory routes
+  app.use('/api/regulatory', regulatoryRoutes);
+  
+  // Initialize regulatory updates service
+  initializeRegulationUpdates();
 
   // Setup HTTP server
   const httpServer = createServer(app);

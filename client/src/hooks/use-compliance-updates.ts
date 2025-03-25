@@ -68,7 +68,7 @@ export function useComplianceUpdates() {
         toast({
           title: 'Updates Applied',
           description: `Successfully applied ${updates.length} compliance tip updates.`,
-          variant: 'success',
+          variant: 'default',
         });
         
         setAvailableUpdates(0);
