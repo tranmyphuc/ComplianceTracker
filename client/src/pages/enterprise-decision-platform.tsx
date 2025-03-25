@@ -93,7 +93,12 @@ export default function EnterprisePage() {
               <p className="mb-4">
                 The Enterprise AI Decision Platform combines cutting-edge artificial intelligence 
                 with your business expertise to enhance strategic decision-making. Our platform
-                analyzes vast amounts of data to provide actionable insights and recommendations.
+                analyzes vast amounts of data to provide actionable insights and recommendations, 
+                helping you navigate the complexities of the EU AI Act with confidence.
+              </p>
+              <p className="mb-4 text-muted-foreground">
+                Use our AI-powered tools to assess your systems, prioritize compliance efforts, 
+                and optimize resource allocation while staying ahead of regulatory changes.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                 <Button className="w-full" onClick={() => setLocation("/strategic-planning")}>

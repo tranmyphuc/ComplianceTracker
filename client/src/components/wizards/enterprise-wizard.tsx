@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,90 +19,96 @@ export function EnterpriseTourWizard({ onComplete, onSkip }: EnterpriseTourWizar
       id: "overview",
       title: "🚀 Enterprise AI Decision Platform",
       subtitle: "Revolutionize your EU AI Act compliance strategy",
-      content: "Our AI-powered decision platform helps you make informed strategic choices about your AI systems, compliance priorities, and resource allocation.",
+      content: "Our AI-powered decision platform helps you make informed strategic choices about your AI systems, compliance priorities, and resource allocation.  It provides data-driven insights to ensure compliance while optimizing costs and minimizing risks.",
       mascotMood: "friendly",
-      mascotMessage: "I'm your AI assistant! Let me show you around our platform! 🎯",
+      mascotMessage: "I'm your AI assistant! Let me show you around our platform and how it can transform your compliance approach! 🎯",
       icon: BarChart3,
       imageSrc: "/assets/images/tour/platform-overview.png",
       features: [
         "✅ AI-powered decision support",
         "✅ Strategic compliance planning",
-        "✅ Resource optimization tools"
+        "✅ Resource optimization tools",
+        "✅ Risk assessment and mitigation"
       ]
     },
     {
       id: "risk-analysis",
       title: "⚖️ Compliance Risk Analysis",
       subtitle: "Identify and prioritize your compliance risks",
-      content: "Our advanced analytics help you identify high-risk AI systems, prioritize compliance efforts, and allocate resources effectively.",
+      content: "Our advanced analytics help you identify high-risk AI systems, prioritize compliance efforts, and allocate resources effectively. We provide automated risk scoring and compliance gap analysis to guide your strategic decisions.",
       mascotMood: "analytical",
-      mascotMessage: "Let's analyze your risks together and find the best approach! 📊",
+      mascotMessage: "Let's analyze your risks together and develop a proactive compliance strategy! 📊",
       icon: Sliders,
       imageSrc: "/assets/images/tour/risk-analysis.png",
       features: [
         "✅ Automated risk scoring",
         "✅ Compliance gap analysis",
-        "✅ Priority recommendations"
+        "✅ Priority recommendations",
+        "✅ Customizable risk profiles"
       ]
     },
     {
       id: "decision-timeline",
       title: "⏱️ Strategic Timeline Planning",
       subtitle: "Plan your compliance journey with confidence",
-      content: "Our timeline tools help you create realistic implementation schedules, track progress, and adjust your strategy as regulatory requirements evolve.",
+      content: "Our timeline tools help you create realistic implementation schedules, track progress, and adjust your strategy as regulatory requirements evolve.  Stay organized and on track with our interactive Gantt charts and milestone tracking.",
       mascotMood: "organized",
-      mascotMessage: "Stay on track with our interactive timeline tools! 📅",
+      mascotMessage: "Stay on track with our interactive timeline tools and ensure timely compliance! 📅",
       icon: Clock,
       imageSrc: "/assets/images/tour/timeline.png",
       features: [
         "✅ Interactive Gantt charts",
         "✅ Milestone tracking",
-        "✅ Regulatory deadline alerts"
+        "✅ Regulatory deadline alerts",
+        "✅ Progress reporting and visualization"
       ]
     },
     {
       id: "investment-optimization",
       title: "💰 Compliance Investment Optimization",
       subtitle: "Maximize the return on your compliance investments",
-      content: "Our optimization tools help you allocate your compliance budget effectively, focusing on high-impact areas and avoiding unnecessary expenditures.",
+      content: "Our optimization tools help you allocate your compliance budget effectively, focusing on high-impact areas and avoiding unnecessary expenditures.  We provide budget allocation models and ROI analysis to ensure efficient resource management.",
       mascotMood: "thoughtful",
-      mascotMessage: "Let me help you make the most of your compliance budget! 💸",
+      mascotMessage: "Let me help you make the most of your compliance budget and achieve maximum impact! 💸",
       icon: LineChart,
       imageSrc: "/assets/images/tour/investment.png",
       features: [
         "✅ Budget allocation models",
         "✅ ROI analysis for compliance measures",
-        "✅ Cost-benefit comparisons"
+        "✅ Cost-benefit comparisons",
+        "✅ Scenario planning and what-if analysis"
       ]
     },
     {
       id: "market-advantage",
       title: "🏆 Competitive Advantage Analysis",
       subtitle: "Transform compliance into a competitive edge",
-      content: "Our AI algorithms analyze market trends, customer preferences, and industry data to help you leverage your compliance efforts for business growth and innovation.",
+      content: "Our AI algorithms analyze market trends, customer preferences, and industry data to help you leverage your compliance efforts for business growth and innovation.  Gain a competitive edge by demonstrating your commitment to responsible AI practices.",
       mascotMood: "excited",
-      mascotMessage: "Let's discover hidden opportunities in your compliance data! 🔍",
+      mascotMessage: "Let's discover how compliance can drive business growth and innovation! 🔍",
       icon: TrendingUp,
       imageSrc: "/assets/images/tour/competitive-edge.png",
       features: [
         "✅ Market positioning analysis",
         "✅ Customer trust projections",
-        "✅ Innovation opportunity mapping"
+        "✅ Innovation opportunity mapping",
+        "✅ Competitive benchmarking"
       ]
     },
     {
       id: "completion",
       title: "🎉 Ready to Transform Your Decision-Making",
       subtitle: "You've completed the overview of our Enterprise AI Decision Platform!",
-      content: "Dive into our platform's features and start leveraging the power of AI to enhance your strategic decision-making processes for EU AI Act compliance.",
+      content: "Dive into our platform's features and start leveraging the power of AI to enhance your strategic decision-making processes for EU AI Act compliance.  We're here to support you every step of the way.",
       mascotMood: "happy",
-      mascotMessage: "I'm excited to help you get started with your AI compliance journey! 🚀",
+      mascotMessage: "I'm excited to help you get started with your AI compliance journey and achieve sustainable success! 🚀",
       icon: Award,
       imageSrc: "/assets/images/tour/placeholder.png",
       features: [
         "✅ Personalized dashboard",
         "✅ AI-powered recommendations",
-        "✅ Continuous compliance support"
+        "✅ Continuous compliance support",
+        "✅ Dedicated support team"
       ]
     },
   ];
@@ -122,6 +127,7 @@ export function EnterpriseTourWizard({ onComplete, onSkip }: EnterpriseTourWizar
 
   const isLastStep = currentStep === steps.length - 1;
   const step = steps[currentStep];
+  const currentStepIndex = currentStep;
 
   useEffect(() => {
     if (cardRef.current) {
@@ -182,8 +188,7 @@ export function EnterpriseTourWizard({ onComplete, onSkip }: EnterpriseTourWizar
             <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-lg border border-indigo-100 shadow-sm">
               <h3 className="font-bold text-lg text-indigo-900 mb-3">💡 Why This Matters</h3>
               <p className="text-indigo-800">
-                The Enterprise AI Decision Platform helps you navigate the complexities of the EU AI Act with confidence.
-                By using data-driven insights, you can make strategic decisions that ensure compliance while optimizing costs.
+                The Enterprise AI Decision Platform helps you navigate the complexities of the EU AI Act with confidence. By using data-driven insights, you can make strategic decisions that ensure compliance while optimizing costs and minimizing risks.
               </p>
             </div>
 
@@ -221,7 +226,7 @@ export function EnterpriseTourWizard({ onComplete, onSkip }: EnterpriseTourWizar
           </div>
         </div>
       </CardContent>
-      
+
       <CardFooter className="flex justify-between pt-4 border-t bg-gradient-to-r from-gray-50 to-slate-50">
         <div>
           {currentStep === 0 && onSkip && (
@@ -229,7 +234,7 @@ export function EnterpriseTourWizard({ onComplete, onSkip }: EnterpriseTourWizar
               Skip Tour 🏃
             </Button>
           )}
-          
+
           {currentStep > 0 && (
             <Button variant="outline" onClick={prevStep} className="flex items-center gap-1">
               <ChevronLeft className="h-4 w-4" />
@@ -237,11 +242,26 @@ export function EnterpriseTourWizard({ onComplete, onSkip }: EnterpriseTourWizar
             </Button>
           )}
         </div>
-        
-        <Button onClick={nextStep} className="bg-blue-600 hover:bg-blue-700 flex items-center gap-1">
-          {isLastStep ? '🎉 Complete Tour' : 'Next Step'}
-          {!isLastStep && <ChevronRight className="h-4 w-4" />}
-        </Button>
+        <div className="flex flex-col gap-4 mt-8">
+            <div className="flex justify-center gap-2 mb-2">
+              {steps.map((step, index) => (
+                <div 
+                  key={step.id}
+                  className={`h-2 w-12 rounded-full transition-all duration-300 ${
+                    index === currentStepIndex 
+                      ? 'bg-blue-600' 
+                      : index < currentStepIndex 
+                        ? 'bg-blue-300' 
+                        : 'bg-gray-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <Button onClick={nextStep} className="bg-blue-600 hover:bg-blue-700 flex items-center gap-1">
+              {isLastStep ? '🎉 Complete Tour' : 'Next Step'}
+              {!isLastStep && <ChevronRight className="h-4 w-4" />}
+            </Button>
+          </div>
       </CardFooter>
     </Card>
   );
