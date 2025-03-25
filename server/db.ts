@@ -9,10 +9,10 @@ if (!connectionString) {
   console.error("DATABASE_URL environment variable is not set. Database operations will fail.");
 }
 
-let client;
+let pgClient;
 try {
   console.log("Attempting to connect to PostgreSQL database...");
-  client = postgres(connectionString as string, {
+  pgClient = postgres(connectionString as string, {
     max: 10, // Max number of connections
     idle_timeout: 30, // Max seconds a connection can be idle
     connect_timeout: 10, // Max seconds to wait for a connection
@@ -21,8 +21,11 @@ try {
 } catch (error) {
   console.error("Failed to connect to PostgreSQL database:", error);
   // Provide a fallback to prevent the application from crashing
-  client = postgres("postgresql://localhost:5432/dummy", { max: 1 });
+  pgClient = postgres("postgresql://localhost:5432/dummy", { max: 1 });
 }
 
 // Create a Drizzle instance
-export const db = drizzle(client, { schema });
+export const db = drizzle(pgClient, { schema });
+
+// Export the postgres client for direct SQL queries
+export const sql = pgClient;

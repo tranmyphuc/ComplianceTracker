@@ -609,24 +609,41 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
 
     // For other modules, try to get from database first
     try {
-      // Using the correct column name from schema
-      const module = await db.select().from(trainingModules).where(eq(trainingModules.module_id, moduleId)).limit(1);
-
-      if (module && module.length > 0) {
-        const moduleData = module[0];
-        const content = moduleData.content as any;
+      // Using the postgres client directly
+      const query = `
+        SELECT * FROM training_modules 
+        WHERE module_id = $1 
+        LIMIT 1
+      `;
+      
+      // Access the client directly for raw SQL queries
+      const client = (db as any).client || (db as any).$pool;
+      const result = await client(query, [moduleId]);
+      
+      if (result && result.length > 0) {
+        const moduleData = result[0];
+        let content;
+        
+        try {
+          content = typeof moduleData.content === 'string' 
+            ? JSON.parse(moduleData.content) 
+            : moduleData.content;
+        } catch (e) {
+          console.error("Error parsing module content:", e);
+          content = { default: { slides: [], document: "", exercises: [], quiz: [] } };
+        }
 
         // Get role-specific content if available
-        const roleContent = content[userRole] || content.default;
+        const roleContent = (content && content[userRole]) || (content && content.default) || { slides: [], document: "", exercises: [], quiz: [] };
 
         // Format full module content for the enhanced UI
         const enhancedContent = {
-          title: moduleData.title,
-          description: moduleData.description,
-          estimated_time: moduleData.estimated_time,
+          title: moduleData.title || "",
+          description: moduleData.description || "",
+          estimated_time: moduleData.estimated_time || "30 minutes",
           content: {
             slides: buildSlides(roleContent),
-            document: buildDocument(roleContent, moduleData.title),
+            document: buildDocument(roleContent, moduleData.title || "Training Module"),
             exercises: buildExercises(roleContent, moduleId),
             assessment: {
               questions: roleContent.quiz || []
@@ -872,19 +889,26 @@ export async function getUserProgress(req: Request, res: Response): Promise<void
       return;
     }
 
-    const progress = await db
-      .select()
-      .from(trainingProgress)
-      .where(eq(trainingProgress.userId, userId as string));
+    // Using raw SQL query to avoid column name issues
+    const query = `
+      SELECT * FROM training_progress 
+      WHERE user_id = $1
+    `;
+    
+    // Access the postgres client directly
+    const client = (db as any).client || (db as any).$pool;
+    const result = await client(query, [userId]);
 
     // Format progress as object with moduleId as key
     const formattedProgress: Record<string, { completion: number }> = {};
 
-    progress.forEach(item => {
-      formattedProgress[item.moduleId] = {
-        completion: item.completion || 0
-      };
-    });
+    if (result && Array.isArray(result)) {
+      result.forEach((item: any) => {
+        formattedProgress[item.module_id] = {
+          completion: item.completion || 0
+        };
+      });
+    }
 
     res.json(formattedProgress);
   } catch (error) {
