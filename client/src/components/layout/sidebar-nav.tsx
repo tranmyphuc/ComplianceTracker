@@ -1,41 +1,44 @@
+import { Landmark, BookText, PanelLeft, PanelLeftClose, ChevronRight, Home, ShieldAlert, BookOpen, Database, ClipboardList, FileText, Book, Layers, AlertTriangle, Activity, LineChart, Briefcase, ArrowUpRight, Settings, HelpCircle, Users, FileStack, Boxes, Brain, History, BookMarked, BarChart4, Presentation } from 'lucide-react';
 
-import { Link } from "wouter";
+const mainNavItems = [
+    {
+      title: 'Dashboard',
+      href: '/',
+      icon: <HomeIcon className="h-5 w-5" />,
+    },
+    {
+      title: 'Demo Scenarios',
+      href: '/demo-scenarios',
+      icon: <PresentationIcon className="h-5 w-5" />,
+    },
+    {
+      title: 'Risk Assessment',
+      href: '/risk-assessment',
+      icon: <ShieldAlertIcon className="h-5 w-5" />,
+      submenu: [
+        {
+          title: 'Assessment Guides',
+          href: '/risk-assessment/guides',
+          icon: <BookIcon className="h-5 w-5" />,
+        },
+        {
+          title: 'Text Analyzer',
+          href: '/risk-assessment/text-analyzer',
+          icon: <FileTextIcon className="h-5 w-5" />,
+        },
+      ]
+    },
+    { 
+      title: "Knowledge Center", 
+      icon: <BookOpen />,
+      href: "/knowledge-center",
+      submenu: [
+        { title: "AI Act Articles", href: "/knowledge-center" },
+        { title: "ISO 42001", href: "/knowledge-center/iso42001" },
+        { title: "Compliance Guides", href: "/knowledge-center" },
+        { title: "Regulatory Updates", href: "/knowledge-center" },
+      ]
+    },
+];
 
-interface NavItem {
-  title: string;
-  href: string;
-  icon?: React.ReactNode;
-  active?: boolean;
-  isHeader?: boolean;
-}
-
-export function SidebarNav({ items }: { items: NavItem[] }) {
-  return (
-    <div className="w-full">
-      <nav className="grid items-start gap-2">
-        {items.map((item, index) => {
-          if (item.isHeader) {
-            return (
-              <div key={index} className="px-4 py-2">
-                <h4 className="text-xs font-semibold text-muted-foreground">{item.title}</h4>
-              </div>
-            );
-          }
-          
-          return (
-            <Link key={index} href={item.href}>
-              <a
-                className={`group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-muted ${
-                  item.active ? "bg-muted" : "transparent"
-                }`}
-              >
-                {item.icon && <span className="mr-2 h-4 w-4">{item.icon}</span>}
-                <span>{item.title}</span>
-              </a>
-            </Link>
-          );
-        })}
-      </nav>
-    </div>
-  );
-}
+// ... rest of the file (assuming it uses mainNavItems) ...

@@ -39,20 +39,29 @@ const DemoScenarios: React.FC = () => {
       industry: "Retail",
       companySize: "Large (1,000-5,000 employees)",
       riskLevel: "Medium",
-      description: "A pan-European retailer using AI for personalized recommendations and dynamic pricing.",
-      aiSystems: ["Recommendation Engine", "Inventory Optimization AI", "Customer Segmentation AI", "Dynamic Pricing System"]
+      description: "A multinational retailer using AI for personalized customer recommendations and inventory management.",
+      aiSystems: ["Customer Recommendation Engine", "Inventory Optimization System", "Dynamic Pricing Algorithm"]
     },
     {
-      id: "public-sector-ai",
-      title: "Municipal Services Authority",
+      id: "public-sector-eligibility",
+      title: "Municipality of Metropolis",
       industry: "Public Sector",
       companySize: "Large (1,000-5,000 employees)",
       riskLevel: "High",
-      description: "A regional government authority using AI for social benefit assessments and resource allocation.",
-      aiSystems: ["Social Benefits Assessment", "Public Safety Resource Allocation", "Urban Planning Support", "Public Service Chatbot"]
+      description: "A European city implementing AI systems to determine citizen service eligibility and urban planning.",
+      aiSystems: ["Benefits Eligibility Assessment", "Urban Planning AI", "Public Resource Allocation System"]
+    },
+    {
+      id: "sgh-service-consulting",
+      title: "SGH Service",
+      industry: "Professional Services",
+      companySize: "Medium (250-999 employees)",
+      riskLevel: "Medium",
+      description: "A European professional services firm implementing AI tools for consultancy, document management, and business process optimization.",
+      aiSystems: ["Odoo AI", "ChatGPT Integration", "GitHub Copilot", "Document Analysis AI"]
     }
   ];
-  
+
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="flex flex-col gap-2 mb-6">
@@ -73,6 +82,7 @@ const DemoScenarios: React.FC = () => {
           <TabsTrigger value="manufacturing">Manufacturing</TabsTrigger>
           <TabsTrigger value="retail">Retail</TabsTrigger>
           <TabsTrigger value="public">Public Sector</TabsTrigger>
+          <TabsTrigger value="professional">Professional Services</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all" className="mt-6">
@@ -127,6 +137,16 @@ const DemoScenarios: React.FC = () => {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {scenarios
               .filter(s => s.industry === 'Public Sector')
+              .map((scenario) => (
+                <ScenarioCard key={scenario.id} {...scenario} />
+              ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="professional" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {scenarios
+              .filter(s => s.industry === 'Professional Services')
               .map((scenario) => (
                 <ScenarioCard key={scenario.id} {...scenario} />
               ))}
