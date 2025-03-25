@@ -188,11 +188,18 @@ const RiskAssessmentGuides: React.FC = () => {
               {t('riskAssessment.guides.description')}
             </p>
           </div>
-          <Button asChild>
-            <Link to="/documentation/risk-assessment">
-              {t('button.viewDocs')}
-            </Link>
-          </Button>
+          <div className="flex gap-3">
+            <Button asChild variant="outline">
+              <Link to="/risk-assessment/submitted">
+                {t('button.manageAssessments', 'Manage Assessments')}
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link to="/documentation/risk-assessment">
+                {t('button.viewDocs')}
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
       
