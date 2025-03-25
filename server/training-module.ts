@@ -79,6 +79,32 @@ const TRAINING_MODULES: TrainingModule[] = [
       operator: "High",
       user: "Low"
     }
+  },
+  {
+    id: "4",
+    title: "AI Ethics and Responsible Use",
+    description: "Essential ethical considerations and responsible AI practices for all employees",
+    estimated_time: "30-40 minutes",
+    topics: ["Ethical Frameworks", "Bias Detection", "Data Privacy", "Responsible Practices"],
+    role_relevance: {
+      decision_maker: "High",
+      developer: "High",
+      operator: "High",
+      user: "High"
+    }
+  },
+  {
+    id: "5",
+    title: "AI for Technical Service Teams",
+    description: "Applying AI tools effectively in technical service delivery with appropriate oversight",
+    estimated_time: "35-45 minutes",
+    topics: ["AI Service Applications", "Human-AI Collaboration", "Quality Control", "Client Communication"],
+    role_relevance: {
+      decision_maker: "Medium",
+      developer: "High",
+      operator: "High",
+      user: "Low"
+    }
   }
 ];
 
@@ -552,17 +578,24 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
     if (MODULE_CONTENTS[moduleId]) {
       const roleContent = MODULE_CONTENTS[moduleId][userRole] || MODULE_CONTENTS[moduleId].default;
 
+      // Get module info
+      const moduleInfo = TRAINING_MODULES.find(m => m.id === moduleId) || {
+        title: roleContent.title,
+        description: "",
+        estimated_time: "30-45 minutes"
+      };
+
       // Format full module content for the enhanced UI
       const enhancedContent = {
-        title: MODULE_CONTENTS[moduleId].title,
-        description: MODULE_CONTENTS[moduleId].description,
-        estimated_time: MODULE_CONTENTS[moduleId].estimated_time,
+        title: moduleInfo.title,
+        description: moduleInfo.description,
+        estimated_time: moduleInfo.estimated_time,
         content: {
           slides: buildSlides(roleContent),
-          document: buildDocument(roleContent, MODULE_CONTENTS[moduleId].title),
+          document: buildDocument(roleContent, moduleInfo.title),
           exercises: buildExercises(roleContent, moduleId),
           assessment: {
-            questions: roleContent.quiz || []
+            questions: roleContent.assessments || []
           }
         }
       };
@@ -583,10 +616,21 @@ function buildSlides(content: any) {
   if (content.slides) {
     return content.slides;
   }
-
-  // Otherwise, parse content markdown into slides
+  
+  // Create slides from sections
   const slides: any[] = [];
-
+  
+  if (content.sections && Array.isArray(content.sections)) {
+    content.sections.forEach((section: any) => {
+      slides.push({
+        title: section.title,
+        content: section.content
+      });
+    });
+    return slides;
+  }
+  
+  // Fallback to older content format
   if (content.content) {
     // Split content by headers (# or ##)
     const sections = content.content.split(/(?=# |## )/);
