@@ -189,7 +189,32 @@ export function TipBubble({
             </div>
           </div>
           
-          {/* Content - Only show if not minimized */}
+          {/* Minimized View */}
+          {minimized && (
+            <div className="p-2 flex items-center">
+              <h4 className="text-sm font-medium truncate">
+                {tip.title}
+              </h4>
+              {tip.relevantArticles && tip.relevantArticles.length > 0 && (
+                <div className="flex items-center ml-2 space-x-1">
+                  <div className="flex gap-1 ml-1">
+                    {tip.relevantArticles.slice(0, 2).map((article) => (
+                      <Badge key={article} variant="outline" className="text-xs px-1">
+                        {article}
+                      </Badge>
+                    ))}
+                    {tip.relevantArticles.length > 2 && (
+                      <Badge variant="outline" className="text-xs px-1">
+                        +{tip.relevantArticles.length - 2}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Full Content View - Only show if not minimized */}
           {!minimized && (
             <CardContent className="p-4">
               <h4 className="font-semibold text-sm mb-3 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md">{tip.title}</h4>

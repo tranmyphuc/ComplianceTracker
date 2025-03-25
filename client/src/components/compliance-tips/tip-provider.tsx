@@ -329,6 +329,8 @@ export function ComplianceTipProvider({
           onFeedback={recordFeedback}
           animate={true}
           jackStyle={jackStyle}
+          autoDismiss={true}
+          autoDismissDelay={20000} // Auto-dismiss after 20 seconds as requested
         />
       )}
     </ComplianceTipContext.Provider>
