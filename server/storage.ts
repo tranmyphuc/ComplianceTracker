@@ -141,6 +141,174 @@ export class MemStorage implements IStorage {
   private departments: Map<number, Department>;
   private activities: Map<number, Activity>;
   private alerts: Map<number, Alert>;
+
+  /**
+   * Initialize demo data for memory storage
+   * This method is called when database is unavailable to ensure the application has data to work with
+   */
+  public initializeDemoData(): void {
+    console.log("Initializing demo data for memory storage as database is unavailable");
+    
+    // Initialize users if empty
+    if (this.users.size === 0) {
+      this.users.set(1, {
+        id: 1,
+        uid: "demo-admin-uid",
+        email: "admin@sghasia.com",
+        displayName: "Demo Admin",
+        username: "admin",
+        department: "IT",
+        role: "admin",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    }
+    
+    // Initialize departments if empty
+    if (this.departments.size === 0) {
+      this.departments.set(1, {
+        id: 1,
+        name: "IT",
+        description: "Information Technology Department",
+        createdAt: new Date()
+      });
+      
+      this.departments.set(2, {
+        id: 2,
+        name: "R&D",
+        description: "Research and Development",
+        createdAt: new Date()
+      });
+      
+      this.departments.set(3, {
+        id: 3,
+        name: "HR",
+        description: "Human Resources",
+        createdAt: new Date()
+      });
+    }
+    
+    // Initialize AI systems if empty
+    if (this.aiSystems.size === 0) {
+      this.aiSystems.set(1, {
+        id: 1,
+        systemId: "AI-SYS-1001",
+        name: "Recruitment Assistant",
+        description: "AI system for screening job applicants and suggesting candidates",
+        vendor: "SGH ASIA",
+        department: "HR",
+        purpose: "Automate initial screening of job applications",
+        version: "1.0.0",
+        aiCapabilities: "Natural language processing, resume parsing, candidate ranking",
+        trainingDatasets: "Historical hiring data, anonymized resumes",
+        usageContext: "Internal HR department only",
+        potentialImpact: "Medium impact on hiring decisions",
+        category: "employment",
+        riskLevel: "high_risk",
+        status: "active",
+        createdBy: "admin",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      
+      this.aiSystems.set(2, {
+        id: 2,
+        systemId: "AI-SYS-1002",
+        name: "Customer Sentiment Analyzer",
+        description: "Analyzes customer feedback to identify sentiment and key issues",
+        vendor: "SGH ASIA",
+        department: "Customer Service",
+        purpose: "Improve customer satisfaction and response times",
+        version: "2.1.0",
+        aiCapabilities: "Sentiment analysis, keyword extraction, trend identification",
+        trainingDatasets: "Customer feedback, support tickets, call transcripts",
+        usageContext: "Internal customer service team",
+        potentialImpact: "Low impact on individual customers",
+        category: "recommendation",
+        riskLevel: "limited_risk",
+        status: "active",
+        createdBy: "admin",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      
+      this.aiSystems.set(3, {
+        id: 3,
+        systemId: "AI-SYS-1003",
+        name: "Predictive Maintenance System",
+        description: "Predicts equipment failures before they occur",
+        vendor: "SGH ASIA",
+        department: "Operations",
+        purpose: "Reduce downtime and maintenance costs",
+        version: "1.5.0",
+        aiCapabilities: "Anomaly detection, time series analysis, predictive modeling",
+        trainingDatasets: "Sensor data, maintenance logs, equipment specifications",
+        usageContext: "Manufacturing floor operations",
+        potentialImpact: "Medium impact on operational decisions",
+        category: "critical_infrastructure",
+        riskLevel: "high_risk",
+        status: "active",
+        createdBy: "admin",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    }
+    
+    // Initialize activities if empty
+    if (this.activities.size === 0) {
+      this.activities.set(1, {
+        id: 1,
+        userId: 1,
+        action: "System Registration",
+        description: "Registered new AI system: Recruitment Assistant",
+        timestamp: new Date(Date.now() - 86400000 * 2), // 2 days ago
+        metadata: JSON.stringify({ systemId: "AI-SYS-1001" })
+      });
+      
+      this.activities.set(2, {
+        id: 2,
+        userId: 1,
+        action: "Risk Assessment",
+        description: "Completed risk assessment for Customer Sentiment Analyzer",
+        timestamp: new Date(Date.now() - 86400000), // 1 day ago
+        metadata: JSON.stringify({ systemId: "AI-SYS-1002", riskLevel: "limited_risk" })
+      });
+      
+      this.activities.set(3, {
+        id: 3,
+        userId: 1,
+        action: "Document Generation",
+        description: "Generated technical documentation for Predictive Maintenance System",
+        timestamp: new Date(),
+        metadata: JSON.stringify({ systemId: "AI-SYS-1003", documentType: "technical_documentation" })
+      });
+    }
+    
+    // Initialize alerts if empty
+    if (this.alerts.size === 0) {
+      this.alerts.set(1, {
+        id: 1,
+        title: "High-risk system needs review",
+        description: "Recruitment Assistant system requires a detailed risk assessment",
+        severity: "high",
+        status: "active",
+        systemId: "AI-SYS-1001",
+        createdAt: new Date(),
+        resolvedAt: null
+      });
+      
+      this.alerts.set(2, {
+        id: 2,
+        title: "Documentation update required",
+        description: "EU AI Act Article 11 compliance documentation needs update for Predictive Maintenance System",
+        severity: "medium",
+        status: "active",
+        systemId: "AI-SYS-1003",
+        createdAt: new Date(),
+        resolvedAt: null
+      });
+    }
+  }
   private deadlines: Map<number, Deadline>;
   private documents: Map<number, Document>;
   private riskAssessments: Map<number, RiskAssessment>;
@@ -1257,8 +1425,317 @@ export class DatabaseStorage implements IStorage {
 }
 
 /**
+ * Hybrid Storage Class
+ * 
+ * Uses database storage when available and falls back to memory storage when database is unavailable.
+ * This ensures the application continues to function even during database connectivity issues.
+ */
+export class HybridStorage implements IStorage {
+  private dbStorage: DatabaseStorage;
+  private memStorage: MemStorage;
+  private useDatabase: boolean = true;
+
+  constructor() {
+    this.dbStorage = new DatabaseStorage();
+    this.memStorage = new MemStorage();
+    
+    // Check database connectivity periodically
+    this.checkDatabaseConnection();
+    setInterval(() => this.checkDatabaseConnection(), 30000); // Check every 30 seconds
+  }
+
+  private async checkDatabaseConnection(): Promise<void> {
+    try {
+      // Perform a simple query to check database connectivity
+      const result = await sql`SELECT 1 as value`;
+      
+      if (result && result.length > 0) {
+        // Connection is successful
+        if (!this.useDatabase) {
+          console.log("Database connection restored. Switching to database storage.");
+          this.useDatabase = true;
+        }
+      }
+    } catch (error) {
+      if (this.useDatabase) {
+        console.error("Database connection failed. Falling back to memory storage:", error);
+        this.useDatabase = false;
+      }
+    }
+  }
+
+  // Method to access current storage based on database availability
+  private get storage(): IStorage {
+    return this.useDatabase ? this.dbStorage : this.memStorage;
+  }
+
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    try {
+      return await this.storage.getUser(id);
+    } catch (error) {
+      console.error("Error in getUser, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getUser(id);
+    }
+  }
+
+  async getUserByUid(uid: string): Promise<User | undefined> {
+    try {
+      return await this.storage.getUserByUid(uid);
+    } catch (error) {
+      console.error("Error in getUserByUid, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getUserByUid(uid);
+    }
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    try {
+      return await this.storage.getUserByEmail(email);
+    } catch (error) {
+      console.error("Error in getUserByEmail, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getUserByEmail(email);
+    }
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    try {
+      return await this.storage.createUser(user);
+    } catch (error) {
+      console.error("Error in createUser, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.createUser(user);
+    }
+  }
+
+  // AI System operations
+  async getAiSystem(id: number): Promise<AiSystem | undefined> {
+    try {
+      return await this.storage.getAiSystem(id);
+    } catch (error) {
+      console.error("Error in getAiSystem, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getAiSystem(id);
+    }
+  }
+
+  async getAiSystemBySystemId(systemId: string): Promise<AiSystem | undefined> {
+    try {
+      return await this.storage.getAiSystemBySystemId(systemId);
+    } catch (error) {
+      console.error("Error in getAiSystemBySystemId, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getAiSystemBySystemId(systemId);
+    }
+  }
+
+  async getAllAiSystems(): Promise<AiSystem[]> {
+    try {
+      return await this.storage.getAllAiSystems();
+    } catch (error) {
+      console.error("Error in getAllAiSystems, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getAllAiSystems();
+    }
+  }
+
+  async getHighRiskAiSystems(limit?: number): Promise<AiSystem[]> {
+    try {
+      return await this.storage.getHighRiskAiSystems(limit);
+    } catch (error) {
+      console.error("Error in getHighRiskAiSystems, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getHighRiskAiSystems(limit);
+    }
+  }
+
+  async createAiSystem(system: InsertAiSystem): Promise<AiSystem> {
+    try {
+      return await this.storage.createAiSystem(system);
+    } catch (error) {
+      console.error("Error in createAiSystem, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.createAiSystem(system);
+    }
+  }
+
+  async updateAiSystem(id: number, system: Partial<AiSystem>): Promise<AiSystem | undefined> {
+    try {
+      return await this.storage.updateAiSystem(id, system);
+    } catch (error) {
+      console.error("Error in updateAiSystem, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.updateAiSystem(id, system);
+    }
+  }
+
+  async deleteAiSystem(id: number): Promise<boolean> {
+    try {
+      return await this.storage.deleteAiSystem(id);
+    } catch (error) {
+      console.error("Error in deleteAiSystem, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.deleteAiSystem(id);
+    }
+  }
+
+  // Forward all other methods to the current active storage
+  // Department operations
+  async getDepartment(id: number): Promise<Department | undefined> {
+    return this.storage.getDepartment(id);
+  }
+
+  async getAllDepartments(): Promise<Department[]> {
+    return this.storage.getAllDepartments();
+  }
+
+  async createDepartment(department: InsertDepartment): Promise<Department> {
+    return this.storage.createDepartment(department);
+  }
+
+  async updateDepartment(id: number, department: Partial<Department>): Promise<Department | undefined> {
+    return this.storage.updateDepartment(id, department);
+  }
+
+  // Activity operations
+  async getRecentActivities(limit: number): Promise<Activity[]> {
+    return this.storage.getRecentActivities(limit);
+  }
+
+  async createActivity(activity: InsertActivity): Promise<Activity> {
+    return this.storage.createActivity(activity);
+  }
+
+  // Alert operations
+  async getCriticalAlerts(limit: number): Promise<Alert[]> {
+    return this.storage.getCriticalAlerts(limit);
+  }
+
+  async createAlert(alert: InsertAlert): Promise<Alert> {
+    return this.storage.createAlert(alert);
+  }
+
+  async resolveAlert(id: number): Promise<Alert | undefined> {
+    return this.storage.resolveAlert(id);
+  }
+
+  // Deadline operations
+  async getUpcomingDeadlines(limit: number): Promise<Deadline[]> {
+    return this.storage.getUpcomingDeadlines(limit);
+  }
+
+  async createDeadline(deadline: InsertDeadline): Promise<Deadline> {
+    return this.storage.createDeadline(deadline);
+  }
+
+  // Document operations
+  async getDocumentsForSystem(systemId: string): Promise<Document[]> {
+    return this.storage.getDocumentsForSystem(systemId);
+  }
+
+  async createDocument(document: InsertDocument): Promise<Document> {
+    return this.storage.createDocument(document);
+  }
+
+  async updateDocument(id: number, document: Partial<Document>): Promise<Document | undefined> {
+    return this.storage.updateDocument(id, document);
+  }
+
+  // Risk Assessment operations
+  async getRiskAssessment(id: number): Promise<RiskAssessment | undefined> {
+    return this.storage.getRiskAssessment(id);
+  }
+
+  async getRiskAssessmentByAssessmentId(assessmentId: string): Promise<RiskAssessment | undefined> {
+    return this.storage.getRiskAssessmentByAssessmentId(assessmentId);
+  }
+
+  async getRiskAssessmentsForSystem(systemId: string): Promise<RiskAssessment[]> {
+    return this.storage.getRiskAssessmentsForSystem(systemId);
+  }
+
+  async createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment> {
+    return this.storage.createRiskAssessment(assessment);
+  }
+
+  async updateRiskAssessment(id: number, assessment: Partial<RiskAssessment>): Promise<RiskAssessment | undefined> {
+    return this.storage.updateRiskAssessment(id, assessment);
+  }
+
+  // Approval workflow operations
+  async getApprovalItems(options?: {
+    status?: string;
+    assignedTo?: string;
+    moduleType?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<ApprovalItem[]> {
+    return this.storage.getApprovalItems(options);
+  }
+
+  async getApprovalItem(id: number): Promise<ApprovalItem | undefined> {
+    return this.storage.getApprovalItem(id);
+  }
+
+  async createApprovalItem(item: InsertApprovalItem): Promise<ApprovalItem> {
+    return this.storage.createApprovalItem(item);
+  }
+
+  async updateApprovalItem(id: number, updates: Partial<ApprovalItem>): Promise<ApprovalItem | undefined> {
+    return this.storage.updateApprovalItem(id, updates);
+  }
+
+  async getApprovalAssignments(itemId: number): Promise<ApprovalAssignment[]> {
+    return this.storage.getApprovalAssignments(itemId);
+  }
+
+  async createApprovalAssignment(assignment: InsertApprovalAssignment): Promise<ApprovalAssignment> {
+    return this.storage.createApprovalAssignment(assignment);
+  }
+
+  async getApprovalHistory(itemId: number): Promise<ApprovalHistory[]> {
+    return this.storage.getApprovalHistory(itemId);
+  }
+
+  async createApprovalHistory(history: InsertApprovalHistory): Promise<ApprovalHistory> {
+    return this.storage.createApprovalHistory(history);
+  }
+
+  async getApprovalNotifications(userId: string, options?: {
+    read?: boolean;
+    limit?: number;
+    offset?: number;
+  }): Promise<ApprovalNotification[]> {
+    return this.storage.getApprovalNotifications(userId, options);
+  }
+
+  async getUnreadNotificationCount(userId: string): Promise<number> {
+    return this.storage.getUnreadNotificationCount(userId);
+  }
+
+  async createApprovalNotification(notification: InsertApprovalNotification): Promise<ApprovalNotification> {
+    return this.storage.createApprovalNotification(notification);
+  }
+
+  async markNotificationsAsRead(userId: string, notificationIds: number[]): Promise<void> {
+    return this.storage.markNotificationsAsRead(userId, notificationIds);
+  }
+
+  async getApprovalSettings(userId: string): Promise<ApprovalSettings | undefined> {
+    return this.storage.getApprovalSettings(userId);
+  }
+  
+  async updateApprovalSettings(userId: string, updates: Partial<ApprovalSettings>): Promise<ApprovalSettings | undefined> {
+    return this.storage.updateApprovalSettings(userId, updates);
+  }
+}
+
+/**
  * Storage module
  * 
  * Handles database operations for the EU AI Act Compliance Platform.
+ * Uses HybridStorage to ensure application functionality even during database connectivity issues.
  */
-export const storage = new DatabaseStorage();
+export const storage = new HybridStorage();
