@@ -44,6 +44,19 @@ export interface TrainingProgress {
 // Training modules data
 const TRAINING_MODULES: TrainingModule[] = [
   {
+    id: "ai-literacy",
+    title: "AI Literacy Training Program",
+    description: "A comprehensive training program designed for SGH Group employees to understand AI basics and EU AI Act compliance requirements.",
+    estimated_time: "60-90 minutes",
+    topics: ["AI Basics", "EU AI Act", "Risk Management", "High-Risk AI", "Documentation"],
+    role_relevance: {
+      decision_maker: "High",
+      developer: "High",
+      operator: "High",
+      user: "Medium"
+    }
+  },
+  {
     id: "1",
     title: "EU AI Act Introduction",
     description: "Introduction to the EU AI Act, its scope, and key provisions",
@@ -107,14 +120,6 @@ const TRAINING_MODULES: TrainingModule[] = [
       operator: "High",
       user: "Low"
     }
-  },
-  {
-    id: "ai-literacy",
-    title: aiLiteracyTrainingModule.title,
-    description: aiLiteracyTrainingModule.description,
-    estimated_time: aiLiteracyTrainingModule.estimated_time,
-    topics: aiLiteracyTrainingModule.topics,
-    role_relevance: aiLiteracyTrainingModule.role_relevance
   }
 ];
 
