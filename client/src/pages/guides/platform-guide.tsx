@@ -143,7 +143,7 @@ export default function PlatformGuide() {
                         </div>
                         {slide.jackMessage && (
                           <div className="absolute bottom-0 right-0 left-0 bg-black/60 p-4 flex items-start gap-3">
-                            <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden border-2 border-primary">
+                            <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden border-2 border-primary bg-white">
                               <img 
                                 src="/assets/1000048340-modified.png" 
                                 alt="Jack from SGH ASIA" 

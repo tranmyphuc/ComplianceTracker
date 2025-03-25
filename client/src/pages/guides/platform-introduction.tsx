@@ -8,12 +8,22 @@ import {
   Shield, 
   FileText, 
   CheckCircle2,
-  GraduationCap
+  GraduationCap,
+  ChevronLeft
 } from "lucide-react";
 
 export default function PlatformIntroduction() {
   return (
     <div className="container mx-auto py-8 max-w-5xl">
+      <div className="flex items-center gap-2 mb-6">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/guides">
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Back to Guides
+          </Link>
+        </Button>
+      </div>
+      
       <div className="flex flex-col gap-2 mb-8">
         <h1 className="text-3xl font-bold">EU AI Act Compliance Platform Introduction</h1>
         <p className="text-muted-foreground">
@@ -22,38 +32,55 @@ export default function PlatformIntroduction() {
       </div>
 
       <div className="grid grid-cols-1 gap-8">
-        {/* Platform Overview */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Platform Overview</CardTitle>
-            <CardDescription>
-              The SGH ASIA EU AI Act Compliance Platform is a comprehensive solution designed to help organizations navigate the complex requirements of the EU AI Act.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="aspect-video bg-muted rounded-lg overflow-hidden">
-              <img 
-                src="/assets/image_1742743429066.png" 
-                alt="Platform Dashboard" 
-                className="w-full h-full object-cover"
-              />
+        {/* Introduction with Jack */}
+        <Card className="border-primary/50">
+          <CardContent className="p-0">
+            <div className="relative">
+              <div className="aspect-video bg-muted">
+                <img 
+                  src="/assets/image_1742743429066.png" 
+                  alt="Platform Dashboard" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="absolute bottom-0 right-0 left-0 bg-black/60 p-4 flex items-start gap-3">
+                <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden border-2 border-primary bg-white">
+                  <img 
+                    src="/assets/1000048340-modified.png" 
+                    alt="Jack from SGH ASIA" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-white">Jack from SGH ASIA</p>
+                  <p className="text-white text-sm mt-1">
+                    Welcome to the EU AI Act Compliance Platform! I'm Jack, and I'll be your guide through this platform. 
+                    Our goal is to help your organization navigate the complex requirements of the EU AI Act with ease.
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="text-sm">
-              Our platform provides a suite of tools and features to help you assess, document, and monitor your AI systems for compliance with the EU AI Act. The platform is designed to be user-friendly and intuitive, with a focus on practical compliance solutions.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <Button variant="outline" asChild className="justify-between">
-                <Link href="/guides/platform-overview">
-                  <span>Detailed Platform Guide</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button variant="outline" asChild className="justify-between">
-                <Link href="/onboarding">
-                  <span>Start Onboarding</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+            <div className="p-6">
+              <h3 className="text-lg font-semibold mb-2">Platform Overview</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                The SGH ASIA EU AI Act Compliance Platform is a comprehensive solution designed to help organizations navigate 
+                the complex requirements of the EU AI Act. Our platform provides a suite of tools and features to help you assess, 
+                document, and monitor your AI systems for compliance with the EU AI Act.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <Button variant="outline" asChild className="justify-between">
+                  <Link href="/guides/platform-guide">
+                    <span>Take a Platform Tour with Jack</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild className="justify-between">
+                  <Link href="/onboarding">
+                    <span>Start Onboarding</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
