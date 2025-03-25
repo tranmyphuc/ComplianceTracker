@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { db, sql } from "./db";
+import { eq } from "drizzle-orm";
 import {
   insertUserSchema,
   insertAiSystemSchema,
@@ -12,7 +13,8 @@ import {
   insertRiskAssessmentSchema,
   loginSchema,
   registerSchema,
-  AiSystem
+  AiSystem,
+  trainingModules
 } from "@shared/schema";
 import { ZodError } from "zod";
 import { 
@@ -1566,12 +1568,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Try to get from database otherwise
       try {
-        const result = await sql`
-          SELECT id, title, description, estimated_time, topics, role_relevance 
-          FROM training_modules 
-          WHERE module_id = ${id}
-          LIMIT 1
-        `;
+        // Use parameterized query to avoid SQL injection
+        const result = await db.select({
+          id: trainingModules.id,
+          title: trainingModules.title,
+          description: trainingModules.description,
+          estimated_time: trainingModules.estimatedTime,
+          topics: trainingModules.topics,
+          role_relevance: trainingModules.roleRelevance
+        })
+        .from(trainingModules)
+        .where(eq(trainingModules.moduleId, id))
+        .limit(1);
         
         if (result && result.length > 0) {
           const moduleData = result[0] as any;
