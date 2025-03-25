@@ -32,23 +32,11 @@ import {
 import { getCurrentUser } from "@/lib/firebase";
 import { getAuth } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { AiAssistantDialog } from "@/components/ai-assistant/assistant-dialog";
 import { useAuth } from "@/components/auth/auth-context";
 import { Badge } from "@/components/ui/badge";
-import { LanguageCode } from "@/contexts/LanguageContext";
-
-// Safe language access without the hook - we'll use an alternative approach
-// that doesn't throw errors when the context is unavailable
-const defaultLanguage = { 
-  currentLanguage: 'en' as LanguageCode, 
-  setLanguage: () => {}, 
-  languages: [
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-    { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' }
-  ]
-};
+import { useLanguage, LanguageCode } from "@/contexts/LanguageContext";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -61,9 +49,8 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   
-  // Use default language values to avoid the context error
-  // This is a temporary solution until we properly integrate with the language context
-  const { currentLanguage, setLanguage, languages } = defaultLanguage;
+  // Now we can properly use the language context
+  const { currentLanguage, setLanguage, languages } = useLanguage();
 
   const handleSignOut = async () => {
     try {

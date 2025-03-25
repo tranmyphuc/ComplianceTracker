@@ -18,6 +18,7 @@ import {
 import { useLocation, Link } from "wouter";
 import { InlineTip, TipButton } from "@/components/compliance-tips";
 import { useContextualTips } from "@/hooks/use-contextual-tips";
+import { LanguageDemo } from "@/components/language-demo";
 
 export default function RiskAssessment() {
   const [activeTab, setActiveTab] = useState("advanced-wizard");
@@ -113,6 +114,11 @@ export default function RiskAssessment() {
           }}
           jackStyle={true}
         />
+      </div>
+      
+      {/* Language Demo - this shows our language switching in action */}
+      <div className="mb-6">
+        <LanguageDemo />
       </div>
       
       <Tabs
