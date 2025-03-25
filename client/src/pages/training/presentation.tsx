@@ -18,12 +18,18 @@ const TrainingPresentationPage: React.FC = () => {
 
     const fetchModuleInfo = async () => {
       try {
-        const response = await fetch(`/api/training/modules/${id}/info`);
+        // Check if in development mode
+        const isDevelopmentMode = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+        
+        const response = await fetch(`/api/training/modules/${id}/info${isDevelopmentMode ? '?demo=true' : ''}`);
         const data = await response.json();
-        setModuleTitle(data.title);
+        setModuleTitle(data.title || `Training Module: ${id}`);
+        console.log("Module info fetched successfully:", data.title);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching module info:', error);
+        // Set a default title in case of error
+        setModuleTitle(`Training Module: ${id}`);
         setLoading(false);
       }
     };
@@ -38,6 +44,8 @@ const TrainingPresentationPage: React.FC = () => {
         }
       } catch (error) {
         console.error('Error fetching user preferences:', error);
+        // Set a default role in case of error
+        setUserRole('technical');
       }
     };
 

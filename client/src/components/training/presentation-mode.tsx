@@ -22,25 +22,116 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
     const fetchModule = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/training/modules/${moduleId}?role=${role}`);
+        
+        // Check if in development mode
+        const isDevelopmentMode = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+        
+        const response = await fetch(`/api/training/modules/${moduleId}?role=${role}${isDevelopmentMode ? '&demo=true' : ''}`);
         const data = await response.json();
+        
+        console.log("Presentation mode data:", data);
 
-        // Format data into slides
-        const formattedSlides = [
-          { type: 'title', title: data.title, subtitle: 'EU AI Act Compliance Training' },
-          ...data.sections.map((section: any) => ({ 
-            type: 'content', 
-            title: section.title, 
-            content: section.content 
-          })),
-          { type: 'assessment', assessments: data.assessments, title: 'Knowledge Check' },
-          { type: 'certificate', title: 'Module Complete', content: 'You have completed this module' }
-        ];
+        // Handle data format for presentation mode
+        let formattedSlides;
+        
+        if (data.sections) {
+          // Old format
+          formattedSlides = [
+            { type: 'title', title: data.title, subtitle: 'EU AI Act Compliance Training' },
+            ...data.sections.map((section: any) => ({ 
+              type: 'content', 
+              title: section.title, 
+              content: section.content 
+            })),
+            { type: 'assessment', assessments: data.assessments, title: 'Knowledge Check' },
+            { type: 'certificate', title: 'Module Complete', content: 'You have completed this module' }
+          ];
+        } else if (data.content && data.content.slides) {
+          // New format
+          formattedSlides = [
+            { type: 'title', title: data.title, subtitle: 'EU AI Act Compliance Training' },
+            ...data.content.slides.map((slide: any) => ({ 
+              type: 'content', 
+              title: slide.title, 
+              content: slide.content 
+            })),
+            { 
+              type: 'assessment', 
+              assessments: data.content.assessment?.questions || [], 
+              title: 'Knowledge Check' 
+            },
+            { 
+              type: 'certificate', 
+              title: 'Module Complete', 
+              content: 'You have completed this module' 
+            }
+          ];
+        } else {
+          // Fallback format for demonstration
+          formattedSlides = [
+            { 
+              type: 'title', 
+              title: data.title || 'Training Module', 
+              subtitle: 'EU AI Act Compliance Training' 
+            },
+            { 
+              type: 'content', 
+              title: 'Introduction', 
+              content: '<p>This is a demonstration of the training module presentation mode.</p>' 
+            },
+            { 
+              type: 'content', 
+              title: 'Key Concepts', 
+              content: '<p>This slide would normally contain key concepts from the training module.</p>' 
+            },
+            { 
+              type: 'assessment', 
+              assessments: [], 
+              title: 'Knowledge Check' 
+            },
+            { 
+              type: 'certificate', 
+              title: 'Module Complete', 
+              content: 'You have completed this module' 
+            }
+          ];
+        }
 
         setSlides(formattedSlides);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching module:', error);
+        
+        // Provide fallback slides for demo
+        const fallbackSlides = [
+          { 
+            type: 'title', 
+            title: 'Training Module Demo', 
+            subtitle: 'EU AI Act Compliance Training' 
+          },
+          { 
+            type: 'content', 
+            title: 'Introduction', 
+            content: '<p>This is a demonstration of the training module presentation mode.</p>' 
+          },
+          { 
+            type: 'content', 
+            title: 'Key Concepts', 
+            content: '<p>This slide would normally contain key concepts from the training module.</p>' 
+          },
+          { 
+            type: 'assessment', 
+            assessments: [], 
+            title: 'Knowledge Check' 
+          },
+          { 
+            type: 'certificate', 
+            title: 'Module Complete', 
+            content: 'You have completed this module' 
+          }
+        ];
+        
+        setSlides(fallbackSlides);
         setLoading(false);
       }
     };

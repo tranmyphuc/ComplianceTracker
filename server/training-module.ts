@@ -609,7 +609,41 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
 
     // For other modules, try to get from database first
     try {
+      // Check for development mode and show mock data if needed
+      const isDevelopmentMode = process.env.NODE_ENV === 'development';
+      
+      // In development mode with admin user, provide demo content
+      if (isDevelopmentMode && req.query.demo === 'true') {
+        console.log(`Development mode: serving demo content for module ${moduleId}`);
+        // Return demo content for presentation
+        const demoContent = MODULE_CONTENTS[moduleId] || MODULE_CONTENTS["1"];
+        if (demoContent) {
+          const roleContent = demoContent[userRole] || demoContent.default;
+          const enhancedContent = {
+            title: TRAINING_MODULES.find(m => m.id === moduleId)?.title || "Demo Module",
+            description: TRAINING_MODULES.find(m => m.id === moduleId)?.description || "Demo content for client presentation",
+            estimated_time: TRAINING_MODULES.find(m => m.id === moduleId)?.estimated_time || "30 minutes",
+            content: {
+              slides: buildSlides({ slides: [
+                { title: "Demo Slide 1", content: "This is demo content for the client presentation." },
+                { title: "Demo Slide 2", content: "Showing how the training module interface works." }
+              ]}),
+              document: buildDocument({ content: "# Demo Content\n\nThis is placeholder content for the demo." }, "Demo Module"),
+              exercises: [],
+              assessment: { questions: [] }
+            }
+          };
+          return res.json(enhancedContent);
+        }
+      }
+
       // Use the postgres client with template literals for parameterized queries
+      // Handle potential undefined values to prevent SQL errors
+      if (!moduleId) {
+        console.error("Module ID is undefined or null");
+        return res.status(404).json({ error: "Invalid module ID" });
+      }
+      
       const result = await sql`
         SELECT * FROM training_modules 
         WHERE module_id = ${moduleId}

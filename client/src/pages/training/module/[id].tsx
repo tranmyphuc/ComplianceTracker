@@ -20,9 +20,15 @@ export default function ModuleView() {
     const fetchModuleData = async () => {
       try {
         setLoading(true);
-        // Fetch module content
-        const response = await axios.get(`/api/training/modules/${id}`);
+        
+        // Check if in development mode
+        const isDevelopmentMode = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+        
+        // Fetch module content with demo parameter in development mode
+        const response = await axios.get(`/api/training/modules/${id}${isDevelopmentMode ? '?demo=true' : ''}`);
         setModuleData(response.data);
+        
+        console.log("Module data fetched successfully:", response.data.title);
         
         // Fetch user progress for this module
         const progressResponse = await axios.get(`/api/training/progress?moduleId=${id}`);
