@@ -1480,6 +1480,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Module info endpoint for the presentation mode
+  app.get('/api/training/modules/:id/info', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const isDemoMode = req.query.demo === 'true';
+      
+      console.log(`Module info requested for ${id}, demo mode: ${isDemoMode}`);
+      
+      // In demo mode, provide information from predefined modules
+      if (isDemoMode) {
+        // Find the module in our predefined list
+        const module = TRAINING_MODULES.find(m => m.id === id);
+        
+        if (module) {
+          console.log(`Serving demo module info for: ${module.title}`);
+          return res.json({
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            estimated_time: module.estimated_time,
+            topics: module.topics
+          });
+        }
+      }
+      
+      // Try to get from database otherwise
+      try {
+        const result = await sql`
+          SELECT id, title, description, estimated_time, topics, role_relevance 
+          FROM training_modules 
+          WHERE module_id = ${id}
+          LIMIT 1
+        `;
+        
+        if (result && result.length > 0) {
+          const moduleData = result[0];
+          
+          const moduleInfo = {
+            id: moduleData.module_id || moduleData.id,
+            title: moduleData.title,
+            description: moduleData.description,
+            estimated_time: moduleData.estimated_time,
+            topics: moduleData.topics || []
+          };
+          
+          return res.json(moduleInfo);
+        }
+      } catch (dbError) {
+        console.error("Database error fetching module info:", dbError);
+      }
+      
+      // Fall back to metadata function
+      const moduleMetadata = await getTrainingModuleMetadata(id);
+      
+      if (moduleMetadata) {
+        return res.json(moduleMetadata);
+      }
+      
+      // If no module info found and we're in development mode, create a demo one
+      if (process.env.NODE_ENV === 'development') {
+        return res.json({
+          id: id,
+          title: `Training Module: ${id}`,
+          description: "Demo training module for development mode",
+          estimated_time: "20-30 minutes",
+          topics: ["EU AI Act", "Compliance", "Demo"]
+        });
+      }
+      
+      // No module found
+      return res.status(404).json({ message: 'Training module not found' });
+    } catch (error) {
+      handleError(res, error, 'Error retrieving training module info');
+    }
+  });
+  
   app.get('/api/training/modules/:id/metadata', async (req, res) => {
     try {
       const { id } = req.params;

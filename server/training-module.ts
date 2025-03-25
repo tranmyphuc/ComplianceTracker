@@ -42,7 +42,7 @@ export interface TrainingProgress {
 }
 
 // Training modules data
-const TRAINING_MODULES: TrainingModule[] = [
+export const TRAINING_MODULES: TrainingModule[] = [
   {
     id: "ai-literacy",
     title: "AI Literacy Training Program",
