@@ -48,7 +48,7 @@ const SGHServiceScenario: React.FC = () => {
             <CardContent className="space-y-4">
               <div>
                 <h3 className="font-semibold text-lg mb-2">Company Overview</h3>
-                <p>SGH Service (https://sgh-service.com/en/) is a professional services firm operating across multiple European countries. With approximately 500 employees, the company provides consulting, business process optimization, and digital transformation services to clients in various industries.</p>
+                <p>SGH Service (https://sgh-service.com/en/) is a comprehensive professional services firm operating across multiple European countries. With approximately 500 employees, the company specializes in technical service management, SAP consulting, enterprise resource planning, and digital transformation for clients in manufacturing, logistics, and healthcare industries. Founded in 1978 and headquartered in Vienna, Austria, they have established a reputation for technical excellence and innovative service solutions.</p>
               </div>
               
               <div>
@@ -57,7 +57,7 @@ const SGHServiceScenario: React.FC = () => {
                   <div className="bg-muted/50 p-4 rounded-md">
                     <h4 className="font-medium">Odoo AI</h4>
                     <p className="text-sm text-muted-foreground mt-1">
-                      An enterprise resource planning (ERP) system with AI capabilities for business process automation, customer relationship management, and operational optimization.
+                      SGH Service has integrated Odoo AI into their enterprise resource planning (ERP) stack to automate service management workflows, enhance customer relationship management through predictive analytics, and optimize operational efficiency for their technical consulting services. The AI components analyze client service patterns, predict maintenance needs, and automate administrative tasks.
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">Medium Risk (Article 6)</Badge>
@@ -68,7 +68,7 @@ const SGHServiceScenario: React.FC = () => {
                   <div className="bg-muted/50 p-4 rounded-md">
                     <h4 className="font-medium">ChatGPT Integration</h4>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Integration of ChatGPT for client communications, document summarization, and initial consulting advice generation.
+                      SGH Service has implemented ChatGPT (GPT-4) through the Azure OpenAI Service to enhance their consulting operations. The system is used for summarizing technical service documentation, generating preliminary service reports, assisting with client communications, and providing initial consulting recommendations based on input parameters. They've built custom prompts and implemented guardrails to ensure quality and accuracy.
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">Medium Risk (Article 6)</Badge>
@@ -79,7 +79,7 @@ const SGHServiceScenario: React.FC = () => {
                   <div className="bg-muted/50 p-4 rounded-md">
                     <h4 className="font-medium">GitHub Copilot</h4>
                     <p className="text-sm text-muted-foreground mt-1">
-                      AI-powered code assistant used by the development team for custom client solutions and internal tools.
+                      SGH Service has deployed GitHub Copilot across their development teams to enhance productivity when creating custom client-facing applications, ERP customizations, and internal automation tools. The AI code assistant is used for accelerating development of Odoo modules, implementing custom API integrations, and building technical service management tools. The team has established usage guidelines that govern appropriate use cases and documentation practices.
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Limited Risk (Article 6)</Badge>
@@ -90,7 +90,7 @@ const SGHServiceScenario: React.FC = () => {
                   <div className="bg-muted/50 p-4 rounded-md">
                     <h4 className="font-medium">Document Analysis AI</h4>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Custom-built AI system for analyzing client documents, extracting key information, and providing insights for business process optimization.
+                      SGH Service has developed a proprietary document analysis system that specializes in technical documentation processing for their service management operations. The system analyzes service contracts, equipment documentation, maintenance records, and client requirements to extract key information, identify process inefficiencies, and generate optimization recommendations. Built on a combination of Azure's Document Intelligence and custom-trained ML models, it helps consultants quickly digest large volumes of technical documentation.
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">Medium Risk (Article 6)</Badge>
@@ -116,7 +116,7 @@ const SGHServiceScenario: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <Alert variant="warning" className="bg-yellow-50 text-yellow-800 border-yellow-200">
+                <Alert className="bg-yellow-50 text-yellow-800 border-yellow-200">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>Complex Regulatory Landscape</AlertTitle>
                   <AlertDescription>
