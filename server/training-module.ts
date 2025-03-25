@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { storage } from './storage';
 import { trainingModules, trainingProgress } from '../shared/schema';
-import { db } from './db';
+import { db, sql } from './db';
 import { eq, and } from 'drizzle-orm';
 import { aiLiteracyTrainingModule } from './modules/ai-literacy-training';
 import { marked } from 'marked';
@@ -609,16 +609,12 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
 
     // For other modules, try to get from database first
     try {
-      // Using the postgres client directly
-      const query = `
+      // Use the postgres client with template literals for parameterized queries
+      const result = await sql`
         SELECT * FROM training_modules 
-        WHERE module_id = $1 
+        WHERE module_id = ${moduleId}
         LIMIT 1
       `;
-      
-      // Access the client directly for raw SQL queries
-      const client = (db as any).client || (db as any).$pool;
-      const result = await client(query, [moduleId]);
       
       if (result && result.length > 0) {
         const moduleData = result[0];
@@ -889,15 +885,11 @@ export async function getUserProgress(req: Request, res: Response): Promise<void
       return;
     }
 
-    // Using raw SQL query to avoid column name issues
-    const query = `
+    // Use the postgres client with template literals for parameterized queries
+    const result = await sql`
       SELECT * FROM training_progress 
-      WHERE user_id = $1
+      WHERE user_id = ${userId}
     `;
-    
-    // Access the postgres client directly
-    const client = (db as any).client || (db as any).$pool;
-    const result = await client(query, [userId]);
 
     // Format progress as object with moduleId as key
     const formattedProgress: Record<string, { completion: number }> = {};
