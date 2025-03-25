@@ -956,17 +956,18 @@ export async function getUserProgress(req: Request, res: Response): Promise<void
     // Get the first value if it's an array, or use the string directly
     const userId = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam;
     
-    // Query database with proper sql template literals
-    const result = await sql`
-      SELECT * FROM training_progress 
-      WHERE user_id = ${userId}
-    `;
+    // Safely get user ID as a string
+    const userIdStr = typeof userId === 'string' ? userId : String(userId || '');
+    
+    // Use a different approach for the query to avoid type issues
+    const query = 'SELECT * FROM training_progress WHERE user_id = $1';
+    const result = await sql.query(query, [userIdStr]);
 
     // Format progress as object with moduleId as key
     const formattedProgress: Record<string, { completion: number }> = {};
 
-    if (result && Array.isArray(result)) {
-      result.forEach((item: any) => {
+    if (result && result.rows && Array.isArray(result.rows)) {
+      result.rows.forEach((item: any) => {
         formattedProgress[item.module_id] = {
           completion: item.completion || 0
         };

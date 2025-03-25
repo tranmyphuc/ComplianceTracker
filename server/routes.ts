@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db, sql } from "./db";
 import {
   insertUserSchema,
   insertAiSystemSchema,
@@ -66,7 +67,7 @@ import {
   subscribeToUpdates
 } from './regulatory-updates';
 import { analyzeSystemRisk, analyzeProhibitedUse, generateRiskReport, analyzeComplianceGaps } from './risk-assessment';
-import { getTrainingModules, getModuleContent, trackTrainingProgress, getUserProgress, getTrainingModuleContent, getTrainingModuleMetadata, recordTrainingCompletion, getTrainingCertificate, exportTrainingModule } from './training-module';
+import { getTrainingModules, getModuleContent, trackTrainingProgress, getUserProgress, getTrainingModuleContent, getTrainingModuleMetadata, recordTrainingCompletion, getTrainingCertificate, exportTrainingModule, TRAINING_MODULES } from './training-module';
 import { 
   getApiKeys, 
   addApiKey, 
@@ -1481,7 +1482,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Module info endpoint for the presentation mode
-  app.get('/api/training/modules/:id/info', async (req, res) => {
+  app.get('/api/training/modules/:id/info', async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const isDemoMode = req.query.demo === 'true';
@@ -1515,7 +1516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `;
         
         if (result && result.length > 0) {
-          const moduleData = result[0];
+          const moduleData = result[0] as any;
           
           const moduleInfo = {
             id: moduleData.module_id || moduleData.id,
@@ -1552,11 +1553,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // No module found
       return res.status(404).json({ message: 'Training module not found' });
     } catch (error) {
-      handleError(res, error, 'Error retrieving training module info');
+      handleError(res, error as Error, 'Error retrieving training module info');
     }
   });
   
-  app.get('/api/training/modules/:id/metadata', async (req, res) => {
+  app.get('/api/training/modules/:id/metadata', async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const moduleMetadata = await getTrainingModuleMetadata(id);
@@ -1567,11 +1568,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(moduleMetadata);
     } catch (error) {
-      handleError(res, error, 'Error retrieving training module metadata');
+      handleError(res, error as Error, 'Error retrieving training module metadata');
     }
   });
 
-  app.post('/api/training/complete', async (req, res) => {
+  app.post('/api/training/complete', async (req: Request, res: Response) => {
     try {
       // In a real app, this would be authenticated via middleware
       const userId = req.body.userId || 'demo-user';
@@ -1588,7 +1589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/training/certificate/:id', async (req, res) => {
+  app.get('/api/training/certificate/:id', async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const certificate = await getTrainingCertificate(id);
@@ -1599,11 +1600,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(certificate);
     } catch (error) {
-      handleError(res, error, 'Error retrieving training certificate');
+      handleError(res, error as Error, 'Error retrieving training certificate');
     }
   });
 
-  app.get('/api/training/export/:id', async (req, res) => {
+  app.get('/api/training/export/:id', async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const format = req.query.format as string || 'markdown';
@@ -1614,32 +1615,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.send(content);
     } catch (error) {
-      handleError(res, error, 'Error exporting training module');
+      handleError(res, error as Error, 'Error exporting training module');
     }
   });
 
   // Track user training progress
-  app.post('/api/training/progress', async (req, res) => {
+  app.post('/api/training/progress', async (req: Request, res: Response) => {
     try {
       await trackTrainingProgress(req, res);
     } catch (error) {
       console.error('Error in tracking training progress:', error);
-      handleError(res, error, 'Error tracking training progress');
+      handleError(res, error as Error, 'Error tracking training progress');
     }
   });
 
   // Get user training progress
-  app.get('/api/training/progress', async (req, res) => {
+  app.get('/api/training/progress', async (req: Request, res: Response) => {
     try {
       await getUserProgress(req, res);
     } catch (error) {
       console.error('Error in getting user progress:', error);
-      handleError(res, error, 'Error fetching user training progress');
+      handleError(res, error as Error, 'Error fetching user training progress');
     }
   });
 
   // Add new training module to database
-  app.post('/api/training/add-module', async (req, res) => {
+  app.post('/api/training/add-module', async (req: Request, res: Response) => {
     try {
       const moduleData = req.body;
       console.log("Adding new training module:", moduleData.moduleId);
