@@ -10,9 +10,12 @@ import { Link } from 'wouter';
 
 import { useComplianceTips } from "@/components/compliance-tips";
 import { useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "@/components/language-switcher";
 
 const RiskAssessmentGuides: React.FC = () => {
   const { showTip, setJackStyle } = useComplianceTips();
+  const { t } = useLanguage();
   
   // Show Jack's tip when the page loads
   useEffect(() => {
@@ -30,10 +33,13 @@ const RiskAssessmentGuides: React.FC = () => {
   
   return (
     <div className="container mx-auto py-8 max-w-7xl">
+      <div className="flex justify-end mb-4">
+        <LanguageSwitcher />
+      </div>
       <div className="flex flex-col gap-2 mb-6">
-        <h1 className="text-3xl font-bold">Risk Assessment Guides</h1>
+        <h1 className="text-3xl font-bold">{t('riskAssessment.guides.title')}</h1>
         <p className="text-muted-foreground">
-          Detailed guides and documentation to help you understand and implement EU AI Act risk assessments
+          {t('riskAssessment.guides.description')}
         </p>
       </div>
       
@@ -42,20 +48,19 @@ const RiskAssessmentGuides: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ShieldAlert className="h-5 w-5 text-primary" />
-              Risk Classification Guide
+              {t('riskAssessment.classification.title')}
             </CardTitle>
             <CardDescription>
-              Understanding the EU AI Act risk classification framework
+              {t('riskAssessment.classification.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1">
             <p className="text-sm text-muted-foreground mb-6">
-              This guide explains how to classify AI systems according to the risk categories defined
-              in the EU AI Act: Unacceptable, High, Limited, and Minimal Risk.
+              {t('riskAssessment.classification.content')}
             </p>
             <Button variant="outline" size="sm" asChild className="w-full">
               <Link to="/documentation/risk-assessment#risk-classification">
-                View Guide
+                {t('button.view')}
               </Link>
             </Button>
           </CardContent>
@@ -65,20 +70,19 @@ const RiskAssessmentGuides: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              Assessment Methodology
+              {t('riskAssessment.methodology.title')}
             </CardTitle>
             <CardDescription>
-              Step-by-step process for conducting risk assessments
+              {t('riskAssessment.methodology.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1">
             <p className="text-sm text-muted-foreground mb-6">
-              Learn about the methodology for conducting a comprehensive risk assessment of AI systems,
-              including risk identification, analysis, evaluation, and mitigation.
+              {t('riskAssessment.methodology.content')}
             </p>
             <Button variant="outline" size="sm" asChild className="w-full">
               <Link to="/documentation/risk-assessment#assessment-methodology">
-                View Guide
+                {t('button.view')}
               </Link>
             </Button>
           </CardContent>
@@ -88,20 +92,19 @@ const RiskAssessmentGuides: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-primary" />
-              Documentation Requirements
+              {t('riskAssessment.documentation.title')}
             </CardTitle>
             <CardDescription>
-              Required documentation for EU AI Act compliance
+              {t('riskAssessment.documentation.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1">
             <p className="text-sm text-muted-foreground mb-6">
-              This guide outlines the documentation requirements for AI systems, including technical
-              documentation, risk assessments, and compliance records.
+              {t('riskAssessment.documentation.content')}
             </p>
             <Button variant="outline" size="sm" asChild className="w-full">
               <Link to="/documentation/risk-assessment#documentation-requirements">
-                View Guide
+                {t('button.view')}
               </Link>
             </Button>
           </CardContent>
@@ -180,14 +183,14 @@ const RiskAssessmentGuides: React.FC = () => {
       <div className="bg-muted/50 rounded-lg p-6 mt-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-xl font-semibold mb-2">Comprehensive Documentation</h2>
+            <h2 className="text-xl font-semibold mb-2">{t('riskAssessment.guides.title')}</h2>
             <p className="text-muted-foreground">
-              Access our detailed technical documentation for the Risk Assessment Module
+              {t('riskAssessment.guides.description')}
             </p>
           </div>
           <Button asChild>
             <Link to="/documentation/risk-assessment">
-              View Full Documentation
+              {t('button.viewDocs')}
             </Link>
           </Button>
         </div>
@@ -195,17 +198,17 @@ const RiskAssessmentGuides: React.FC = () => {
       
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle>Additional Resources</CardTitle>
-          <CardDescription>External guidance and information about the EU AI Act</CardDescription>
+          <CardTitle>{t('resources.title')}</CardTitle>
+          <CardDescription>{t('resources.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex gap-3">
               <Book className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-medium">EU AI Act Official Text</h3>
+                <h3 className="font-medium">{t('resources.official.title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  The official legal text of the EU AI Act from the European Commission.
+                  {t('resources.official.description')}
                 </p>
               </div>
             </div>
@@ -213,9 +216,9 @@ const RiskAssessmentGuides: React.FC = () => {
             <div className="flex gap-3">
               <Book className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-medium">EU Commission Guidance</h3>
+                <h3 className="font-medium">{t('resources.commission.title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Official guidance documents from the European Commission on implementing the Act.
+                  {t('resources.commission.description')}
                 </p>
               </div>
             </div>
@@ -223,9 +226,9 @@ const RiskAssessmentGuides: React.FC = () => {
             <div className="flex gap-3">
               <Book className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-medium">Industry Best Practices</h3>
+                <h3 className="font-medium">{t('resources.best.title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Industry standards and best practices for AI risk assessment and management.
+                  {t('resources.best.description')}
                 </p>
               </div>
             </div>
@@ -233,9 +236,9 @@ const RiskAssessmentGuides: React.FC = () => {
             <div className="flex gap-3">
               <Book className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-medium">Risk Management Standards</h3>
+                <h3 className="font-medium">{t('resources.standards.title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  International standards for risk management in AI systems.
+                  {t('resources.standards.description')}
                 </p>
               </div>
             </div>
