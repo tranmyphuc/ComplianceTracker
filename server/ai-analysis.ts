@@ -142,6 +142,45 @@ async function callGeminiApi(prompt: string): Promise<string> {
  * Falls back to Gemini API if DeepSeek fails
  * Falls back to simulation if both fail
  */
+/**
+ * Helper function to safely parse JSON from AI model responses
+ * This handles the common case where models return JSON with markdown formatting
+ */
+export function safeJsonParse(jsonString: string): any {
+  try {
+    // Try direct parsing first
+    return JSON.parse(jsonString);
+  } catch (error) {
+    // Try to extract JSON from markdown code blocks
+    const jsonRegex = /```(?:json)?\s*({[\s\S]*?})\s*```/;
+    const match = jsonString.match(jsonRegex);
+    
+    if (match && match[1]) {
+      try {
+        return JSON.parse(match[1]);
+      } catch (innerError) {
+        console.error("Failed to parse extracted JSON from markdown:", innerError);
+      }
+    }
+    
+    // Try finding object notation without markdown
+    const objectRegex = /({[\s\S]*})/;
+    const objectMatch = jsonString.match(objectRegex);
+    
+    if (objectMatch && objectMatch[1]) {
+      try {
+        return JSON.parse(objectMatch[1]);
+      } catch (innerError) {
+        console.error("Failed to parse object notation:", innerError);
+      }
+    }
+    
+    // Return null if all parsing attempts fail
+    console.error("All JSON parsing attempts failed for:", jsonString);
+    return null;
+  }
+}
+
 export async function callDeepSeekApi(prompt: string, detectedSystemType?: string): Promise<string> {
   try {
     // Check if DeepSeek API key is present
