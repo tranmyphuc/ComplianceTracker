@@ -41,8 +41,8 @@ import {
   TrainingCertificatePage as LazyTrainingCertificatePage,
   TrainingModulePage as LazyTrainingModulePage
 } from "./routes/lazy-imports.ts";
-import PlatformIntroduction from './pages/guides/platform-introduction'; //Added import
-import PlatformGuide from './pages/guides/platform-guide'; //Added import
+import PlatformIntroduction from './pages/guides/platform-introduction'; 
+import PlatformGuide from './pages/guides/platform-guide'; 
 
 
 function Router() {
@@ -50,15 +50,12 @@ function Router() {
   const [location, setLocation] = useLocation();
   const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
 
-  // Temporary bypass of login check - login page removed
   useEffect(() => {
-    // Force authentication to be always available
     if (location === "/login" || location === "/register") {
       setLocation("/");
     }
   }, [location, setLocation]);
 
-  // Define all routes for verification
   const allRoutes = [
     "/",
     "/inventory",
@@ -86,22 +83,21 @@ function Router() {
     "/onboarding",
     "/profile",
     "/settings",
+    "/settings/api-keys",
     "/market-intelligence",
     "/operations-excellence",
     "/growth-innovation",
     "/guides",
-    "/guides/platform-introduction", // Added route
-    "/guides/platform-guide" // Added route
+    "/guides/platform-introduction", 
+    "/guides/platform-guide" 
   ];
 
-  // For debugging - route verification results
   useEffect(() => {
     import('./utils/route-checker').then(({ verifyRoutes }) => {
       console.log('Route verification:', verifyRoutes(allRoutes));
     });
   }, []);
 
-  // Render content inside App Layout to ensure consistent navigation
   const renderWithLayout = (Component: any, props?: any) => {
     return (
       <AppLayout>
@@ -110,7 +106,6 @@ function Router() {
     );
   };
 
-  // Render suspense components inside App Layout
   const renderSuspense = (Component: any, props?: any) => {
     return (
       <AppLayout>
@@ -199,7 +194,10 @@ function Router() {
         {() => renderWithLayout(Dashboard)}
       </Route>
       <Route path="/settings">
-        {() => renderWithLayout(Dashboard)}
+        {() => renderWithLayout(Dashboard)} {/*Existing route remains*/}
+      </Route>
+      <Route path="/settings/api-keys">
+        {() => renderWithLayout(Dashboard)} {/* Placeholder for future API key management page*/}
       </Route>
       <Route path="/market-intelligence">
         {() => renderWithLayout(MarketIntelligence)}
