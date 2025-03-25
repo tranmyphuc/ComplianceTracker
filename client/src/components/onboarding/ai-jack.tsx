@@ -47,66 +47,8 @@ export function AIJack({
     md: 'w-24 h-24',
     lg: 'w-32 h-32'
   }[size];
-  
-  // Get expression based on mood
-  const getExpression = () => {
-    switch (mood) {
-      case 'happy':
-        return (
-          <>
-            <path d="M20,20 C20,24 24,28 30,28 C36,28 40,24 40,20" className="stroke-current stroke-2 fill-none" />
-            <circle cx="22" cy="14" r="2.5" className="fill-current" />
-            <circle cx="38" cy="14" r="2.5" className="fill-current" />
-          </>
-        );
-      case 'thinking':
-        return (
-          <>
-            <path d="M20,27 L40,27" className="stroke-current stroke-2 fill-none" />
-            <circle cx="22" cy="14" r="2.5" className="fill-current" />
-            <circle cx="38" cy="14" r="2.5" className="fill-current" />
-            <circle cx="46" cy="20" r="3" className="fill-current opacity-80" /> 
-          </>
-        );
-      case 'explaining':
-        return (
-          <>
-            <path d="M20,25 C20,29 24,30 30,30 C36,30 40,29 40,25" className="stroke-current stroke-2 fill-none" />
-            <circle cx="22" cy="14" r="2.5" className="fill-current" />
-            <circle cx="38" cy="14" r="2.5" className="fill-current" />
-            <path d="M42,20 L48,18 L46,24" className="stroke-current stroke-2 fill-none" />
-          </>
-        );
-      case 'celebrating':
-        return (
-          <>
-            <path d="M20,18 C20,24 24,30 30,30 C36,30 40,24 40,18" className="stroke-current stroke-2 fill-none" />
-            <path d="M22,13 C22,11 23,11 23,13" className="stroke-current stroke-2 fill-none" />
-            <path d="M38,13 C38,11 39,11 39,13" className="stroke-current stroke-2 fill-none" />
-            <path d="M15,10 L19,14" className="stroke-current stroke-2 fill-none" />
-            <path d="M45,10 L41,14" className="stroke-current stroke-2 fill-none" />
-          </>
-        );
-      case 'surprised':
-        return (
-          <>
-            <circle cx="30" cy="26" r="4" className="stroke-current stroke-2 fill-none" />
-            <circle cx="22" cy="14" r="3" className="stroke-current stroke-2 fill-none" />
-            <circle cx="38" cy="14" r="3" className="stroke-current stroke-2 fill-none" />
-          </>
-        );
-      case 'neutral':
-      default:
-        return (
-          <>
-            <path d="M20,26 L40,26" className="stroke-current stroke-2 fill-none" />
-            <circle cx="22" cy="14" r="2.5" className="fill-current" />
-            <circle cx="38" cy="14" r="2.5" className="fill-current" />
-          </>
-        );
-    }
-  };
-  
+
+  // Use Jack's image instead of SVG expressions
   return (
     <div className={`${className}`}>
       <div className="flex flex-col items-center">
@@ -116,35 +58,42 @@ export function AIJack({
           transition={{ duration: 1 }}
           className={`${dimensions} relative`}
         >
-          <svg viewBox="0 0 60 60" className="w-full h-full text-primary">
-            {/* Head */}
-            <motion.circle 
-              cx="30" 
-              cy="30" 
-              r="24" 
-              className="fill-primary/10 stroke-primary stroke-2"
+          <div className={`w-full h-full rounded-full overflow-hidden border-2 border-primary bg-primary/5 flex items-center justify-center relative`}>
+            <motion.img
+              src="/assets/1000048340-modified.png"
+              alt={`Jack with ${mood} expression`}
+              className="w-full h-full object-cover"
               animate={isAnimating ? { scale: [1, 1.03, 1, 1.03, 1] } : { scale: 1 }}
               transition={{ duration: 1 }}
             />
             
-            {/* Antenna */}
-            <motion.path 
-              d="M30,6 L30,1" 
-              className="stroke-current stroke-2"
-              animate={isAnimating ? { rotate: [-5, 5, -5, 5, 0] } : { rotate: 0 }}
-              transition={{ duration: 1 }}
-              style={{ transformOrigin: '30px 6px' }}
-            />
-            <circle cx="30" cy="1" r="1" className="fill-current" />
-            
-            {/* Face expression based on mood */}
-            {getExpression()}
-            
-            {/* Additional decorative elements */}
-            <path d="M12,25 L14,25" className="stroke-current stroke-2 opacity-70" />
-            <path d="M46,25 L48,25" className="stroke-current stroke-2 opacity-70" />
-            <path d="M21,42 C22,46 38,46 39,42" className="stroke-current stroke-1 opacity-50 fill-none" />
-          </svg>
+            {/* Animated expression overlays based on mood */}
+            <AnimatePresence>
+              {mood === 'thinking' && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute top-0 right-0 p-1 bg-primary/30 rounded-full"
+                >
+                  <Lightbulb className="h-4 w-4 text-white" />
+                </motion.div>
+              )}
+              
+              {mood === 'celebrating' && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute top-0 left-0 right-0 flex justify-center"
+                >
+                  <div className="px-2 py-0.5 bg-yellow-500/80 text-white text-xs rounded-full">
+                    Excellent!
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
           
           {/* Animated accent elements */}
           <AnimatePresence>
@@ -153,11 +102,11 @@ export function AIJack({
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0 }}
-                className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/6"
+                className="absolute -top-2 right-0"
               >
-                <svg width="20" height="20" viewBox="0 0 20 20">
-                  <path d="M5,10 L15,10 M10,5 L10,15" className="stroke-primary stroke-2" />
-                </svg>
+                <div className="p-1 bg-white rounded-full shadow-md">
+                  <Lightbulb className="h-4 w-4 text-yellow-500" />
+                </div>
               </motion.div>
             )}
             
@@ -169,9 +118,7 @@ export function AIJack({
                   exit={{ opacity: 0, scale: 0 }}
                   className="absolute -top-1 -right-1"
                 >
-                  <svg width="16" height="16" viewBox="0 0 16 16">
-                    <path d="M8,0 L9,6 L16,8 L9,10 L8,16 L7,10 L0,8 L7,6 Z" className="fill-yellow-400" />
-                  </svg>
+                  <div className="p-1 bg-yellow-500 rounded-full text-white text-xs">✨</div>
                 </motion.div>
                 
                 <motion.div 
@@ -180,9 +127,7 @@ export function AIJack({
                   exit={{ opacity: 0, scale: 0 }}
                   className="absolute -top-2 -left-2"
                 >
-                  <svg width="14" height="14" viewBox="0 0 14 14">
-                    <path d="M7,0 L8,5 L14,7 L8,9 L7,14 L6,9 L0,7 L6,5 Z" className="fill-green-400" />
-                  </svg>
+                  <div className="p-1 bg-green-500 rounded-full text-white text-xs">🎉</div>
                 </motion.div>
               </>
             )}
@@ -194,9 +139,11 @@ export function AIJack({
                 exit={{ opacity: 0, x: 10 }}
                 className="absolute top-1/4 right-0 transform translate-x-full"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24">
-                  <path d="M0,12 L16,12 M11,6 L17,12 L11,18" className="stroke-primary stroke-2 fill-none" />
-                </svg>
+                <div className="p-1 bg-primary/80 rounded-full shadow-md">
+                  <svg width="12" height="12" viewBox="0 0 24 24" className="text-white">
+                    <path d="M0,12 L16,12 M11,6 L17,12 L11,18" className="stroke-current stroke-2 fill-none" />
+                  </svg>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -208,9 +155,9 @@ export function AIJack({
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mt-4 bg-primary/5 border border-primary/20 rounded-lg p-4 relative w-full max-w-md text-center text-sm md:text-base"
+            className="mt-4 bg-white/90 border border-primary/20 rounded-lg p-4 relative w-full max-w-md text-center text-sm md:text-base shadow-sm"
           >
-            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-primary/5 border-t border-l border-primary/20"></div>
+            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-white border-t border-l border-primary/20"></div>
             {message}
           </motion.div>
         )}
