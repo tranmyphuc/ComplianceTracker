@@ -74,6 +74,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { apiRequest } from "@/lib/queryClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ComplianceUpdates } from "@/components/settings/compliance-updates";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -413,6 +414,112 @@ export default function Settings() {
                 </form>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="api-keys">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="col-span-1 md:col-span-2">
+                <ComplianceUpdates />
+              </div>
+              
+              <Card className="col-span-1 md:col-span-2">
+                <CardHeader>
+                  <CardTitle>API Key Management</CardTitle>
+                  <CardDescription>
+                    Manage API keys for external services integration
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-medium">Current API Keys</h3>
+                        <p className="text-sm text-muted-foreground">
+                          API keys are used to authenticate with external services
+                        </p>
+                      </div>
+                      <Button size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add New Key
+                      </Button>
+                    </div>
+                    
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Provider</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Last Used</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">DeepSeek AI</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                              <CheckIcon className="h-3 w-3 mr-1" />
+                              Active
+                            </Badge>
+                          </TableCell>
+                          <TableCell>Just now</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button size="icon" variant="ghost">
+                                <Edit2 className="h-4 w-4" />
+                              </Button>
+                              <Button size="icon" variant="ghost">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Gemini AI</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                              <CheckIcon className="h-3 w-3 mr-1" />
+                              Active
+                            </Badge>
+                          </TableCell>
+                          <TableCell>Today</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button size="icon" variant="ghost">
+                                <Edit2 className="h-4 w-4" />
+                              </Button>
+                              <Button size="icon" variant="ghost">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Google Search</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                              <CheckIcon className="h-3 w-3 mr-1" />
+                              Active
+                            </Badge>
+                          </TableCell>
+                          <TableCell>Yesterday</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button size="icon" variant="ghost">
+                                <Edit2 className="h-4 w-4" />
+                              </Button>
+                              <Button size="icon" variant="ghost">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
