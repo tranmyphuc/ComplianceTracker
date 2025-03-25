@@ -162,14 +162,14 @@ export default function PlatformGuide() {
         </div>
       </div>
       
-      {/* Jack's Message */}
+      {/* Jack's Message with Emoji */}
       <div className="bg-gray-800 rounded-lg p-4 mb-8">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden border-2 border-blue-500 bg-white">
             <img 
-              src="/assets/1000048340-modified.png" 
-              alt="Jack from SGH ASIA" 
-              className="w-full h-full object-cover" 
+              src="/assets/guides/smiley-emoji.svg" 
+              alt="Smiley Assistant" 
+              className="w-full h-full object-contain p-0.5" 
             />
           </div>
           <div className="flex-1">
