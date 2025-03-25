@@ -1,7 +1,7 @@
 
 import { useState } from "react";
-import { useRouter } from "next/router";
-import { useToast } from "@/components/ui/use-toast";
+import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 export function RiskAssessmentWizard({ systemId }: { systemId?: string }) {
-  const router = useRouter();
+  const [_, setLocation] = useLocation();
   const { toast } = useToast();
   const [currentTab, setCurrentTab] = useState("initiate");
   const [isLoading, setIsLoading] = useState(false);
@@ -140,18 +140,57 @@ export function RiskAssessmentWizard({ systemId }: { systemId?: string }) {
     setIsLoading(true);
     
     try {
-      // Here you would submit the assessment data to your backend
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulating API call
+      // Calculate risk level based on form data
+      let riskLevel = "minimal";
+      if (formData.socialScoring || formData.vulnerabilityExploitation || 
+          formData.subliminalTechniques || formData.biometricIdentification) {
+        riskLevel = "unacceptable";
+      } else if (formData.biometricCategory || formData.criticalInfrastructure || 
+                formData.educationVocational || formData.employmentWorkManagement || 
+                formData.essentialServices || formData.lawEnforcement || 
+                formData.migrationAsylumBorder || formData.justiceProcesses) {
+        riskLevel = "high";
+      } else if (formData.impactSeverity === "high" || formData.userVulnerability === "high") {
+        riskLevel = "limited";
+      }
+
+      // Prepare assessment data with required fields
+      const assessmentData = {
+        assessmentId: `RA-STD-${Date.now()}`,
+        systemId: formData.systemId || systemId,
+        assessmentDate: formData.assessmentDate || new Date().toISOString().split("T")[0],
+        riskLevel: riskLevel,
+        riskScore: calculateRiskScore(),
+        systemCategory: getSystemCategory(),
+        prohibitedUseChecks: getProhibitedUseChecks(),
+        euAiActArticles: getRelevantArticles(),
+        complianceGaps: [], // To be identified based on responses
+        remediationActions: [], // Recommendations based on risk level
+        evidenceDocuments: getRequiredDocuments(riskLevel),
+        summaryNotes: "Standard risk assessment completed",
+        createdBy: "admin-01", // Using a valid uid from users table
+        status: "completed"
+      };
+      
+      console.log("Submitting assessment data:", assessmentData);
+      
+      // Submit to API
+      const response = await apiRequest('/api/risk-assessments', {
+        method: 'POST',
+        body: assessmentData
+      });
+      
+      console.log("Assessment saved:", response);
       
       toast({
         title: "Assessment Submitted",
         description: "Your risk assessment has been saved successfully",
       });
       
-      // Redirect to the system detail page or assessment summary
-      if (systemId) {
-        router.push(`/systems/${systemId}`);
-      }
+      // Redirect to risk management
+      setTimeout(() => {
+        window.location.href = '/risk-management';
+      }, 1500);
     } catch (error) {
       console.error("Error submitting assessment:", error);
       toast({
@@ -163,6 +202,101 @@ export function RiskAssessmentWizard({ systemId }: { systemId?: string }) {
       setIsLoading(false);
     }
   };
+  
+  // Helper functions for assessment data
+  const calculateRiskScore = () => {
+    let score = 50; // Default score
+    
+    // Adjust based on risk parameters
+    if (formData.autonomyLevel === "high") score -= 10;
+    if (formData.technicalMaturity === "low") score -= 10;
+    if (formData.impactSeverity === "high") score -= 15;
+    if (formData.scaleOfDeployment === "high") score -= 10;
+    if (formData.userVulnerability === "high") score -= 15;
+    
+    // Ensure score is within 0-100 range
+    return Math.max(0, Math.min(100, score));
+  };
+  
+  const getSystemCategory = () => {
+    if (formData.biometricCategory) return "biometric_identification";
+    if (formData.criticalInfrastructure) return "critical_infrastructure";
+    if (formData.educationVocational) return "education";
+    if (formData.employmentWorkManagement) return "employment";
+    if (formData.lawEnforcement) return "law_enforcement";
+    if (formData.migrationAsylumBorder) return "migration";
+    if (formData.essentialServices) return "public_services";
+    return "other";
+  };
+  
+  const getProhibitedUseChecks = () => {
+    const checks = [];
+    if (formData.socialScoring) checks.push({ reason: "Social scoring prohibited under Article 5(1)(c)" });
+    if (formData.vulnerabilityExploitation) checks.push({ reason: "Exploitation of vulnerabilities prohibited under Article 5(1)(b)" });
+    if (formData.subliminalTechniques) checks.push({ reason: "Subliminal techniques prohibited under Article 5(1)(a)" });
+    if (formData.biometricIdentification) checks.push({ reason: "Real-time biometric identification prohibited under Article 5(1)(d)" });
+    return checks;
+  };
+  
+  const getRelevantArticles = () => {
+    const articles = [];
+    
+    // Always include these core articles
+    articles.push("Article 9 - Risk Management System");
+    articles.push("Article 10 - Data and Data Governance");
+    
+    // Add specific articles based on responses
+    if (formData.socialScoring || formData.vulnerabilityExploitation || 
+        formData.subliminalTechniques || formData.biometricIdentification) {
+      articles.push("Article 5 - Prohibited AI Practices");
+    }
+    
+    if (formData.biometricCategory || formData.criticalInfrastructure || 
+        formData.educationVocational || formData.employmentWorkManagement || 
+        formData.essentialServices || formData.lawEnforcement || 
+        formData.migrationAsylumBorder || formData.justiceProcesses) {
+      articles.push("Article 6 - Classification Rules for High-Risk AI Systems");
+      articles.push("Article 8 - Compliance with Requirements for High-Risk AI Systems");
+      articles.push("Article 11 - Technical Documentation");
+      articles.push("Article 13 - Transparency and Provision of Information to Users");
+      articles.push("Article 14 - Human Oversight");
+      articles.push("Article 15 - Accuracy, Robustness and Cybersecurity");
+    }
+    
+    return articles;
+  };
+  
+  const getRequiredDocuments = (riskLevel: string) => {
+    const basicDocs = [
+      "System Description Document",
+      "Risk Assessment Report"
+    ];
+    
+    if (riskLevel === "minimal") {
+      return [...basicDocs, "Basic Data Quality Statement"];
+    }
+    
+    if (riskLevel === "limited") {
+      return [
+        ...basicDocs,
+        "Data Quality and Governance Documentation",
+        "Technical Robustness Test Results",
+        "User Guidance Documentation"
+      ];
+    }
+    
+    // For high risk and unacceptable
+    return [
+      ...basicDocs,
+      "Comprehensive Technical Documentation",
+      "Data Governance Documentation",
+      "Human Oversight Protocol",
+      "Conformity Assessment Report",
+      "Incident Response Plan",
+      "Post-Market Monitoring Plan",
+      "Training Materials for System Operators"
+    ];
+  };
 
   const handleRegisterSystem = () => {
     // This would register the assessment and update the system info
@@ -173,7 +307,7 @@ export function RiskAssessmentWizard({ systemId }: { systemId?: string }) {
     
     // Redirect to the system detail page
     if (systemId) {
-      router.push(`/systems/${systemId}`);
+      setLocation(`/systems/${systemId}`);
     }
   };
 
@@ -1124,7 +1258,7 @@ export function RiskAssessmentWizard({ systemId }: { systemId?: string }) {
             EU AI Act Risk Assessment Wizard
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => router.back()}>
+            <Button variant="outline" size="sm" onClick={() => setLocation("/risk-assessment")}>
               Cancel
             </Button>
             <Button size="sm" onClick={handleSubmit} disabled={isLoading}>
