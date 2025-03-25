@@ -1010,7 +1010,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/risk-management/assessments", async (req: Request, res: Response) => {
     try {
       // Get all risk assessments for risk management
-      const assessments = await storage.getAllRiskAssessments();
+      // Since getAllRiskAssessments doesn't exist, we need to get all systems and then their assessments
+      const systems = await storage.getAllAiSystems();
+      const assessments = [];
+      
+      // For each system, get its risk assessments
+      for (const system of systems) {
+        const systemAssessments = await storage.getRiskAssessmentsForSystem(system.systemId);
+        if (systemAssessments && systemAssessments.length > 0) {
+          assessments.push(...systemAssessments);
+        }
+      }
+      
       res.json(assessments);
     } catch (err) {
       handleError(res, err as Error);
