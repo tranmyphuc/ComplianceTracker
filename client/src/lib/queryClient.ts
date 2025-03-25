@@ -13,6 +13,7 @@ export async function apiRequest<T = any>(
     method?: string;
     body?: any;
     params?: Record<string, string | undefined>;
+    signal?: AbortSignal;
   }
 ): Promise<T> {
   const method = options?.method || 'GET';
@@ -38,6 +39,7 @@ export async function apiRequest<T = any>(
     headers: body ? { "Content-Type": "application/json" } : {},
     body: body ? JSON.stringify(body) : undefined,
     credentials: "include",
+    signal: options?.signal
   });
 
   await throwIfResNotOk(res);

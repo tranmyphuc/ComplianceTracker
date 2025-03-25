@@ -257,14 +257,69 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
     : null;
     
   // Safely handle potential missing arrays
-  const relevantArticles = (showAiAnalysis && 
-    (Array.isArray(sghAsiaAiResults.relevantArticles) || Array.isArray(sghAsiaAiResults.euAiActArticles)))
-    ? (sghAsiaAiResults.relevantArticles || sghAsiaAiResults.euAiActArticles || [])
-    : [];
+  // Process and normalize relevant articles to ensure they're always strings
+  const relevantArticles = (() => {
+    if (!showAiAnalysis) return [];
+
+    let articles = sghAsiaAiResults.relevantArticles || sghAsiaAiResults.euAiActArticles || [];
     
-  const suggestedImprovements = (showAiAnalysis && Array.isArray(sghAsiaAiResults.suggestedImprovements))
-    ? sghAsiaAiResults.suggestedImprovements
-    : [];
+    // If not an array, try to convert to array
+    if (!Array.isArray(articles)) {
+      if (typeof articles === 'string') {
+        articles = [articles];
+      } else if (typeof articles === 'object') {
+        // If it's an object with articles data, try to extract string values
+        articles = [];
+      } else {
+        articles = [];
+      }
+    }
+    
+    // Ensure all items are strings
+    return articles.map(article => {
+      if (typeof article === 'string') {
+        return article;
+      } else if (article && typeof article === 'object') {
+        // If the article is an object with a name/title property
+        return article.name || article.title || article.article || 
+               (article.relevant_article ? article.relevant_article : JSON.stringify(article));
+      }
+      return String(article);
+    });
+  })();
+    
+  // Process and normalize suggested improvements to ensure they're always strings
+  const suggestedImprovements = (() => {
+    if (!showAiAnalysis) return [];
+    
+    let improvements = sghAsiaAiResults.suggestedImprovements || 
+                      sghAsiaAiResults.mitigationStrategies || 
+                      sghAsiaAiResults.improvements || [];
+    
+    // If not an array, try to convert to array
+    if (!Array.isArray(improvements)) {
+      if (typeof improvements === 'string') {
+        improvements = [improvements];
+      } else if (typeof improvements === 'object') {
+        // If it's an object with improvement data, try to extract string values
+        improvements = [];
+      } else {
+        improvements = [];
+      }
+    }
+    
+    // Ensure all items are strings
+    return improvements.map(improvement => {
+      if (typeof improvement === 'string') {
+        return improvement;
+      } else if (improvement && typeof improvement === 'object') {
+        // If the improvement is an object with a description/text property
+        return improvement.description || improvement.text || improvement.implementation || 
+               JSON.stringify(improvement);
+      }
+      return String(improvement);
+    });
+  })();
 
   return (
     <div className="space-y-6">
@@ -305,7 +360,7 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>AI Analysis Results</AlertTitle>
           <AlertDescription>
-            <p>Based on the information provided, this system appears to be a <strong>{aiAnalysisCategory}</strong> system with a <strong>{aiAnalysisRiskLevel}</strong> risk level.</p>
+            <p>Based on the information provided, this system appears to be a <strong>{typeof aiAnalysisCategory === 'string' ? aiAnalysisCategory : 'Unknown'}</strong> system with a <strong>{typeof aiAnalysisRiskLevel === 'string' ? aiAnalysisRiskLevel : 'Unknown'}</strong> risk level.</p>
             {relevantArticles.length > 0 && (
               <div className="mt-2">
                 <p className="font-medium">Relevant EU AI Act Articles:</p>
@@ -472,7 +527,12 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
             <h4 className="text-sm font-medium text-blue-900 mb-2">Suggested Improvements</h4>
             <ul className="space-y-1 text-xs text-blue-800">
               {suggestedImprovements.map((improvement: string, i: number) => (
-                <li key={i}>• {improvement}</li>
+                <li key={i}>• {typeof improvement === 'string' ? improvement : (
+                  improvement && typeof improvement === 'object' ? 
+                    JSON.stringify(improvement).substring(0, 100) + 
+                    (JSON.stringify(improvement).length > 100 ? '...' : '') : 
+                    String(improvement)
+                )}</li>
               ))}
             </ul>
           </div>
