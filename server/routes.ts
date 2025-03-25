@@ -25,7 +25,8 @@ import {
   analyzeDocument,
   analyzeSystemCompliance,
   callDeepSeekApi,
-  determineRiskLevel
+  determineRiskLevel,
+  safeJsonParse
 } from "./ai-analysis";
 import { regulatoryRoutes } from "./routes/regulatory-routes";
 import { initializeRegulationUpdates } from "./regulatory-service";
@@ -480,13 +481,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const detailedAnalysisJson = await callDeepSeekApi(detailedPrompt, 'risk_parameters');
 
           // Use the safeJsonParse function to handle AI model responses
-          const detailedAnalysis = safeJsonParse(detailedAnalysisJson);
-          
-          if (detailedAnalysis) {
-            res.json(detailedAnalysis);
-          } else {
-            // If parsing fails, create a structured response based on actual EU AI Act requirements
-            console.error("Error parsing detailed risk parameters JSON response - using fallback");
+          try {
+            const detailedAnalysis = safeJsonParse(detailedAnalysisJson);
+            
+            if (detailedAnalysis) {
+              res.json(detailedAnalysis);
+            } else {
+              // If parsing fails, create a structured response based on actual EU AI Act requirements
+              console.error("Error parsing detailed risk parameters JSON response - using fallback");
+            }
+          } catch (error) {
+            console.error("Error parsing detailed risk parameters JSON response:", error);
+            console.error("Raw response:", detailedAnalysisJson);
             const fallbackResponse = {
               riskFactors: [
                 {
