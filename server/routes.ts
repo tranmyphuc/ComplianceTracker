@@ -1545,6 +1545,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Track user training progress
+  app.post('/api/training/progress', async (req, res) => {
+    try {
+      await trackTrainingProgress(req, res);
+    } catch (error) {
+      console.error('Error in tracking training progress:', error);
+      handleError(res, error, 'Error tracking training progress');
+    }
+  });
+
+  // Get user training progress
+  app.get('/api/training/progress', async (req, res) => {
+    try {
+      await getUserProgress(req, res);
+    } catch (error) {
+      console.error('Error in getting user progress:', error);
+      handleError(res, error, 'Error fetching user training progress');
+    }
+  });
+
   // API Key Management routes
   app.get('/api/ai-keys', getApiKeys);
   app.post('/api/ai-keys', addApiKey);

@@ -472,7 +472,7 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
 /**
  * Get all training modules
  */
-export async function getTrainingModules(req: Request, res: Response): Promise<void> {
+export async function getTrainingModules(req: Request, res: Response): Promise<Response> {
   try {
     let moduleData: any[] = [];
 
@@ -515,7 +515,7 @@ export async function getTrainingModules(req: Request, res: Response): Promise<v
 /**
  * Get specific module content
  */
-export async function getModuleContent(req: Request, res: Response): Promise<void> {
+export async function getModuleContent(req: Request, res: Response): Promise<Response> {
   try {
     const { moduleId } = req.params;
     const userRole = req.query.role as string || 'user';
