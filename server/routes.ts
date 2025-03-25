@@ -479,13 +479,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Call DeepSeek API with the detailed parameters prompt
           const detailedAnalysisJson = await callDeepSeekApi(detailedPrompt, 'risk_parameters');
 
-          try {
-            // Parse the JSON response
-            const detailedAnalysis = JSON.parse(detailedAnalysisJson);
+          // Use the safeJsonParse function to handle AI model responses
+          const detailedAnalysis = safeJsonParse(detailedAnalysisJson);
+          
+          if (detailedAnalysis) {
             res.json(detailedAnalysis);
-          } catch (parseErr) {
+          } else {
             // If parsing fails, create a structured response based on actual EU AI Act requirements
-            console.error("Error parsing detailed risk parameters JSON response:", parseErr);
+            console.error("Error parsing detailed risk parameters JSON response - using fallback");
             const fallbackResponse = {
               riskFactors: [
                 {
@@ -657,42 +658,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const response = await callDeepSeekApi(prompt, systemType || undefined);
       let suggestions;
 
+      // Use our enhanced safeJsonParse to handle AI model responses
       try {
-        // Clean up the response to handle markdown formatting (```json) or other formatting
-        let cleanedResponse = response;
-
-        // Remove markdown code blocks if present
-        if (cleanedResponse.includes('```json')) {
-          cleanedResponse = cleanedResponse.replace(/```json\s*/, '').replace(/\s*```\s*$/, '');
-        } else if (cleanedResponse.includes('```')) {
-          cleanedResponse = cleanedResponse.replace(/```\s*/, '').replace(/\s*```\s*$/, '');
-        }
-
-        // Try to find JSON within the text if it's still not valid
-        if (cleanedResponse.includes('{') && cleanedResponse.includes('}')) {
-          const jsonStartIndex = cleanedResponse.indexOf('{');
-          const jsonEndIndex = cleanedResponse.lastIndexOf('}') + 1;
-          if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex) {
-            cleanedResponse = cleanedResponse.substring(jsonStartIndex, jsonEndIndex);
-          }
-        }
-
-        console.log("Cleaned API response for parsing:", cleanedResponse);
-
-        try {
-          suggestions = JSON.parse(cleanedResponse);
-        } catch (jsonError) {
-          console.error("JSON parsing failed, attempting additional cleanup:", jsonError);
-
-          // Additional cleanup for problematic JSON
-          const sanitizedResponse = cleanedResponse.replace(/[\u0000-\u001F\u007F-\u009F]/g, "")  // Remove control characters
-            .replace(/,\s*}/g, '}')  // Remove trailing commas
-            .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
-            .replace(/\\/g, '\\\\')  // Escape backslashes
-            .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3');  // Ensure property names are quoted
-
-          console.log("Attempting to parse sanitized JSON:", sanitizedResponse);
-          suggestions = JSON.parse(sanitizedResponse);
+        suggestions = safeJsonParse(response);
+        
+        if (!suggestions) {
+          console.error("Failed to parse system suggestion response with safeJsonParse");
+          console.log("Raw response:", response);
+          
+          // Provide a fallback response since parsing failed
+          suggestions = {
+            name: name || "AI System",
+            vendor: "Unknown",
+            version: "1.0",
+            department: "Information Technology",
+            purpose: description || "AI system for business operations",
+            aiCapabilities: "Natural Language Processing",
+            trainingDatasets: "Proprietary data",
+            outputTypes: "Text, Recommendations",
+            usageContext: "Business operations",
+            potentialImpact: "Improved efficiency",
+            riskLevel: "Limited",
+            confidenceScore: 60
+          };
         }
       } catch (error) {
         console.error("Error parsing DeepSeek response:", error);

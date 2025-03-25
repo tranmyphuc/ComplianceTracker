@@ -102,61 +102,98 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
         throw new Error(`Error: ${response.status}`);
       }
 
-      const results = await response.json();
+      // Safely parse and handle the response
+      let results;
+      try {
+        results = await response.json();
+      } catch (parseError) {
+        console.error('Failed to parse API response:', parseError);
+        throw new Error('Invalid JSON response from server');
+      }
       
-      // Safe processing of results
+      // Enhanced safe processing of results
       if (results && typeof results === 'object') {
         // Process detailed risk parameters if available
         if (results.riskFactors && Array.isArray(results.riskFactors)) {
-          // Convert detailed results format to the format expected by our UI
-          const processedResults = {
-            ...results,
-            riskLevel: determineRiskLevelFromFactors(results.riskFactors),
-            relevantArticles: extractArticlesFromFactors(results.riskFactors),
-            suggestedImprovements: results.mitigationStrategies || []
-          };
-          
-          setSghAsiaAiResults(processedResults);
-          
-          // Update form data with determined risk level
-          if (processedResults.riskLevel) {
-            setFormData(prev => ({
-              ...prev,
-              riskLevel: processedResults.riskLevel
-            }));
+          try {
+            // Convert detailed results format to the format expected by our UI
+            const processedResults = {
+              ...results,
+              riskLevel: determineRiskLevelFromFactors(results.riskFactors),
+              relevantArticles: extractArticlesFromFactors(results.riskFactors),
+              suggestedImprovements: Array.isArray(results.mitigationStrategies) 
+                ? results.mitigationStrategies 
+                : []
+            };
+            
+            setSghAsiaAiResults(processedResults);
+            
+            // Update form data with determined risk level
+            if (processedResults.riskLevel && typeof processedResults.riskLevel === 'string') {
+              setFormData(prev => ({
+                ...prev,
+                riskLevel: processedResults.riskLevel
+              }));
+            }
+            
+            // Generate potential impact if empty
+            if (!formData.potentialImpact && results.specificConcerns) {
+              const concerns = Array.isArray(results.specificConcerns) 
+                ? results.specificConcerns 
+                : typeof results.specificConcerns === 'string'
+                  ? [results.specificConcerns]
+                  : [];
+                  
+              if (concerns.length > 0) {
+                const impact = concerns.join(". ");
+                setFormData(prev => ({
+                  ...prev,
+                  potentialImpact: impact
+                }));
+              }
+            }
+          } catch (processingError) {
+            console.error('Error processing detailed risk factors:', processingError);
+            // Fall back to basic processing
+            handleBasicResults(results);
           }
-          
-          // Generate potential impact if empty
-          if (!formData.potentialImpact && results.specificConcerns && Array.isArray(results.specificConcerns)) {
-            const impact = results.specificConcerns.join(". ");
+        } else {
+          // Handle basic analysis results
+          handleBasicResults(results);
+        }
+      } else {
+        // Handle invalid response
+        throw new Error("Received invalid response format from API");
+      }
+      
+      // Helper function to handle basic analysis results
+      function handleBasicResults(results: any) {
+        setSghAsiaAiResults(results);
+        
+        // Update risk level in form - with additional validation
+        const riskLevel = results.riskLevel || results.riskClassification;
+        if (riskLevel && typeof riskLevel === 'string') {
+          setFormData(prev => ({
+            ...prev,
+            riskLevel: riskLevel
+          }));
+        }
+        
+        // Generate potential impact if empty
+        if (!formData.potentialImpact && results.potentialImpact) {
+          const impact = typeof results.potentialImpact === 'string' 
+            ? results.potentialImpact
+            : Array.isArray(results.potentialImpact)
+              ? results.potentialImpact.join(". ")
+              : '';
+              
+          if (impact) {
             setFormData(prev => ({
               ...prev,
               potentialImpact: impact
             }));
           }
-        } else {
-          // Handle basic analysis results
-          setSghAsiaAiResults(results);
-          
-          // Update risk level in form
-          if (results.riskLevel || results.riskClassification) {
-            setFormData(prev => ({
-              ...prev,
-              riskLevel: results.riskLevel || results.riskClassification
-            }));
-          }
-          
-          // Generate potential impact if empty
-          if (!formData.potentialImpact && results.potentialImpact) {
-            setFormData(prev => ({
-              ...prev,
-              potentialImpact: results.potentialImpact
-            }));
-          }
         }
-      } else {
-        // Handle invalid response
-        throw new Error("Received invalid response format from API");
       }
 
       toast({
