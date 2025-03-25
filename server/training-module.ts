@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { storage } from './storage';
-import { trainingModules, trainingProgress } from '../shared/schema';
+import { trainingModules, trainingProgress, users } from '../shared/schema';
 import { db, sql } from './db';
 import { eq, and } from 'drizzle-orm';
 import { aiLiteracyTrainingModule } from './modules/ai-literacy-training';
@@ -832,44 +832,76 @@ export async function trackTrainingProgress(req: Request, res: Response): Promis
       return;
     }
 
-    // Update progress in database
-    const existingProgress = await db
+    // First, verify the user exists in the database to avoid foreign key constraint error
+    const user = await db
       .select()
-      .from(trainingProgress)
-      .where(and(
-        eq(trainingProgress.userId, userId),
-        eq(trainingProgress.moduleId, moduleId)
-      ))
+      .from(users)
+      .where(eq(users.uid, userId))
       .limit(1);
 
-    if (existingProgress && existingProgress.length > 0) {
-      // Update existing progress if new completion is higher
-      if (completion > (existingProgress[0].completion || 0)) {
-        await db
-          .update(trainingProgress)
-          .set({ 
-            completion,
-            // Using the correct column name from schema
-            updatedAt: new Date()
-          })
-          .where(eq(trainingProgress.id, existingProgress[0].id));
-      }
-    } else {
-      // Create new progress entry
-      await db
-        .insert(trainingProgress)
-        .values({
-          userId: userId,
-          moduleId: moduleId,
-          completion,
-          updatedAt: new Date()
-        });
+    if (!user || user.length === 0) {
+      res.status(400).json({ error: 'User does not exist in the database', details: 'Please log in with a registered user account' });
+      return;
     }
 
-    res.json({ status: 'success', moduleId, userId, completion });
-  } catch (error) {
+    // Also verify the module exists
+    const module = await db
+      .select()
+      .from(trainingModules)
+      .where(eq(trainingModules.module_id, moduleId))
+      .limit(1);
+
+    if (!module || module.length === 0) {
+      res.status(400).json({ error: 'Training module does not exist', details: moduleId });
+      return;
+    }
+
+    // Update progress in database
+    try {
+      const existingProgress = await db
+        .select()
+        .from(trainingProgress)
+        .where(and(
+          eq(trainingProgress.userId, userId),
+          eq(trainingProgress.moduleId, moduleId)
+        ))
+        .limit(1);
+
+      if (existingProgress && existingProgress.length > 0) {
+        // Update existing progress if new completion is higher
+        if (completion > (existingProgress[0].completion || 0)) {
+          await db
+            .update(trainingProgress)
+            .set({ 
+              completion,
+              // Using the correct column name from schema
+              updatedAt: new Date()
+            })
+            .where(eq(trainingProgress.id, existingProgress[0].id));
+        }
+      } else {
+        // Create new progress entry
+        await db
+          .insert(trainingProgress)
+          .values({
+            userId: userId,
+            moduleId: moduleId,
+            completion,
+            updatedAt: new Date()
+          });
+      }
+
+      res.json({ status: 'success', moduleId, userId, completion });
+    } catch (dbError: any) {
+      console.error('Database error in training progress update:', dbError);
+      res.status(500).json({ 
+        error: 'Database error while tracking progress', 
+        details: dbError.message || 'Unknown database error'
+      });
+    }
+  } catch (error: any) {
     console.error('Error tracking training progress:', error);
-    res.status(500).json({ error: 'Failed to track progress' });
+    res.status(500).json({ error: 'Failed to track progress', details: error.message || 'Unknown error' });
   }
 }
 
