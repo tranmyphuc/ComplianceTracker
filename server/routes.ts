@@ -1104,6 +1104,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "System not found" });
       }
 
+      // Transform complex objects into JSON strings
+      if (assessmentData.prohibitedUseChecks && typeof assessmentData.prohibitedUseChecks !== 'string') {
+        assessmentData.prohibitedUseChecks = JSON.stringify(assessmentData.prohibitedUseChecks);
+      }
+      
+      if (assessmentData.euAiActArticles && typeof assessmentData.euAiActArticles !== 'string') {
+        assessmentData.euAiActArticles = JSON.stringify(assessmentData.euAiActArticles);
+      }
+      
+      if (assessmentData.complianceGaps && typeof assessmentData.complianceGaps !== 'string') {
+        assessmentData.complianceGaps = JSON.stringify(assessmentData.complianceGaps);
+      }
+      
+      if (assessmentData.remediationActions && typeof assessmentData.remediationActions !== 'string') {
+        assessmentData.remediationActions = JSON.stringify(assessmentData.remediationActions);
+      }
+      
+      if (assessmentData.evidenceDocuments && typeof assessmentData.evidenceDocuments !== 'string') {
+        assessmentData.evidenceDocuments = JSON.stringify(assessmentData.evidenceDocuments);
+      }
+      
+      // Ensure date is a JavaScript Date object
+      if (assessmentData.assessmentDate && typeof assessmentData.assessmentDate === 'string') {
+        assessmentData.assessmentDate = new Date(assessmentData.assessmentDate);
+      }
+
       // Validate and create the risk assessment
       let validatedData;
       try {
@@ -1120,18 +1146,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create risk assessment with validated data
       const newAssessment = await storage.createRiskAssessment(validatedData);
+      console.log("New assessment created:", newAssessment);
 
       // Create activity record for the assessment
-      await storage.createActivity({
-        type: "risk_assessment",
-        description: `Risk assessment completed for ${system.name}`,
-        systemId: assessmentData.systemId,
-        userId: assessmentData.createdBy || "system",
-        metadata: { assessmentId: newAssessment.assessmentId }
-      });
+      try {
+        await storage.createActivity({
+          type: "risk_assessment",
+          description: `Risk assessment completed for ${system.name}`,
+          systemId: assessmentData.systemId,
+          userId: assessmentData.createdBy || "system",
+          metadata: { assessmentId: newAssessment.assessmentId }
+        });
+      } catch (activityError) {
+        // Just log the error but don't fail the request
+        console.error("Error creating activity:", activityError);
+      }
 
       res.status(201).json(newAssessment);
     } catch (err) {
+      console.error("Error saving risk assessment:", err);
       handleError(res, err as Error);
     }
   });
