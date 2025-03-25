@@ -103,37 +103,8 @@ export function Header({ onMenuClick }: HeaderProps) {
             </div>
           </div>
 
-          {/* Center: Main navigation tabs */}
-          <div className="hidden lg:flex items-center space-x-1 mx-4">
-            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
-              <LayoutDashboardIcon className="h-4 w-4 mr-2" />
-              Dashboard
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
-              <CpuIcon className="h-4 w-4 mr-2" />
-              AI Systems
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
-              <ShieldCheckIcon className="h-4 w-4 mr-2" />
-              Risk Assessment
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
-              <FileTextIcon className="h-4 w-4 mr-2" />
-              Documentation
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
-              <AwardIcon className="h-4 w-4 mr-2" />
-              Training
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
-              <CheckSquareIcon className="h-4 w-4 mr-2" />
-              Tasks
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20" size="sm">
-              <BarChart3Icon className="h-4 w-4 mr-2" />
-              Reports
-            </Button>
-          </div>
+          {/* Center: Empty space */}
+          <div className="hidden lg:flex-1"></div>
 
           {/* Right-aligned items */}
           <div className="flex items-center space-x-2 md:space-x-3">
