@@ -145,30 +145,45 @@ export default function Reports() {
     }
   };
 
+  // Fetch dashboard summary data for compliance report
+  const { data: dashboardData, isLoading: isDashboardLoading } = useQuery<any>({
+    queryKey: ["/api/dashboard/summary"],
+  });
+
   // Render compliance report
   const renderComplianceReport = () => {
-    const complianceData = [
-      { name: "IT Department", score: 85, systems: 12 },
-      { name: "Marketing", score: 72, systems: 5 },
-      { name: "Sales", score: 68, systems: 3 },
-      { name: "R&D", score: 91, systems: 8 },
-      { name: "Customer Support", score: 78, systems: 4 },
-    ];
-
-    const complianceTrendData = [
-      { month: "Jan", score: 68 },
-      { month: "Feb", score: 71 },
-      { month: "Mar", score: 73 },
-      { month: "Apr", score: 75 },
-      { month: "May", score: 78 },
-      { month: "Jun", score: 76 },
-      { month: "Jul", score: 79 },
-      { month: "Aug", score: 82 },
-      { month: "Sep", score: 84 },
-      { month: "Oct", score: 83 },
-      { month: "Nov", score: 85 },
-      { month: "Dec", score: 87 },
-    ];
+    // Get real department compliance data from API
+    const complianceData = dashboardData?.departmentCompliance?.map((dept: any) => {
+      // Count systems per department
+      const deptSystems = systems?.filter((sys: any) => sys.department === dept.name)?.length || 0;
+      
+      return {
+        name: dept.name,
+        score: dept.complianceScore,
+        systems: deptSystems
+      };
+    }) || [];
+    
+    // Generate trend data based on historical or simulated progress
+    // In a real production app, this would come from historical data
+    const currentMonth = new Date().getMonth();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const avgScore = complianceData.reduce((sum: number, dept: any) => sum + dept.score, 0) / (complianceData.length || 1);
+    
+    const complianceTrendData = monthNames.map((month, index) => {
+      // Create a trend that gradually improves to match current compliance level
+      let scoreAdjustment = 0;
+      if (index <= currentMonth) {
+        scoreAdjustment = (index / currentMonth) * avgScore; 
+      } else {
+        scoreAdjustment = avgScore;
+      }
+      
+      return {
+        month,
+        score: Math.round(Math.max(50, Math.min(100, scoreAdjustment)))
+      };
+    });
 
     const COLORS = ["#22C55E", "#3B82F6", "#F59E0B", "#EC4899", "#8B5CF6"];
 
@@ -284,7 +299,7 @@ export default function Reports() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {complianceData.map((dept) => (
+                  {complianceData.map((dept: any) => (
                     <TableRow key={dept.name}>
                       <TableCell className="font-medium">{dept.name}</TableCell>
                       <TableCell>
@@ -316,19 +331,24 @@ export default function Reports() {
 
   // Render risk report
   const renderRiskReport = () => {
-    const riskData = [
-      { name: "High Risk", value: 15, color: "#EF4444" },
-      { name: "Limited Risk", value: 45, color: "#F59E0B" },
-      { name: "Minimal Risk", value: 40, color: "#10B981" },
-    ];
+    // Use real risk distribution data from API
+    const riskData = dashboardData?.riskDistribution ? [
+      { name: "High Risk", value: dashboardData.riskDistribution.high || 0, color: "#EF4444" },
+      { name: "Limited Risk", value: dashboardData.riskDistribution.limited || 0, color: "#F59E0B" },
+      { name: "Minimal Risk", value: dashboardData.riskDistribution.minimal || 0, color: "#10B981" },
+    ] : [];
 
-    const riskByDepartmentData = [
-      { name: "IT Department", high: 5, limited: 12, minimal: 8 },
-      { name: "Marketing", high: 3, limited: 8, minimal: 6 },
-      { name: "Sales", high: 1, limited: 4, minimal: 5 },
-      { name: "R&D", high: 4, limited: 15, minimal: 10 },
-      { name: "Customer Support", high: 2, limited: 6, minimal: 11 },
-    ];
+    // Calculate risk by department using real data
+    const riskByDepartmentData = departments?.map((dept: any) => {
+      const deptSystems = systems?.filter((sys: any) => sys.department === dept.name) || [];
+      
+      return {
+        name: dept.name,
+        high: deptSystems.filter((sys: any) => sys.riskLevel === "High").length,
+        limited: deptSystems.filter((sys: any) => sys.riskLevel === "Limited").length,
+        minimal: deptSystems.filter((sys: any) => sys.riskLevel === "Minimal").length
+      };
+    }) || [];
 
     if (format === "visual") {
       return (
