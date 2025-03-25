@@ -65,6 +65,9 @@ const AppRoutes = () => {
     "/training/eu-ai-act-guides", // Added route for EU AI Act guides
     "/risk-management",
     "/enterprise-decision-platform",
+
+      <Route path="/training/eu-ai-act-guide" component={lazy(() => import('./pages/training/eu-ai-act-training-guide'))} />
+
     "/strategic-planning",
     "/regulatory-complexity",
     "/workflow",

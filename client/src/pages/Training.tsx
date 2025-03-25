@@ -18,7 +18,8 @@ import {
   ClipboardListIcon,
   BarChartIcon,
   CheckSquareIcon,
-  UserIcon
+  UserIcon,
+  BookOpen
 } from 'lucide-react';
 
 interface TrainingModule {
@@ -39,6 +40,7 @@ const Training: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showGuidelines, setShowGuidelines] = useState(false); //Added state for guidelines
 
   useEffect(() => {
     // Fetch training modules
@@ -148,14 +150,14 @@ const Training: React.FC = () => {
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(module => 
-        module.title.toLowerCase().includes(query) || 
+      result = result.filter(module =>
+        module.title.toLowerCase().includes(query) ||
         module.description.toLowerCase().includes(query)
       );
     }
 
     if (selectedCategories.length > 0) {
-      result = result.filter(module => 
+      result = result.filter(module =>
         module.categories.some(category => selectedCategories.includes(category))
       );
     }
@@ -198,6 +200,12 @@ const Training: React.FC = () => {
               View Documentation
             </Button>
           </Link>
+          <Link href="/training/eu-ai-act-guide"> {/* Added link to training guide */}
+            <Button variant="outline">
+              <BookOpen className="h-4 w-4 mr-2" />
+              Training Guide
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -205,9 +213,9 @@ const Training: React.FC = () => {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-6 items-center">
             <div className="rounded-lg bg-white p-4 shadow-sm flex items-center justify-center">
-              <img 
-                src="/attached_assets/image_1742743429066.png" 
-                alt="SGH Asia Coach" 
+              <img
+                src="/attached_assets/image_1742743429066.png"
+                alt="SGH Asia Coach"
                 className="w-32 h-32 rounded-full object-cover"
               />
             </div>
@@ -283,8 +291,8 @@ const Training: React.FC = () => {
                             variant="outline"
                             size="sm"
                             className={`justify-start text-sm w-full ${
-                              selectedCategories.includes(category) 
-                                ? 'bg-primary/10 border-primary/20' 
+                              selectedCategories.includes(category)
+                                ? 'bg-primary/10 border-primary/20'
                                 : ''
                             }`}
                             onClick={() => toggleCategory(category)}
@@ -317,11 +325,11 @@ const Training: React.FC = () => {
                   <Card key={module.id} className="flex flex-col">
                     <CardHeader className="pb-2">
                       <div className="flex justify-between mb-1">
-                        <Badge 
-                          variant="outline" 
+                        <Badge
+                          variant="outline"
                           className={
-                            module.relevance === 'High' 
-                              ? 'border-red-200 text-red-600 bg-red-50' 
+                            module.relevance === 'High'
+                              ? 'border-red-200 text-red-600 bg-red-50'
                               : 'border-blue-200 text-blue-600 bg-blue-50'
                           }
                         >
