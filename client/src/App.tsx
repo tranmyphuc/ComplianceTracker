@@ -44,6 +44,9 @@ import {
 } from "./routes/lazy-imports.ts";
 import PlatformIntroduction from './pages/guides/platform-introduction'; 
 import PlatformGuide from './pages/guides/platform-guide'; 
+import DemoScenarios from '@/pages/demo-scenarios';
+import HealthcareScenario from '@/pages/demo-scenarios/healthcare-ai-diagnostics';
+import VendorManagement from '@/pages/vendor-management';
 
 
 function Router() {
@@ -90,7 +93,9 @@ function Router() {
     "/growth-innovation",
     "/guides",
     "/guides/platform-introduction", 
-    "/guides/platform-guide" 
+    "/guides/platform-guide",
+    "/demo-scenarios",
+    "/demo-scenarios/healthcare-ai-diagnostics"
   ];
 
   useEffect(() => {
@@ -217,6 +222,12 @@ function Router() {
       </Route>
       <Route path="/guides/platform-guide">
         {() => renderSuspense(PlatformGuide)}
+      </Route>
+      <Route path="/demo-scenarios">
+        {() => renderSuspense(DemoScenarios)}
+      </Route>
+      <Route path="/demo-scenarios/healthcare-ai-diagnostics">
+        {() => renderSuspense(HealthcareScenario)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}
