@@ -18,8 +18,10 @@ export interface ComplianceTip {
   id: string;
   title: string;
   content: string;
+  contentGerman?: string; // German translation of the content
   category: 'risk' | 'documentation' | 'governance' | 'implementation' | 'audit' | 'general';
   relevantArticles?: string[];
+  articleLinks?: {[key: string]: string}; // Map of article numbers to specific URLs
   difficulty?: 'basic' | 'intermediate' | 'advanced';
   dismissible?: boolean;
   learnMoreLink?: string;
@@ -152,19 +154,45 @@ export function TipBubble({
           
           {/* Content */}
           <CardContent className="p-4">
-            <h4 className="font-semibold text-sm mb-2">{tip.title}</h4>
-            <p className="text-sm text-muted-foreground mb-3">{tip.content}</p>
+            <h4 className="font-semibold text-sm mb-3 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md">{tip.title}</h4>
             
-            {/* Relevant Articles */}
+            {/* English Content with Highlighting */}
+            <div className="px-2 py-1.5 bg-yellow-50 border-l-2 border-yellow-300 mb-3 rounded-sm">
+              <p className="text-sm mb-1">{tip.content}</p>
+            </div>
+            
+            {/* German Translation if available */}
+            {tip.contentGerman && (
+              <div className="mb-3 px-2 py-1.5 bg-blue-50 border-l-2 border-blue-300 rounded-sm">
+                <p className="text-xs text-muted-foreground mb-1 font-medium">Deutsche Übersetzung:</p>
+                <p className="text-sm">{tip.contentGerman}</p>
+              </div>
+            )}
+            
+            {/* Relevant Articles with Links */}
             {tip.relevantArticles && tip.relevantArticles.length > 0 && (
               <div className="mb-3">
                 <p className="text-xs text-muted-foreground font-medium mb-1">Relevant Articles:</p>
                 <div className="flex flex-wrap gap-1">
-                  {tip.relevantArticles.map((article) => (
-                    <Badge key={article} variant="outline" className="text-xs">
-                      {article}
-                    </Badge>
-                  ))}
+                  {tip.relevantArticles.map((article) => {
+                    // If we have a specific article link, use it; otherwise use the general article link
+                    const articleUrl = tip.articleLinks?.[article] || 
+                                      `https://artificialintelligenceact.eu/the-act/${article.toLowerCase().replace(/\s+/g, '-')}/`;
+                    
+                    return (
+                      <a 
+                        key={article}
+                        href={articleUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="no-underline"
+                      >
+                        <Badge variant="outline" className="text-xs hover:bg-primary-50 cursor-pointer transition-colors">
+                          {article}
+                        </Badge>
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
             )}

@@ -90,11 +90,50 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
       sections: [
         {
           title: "What is the EU AI Act?",
-          content: `<p>The EU AI Act is a comprehensive legal framework regulating artificial intelligence in the European Union.</p>`
+          content: `<div class="mb-4">
+            <p class="mb-2">The EU AI Act, officially known as Regulation (EU) 2024/1689, is the world's first comprehensive legal framework specifically regulating artificial intelligence. It was formally adopted on May 13, 2024, and aims to ensure AI systems in the EU market are safe, respect fundamental rights, and uphold EU values.</p>
+            <p class="mb-2">The Act applies to providers placing AI systems on the EU market regardless of their establishment location, as well as to users of AI systems located within the EU.</p>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Die EU-KI-Verordnung, offiziell als Verordnung (EU) 2024/1689 bekannt, ist der weltweit erste umfassende Rechtsrahmen speziell zur Regulierung künstlicher Intelligenz. Sie wurde am 13. Mai 2024 formell verabschiedet und zielt darauf ab, sicherzustellen, dass KI-Systeme auf dem EU-Markt sicher sind, die Grundrechte respektieren und die EU-Werte wahren.</p>
+          </div>`
+        },
+        {
+          title: "Key Objectives",
+          content: `<div class="mb-4">
+            <p class="mb-2">The EU AI Act has several key objectives:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>Ensuring AI systems placed on the EU market are safe and respect existing law and EU values</li>
+              <li>Ensuring legal certainty to facilitate investment and innovation in AI</li>
+              <li>Enhancing governance and effective enforcement of existing laws applicable to AI systems</li>
+              <li>Facilitating the development of a single market for lawful, safe and trustworthy AI applications</li>
+            </ul>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Die EU-KI-Verordnung hat mehrere Hauptziele: Sicherstellung, dass KI-Systeme auf dem EU-Markt sicher sind und bestehende Gesetze und EU-Werte respektieren; Gewährleistung von Rechtssicherheit zur Erleichterung von Investitionen und Innovationen im KI-Bereich; Verbesserung der Governance und wirksame Durchsetzung bestehender Gesetze für KI-Systeme; Erleichterung der Entwicklung eines Binnenmarkts für rechtmäßige, sichere und vertrauenswürdige KI-Anwendungen.</p>
+          </div>`
         },
         {
           title: "Risk-Based Approach",
-          content: `<p>The EU AI Act takes a risk-based approach, categorizing AI systems into four risk levels.</p>`
+          content: `<div class="mb-4">
+            <p class="mb-2">The EU AI Act takes a risk-based approach, categorizing AI systems into four distinct risk levels:</p>
+            <ol class="list-decimal pl-6 mb-2">
+              <li><strong>Unacceptable Risk</strong>: AI systems that pose a clear threat to people's safety, livelihoods, or rights are prohibited. Examples include social scoring by governments and manipulation of human behavior.</li>
+              <li><strong>High Risk</strong>: AI systems that could harm people's health, safety, fundamental rights, or the environment. These systems must comply with strict requirements before they can be placed on the market.</li>
+              <li><strong>Limited Risk</strong>: Systems with specific transparency obligations, such as chatbots and emotion recognition systems, where users must be informed they are interacting with AI.</li>
+              <li><strong>Minimal Risk</strong>: The vast majority of AI systems fall into this category and are subject to light regulation.</li>
+            </ol>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Die EU-KI-Verordnung verfolgt einen risikobasierten Ansatz und kategorisiert KI-Systeme in vier verschiedene Risikostufen: Unannehmbares Risiko (verbotene Systeme), Hohes Risiko (strenge Anforderungen vor Markteintritt), Begrenztes Risiko (Transparenzpflichten) und Minimales Risiko (geringe Regulierung für die meisten KI-Systeme).</p>
+          </div>`
+        },
+        {
+          title: "Implementation Timeline",
+          content: `<div class="mb-4">
+            <p class="mb-2">The EU AI Act will be implemented gradually:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li><strong>Immediate after publication</strong>: Prohibited AI practices (Article 5)</li>
+              <li><strong>6 months after entry into force</strong>: Governance provisions (Articles 56-59, 69, 84-85)</li>
+              <li><strong>12 months after entry into force</strong>: GPAI rules (General Purpose AI, Articles 55 and parts of 28)</li>
+              <li><strong>24 months after entry into force</strong>: All remaining provisions</li>
+            </ul>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Die EU-KI-Verordnung wird schrittweise umgesetzt: Sofort nach Veröffentlichung die verbotenen KI-Praktiken, 6 Monate nach Inkrafttreten die Governance-Bestimmungen, 12 Monate nach Inkrafttreten die GPAI-Regeln und 24 Monate nach Inkrafttreten alle übrigen Bestimmungen.</p>
+          </div>`
         }
       ],
       assessments: [
@@ -102,6 +141,26 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
           question: "How many risk categories does the EU AI Act establish?",
           options: ["Two", "Three", "Four", "Five"],
           correctAnswer: "Four"
+        },
+        {
+          question: "Which of the following AI systems would be classified as prohibited under the EU AI Act?",
+          options: [
+            "A recommendation system for online shopping",
+            "A facial recognition system used for law enforcement",
+            "Social scoring systems used by governments to evaluate citizens",
+            "An AI system for medical diagnosis in hospitals"
+          ],
+          correctAnswer: "Social scoring systems used by governments to evaluate citizens"
+        },
+        {
+          question: "When will most provisions of the EU AI Act come into full effect?",
+          options: [
+            "Immediately after publication",
+            "6 months after entry into force",
+            "12 months after entry into force",
+            "24 months after entry into force"
+          ],
+          correctAnswer: "24 months after entry into force"
         }
       ]
     }
@@ -112,12 +171,104 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
       sections: [
         {
           title: "Understanding AI Risk Categories",
-          content: `<p>The EU AI Act classifies AI systems into four distinct risk categories.</p>`
+          content: `<div class="mb-4">
+            <p class="mb-2">The EU AI Act classifies AI systems into four distinct risk categories based on their potential impact on fundamental rights, health, safety, and the environment. Understanding these categories is essential for determining compliance requirements for any AI system.</p>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Die EU-KI-Verordnung klassifiziert KI-Systeme in vier verschiedene Risikokategorien basierend auf ihren potenziellen Auswirkungen auf Grundrechte, Gesundheit, Sicherheit und Umwelt. Das Verständnis dieser Kategorien ist wesentlich für die Bestimmung der Compliance-Anforderungen für jedes KI-System.</p>
+          </div>`
+        },
+        {
+          title: "Unacceptable Risk - Prohibited AI Practices",
+          content: `<div class="mb-4">
+            <p class="mb-2">Article 5 of the EU AI Act prohibits AI systems that pose an unacceptable level of risk. These include:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>Subliminal manipulation techniques designed to distort behavior in harmful ways</li>
+              <li>Systems exploiting vulnerabilities of specific groups (age, disability, social/economic situation) to materially distort behavior</li>
+              <li>Social scoring systems by public authorities that lead to unfair treatment</li>
+              <li>Real-time remote biometric identification in publicly accessible spaces for law enforcement (with limited exceptions)</li>
+              <li>Emotion recognition in workplaces and educational institutions</li>
+              <li>AI systems categorizing people based on biometric data to deduce their race, political opinions, religious beliefs, etc.</li>
+              <li>Predictive policing systems based solely on profiling or assessment of personality traits</li>
+            </ul>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Artikel 5 der EU-KI-Verordnung verbietet KI-Systeme, die ein unannehmbares Risikoniveau darstellen. Dazu gehören: Manipulationstechniken, Ausnutzung von Schwachstellen bestimmter Gruppen, Social-Scoring-Systeme durch Behörden, biometrische Fernidentifikation in Echtzeit, Emotionserkennung am Arbeitsplatz und in Bildungseinrichtungen, KI-Systeme zur Kategorisierung von Personen auf Basis biometrischer Daten und prädiktive Polizeiarbeit basierend auf Persönlichkeitsmerkmalen.</p>
+          </div>`
+        },
+        {
+          title: "High-Risk AI Systems",
+          content: `<div class="mb-4">
+            <p class="mb-2">Article 6 and Annex III identify high-risk AI systems, which must meet strict requirements before market placement. These include:</p>
+            <ol class="list-decimal pl-6 mb-2">
+              <li><strong>AI systems as safety components of products</strong> under EU harmonization legislation listed in Annex II</li>
+              <li><strong>Standalone AI systems</strong> in areas listed in Annex III:
+                <ul class="list-disc pl-6 mt-2">
+                  <li>Biometric identification and categorization</li>
+                  <li>Critical infrastructure management</li>
+                  <li>Education and vocational training</li>
+                  <li>Employment, worker management, and access to self-employment</li>
+                  <li>Access to essential services (credit scoring, social benefits, emergency services)</li>
+                  <li>Law enforcement</li>
+                  <li>Migration, asylum, and border control</li>
+                  <li>Administration of justice and democratic processes</li>
+                </ul>
+              </li>
+            </ol>
+            <p class="mb-2">High-risk AI systems must comply with requirements including:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>Risk management systems</li>
+              <li>Data governance practices</li>
+              <li>Technical documentation</li>
+              <li>Record-keeping and logging</li>
+              <li>Transparency for users</li>
+              <li>Human oversight</li>
+              <li>Accuracy, robustness, and cybersecurity</li>
+            </ul>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Artikel 6 und Anhang III identifizieren Hochrisiko-KI-Systeme, die strenge Anforderungen erfüllen müssen. Dazu gehören KI-Systeme als Sicherheitskomponenten von Produkten und eigenständige KI-Systeme in Bereichen wie biometrische Identifizierung, kritische Infrastruktur, Bildung, Beschäftigung, Zugang zu wesentlichen Diensten, Strafverfolgung, Migration und Justizverwaltung. Diese Systeme müssen Anforderungen wie Risikomanagement, Daten-Governance, technische Dokumentation, Aufzeichnungen, Transparenz, menschliche Aufsicht sowie Genauigkeit und Cybersicherheit erfüllen.</p>
+          </div>`
+        },
+        {
+          title: "Limited Risk AI Systems",
+          content: `<div class="mb-4">
+            <p class="mb-2">Limited risk AI systems have specific transparency obligations under Article 52. These include:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>AI systems that interact with humans must inform users they are interacting with AI</li>
+              <li>Emotion recognition systems must inform subjects they are being subjected to such systems</li>
+              <li>AI-generated or manipulated image, audio, or video content ("deepfakes") must be disclosed as artificially generated</li>
+            </ul>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">KI-Systeme mit begrenztem Risiko haben spezifische Transparenzpflichten gemäß Artikel 52. Dazu gehören: KI-Systeme, die mit Menschen interagieren, müssen Benutzer informieren; Emotionserkennungssysteme müssen betroffene Personen informieren; und KI-generierte oder manipulierte Inhalte müssen als künstlich erzeugt gekennzeichnet werden.</p>
+          </div>`
+        },
+        {
+          title: "Minimal Risk AI Systems",
+          content: `<div class="mb-4">
+            <p class="mb-2">The vast majority of AI systems fall into the minimal risk category. Examples include:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>AI-enabled video games</li>
+              <li>Spam filters</li>
+              <li>Inventory management systems</li>
+              <li>AI-powered productivity tools</li>
+            </ul>
+            <p class="mb-2">The EU AI Act encourages providers of minimal risk AI systems to voluntarily apply requirements for high-risk systems and adhere to codes of conduct.</p>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Die große Mehrheit der KI-Systeme fällt in die Kategorie mit minimalem Risiko, wie KI-gestützte Videospiele, Spam-Filter, Bestandsverwaltungssysteme und KI-gestützte Produktivitätstools. Die EU-KI-Verordnung ermutigt Anbieter von KI-Systemen mit minimalem Risiko, freiwillig Anforderungen für Hochrisiko-Systeme anzuwenden und sich an Verhaltenskodizes zu halten.</p>
+          </div>`
+        },
+        {
+          title: "Risk Assessment Methodology",
+          content: `<div class="mb-4">
+            <p class="mb-2">To determine the risk level of an AI system, you should follow this assessment process:</p>
+            <ol class="list-decimal pl-6 mb-2">
+              <li>Check if the AI system falls under prohibited practices (Article 5)</li>
+              <li>Determine if the AI system is a safety component of a product covered in Annex II</li>
+              <li>Check if the AI system's purpose is listed in Annex III</li>
+              <li>Assess if the system has transparency obligations (limited risk)</li>
+              <li>If none of the above apply, classify as minimal risk</li>
+            </ol>
+            <p class="mb-2">Documentation of this assessment process is recommended for compliance purposes, even for minimal risk systems.</p>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Um die Risikostufe eines KI-Systems zu bestimmen, sollten Sie diesen Bewertungsprozess befolgen: Prüfen Sie, ob das KI-System unter verbotene Praktiken (Artikel 5) fällt; bestimmen Sie, ob das KI-System eine Sicherheitskomponente eines in Anhang II aufgeführten Produkts ist; prüfen Sie, ob der Zweck des KI-Systems in Anhang III aufgeführt ist; bewerten Sie, ob das System Transparenzpflichten hat; wenn nichts davon zutrifft, klassifizieren Sie es als minimales Risiko.</p>
+          </div>`
         }
       ],
       assessments: [
         {
-          question: "Which of the following AI systems would most likely be classified as high-risk?",
+          question: "Which of the following AI systems would most likely be classified as high-risk under the EU AI Act?",
           options: [
             "A video game recommendation system",
             "An AI system used for recruitment and candidate selection",
@@ -125,6 +276,36 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
             "A music creation AI application"
           ],
           correctAnswer: "An AI system used for recruitment and candidate selection"
+        },
+        {
+          question: "Which of the following is a prohibited AI practice under Article 5?",
+          options: [
+            "Using AI to analyze consumer behavior for marketing purposes",
+            "Using AI in medical devices for diagnostic assistance",
+            "Using AI for social scoring by public authorities",
+            "Using AI for climate change prediction models"
+          ],
+          correctAnswer: "Using AI for social scoring by public authorities"
+        },
+        {
+          question: "What transparency requirement applies to AI-generated or manipulated content (deepfakes)?",
+          options: [
+            "They must be reviewed by humans before publishing",
+            "They must be disclosed as artificially generated or manipulated",
+            "They must be registered in a central EU database",
+            "They must be approved by a regulatory authority"
+          ],
+          correctAnswer: "They must be disclosed as artificially generated or manipulated"
+        },
+        {
+          question: "Which category of AI systems has the most comprehensive compliance requirements?",
+          options: [
+            "Unacceptable risk",
+            "High-risk",
+            "Limited risk",
+            "Minimal risk"
+          ],
+          correctAnswer: "High-risk"
         }
       ]
     }

@@ -9,8 +9,13 @@ const tipsByContext: Record<string, ComplianceTip[]> = {
       id: 'risk-1',
       title: 'Risk Assessment Best Practices',
       content: 'When assessing AI systems, consider both the intended use and reasonably foreseeable misuse scenarios to identify all potential risks.',
+      contentGerman: 'Bei der Bewertung von KI-Systemen sollten Sie sowohl die beabsichtigte Verwendung als auch vernünftigerweise vorhersehbare Missbrauchsszenarien berücksichtigen, um alle potenziellen Risiken zu identifizieren.',
       category: 'risk',
       relevantArticles: ['Article 9', 'Article 10'],
+      articleLinks: {
+        'Article 9': 'https://artificialintelligenceact.eu/the-act/article-9-risk-management-system/',
+        'Article 10': 'https://artificialintelligenceact.eu/the-act/article-10-data-and-data-governance/'
+      },
       learnMoreLink: '/knowledge-center',
       officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e1635-1-1',
       lastUpdated: 'March 25, 2025',
@@ -19,8 +24,13 @@ const tipsByContext: Record<string, ComplianceTip[]> = {
       id: 'risk-2',
       title: 'High-Risk System Identification',
       content: 'Remember that AI systems used in critical infrastructure, education, employment, or law enforcement are automatically considered high-risk under the EU AI Act.',
+      contentGerman: 'Beachten Sie, dass KI-Systeme, die in kritischer Infrastruktur, Bildung, Beschäftigung oder Strafverfolgung eingesetzt werden, nach dem EU-KI-Gesetz automatisch als hochriskant eingestuft werden.',
       category: 'governance',
       relevantArticles: ['Article 6', 'Annex III'],
+      articleLinks: {
+        'Article 6': 'https://artificialintelligenceact.eu/the-act/article-6-classification-rules-for-high-risk-ai-systems/',
+        'Annex III': 'https://artificialintelligenceact.eu/the-act/annex-iii-high-risk-ai-systems-referred-to-in-article-62/'
+      },
       learnMoreLink: '/knowledge-center',
       officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e1427-1-1',
       lastUpdated: 'March 25, 2025',
@@ -136,8 +146,12 @@ const defaultTips: ComplianceTip[] = [
     id: 'default-1',
     title: 'EU AI Act Implementation Timeline',
     content: 'The EU AI Act applies in phases, with different compliance deadlines for different provisions. Ensure you\'re familiar with the timeline relevant to your systems.',
+    contentGerman: 'Der EU-KI-Gesetz wird in Phasen angewendet, mit unterschiedlichen Fristen für verschiedene Bestimmungen. Stellen Sie sicher, dass Sie mit dem für Ihre Systeme relevanten Zeitplan vertraut sind.',
     category: 'general',
     relevantArticles: ['Article 85'],
+    articleLinks: {
+      'Article 85': 'https://artificialintelligenceact.eu/the-act/article-85-entry-into-force-and-application/'
+    },
     learnMoreLink: '/knowledge-center',
     officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e7531-1-1',
     lastUpdated: 'March 25, 2025',
@@ -146,8 +160,12 @@ const defaultTips: ComplianceTip[] = [
     id: 'default-2',
     title: 'Human Oversight Requirement',
     content: 'For high-risk AI systems, human oversight measures must be built into the system or established through organizational procedures.',
+    contentGerman: 'Für Hochrisiko-KI-Systeme müssen Maßnahmen zur menschlichen Aufsicht in das System integriert oder durch organisatorische Verfahren festgelegt werden.',
     category: 'governance',
     relevantArticles: ['Article 14'],
+    articleLinks: {
+      'Article 14': 'https://artificialintelligenceact.eu/the-act/article-14-human-oversight/'
+    },
     learnMoreLink: '/knowledge-center',
     officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e2366-1-1',
     lastUpdated: 'March 25, 2025',
@@ -156,8 +174,12 @@ const defaultTips: ComplianceTip[] = [
     id: 'default-3',
     title: 'Data Governance Best Practices',
     content: 'Implement robust data governance practices for training, validation, and testing datasets to ensure representativeness and minimize biases.',
+    contentGerman: 'Implementieren Sie robuste Datenverwaltungspraktiken für Trainings-, Validierungs- und Testdatensätze, um Repräsentativität zu gewährleisten und Verzerrungen zu minimieren.',
     category: 'implementation',
     relevantArticles: ['Article 10'],
+    articleLinks: {
+      'Article 10': 'https://artificialintelligenceact.eu/the-act/article-10-data-and-data-governance/'
+    },
     learnMoreLink: '/knowledge-center',
     officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e1882-1-1',
     lastUpdated: 'March 25, 2025',
