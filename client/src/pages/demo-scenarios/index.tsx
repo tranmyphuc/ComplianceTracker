@@ -50,6 +50,15 @@ const DemoScenarios: React.FC = () => {
       riskLevel: "High",
       description: "A European city implementing AI systems to determine citizen service eligibility and urban planning.",
       aiSystems: ["Benefits Eligibility Assessment", "Urban Planning AI", "Public Resource Allocation System"]
+    },
+    {
+      id: "sgh-service-consulting",
+      title: "SGH Service",
+      industry: "Professional Services",
+      companySize: "Medium (250-999 employees)",
+      riskLevel: "Medium",
+      description: "A European professional services firm implementing AI tools for consultancy, document management, and business process optimization.",
+      aiSystems: ["Odoo AI", "ChatGPT Integration", "GitHub Copilot", "Document Analysis AI"]
     }
   ];
 
@@ -73,6 +82,7 @@ const DemoScenarios: React.FC = () => {
           <TabsTrigger value="manufacturing">Manufacturing</TabsTrigger>
           <TabsTrigger value="retail">Retail</TabsTrigger>
           <TabsTrigger value="public">Public Sector</TabsTrigger>
+          <TabsTrigger value="professional">Professional Services</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all" className="mt-6">
@@ -127,6 +137,16 @@ const DemoScenarios: React.FC = () => {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {scenarios
               .filter(s => s.industry === 'Public Sector')
+              .map((scenario) => (
+                <ScenarioCard key={scenario.id} {...scenario} />
+              ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="professional" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {scenarios
+              .filter(s => s.industry === 'Professional Services')
               .map((scenario) => (
                 <ScenarioCard key={scenario.id} {...scenario} />
               ))}
