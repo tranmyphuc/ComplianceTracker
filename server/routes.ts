@@ -1573,12 +1573,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: trainingModules.id,
           title: trainingModules.title,
           description: trainingModules.description,
-          estimated_time: trainingModules.estimatedTime,
+          estimated_time: trainingModules.estimated_time,
           topics: trainingModules.topics,
-          role_relevance: trainingModules.roleRelevance
+          role_relevance: trainingModules.role_relevance
         })
         .from(trainingModules)
-        .where(eq(trainingModules.moduleId, id))
+        .where(eq(trainingModules.module_id, id))
         .limit(1);
         
         if (result && result.length > 0) {
@@ -1720,10 +1720,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         module_id: moduleData.moduleId,
         title: moduleData.title,
         description: moduleData.description,
-        estimated_time: moduleData.estimatedTime,
+        estimated_time: moduleData.estimated_time || moduleData.estimatedTime,
         topics: moduleData.topics,
         order: moduleData.order || 0,
-        role_relevance: moduleData.roleRelevance,
+        role_relevance: moduleData.role_relevance || moduleData.roleRelevance,
         content: moduleData.content || { sections: [] }
       });
       

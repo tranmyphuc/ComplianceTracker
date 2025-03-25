@@ -112,13 +112,13 @@ export function TipBubble({
         setSecondsLeft(prev => prev - 1);
       }, 1000);
 
-      if (secondsLeft === 1) {
+      if (secondsLeft === 1 && onDismiss) {
         onDismiss(tip.id);
       }
 
       return () => clearTimeout(timer);
     }
-  }, [secondsLeft, minimized, onDismiss, tip.autoCloseTimeout]);
+  }, [secondsLeft, minimized, onDismiss, tip.id, tip.autoCloseTimeout]);
 
   const handleDismiss = () => {
     setVisible(false);
@@ -256,8 +256,43 @@ export function TipBubble({
             </div>
           </div>
 
-          {/* Content - Only show if not minimized */}
-          {!minimized && (
+          {/* Content - Show full or minimized version */}
+          {minimized ? (
+            <CardContent className="p-2">
+              {/* Minimized view - just show title and relevant articles */}
+              <div className="flex justify-between items-center">
+                <h4 className="font-semibold text-xs text-amber-800 truncate max-w-[180px]">{tip.title}</h4>
+                
+                {/* Relevant Articles (condensed) */}
+                {tip.relevantArticles && tip.relevantArticles.length > 0 && (
+                  <div className="flex flex-wrap gap-1 ml-2">
+                    {tip.relevantArticles.slice(0, 3).map((article) => {
+                      const articleUrl = tip.articleLinks?.[article] || 
+                                        `https://artificialintelligenceact.eu/the-act/${article.toLowerCase().replace(/\s+/g, '-')}/`;
+                      return (
+                        <a 
+                          key={article}
+                          href={articleUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="no-underline"
+                        >
+                          <Badge variant="outline" className="text-xs hover:bg-primary-50 cursor-pointer transition-colors">
+                            {article}
+                          </Badge>
+                        </a>
+                      );
+                    })}
+                    {tip.relevantArticles.length > 3 && (
+                      <Badge variant="outline" className="text-xs">
+                        +{tip.relevantArticles.length - 3}
+                      </Badge>
+                    )}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          ) : (
             <CardContent className="p-4">
               <div className="flex gap-2 mb-2">
                 <Button 
