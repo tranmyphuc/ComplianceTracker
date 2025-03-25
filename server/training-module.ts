@@ -119,6 +119,9 @@ const TRAINING_MODULES: TrainingModule[] = [
 
 // Module content with real EU AI Act information and German translations
 const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
+  "ai-literacy": {
+    "default": aiLiteracyTrainingModule.content.default
+  },
   "1": {
     "default": {
       title: "EU AI Act Introduction",
