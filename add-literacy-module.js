@@ -1,14 +1,12 @@
 /**
  * Script to add the AI Literacy Training Module to the database
  */
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
+import { aiLiteracyTrainingModule } from './server/modules/ai-literacy-training.js';
 
 async function addLiteracyModule() {
   try {
-    console.log("Fetching AI Literacy module content...");
-    
-    // Import the module file using nodejs require
-    const { aiLiteracyTrainingModule } = require('./server/modules/ai-literacy-training');
+    console.log("Preparing AI Literacy module content...");
     
     // Prepare the module data in the format expected by the API
     const moduleData = {
