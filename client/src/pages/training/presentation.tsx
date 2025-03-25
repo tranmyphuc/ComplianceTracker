@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'wouter';
+import { useRoute, useLocation } from 'wouter';
 import { Button } from '../../components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import TrainingPresentation from '../../components/training/presentation-mode';
 
 const TrainingPresentationPage: React.FC = () => {
-  const [params] = useParams();
+  const [, params] = useRoute('/training/presentation/:id');
   const [, navigate] = useLocation();
   const [loading, setLoading] = useState(true);
   const [moduleTitle, setModuleTitle] = useState('');
   const [userRole, setUserRole] = useState('technical');
-  const id = params.id;
+  const id = params?.id;
 
   useEffect(() => {
     // Fetch module info
