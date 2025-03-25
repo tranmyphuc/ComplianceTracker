@@ -1562,6 +1562,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add new training module to database
+  app.post('/api/training/add-module', async (req, res) => {
+    try {
+      const moduleData = req.body;
+      console.log("Adding new training module:", moduleData.moduleId);
+      
+      // Import from schema in this scope to avoid global import issues
+      const { trainingModules } = await import('../shared/schema');
+      const { db } = await import('./db');
+      
+      // Insert the module into the database
+      await db.insert(trainingModules).values({
+        moduleId: moduleData.moduleId,
+        title: moduleData.title,
+        description: moduleData.description,
+        estimatedTime: moduleData.estimatedTime,
+        topics: moduleData.topics,
+        order: moduleData.order || 0,
+        roleRelevance: moduleData.roleRelevance,
+        content: moduleData.content || { sections: [] }
+      });
+      
+      res.json({ success: true, moduleId: moduleData.moduleId });
+    } catch (error) {
+      console.error("Error adding training module:", error);
+      handleError(res, error instanceof Error ? error : new Error(String(error)), 'Failed to add training module');
+    }
+  });
+
   // API Key Management routes
   app.get('/api/ai-keys', getApiKeys);
   app.post('/api/ai-keys', addApiKey);
