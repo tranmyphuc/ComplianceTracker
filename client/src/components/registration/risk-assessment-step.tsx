@@ -71,12 +71,31 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
     setSghAsiaAiInProgress(true);
     
     try {
+      // Before sending request, make sure we have at least basic information
+      if (!formData.name || !formData.department) {
+        toast({
+          title: "Missing Information",
+          description: "Please provide at least a system name and department before analyzing.",
+          variant: "destructive"
+        });
+        setIsAnalyzing(false);
+        setSghAsiaAiInProgress(false);
+        return;
+      }
+      
+      // Add analysis type parameter to request detailed risk parameters
+      const dataToSend = {
+        ...formData,
+        analysisType: 'detailed_risk_parameters'
+      };
+      
+      // Use enhanced formData for analysis
       const response = await fetch('/api/analyze/system', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(dataToSend)
       });
 
       if (!response.ok) {
@@ -84,22 +103,60 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
       }
 
       const results = await response.json();
-      setSghAsiaAiResults(results);
-
-      // Update risk level in form
-      if (results.riskLevel) {
-        setFormData(prev => ({
-          ...prev,
-          riskLevel: results.riskLevel
-        }));
-      }
-
-      // Generate potential impact if empty
-      if (!formData.potentialImpact && results.potentialImpact) {
-        setFormData(prev => ({
-          ...prev,
-          potentialImpact: results.potentialImpact
-        }));
+      
+      // Safe processing of results
+      if (results && typeof results === 'object') {
+        // Process detailed risk parameters if available
+        if (results.riskFactors && Array.isArray(results.riskFactors)) {
+          // Convert detailed results format to the format expected by our UI
+          const processedResults = {
+            ...results,
+            riskLevel: determineRiskLevelFromFactors(results.riskFactors),
+            relevantArticles: extractArticlesFromFactors(results.riskFactors),
+            suggestedImprovements: results.mitigationStrategies || []
+          };
+          
+          setSghAsiaAiResults(processedResults);
+          
+          // Update form data with determined risk level
+          if (processedResults.riskLevel) {
+            setFormData(prev => ({
+              ...prev,
+              riskLevel: processedResults.riskLevel
+            }));
+          }
+          
+          // Generate potential impact if empty
+          if (!formData.potentialImpact && results.specificConcerns && Array.isArray(results.specificConcerns)) {
+            const impact = results.specificConcerns.join(". ");
+            setFormData(prev => ({
+              ...prev,
+              potentialImpact: impact
+            }));
+          }
+        } else {
+          // Handle basic analysis results
+          setSghAsiaAiResults(results);
+          
+          // Update risk level in form
+          if (results.riskLevel || results.riskClassification) {
+            setFormData(prev => ({
+              ...prev,
+              riskLevel: results.riskLevel || results.riskClassification
+            }));
+          }
+          
+          // Generate potential impact if empty
+          if (!formData.potentialImpact && results.potentialImpact) {
+            setFormData(prev => ({
+              ...prev,
+              potentialImpact: results.potentialImpact
+            }));
+          }
+        }
+      } else {
+        // Handle invalid response
+        throw new Error("Received invalid response format from API");
       }
 
       toast({
@@ -118,23 +175,57 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
       setSghAsiaAiInProgress(false);
     }
   };
-
-  // Use AI analysis to highlight risk levels
-  const showAiAnalysis = !!sghAsiaAiResults;
   
+  // Helper function to determine risk level from risk factors
+  const determineRiskLevelFromFactors = (riskFactors: any[]) => {
+    if (!Array.isArray(riskFactors) || riskFactors.length === 0) {
+      return 'unknown';
+    }
+    
+    // Calculate average score
+    const totalScore = riskFactors.reduce((sum, factor) => sum + (factor.score || 0), 0);
+    const avgScore = totalScore / riskFactors.length;
+    
+    // Determine risk level based on average score
+    if (avgScore < 30) return 'unacceptable';
+    if (avgScore < 50) return 'high';
+    if (avgScore < 80) return 'limited';
+    return 'minimal';
+  };
+  
+  // Helper function to extract articles from risk factors
+  const extractArticlesFromFactors = (riskFactors: any[]) => {
+    if (!Array.isArray(riskFactors)) return [];
+    
+    const articles = new Set();
+    riskFactors.forEach(factor => {
+      if (factor.euAiActArticle) {
+        articles.add(factor.euAiActArticle);
+      }
+    });
+    
+    return Array.from(articles);
+  };
+
+  // Use AI analysis to highlight risk levels - with safeguards for malformed responses
+  const showAiAnalysis = !!(sghAsiaAiResults && typeof sghAsiaAiResults === 'object');
+  
+  // Handle server responses with different field names (riskLevel vs riskClassification)
   const aiAnalysisRiskLevel = showAiAnalysis 
-    ? sghAsiaAiResults.riskLevel || 'unknown'
+    ? sghAsiaAiResults.riskLevel || sghAsiaAiResults.riskClassification || 'unknown'
     : null;
     
   const aiAnalysisCategory = showAiAnalysis 
-    ? sghAsiaAiResults.category || null
+    ? sghAsiaAiResults.category || sghAsiaAiResults.systemCategory || null
     : null;
     
-  const relevantArticles = showAiAnalysis && Array.isArray(sghAsiaAiResults.relevantArticles)
-    ? sghAsiaAiResults.relevantArticles
+  // Safely handle potential missing arrays
+  const relevantArticles = (showAiAnalysis && 
+    (Array.isArray(sghAsiaAiResults.relevantArticles) || Array.isArray(sghAsiaAiResults.euAiActArticles)))
+    ? (sghAsiaAiResults.relevantArticles || sghAsiaAiResults.euAiActArticles || [])
     : [];
     
-  const suggestedImprovements = showAiAnalysis && Array.isArray(sghAsiaAiResults.suggestedImprovements)
+  const suggestedImprovements = (showAiAnalysis && Array.isArray(sghAsiaAiResults.suggestedImprovements))
     ? sghAsiaAiResults.suggestedImprovements
     : [];
 
