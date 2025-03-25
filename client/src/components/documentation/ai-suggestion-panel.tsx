@@ -273,15 +273,38 @@ export function AISuggestionPanel({
     setIsLoading(true);
     
     try {
-      // In a real implementation, this would call the API
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Prepare the custom prompt for the API
+      const enhancedPrompt = `As an EU AI Act compliance expert, respond to this custom prompt for a ${documentType} document:
+        
+        Custom prompt: "${customPrompt}"
+        Document type: ${documentType}
+        
+        Generate document content that directly addresses the prompt and is compliant with the EU AI Act.
+        Format your response to be directly insertable into the document.
+        Include references to specific EU AI Act articles when relevant.`;
       
-      // Add a new suggestion based on the custom prompt
+      // Call the API with the enhanced prompt
+      const response = await fetch('/api/analyze/document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: enhancedPrompt }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const content = data.analysis || '';
+      
+      // Create a new suggestion from the API response
       const newSuggestion: Suggestion = {
         id: `prompt-${Date.now()}`,
         type: 'content',
-        content: `In response to your prompt: "${customPrompt.slice(0, 30)}...", we recommend:\n\nThe system maintains detailed logging of all interactions between AI and human reviewers, including timestamps, user IDs, action types, and decision outcomes. These logs are encrypted, access-controlled, and retained in accordance with organizational data retention policies.`,
-        rationale: 'Custom-generated content based on your specific requirements.',
+        content: content,
+        rationale: `Generated in response to your custom prompt: "${customPrompt.slice(0, 60)}${customPrompt.length > 60 ? '...' : ''}"`,
         status: 'generated'
       };
       

@@ -162,7 +162,7 @@ export function DocumentGenerator() {
         const template = await templateResponse.json();
         let documentContent = `# ${template.title}\n## ${system?.name || 'AI System'}\n### ${companyName}\n\n`;
         
-        template.sections.forEach(section => {
+        template.sections.forEach((section: { title: string; content: string }) => {
           documentContent += `## ${section.title}\n${section.content}\n\n`;
         });
         
