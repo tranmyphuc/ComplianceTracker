@@ -885,18 +885,54 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment> {
-    // Generate a unique assessment ID if one isn't provided
-    const assessmentId = assessment.assessmentId || `RA-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    try {
+      // Generate a unique assessment ID if one isn't provided
+      const assessmentId = assessment.assessmentId || `RA-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-    const newAssessment = {
-      ...assessment,
-      assessmentId,
-      assessmentDate: assessment.assessmentDate || new Date(),
-      createdAt: new Date()
-    };
+      // Convert JSON fields to proper format if they're not already
+      const processedAssessment = {
+        ...assessment,
+        assessmentId,
+        assessmentDate: assessment.assessmentDate || new Date(),
+        createdAt: new Date(),
+        // Ensure JSON fields are properly formatted
+        prohibitedUseChecks: this.ensureJsonField(assessment.prohibitedUseChecks),
+        euAiActArticles: this.ensureJsonField(assessment.euAiActArticles),
+        complianceGaps: this.ensureJsonField(assessment.complianceGaps),
+        remediationActions: this.ensureJsonField(assessment.remediationActions),
+        evidenceDocuments: this.ensureJsonField(assessment.evidenceDocuments)
+      };
 
-    const result = await db.insert(riskAssessments).values(newAssessment).returning();
-    return result[0];
+      console.log('Inserting risk assessment with processed data:', processedAssessment);
+      
+      const result = await db.insert(riskAssessments).values(processedAssessment).returning();
+      console.log('Risk assessment insertion result:', result);
+      return result[0];
+    } catch (error) {
+      console.error('Error in createRiskAssessment:', error);
+      throw error;
+    }
+  }
+  
+  // Helper method to ensure JSON fields are properly formatted
+  private ensureJsonField(field: any): any {
+    if (field === undefined || field === null) {
+      return null;
+    }
+    
+    if (typeof field === 'string') {
+      try {
+        // If it's already a JSON string, parse it to make sure it's valid, then return the original string
+        JSON.parse(field);
+        return field;
+      } catch (e) {
+        // If it's not valid JSON, stringify it
+        return JSON.stringify(field);
+      }
+    }
+    
+    // If it's an object/array, stringify it
+    return JSON.stringify(field);
   }
 
   async updateRiskAssessment(id: number, assessment: Partial<RiskAssessment>): Promise<RiskAssessment | undefined> {

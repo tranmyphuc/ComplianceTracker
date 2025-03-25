@@ -881,17 +881,27 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
           remediationActions: result.recommendations || [],
           evidenceDocuments: result.requiredDocumentation || [], 
           summaryNotes: "Comprehensive risk assessment completed via advanced wizard",
-          createdBy: assessmentMeta.assessorName || "admin"
+          createdBy: assessmentMeta.assessorName || "admin",
+          status: "completed" // Ensure status field is included
         };
         
         console.log("Sending assessment data:", assessmentData);
         
-        const response = await apiRequest('/api/risk-assessments', {
-          method: 'POST',
-          body: assessmentData
-        });
-        
-        console.log("Assessment saved:", response);
+        try {
+          const response = await apiRequest('/api/risk-assessments', {
+            method: 'POST',
+            body: assessmentData
+          });
+          
+          console.log("Assessment saved:", response);
+        } catch (apiError: any) {
+          console.error("API error details:", apiError.message);
+          // If there's a more detailed error response available
+          if (apiError.response) {
+            console.error("Response data:", apiError.response);
+          }
+          throw apiError; // Re-throw to be caught by outer try/catch
+        }
         
         // Call onComplete callback if provided
         if (onComplete) {
