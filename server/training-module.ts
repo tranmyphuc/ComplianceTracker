@@ -527,12 +527,12 @@ export async function getTrainingModules(req: Request, res: Response): Promise<v
       // If found in database, use that data
       if (modules && modules.length > 0) {
         moduleData = modules.map(module => ({
-          id: module.moduleId,
+          id: module.module_id,
           title: module.title,
           description: module.description,
-          estimated_time: module.estimatedTime,
+          estimated_time: module.estimated_time,
           topics: module.topics as string[],
-          role_relevance: module.roleRelevance as {
+          role_relevance: module.role_relevance as {
             decision_maker: string;
             developer: string;
             operator: string;
@@ -609,7 +609,7 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
 
     // For other modules, try to get from database first
     try {
-      const module = await db.select().from(trainingModules).where(eq(trainingModules.moduleId, moduleId)).limit(1);
+      const module = await db.select().from(trainingModules).where(eq(trainingModules.module_id, moduleId)).limit(1);
 
       if (module && module.length > 0) {
         const moduleData = module[0];
@@ -622,7 +622,7 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
         const enhancedContent = {
           title: moduleData.title,
           description: moduleData.description,
-          estimated_time: moduleData.estimatedTime,
+          estimated_time: moduleData.estimated_time,
           content: {
             slides: buildSlides(roleContent),
             document: buildDocument(roleContent, moduleData.title),
