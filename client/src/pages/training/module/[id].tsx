@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'wouter';
+import { useRoute, useLocation } from 'wouter';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,8 +9,9 @@ import { TrainingContent } from "@/components/training/training-content";
 import axios from 'axios';
 
 export default function ModuleView() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const [, params] = useRoute('/training/module/:id');
+  const [, navigate] = useLocation();
+  const id = params?.id;
   const [loading, setLoading] = useState(true);
   const [moduleData, setModuleData] = useState<any>(null);
   const [progress, setProgress] = useState(0);

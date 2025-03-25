@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useRoute, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { 
   Download, 
@@ -22,10 +22,11 @@ interface Certificate {
 }
 
 const TrainingCertificatePage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const [, params] = useRoute('/training/certificate/:id');
+  const id = params?.id;
   const [loading, setLoading] = useState(true);
   const [certificate, setCertificate] = useState<Certificate | null>(null);
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   
   useEffect(() => {
     const fetchCertificate = async () => {
