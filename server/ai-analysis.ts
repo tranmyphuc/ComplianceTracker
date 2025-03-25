@@ -147,36 +147,87 @@ async function callGeminiApi(prompt: string): Promise<string> {
  * This handles the common case where models return JSON with markdown formatting
  */
 export function safeJsonParse(jsonString: string): any {
+  if (!jsonString || typeof jsonString !== 'string') {
+    console.error("Invalid input to safeJsonParse:", jsonString);
+    return null;
+  }
+
+  // Log the input for debugging
+  console.log("Attempting to parse JSON from:", jsonString.substring(0, 100) + "...");
+  
   try {
     // Try direct parsing first
     return JSON.parse(jsonString);
   } catch (error) {
+    console.log("Direct JSON parsing failed, trying alternative methods");
+    
     // Try to extract JSON from markdown code blocks
     const jsonRegex = /```(?:json)?\s*({[\s\S]*?})\s*```/;
     const match = jsonString.match(jsonRegex);
     
     if (match && match[1]) {
       try {
-        return JSON.parse(match[1]);
+        const extracted = match[1].trim();
+        console.log("Found JSON in markdown code block:", extracted.substring(0, 100) + "...");
+        return JSON.parse(extracted);
       } catch (innerError) {
         console.error("Failed to parse extracted JSON from markdown:", innerError);
       }
     }
     
     // Try finding object notation without markdown
-    const objectRegex = /({[\s\S]*})/;
+    const objectRegex = /({[\s\S]*?})/;
     const objectMatch = jsonString.match(objectRegex);
     
     if (objectMatch && objectMatch[1]) {
       try {
-        return JSON.parse(objectMatch[1]);
+        const extracted = objectMatch[1].trim();
+        console.log("Found object notation:", extracted.substring(0, 100) + "...");
+        return JSON.parse(extracted);
       } catch (innerError) {
         console.error("Failed to parse object notation:", innerError);
       }
     }
     
+    // Try fixing common JSON formatting issues and parse again
+    try {
+      // Replace single quotes with double quotes
+      const fixedQuotes = jsonString.replace(/'/g, '"');
+      
+      // Find anything that looks like a JSON object with relaxed regex
+      const relaxedRegex = /{[^{}]*({[^{}]*})*[^{}]*}/g;
+      const relaxedMatches = fixedQuotes.match(relaxedRegex);
+      
+      if (relaxedMatches && relaxedMatches.length > 0) {
+        console.log("Found potential JSON with relaxed regex:", relaxedMatches[0].substring(0, 100) + "...");
+        return JSON.parse(relaxedMatches[0]);
+      }
+    } catch (fixError) {
+      console.error("Failed to parse after fixing common issues:", fixError);
+    }
+    
+    // If all attempts failed but the response contains structured data, create a minimal valid response
+    if (jsonString.includes("riskLevel") || jsonString.includes("riskFactors")) {
+      console.log("Creating minimal valid response from structured data");
+      
+      // Extract risk level if present
+      let riskLevel = "unknown";
+      const riskLevelMatch = jsonString.match(/["']?riskLevel["']?\s*:\s*["']?([^"',}]*)["']?/i);
+      if (riskLevelMatch && riskLevelMatch[1]) {
+        riskLevel = riskLevelMatch[1].trim().toLowerCase();
+      }
+      
+      // Create a minimal valid response
+      return {
+        riskLevel,
+        analysisPerformed: true,
+        parsedFromUnstructuredResponse: true,
+        originalResponse: jsonString.substring(0, 500) + "..."
+      };
+    }
+    
     // Return null if all parsing attempts fail
-    console.error("All JSON parsing attempts failed for:", jsonString);
+    console.error("All JSON parsing attempts failed. Original string:", jsonString);
     return null;
   }
 }

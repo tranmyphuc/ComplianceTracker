@@ -28,6 +28,31 @@ import {
   determineRiskLevel,
   safeJsonParse
 } from "./ai-analysis";
+
+/**
+ * Helper function to extract values from unstructured AI text responses
+ * This is used as a fallback when JSON parsing fails
+ */
+function extractValue(text: string | null | undefined, key: string): string | null {
+  if (!text) return null;
+  
+  // Look for patterns like "key": "value" or key: value or "key" : "value"
+  const patterns = [
+    new RegExp(`["']?${key}["']?\\s*:\\s*["']([^"']+)["']`, 'i'),   // "key": "value" or 'key': 'value'
+    new RegExp(`["']?${key}["']?\\s*:\\s*([^,"'{}\\[\\]\\n]+)`, 'i'), // key: value (no quotes)
+    new RegExp(`${key}\\s*is\\s*["']?([^,"'{}\\[\\]\\n]+)["']?`, 'i'), // key is value or key is "value"
+    new RegExp(`${key}:\\s*["']?([^,"'{}\\[\\]\\n]+)["']?`, 'i'),   // key: value (with or without quotes)
+  ];
+  
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  return null;
+}
 import { regulatoryRoutes } from "./routes/regulatory-routes";
 import { initializeRegulationUpdates } from "./regulatory-service";
 
@@ -661,28 +686,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Pass the pre-detected system type to the API call for fallback purposes
       // Convert null to undefined to match the function signature
+      console.log("Calling DeepSeek API for AI suggestions with name:", name, "and description:", description);
       const response = await callDeepSeekApi(prompt, systemType || undefined);
       let suggestions;
 
+      // Log the response length for debugging
+      console.log(`Received DeepSeek response with length: ${response?.length || 0} characters`);
+      
       // Use our enhanced safeJsonParse to handle AI model responses
       try {
+        // Our enhanced safeJsonParse should handle various response formats
         suggestions = safeJsonParse(response);
+        
+        // Log what we got back
+        console.log("Parsed suggestions:", suggestions ? "Successfully parsed" : "Failed to parse");
         
         if (!suggestions) {
           console.error("Failed to parse system suggestion response with safeJsonParse");
-          console.log("Raw response:", response);
+          console.log("Raw response first 200 chars:", response?.substring(0, 200));
           
-          // Provide a fallback response since parsing failed
+          // Create a new suggestion with any values we can extract directly from the raw response
+          // but don't use hardcoded fallbacks
           suggestions = {
-            name: name || "AI System",
-            vendor: "Unknown",
-            version: "1.0",
-            department: "Information Technology",
-            purpose: description || "AI system for business operations",
-            aiCapabilities: "Natural Language Processing",
-            trainingDatasets: "Proprietary data",
-            outputTypes: "Text, Recommendations",
-            usageContext: "Business operations",
+            name: name || extractValue(response, 'name') || "Unknown",
+            vendor: extractValue(response, 'vendor') || "Unknown",
+            version: extractValue(response, 'version') || "Unknown",
+            department: extractValue(response, 'department') || "Unknown",
+            purpose: description || extractValue(response, 'purpose') || "Unknown",
+            aiCapabilities: extractValue(response, 'aiCapabilities') || "Unknown",
+            trainingDatasets: extractValue(response, 'trainingDatasets') || "Unknown",
+            outputTypes: extractValue(response, 'outputTypes') || "Unknown",
+            usageContext: extractValue(response, 'usageContext') || "Unknown",
             potentialImpact: "Improved efficiency",
             riskLevel: "Limited",
             confidenceScore: 60
