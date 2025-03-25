@@ -90,6 +90,7 @@ export async function generateReport(
     let title = '';
     let description = '';
     let content: Record<string, any> = {};
+    const language = options?.language || 'en';
     
     // Fetch systems
     const systems = await Promise.all(
@@ -98,10 +99,35 @@ export async function generateReport(
     
     const validSystems = systems.filter(Boolean) as AiSystem[];
     
+    // Get the latest audit records for each system
+    const auditRecordsMap: Record<string, AuditRecord[]> = {};
+    for (const system of validSystems) {
+      if (system.id) {
+        auditRecordsMap[system.id.toString()] = await getAuditRecords(system.id.toString());
+      }
+    }
+    
+    // Helper function to get localized text
+    const getLocalizedText = (en: string, de: string, vi: string) => {
+      switch (language) {
+        case 'de': return de;
+        case 'vi': return vi;
+        default: return en;
+      }
+    };
+    
     switch (type) {
       case ReportType.COMPLIANCE_SUMMARY: {
-        title = 'EU AI Act Compliance Summary Report';
-        description = 'Overview of compliance status for selected AI systems';
+        title = getLocalizedText(
+          'EU AI Act Compliance Summary Report',
+          'EU-KI-Gesetz Compliance-Zusammenfassungsbericht',
+          'Báo cáo Tóm tắt Tuân thủ Đạo luật AI của EU'
+        );
+        description = getLocalizedText(
+          'Overview of compliance status for selected AI systems',
+          'Überblick über den Compliance-Status für ausgewählte KI-Systeme',
+          'Tổng quan về trạng thái tuân thủ cho các hệ thống AI đã chọn'
+        );
         
         const { calculateComprehensiveScore } = require('./compliance-scoring');
         
@@ -132,35 +158,111 @@ export async function generateReport(
       }
       
       case ReportType.RISK_ASSESSMENT: {
-        title = 'Risk Assessment Report';
-        description = 'Detailed risk assessment for AI systems';
+        title = getLocalizedText(
+          'Risk Assessment Report',
+          'Risikobewertungsbericht',
+          'Báo cáo Đánh giá Rủi ro'
+        );
+        description = getLocalizedText(
+          'Detailed risk assessment for AI systems',
+          'Detaillierte Risikobewertung für KI-Systeme',
+          'Đánh giá rủi ro chi tiết cho các hệ thống AI'
+        );
+        
+        // Get the latest assessment date for each system
+        const latestAssessmentDates: Record<string, Date> = {};
+        for (const [systemId, records] of Object.entries(auditRecordsMap)) {
+          const assessmentRecords = records.filter(r => r.eventType === 'assessment');
+          if (assessmentRecords.length > 0) {
+            // Get the latest assessment date
+            const latestRecord = assessmentRecords.reduce((latest, current) => 
+              new Date(current.timestamp) > new Date(latest.timestamp) ? current : latest
+            );
+            latestAssessmentDates[systemId] = new Date(latestRecord.timestamp);
+          }
+        }
+        
+        // Risk factors by system type (more realistic data)
+        const getRiskFactorsByType = (system: AiSystem) => {
+          const baseFactors = [
+            "Data quality and bias",
+            "System transparency",
+            "Human oversight mechanisms",
+            "Technical robustness"
+          ];
+          
+          if (system.category === 'Image Recognition') {
+            return [...baseFactors, "Facial recognition privacy concerns", "Demographic bias in training data"];
+          } else if (system.category === 'NLP') {
+            return [...baseFactors, "Language bias", "Cultural context misinterpretation"];
+          } else if (system.category === 'Decision Support') {
+            return [...baseFactors, "Decision explanation capability", "Human-AI collaboration framework"];
+          }
+          
+          return baseFactors;
+        };
+        
+        // Generate system-specific mitigation measures
+        const getMitigationMeasures = (system: AiSystem) => {
+          const baseMeasures = [
+            "Regular data quality audits",
+            "Enhanced documentation",
+            "Human-in-the-loop protocols"
+          ];
+          
+          if (system.riskLevel === 'High') {
+            return [...baseMeasures, 
+              "Mandatory human review of critical decisions",
+              "Regular conformity assessments",
+              "Comprehensive audit trail implementation"
+            ];
+          } else if (system.riskLevel === 'Limited') {
+            return [...baseMeasures, 
+              "Transparency obligations fulfillment",
+              "Regular system monitoring"
+            ];
+          }
+          
+          return [...baseMeasures, "Basic documentation maintenance"];
+        };
         
         content = {
           summary: {
             totalSystems: validSystems.length,
             highRiskCount: validSystems.filter(sys => sys.riskLevel === 'High').length,
             limitedRiskCount: validSystems.filter(sys => sys.riskLevel === 'Limited').length,
-            minimalRiskCount: validSystems.filter(sys => sys.riskLevel === 'Minimal').length
+            minimalRiskCount: validSystems.filter(sys => sys.riskLevel === 'Minimal').length,
+            assessmentCompletionRate: Math.round((Object.keys(latestAssessmentDates).length / validSystems.length) * 100) || 0,
+            recentAssessments: Object.keys(latestAssessmentDates).length
           },
-          systems: validSystems.map(sys => ({
-            id: sys.id,
-            name: sys.name,
-            riskLevel: sys.riskLevel,
-            riskScore: sys.riskScore,
-            department: sys.department,
-            key_risk_factors: [
-              "Data quality and bias",
-              "System transparency",
-              "Human oversight mechanisms",
-              "Technical robustness"
-            ],
-            mitigation_measures: [
-              "Regular data quality audits",
-              "Enhanced documentation",
-              "Human-in-the-loop protocols",
-              "Regular security testing"
-            ]
-          }))
+          systems: validSystems.map(sys => {
+            const systemId = sys.id?.toString() || '';
+            const latestAssessment = latestAssessmentDates[systemId];
+            const auditRecords = auditRecordsMap[systemId] || [];
+            
+            return {
+              id: sys.id,
+              name: sys.name,
+              riskLevel: sys.riskLevel,
+              riskScore: sys.riskScore,
+              department: sys.department,
+              category: sys.category,
+              lastAssessmentDate: latestAssessment?.toISOString() || null,
+              assessmentHistory: auditRecords
+                .filter(r => r.eventType === 'assessment')
+                .map(r => ({ 
+                  date: r.timestamp,
+                  user: r.user,
+                  details: r.details
+                })),
+              key_risk_factors: getRiskFactorsByType(sys),
+              mitigation_measures: getMitigationMeasures(sys),
+              compliance_status: sys.complianceScore ? 
+                (sys.complianceScore >= 80 ? 'Compliant' : 
+                 sys.complianceScore >= 50 ? 'Partially Compliant' : 
+                 'Non-Compliant') : 'Not Assessed'
+            };
+          })
         };
         break;
       }

@@ -6,7 +6,8 @@ import {
   ThumbsUp as ThumbsUpIcon,
   ThumbsDown as ThumbsDownIcon,
   Minimize2 as MinimizeIcon,
-  Maximize2 as MaximizeIcon
+  Maximize2 as MaximizeIcon,
+  Clock as ClockIcon
 } from 'lucide-react';
 import { 
   Card, 
@@ -21,6 +22,7 @@ export interface ComplianceTip {
   title: string;
   content: string;
   contentGerman?: string; // German translation of the content
+  contentVietnamese?: string; // Vietnamese translation of the content
   category: 'risk' | 'documentation' | 'governance' | 'implementation' | 'audit' | 'general';
   relevantArticles?: string[];
   articleLinks?: {[key: string]: string}; // Map of article numbers to specific URLs
@@ -29,6 +31,8 @@ export interface ComplianceTip {
   learnMoreLink?: string;
   officialSourceUrl?: string; // URL to the official EU AI Act source
   lastUpdated?: string; // Date when the tip was last updated
+  autoCloseTimeout?: number; // Auto-close timeout in seconds
+  jackStyle?: boolean; // Apply Jack's style
 }
 
 interface TipBubbleProps {
@@ -69,7 +73,11 @@ export function TipBubble({
   const [visible, setVisible] = useState<boolean>(true);
   const [feedbackGiven, setFeedbackGiven] = useState<boolean>(false);
   const [minimized, setMinimized] = useState<boolean>(false);
-  
+  const [secondsLeft, setSecondsLeft] = useState(tip.autoCloseTimeout || 0);
+  const [language, setLanguage] = useState<'en' | 'de' | 'vi'>('en');
+  const [animated, setAnimated] = useState(false);
+
+
   // Handle auto-dismiss
   useEffect(() => {
     if (autoDismiss && visible) {
@@ -79,35 +87,63 @@ export function TipBubble({
           onDismiss(tip.id);
         }
       }, autoDismissDelay);
-      
+
       return () => clearTimeout(timer);
     }
   }, [autoDismiss, autoDismissDelay, visible, tip.id, onDismiss]);
-  
+
+  useEffect(() => {
+    if (animate) {
+      // Add entrance animation delay
+      const timer = setTimeout(() => {
+        setAnimated(true);
+      }, 100);
+
+      return () => clearTimeout(timer);
+    } else {
+      setAnimated(true);
+    }
+  }, [animate]);
+
+  // Auto-close timer effect
+  useEffect(() => {
+    if (tip.autoCloseTimeout && secondsLeft > 0 && !minimized) {
+      const timer = setTimeout(() => {
+        setSecondsLeft(prev => prev - 1);
+      }, 1000);
+
+      if (secondsLeft === 1) {
+        onDismiss(tip.id);
+      }
+
+      return () => clearTimeout(timer);
+    }
+  }, [secondsLeft, minimized, onDismiss, tip.autoCloseTimeout]);
+
   const handleDismiss = () => {
     setVisible(false);
     if (onDismiss) {
       onDismiss(tip.id);
     }
   };
-  
+
   const handleMinimize = () => {
     setMinimized(true);
   };
-  
+
   const handleMaximize = () => {
     setMinimized(false);
   };
-  
+
   const handleFeedback = (isHelpful: boolean) => {
     if (onFeedback && !feedbackGiven) {
       onFeedback(tip.id, isHelpful);
       setFeedbackGiven(true);
     }
   };
-  
+
   if (!visible) return null;
-  
+
   // Position classes
   const positionClasses = {
     'top-right': 'top-4 right-4',
@@ -116,23 +152,48 @@ export function TipBubble({
     'bottom-left': 'bottom-4 left-4',
     'center': 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
   };
-  
+
   const animationClass = animate 
     ? 'animate-fade-in-up transition-all duration-300 ease-in-out' 
     : '';
-  
+
+  // Function to get content based on selected language
+  const getContent = () => {
+    switch (language) {
+      case 'de':
+        return tip.contentGerman || tip.content;
+      case 'vi':
+        return tip.contentVietnamese || tip.content;
+      default:
+        return tip.content;
+    }
+  };
+
+  // Apply Jack's style
+  const cardStyle = (jackStyle || tip.jackStyle)
+    ? "overflow-hidden shadow-lg border-amber-300 border-2"
+    : "overflow-hidden shadow-lg border-primary/20";
+
+  const headerStyle = (jackStyle || tip.jackStyle)
+    ? "bg-gradient-to-r from-amber-100 to-amber-50 px-4 py-3 flex items-center justify-between"
+    : "bg-gradient-to-r from-primary/10 to-primary/5 px-4 py-3 flex items-center justify-between";
+
+  const iconStyle = (jackStyle || tip.jackStyle)
+    ? "h-5 w-5 text-amber-500"
+    : "h-5 w-5 text-primary";
+
   return (
     <div 
-      className={`fixed ${positionClasses[position]} z-50 max-w-sm ${animationClass}`}
+      className={`fixed ${positionClasses[position]} z-50 max-w-sm ${animationClass} ${animated ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
       style={{ maxWidth: '350px' }}
     >
-      <Card className={`shadow-lg border overflow-hidden ${jackStyle ? 'border-primary' : ''}`}>
+      <Card className={cardStyle}>
         <div className="relative">
           {/* Header */}
-          <div className={`p-3 flex items-center justify-between ${jackStyle ? 'bg-primary/10' : 'bg-muted/30'}`}>
+          <div className={headerStyle}>
             <div className="flex items-center gap-2">
-              {jackStyle ? (
-                <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden border border-primary">
+              {jackStyle || tip.jackStyle ? (
+                <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden border border-amber-300">
                   <img 
                     src="/assets/1000048340-modified.png" 
                     alt="Jack from SGH ASIA" 
@@ -140,19 +201,25 @@ export function TipBubble({
                   />
                 </div>
               ) : (
-                <LightbulbIcon className={`h-5 w-5 ${jackStyle ? 'text-primary' : 'text-amber-500'}`} />
+                <LightbulbIcon className={iconStyle} />
               )}
               <span className="font-medium text-sm">
-                {jackStyle ? 'Jack\'s Compliance Tip' : 'Compliance Tip'}
+                {jackStyle || tip.jackStyle ? 'Jack\'s Compliance Tip' : 'Compliance Tip'}
               </span>
             </div>
-            
+
             <Badge className={`text-xs ${getCategoryColor(tip.category)}`}>
               {tip.category.charAt(0).toUpperCase() + tip.category.slice(1)}
             </Badge>
-            
+
             <div className="absolute top-2 right-2 flex">
               {/* Minimize/Maximize Button */}
+              {tip.autoCloseTimeout && secondsLeft > 0 && (
+                <div className="flex items-center mr-1">
+                  <ClockIcon className="h-3 w-3 mr-1 opacity-70" />
+                  <span className="text-xs opacity-70">{secondsLeft}s</span>
+                </div>
+              )}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -174,7 +241,7 @@ export function TipBubble({
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              
+
               {/* Close Button */}
               {tip.dismissible !== false && (
                 <Button
@@ -188,50 +255,46 @@ export function TipBubble({
               )}
             </div>
           </div>
-          
-          {/* Minimized View */}
-          {minimized && (
-            <div className="p-2 flex items-center">
-              <h4 className="text-sm font-medium truncate">
-                {tip.title}
-              </h4>
-              {tip.relevantArticles && tip.relevantArticles.length > 0 && (
-                <div className="flex items-center ml-2 space-x-1">
-                  <div className="flex gap-1 ml-1">
-                    {tip.relevantArticles.slice(0, 2).map((article) => (
-                      <Badge key={article} variant="outline" className="text-xs px-1">
-                        {article}
-                      </Badge>
-                    ))}
-                    {tip.relevantArticles.length > 2 && (
-                      <Badge variant="outline" className="text-xs px-1">
-                        +{tip.relevantArticles.length - 2}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {/* Full Content View - Only show if not minimized */}
+
+          {/* Content - Only show if not minimized */}
           {!minimized && (
             <CardContent className="p-4">
-              <h4 className="font-semibold text-sm mb-3 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md">{tip.title}</h4>
-              
-              {/* English Content with Highlighting */}
-              <div className="px-2 py-1.5 bg-yellow-50 border-l-2 border-yellow-300 mb-3 rounded-sm">
-                <p className="text-sm mb-1">{tip.content}</p>
+              <div className="flex gap-2 mb-2">
+                <Button 
+                  variant={language === 'en' ? "default" : "outline"} 
+                  size="sm" 
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setLanguage('en')}
+                >
+                  EN
+                </Button>
+                <Button 
+                  variant={language === 'de' ? "default" : "outline"} 
+                  size="sm" 
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setLanguage('de')}
+                  disabled={!tip.contentGerman}
+                >
+                  DE
+                </Button>
+                <Button 
+                  variant={language === 'vi' ? "default" : "outline"} 
+                  size="sm" 
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setLanguage('vi')}
+                  disabled={!tip.contentVietnamese}
+                >
+                  VI
+                </Button>
               </div>
-              
-              {/* German Translation if available */}
-              {tip.contentGerman && (
-                <div className="mb-3 px-2 py-1.5 bg-blue-50 border-l-2 border-blue-300 rounded-sm">
-                  <p className="text-xs text-muted-foreground mb-1 font-medium">Deutsche Übersetzung:</p>
-                  <p className="text-sm">{tip.contentGerman}</p>
-                </div>
-              )}
-              
+              <h4 className="font-semibold text-sm mb-3 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md">{tip.title}</h4>
+
+              {/* Content with Highlighting */}
+              <div className="px-2 py-1.5 bg-yellow-50 border-l-2 border-yellow-300 mb-3 rounded-sm">
+                <p className="text-sm mb-1">{getContent()}</p>
+              </div>
+
+
               {/* Relevant Articles with Links */}
               {tip.relevantArticles && tip.relevantArticles.length > 0 && (
                 <div className="mb-3">
@@ -241,7 +304,7 @@ export function TipBubble({
                       // If we have a specific article link, use it; otherwise use the general article link
                       const articleUrl = tip.articleLinks?.[article] || 
                                         `https://artificialintelligenceact.eu/the-act/${article.toLowerCase().replace(/\s+/g, '-')}/`;
-                      
+
                       return (
                         <a 
                           key={article}
@@ -259,7 +322,7 @@ export function TipBubble({
                   </div>
                 </div>
               )}
-              
+
               {/* Official Source and Last Updated */}
               {(tip.officialSourceUrl || tip.lastUpdated) && (
                 <div className="mb-3 text-xs">
@@ -281,7 +344,7 @@ export function TipBubble({
                   )}
                 </div>
               )}
-              
+
               {/* Actions */}
               <div className="flex justify-between items-center mt-2">
                 {tip.learnMoreLink && (
@@ -292,7 +355,7 @@ export function TipBubble({
                     </a>
                   </Button>
                 )}
-                
+
                 {onFeedback && (
                   <div className="flex items-center gap-1">
                     <span className="text-xs text-muted-foreground mr-1">
@@ -317,7 +380,7 @@ export function TipBubble({
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                        
+
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>

@@ -8,7 +8,26 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Link } from 'wouter';
 
+import { useComplianceTips } from "@/components/compliance-tips";
+import { useEffect } from "react";
+
 const RiskAssessmentGuides: React.FC = () => {
+  const { showTip, setJackStyle } = useComplianceTips();
+  
+  // Show Jack's tip when the page loads
+  useEffect(() => {
+    setJackStyle(true);
+    // Display Jack's tip after a short delay
+    const timer = setTimeout(() => {
+      showTip("jack-tip", "risk-assessment-guides");
+    }, 1000);
+    
+    return () => {
+      clearTimeout(timer);
+      setJackStyle(false);
+    };
+  }, [showTip, setJackStyle]);
+  
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="flex flex-col gap-2 mb-6">

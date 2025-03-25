@@ -20,7 +20,7 @@ export function TipButton({
   className = '',
   showTooltip = true,
 }: TipButtonProps) {
-  const { showTip } = useComplianceTips();
+  const { showTip, jackStyle } = useComplianceTips();
   
   const handleClick = () => {
     showTip(tipId, context);
@@ -31,7 +31,7 @@ export function TipButton({
       variant={variant}
       size={size}
       onClick={handleClick}
-      className={className}
+      className={`${className} ${jackStyle ? 'border-amber-300 hover:bg-amber-100/50 text-amber-500' : ''}`}
       aria-label="Show compliance tip"
     >
       <LightbulbIcon className="h-4 w-4" />

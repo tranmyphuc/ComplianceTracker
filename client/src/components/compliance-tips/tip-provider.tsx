@@ -222,26 +222,26 @@ export function ComplianceTipProvider({
   const [currentTip, setCurrentTip] = useState<ComplianceTip | null>(null);
   const [dismissedTips, setDismissedTips] = useState<string[]>([]);
   const [feedbackHistory, setFeedbackHistory] = useState<Record<string, boolean>>({});
-  
+
   // Get relevant tips for current context
   const getContextualTips = () => {
     // Get path-specific tips
     const contextTips = Object.entries(tipsByContext).find(([path]) => {
       return location.startsWith(path);
     });
-    
+
     // Combine context-specific tips with default tips
     return [...(contextTips ? contextTips[1] : []), ...defaultTips]
       .filter(tip => !dismissedTips.includes(tip.id));
   };
-  
+
   // Show a specific tip or a random one from the current context
   const showTip = (tipId?: string, context?: string) => {
     // If already showing a tip, don't show another
     if (currentTip) return;
-    
+
     let availableTips: ComplianceTip[] = [];
-    
+
     if (tipId) {
       // Find specific tip by ID
       const allTips = [...Object.values(tipsByContext).flat(), ...defaultTips];
@@ -260,15 +260,15 @@ export function ComplianceTipProvider({
       // Get tips for current location
       availableTips = getContextualTips();
     }
-    
+
     // If no available tips, don't show anything
     if (availableTips.length === 0) return;
-    
+
     // Show a random tip
     const randomIndex = Math.floor(Math.random() * availableTips.length);
     setCurrentTip(availableTips[randomIndex]);
   };
-  
+
   // Dismiss the current tip
   const dismissTip = () => {
     if (currentTip) {
@@ -276,36 +276,36 @@ export function ComplianceTipProvider({
       setCurrentTip(null);
     }
   };
-  
+
   // Record user feedback on a tip
   const recordFeedback = (tipId: string, isHelpful: boolean) => {
     setFeedbackHistory(prev => ({
       ...prev,
       [tipId]: isHelpful
     }));
-    
+
     // Analytics could be added here in the future
     console.log(`Tip ${tipId} feedback: ${isHelpful ? 'helpful' : 'not helpful'}`);
   };
-  
+
   // Reset dismissed tips
   const resetDismissedTips = () => {
     setDismissedTips([]);
     setCurrentTip(null);
   };
-  
+
   // Show tips on location change if auto tips are enabled
   useEffect(() => {
     if (disableAutoTips) return;
-    
+
     // Small delay to avoid showing tips immediately on page load
     const timer = setTimeout(() => {
       showTip();
     }, 2000);
-    
+
     return () => clearTimeout(timer);
   }, [location, disableAutoTips]);
-  
+
   // Provide context value
   const contextValue: ComplianceTipContextType = {
     currentTip,
@@ -315,11 +315,11 @@ export function ComplianceTipProvider({
     dismissedTips,
     resetDismissedTips
   };
-  
+
   return (
     <ComplianceTipContext.Provider value={contextValue}>
       {children}
-      
+
       {/* Render the current tip */}
       {currentTip && (
         <TipBubble
@@ -329,8 +329,6 @@ export function ComplianceTipProvider({
           onFeedback={recordFeedback}
           animate={true}
           jackStyle={jackStyle}
-          autoDismiss={true}
-          autoDismissDelay={20000} // Auto-dismiss after 20 seconds as requested
         />
       )}
     </ComplianceTipContext.Provider>
