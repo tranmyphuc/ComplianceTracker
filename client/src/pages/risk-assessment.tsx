@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AssessmentWizard } from "@/components/risk-assessment/assessment-wizard";
 import { AdvancedRiskWizard } from "@/components/risk-assessment/advanced-wizard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,21 +12,36 @@ import {
   InfoIcon,
   ClipboardListIcon,
   FileTextIcon,
-  ScanTextIcon
+  ScanTextIcon,
+  LightbulbIcon
 } from "lucide-react";
 import { useLocation, Link } from "wouter";
+import { InlineTip, TipButton, useComplianceTips } from "@/components/compliance-tips";
 
 export default function RiskAssessment() {
   const [activeTab, setActiveTab] = useState("advanced-wizard");
   const [location, navigate] = useLocation();
+  const { showTip, recordFeedback } = useComplianceTips();
   
   // Get system ID from URL if available
   const systemId = new URLSearchParams(window.location.search).get("systemId");
+  
+  // Trigger a specific tip when the component mounts
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      showTip('risk-1');
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [showTip]);
   
   // Handle completion of assessment
   const handleAssessmentComplete = (result: any) => {
     console.log("Assessment completed:", result);
     // This could save the assessment to the database or navigate to a results page
+    
+    // Show a tip when assessment is completed
+    showTip('risk-2');
   };
 
   return (
@@ -87,6 +102,20 @@ export default function RiskAssessment() {
         </div>
       ) : null}
       
+      {/* Inline tip that's always visible */}
+      <div className="mb-6">
+        <InlineTip 
+          tip={{
+            title: "EU AI Act Risk Assessment Requirements",
+            content: "Under the EU AI Act, all high-risk AI systems require a comprehensive risk assessment before deployment. Ensure you capture all needed information in this assessment.",
+            category: "governance",
+            relevantArticles: ["Article 9", "Article 16", "Article 17"],
+            learnMoreLink: "/knowledge-center"
+          }}
+          jackStyle={true}
+        />
+      </div>
+      
       <Tabs
         defaultValue={activeTab}
         onValueChange={setActiveTab}
@@ -105,6 +134,12 @@ export default function RiskAssessment() {
               <span className="inline-block sm:hidden">Standard</span>
             </TabsTrigger>
           </TabsList>
+          
+          {/* Tip button that shows a popup when clicked */}
+          <TipButton 
+            tipId="risk-1" 
+            variant="ghost"
+          />
         </div>
         
         <TabsContent value="advanced-wizard" className="mt-6">

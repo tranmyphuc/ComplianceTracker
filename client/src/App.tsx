@@ -31,6 +31,7 @@ import React, { useEffect, lazy, Suspense } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AppLayout } from "@/components/layout/app-layout";
+import { ComplianceTipProvider } from "@/components/compliance-tips";
 import { 
   RiskAssessmentGuides, 
   RiskAssessmentDocumentation as LazyRiskAssessmentDocumentation,
@@ -212,12 +213,12 @@ function Router() {
       <Route path="/guides">
         {() => renderSuspense(lazy(() => import('./pages/guides')))}
       </Route>
-      <Route path="/guides/platform-introduction"> {/* Added route */}
+      <Route path="/guides/platform-introduction">
         {() => renderSuspense(PlatformIntroduction)}
-      </Route> {/* Added route */}
-      <Route path="/guides/platform-guide"> {/* Added route */}
+      </Route>
+      <Route path="/guides/platform-guide">
         {() => renderSuspense(PlatformGuide)}
-      </Route> {/* Added route */}
+      </Route>
       <Route>
         {() => renderWithLayout(NotFound)}
       </Route>
@@ -230,9 +231,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ToastProvider>
-          <Router />
-          <AiAssistantButton />
-          <Toaster />
+          <ComplianceTipProvider jackStyle={true}>
+            <Router />
+            <AiAssistantButton />
+            <Toaster />
+          </ComplianceTipProvider>
         </ToastProvider>
       </AuthProvider>
     </QueryClientProvider>
