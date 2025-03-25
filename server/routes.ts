@@ -1574,13 +1574,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Insert the module into the database
       await db.insert(trainingModules).values({
-        moduleId: moduleData.moduleId,
+        module_id: moduleData.moduleId,
         title: moduleData.title,
         description: moduleData.description,
-        estimatedTime: moduleData.estimatedTime,
+        estimated_time: moduleData.estimatedTime,
         topics: moduleData.topics,
         order: moduleData.order || 0,
-        roleRelevance: moduleData.roleRelevance,
+        role_relevance: moduleData.roleRelevance,
         content: moduleData.content || { sections: [] }
       });
       

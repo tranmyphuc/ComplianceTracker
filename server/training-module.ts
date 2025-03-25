@@ -609,6 +609,7 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
 
     // For other modules, try to get from database first
     try {
+      // Using the correct column name from schema
       const module = await db.select().from(trainingModules).where(eq(trainingModules.module_id, moduleId)).limit(1);
 
       if (module && module.length > 0) {
@@ -823,8 +824,8 @@ export async function trackTrainingProgress(req: Request, res: Response): Promis
       .select()
       .from(trainingProgress)
       .where(and(
-        eq(trainingProgress.userId, userId),
-        eq(trainingProgress.moduleId, moduleId)
+        eq(trainingProgress.user_id, userId),
+        eq(trainingProgress.module_id, moduleId)
       ))
       .limit(1);
 

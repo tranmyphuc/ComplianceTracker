@@ -148,12 +148,12 @@ export const riskAssessments = pgTable("risk_assessments", {
 
 export const trainingModules = pgTable("training_modules", {
   id: serial("id").primaryKey(),
-  moduleId: text("module_id").notNull().unique(),
+  module_id: text("module_id").notNull().unique(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  estimatedTime: text("estimated_time").notNull(),
+  estimated_time: text("estimated_time").notNull(),
   topics: jsonb("topics").notNull(),
-  roleRelevance: jsonb("role_relevance").notNull(),
+  role_relevance: jsonb("role_relevance").notNull(),
   content: jsonb("content").notNull(), // Content will include sections and assessments
   order: integer("order").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -163,7 +163,7 @@ export const trainingModules = pgTable("training_modules", {
 export const trainingProgress = pgTable("training_progress", {
   id: serial("id").primaryKey(),
   userId: text("user_id").references(() => users.uid).notNull(),
-  moduleId: text("module_id").references(() => trainingModules.moduleId).notNull(),
+  moduleId: text("module_id").references(() => trainingModules.module_id).notNull(),
   completion: integer("completion").default(0),
   assessmentScore: integer("assessment_score"),
   lastAttemptDate: timestamp("last_attempt_date"),
