@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { useQuery } from "@tanstack/react-query";
 import { 
   PlusIcon, 
   SearchIcon, 
@@ -17,44 +19,87 @@ export default function Inventory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRiskFilter, setSelectedRiskFilter] = useState<string | null>(null);
 
-  // Use react-query to fetch statistics data
-  const { data: statsData, isLoading: statsLoading } = useQuery({
-    queryKey: ["/api/dashboard/summary"],
+  // Use react-query to fetch systems directly to calculate statistics
+  const { data: systemsData, isLoading: systemsLoading } = useQuery({
+    queryKey: ["/api/systems"],
     // Add error retry to handle temporary database connectivity issues
     retry: 3,
-    retryDelay: 1000,
-    // If it fails, provide backup values but keep trying
-    placeholderData: {
-      ai_systems: {
-        total: 0,
-        high_risk: 0,
-        limited_risk: 0,
-        minimal_risk: 0,
-        unclassified: 0
-      },
-      compliance: {
-        average_score: 0,
-        needs_review: 0,
-        up_to_date: 0
-      },
-      activity: {
-        recently_added: 0
-      }
-    }
+    retryDelay: 1000
   });
 
-  // Organize the data in a more usable format
-  const stats = {
-    totalSystems: statsData?.ai_systems?.total || 0,
-    highRiskSystems: statsData?.ai_systems?.high_risk || 0,
-    limitedRiskSystems: statsData?.ai_systems?.limited_risk || 0,
-    minimalRiskSystems: statsData?.ai_systems?.minimal_risk || 0,
-    pendingClassification: statsData?.ai_systems?.unclassified || 0,
-    recentlyAdded: statsData?.activity?.recently_added || 0,
-    needsReview: statsData?.compliance?.needs_review || 0,
-    upToDate: statsData?.compliance?.up_to_date || 0,
-    avgComplianceScore: statsData?.compliance?.average_score || 0
+  // Calculate statistics directly from systems data
+  const calculateStats = (systems: any[] = []) => {
+    if (!systems || systems.length === 0) {
+      return {
+        totalSystems: 0,
+        highRiskSystems: 0,
+        limitedRiskSystems: 0,
+        minimalRiskSystems: 0,
+        pendingClassification: 0,
+        recentlyAdded: 0,
+        needsReview: 0,
+        upToDate: 0,
+        avgComplianceScore: 0
+      };
+    }
+
+    // Count systems by risk level
+    const highRisk = systems.filter(s => s.riskLevel === "High").length;
+    const limitedRisk = systems.filter(s => s.riskLevel === "Limited").length;
+    const minimalRisk = systems.filter(s => s.riskLevel === "Minimal").length;
+    const unclassified = systems.filter(s => !s.riskLevel || s.riskLevel === "").length;
+    
+    // Calculate average compliance score
+    const complianceScores = systems.map(s => {
+      if (typeof s.docCompleteness === 'number' && typeof s.trainingCompleteness === 'number') {
+        return (s.docCompleteness + s.trainingCompleteness) / 2;
+      }
+      return 0;
+    });
+    
+    const avgScore = complianceScores.length > 0 
+      ? Math.round(complianceScores.reduce((a, b) => a + b, 0) / complianceScores.length) 
+      : 0;
+    
+    // Count recently added systems (in the last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recentlyAdded = systems.filter(s => {
+      if (s.implementationDate) {
+        const date = new Date(s.implementationDate);
+        return date >= thirtyDaysAgo;
+      }
+      return false;
+    }).length;
+    
+    // Count systems that need review (compliance score < 70)
+    const needsReview = systems.filter(s => {
+      const score = typeof s.docCompleteness === 'number' && typeof s.trainingCompleteness === 'number'
+        ? (s.docCompleteness + s.trainingCompleteness) / 2
+        : 0;
+      return score < 70;
+    }).length;
+    
+    // Count systems with up-to-date documentation
+    const upToDate = systems.filter(s => {
+      return typeof s.docCompleteness === 'number' && s.docCompleteness >= 80;
+    }).length;
+    
+    return {
+      totalSystems: systems.length,
+      highRiskSystems: highRisk,
+      limitedRiskSystems: limitedRisk,
+      minimalRiskSystems: minimalRisk,
+      pendingClassification: unclassified,
+      recentlyAdded,
+      needsReview,
+      upToDate,
+      avgComplianceScore: avgScore
+    };
   };
+
+  // Calculate stats based on the systems data
+  const stats = calculateStats(systemsData as any[] | undefined);
 
   const handleRiskFilterClick = (risk: string) => {
     if (selectedRiskFilter === risk) {

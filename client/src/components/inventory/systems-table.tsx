@@ -233,11 +233,9 @@ export function SystemsTable() {
   const [sortField, setSortField] = useState<string>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   
-  // API data fetching with fallback to retrieved data
+  // API data fetching with error handling
   const { data: systems, isLoading, error } = useQuery({
     queryKey: ["/api/systems"],
-    // Keep previous data on error to prevent flickering
-    keepPreviousData: true,
     // Add error retry to handle temporary database connectivity issues
     retry: 3,
     retryDelay: 1000
