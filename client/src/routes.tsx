@@ -38,6 +38,10 @@ const Guides = lazy(() => import('./pages/guides'));
 const PlatformIntroduction = lazy(() => import('./pages/guides/platform-introduction'));
 const PlatformGuide = lazy(() => import('./pages/guides/platform-guide'));
 const EUAIACTGuides = lazy(() => import('./pages/training/eu-ai-act-guides')); // Added import for EU AI Act guides
+// Demo Scenarios
+const DemoScenarios = lazy(() => import('./pages/demo-scenarios'));
+const HealthcareScenario = lazy(() => import('./pages/demo-scenarios/healthcare-ai-diagnostics'));
+const SGHServiceScenario = lazy(() => import('./pages/demo-scenarios/sgh-service-consulting'));
 
 
 const AppRoutes = () => {
@@ -65,9 +69,6 @@ const AppRoutes = () => {
     "/training/eu-ai-act-guides", // Added route for EU AI Act guides
     "/risk-management",
     "/enterprise-decision-platform",
-
-      <Route path="/training/eu-ai-act-guide" component={lazy(() => import('./pages/training/eu-ai-act-training-guide'))} />
-
     "/strategic-planning",
     "/regulatory-complexity",
     "/workflow",
@@ -79,7 +80,10 @@ const AppRoutes = () => {
     "/growth-innovation",
     "/guides",
     "/guides/platform-introduction",
-    "/guides/platform-guide"
+    "/guides/platform-guide",
+    "/demo-scenarios",
+    "/demo-scenarios/healthcare-ai-diagnostics",
+    "/demo-scenarios/sgh-service-consulting"
   ];
 
   // Check for duplicate routes
@@ -303,6 +307,24 @@ const AppRoutes = () => {
         <Route path="/guides/platform-guide">
           <MainLayout>
             <PlatformGuide />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios">
+          <MainLayout>
+            <DemoScenarios />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios/healthcare-ai-diagnostics">
+          <MainLayout>
+            <HealthcareScenario />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios/sgh-service-consulting">
+          <MainLayout>
+            <SGHServiceScenario />
           </MainLayout>
         </Route>
       </Switch>
