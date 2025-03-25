@@ -11,7 +11,8 @@ import {
   PlusIcon, 
   SearchIcon, 
   FilterIcon, 
-  FolderIcon
+  FolderIcon,
+  AlertTriangleIcon
 } from "lucide-react";
 
 export default function Inventory() {
@@ -20,12 +21,96 @@ export default function Inventory() {
   const [selectedRiskFilter, setSelectedRiskFilter] = useState<string | null>(null);
 
   // Use react-query to fetch systems directly to calculate statistics
-  const { data: systemsData, isLoading: systemsLoading } = useQuery({
+  const { data: systemsData, isLoading: systemsLoading, isError } = useQuery({
     queryKey: ["/api/systems"],
     // Add error retry to handle temporary database connectivity issues
     retry: 3,
     retryDelay: 1000
   });
+  
+  // Mock data for when database is unavailable
+  const mockSystems = [
+    {
+      id: "1",
+      systemId: "AI-SYS-001",
+      name: "Smart Assistant",
+      description: "Customer service AI assistant",
+      vendor: "OpenAI",
+      department: "Customer Support",
+      riskLevel: "Limited",
+      riskScore: 65,
+      docCompleteness: 80,
+      trainingCompleteness: 75,
+      status: "Active",
+      implementationDate: "2023-06-15",
+      hasCompliance: true,
+      hasCriticalIssues: false
+    },
+    {
+      id: "2",
+      systemId: "AI-SYS-002",
+      name: "HR Screening Tool",
+      description: "AI-based CV screening and candidate evaluation",
+      vendor: "HireIA",
+      department: "Human Resources",
+      riskLevel: "High",
+      riskScore: 85,
+      docCompleteness: 65,
+      trainingCompleteness: 50,
+      status: "Under Review",
+      implementationDate: "2023-08-22",
+      hasCompliance: false,
+      hasCriticalIssues: true
+    },
+    {
+      id: "3",
+      systemId: "AI-SYS-003",
+      name: "Product Recommendation Engine",
+      description: "AI for personalized product recommendations",
+      vendor: "RecommendAI",
+      department: "Marketing",
+      riskLevel: "Minimal",
+      riskScore: 30,
+      docCompleteness: 90,
+      trainingCompleteness: 85,
+      status: "Active",
+      implementationDate: "2023-04-10",
+      hasCompliance: true,
+      hasCriticalIssues: false
+    },
+    {
+      id: "4",
+      systemId: "AI-SYS-004",
+      name: "Supply Chain Predictor",
+      description: "Predictive analytics for supply chain optimization",
+      vendor: "LogisticsMind",
+      department: "Operations",
+      riskLevel: "Limited",
+      riskScore: 55,
+      docCompleteness: 70,
+      trainingCompleteness: 65,
+      status: "Active",
+      implementationDate: "2023-09-05",
+      hasCompliance: true,
+      hasCriticalIssues: false
+    },
+    {
+      id: "5",
+      systemId: "AI-SYS-005",
+      name: "Fraud Detection System",
+      description: "AI-based fraud detection and prevention",
+      vendor: "SecureAI",
+      department: "Finance",
+      riskLevel: "High",
+      riskScore: 90,
+      docCompleteness: 85,
+      trainingCompleteness: 80,
+      status: "Active",
+      implementationDate: "2023-07-18",
+      hasCompliance: true,
+      hasCriticalIssues: false
+    }
+  ];
 
   // Calculate statistics directly from systems data
   const calculateStats = (systems: any[] = []) => {
@@ -98,8 +183,8 @@ export default function Inventory() {
     };
   };
 
-  // Calculate stats based on the systems data
-  const stats = calculateStats(systemsData as any[] | undefined);
+  // Calculate stats based on the systems data with fallback to mock data if there's an error
+  const stats = calculateStats(isError ? mockSystems : (systemsData as any[] | undefined));
 
   const handleRiskFilterClick = (risk: string) => {
     if (selectedRiskFilter === risk) {
@@ -111,6 +196,29 @@ export default function Inventory() {
 
   return (
     <div className="p-4 md:p-6">
+      {/* Database connection status alert */}
+      {isError && (
+        <div className="flex items-center justify-between p-4 mb-6 bg-yellow-50 border border-yellow-200 rounded-md">
+          <div className="flex items-center">
+            <AlertTriangleIcon className="h-5 w-5 text-yellow-500 mr-3 flex-shrink-0" />
+            <div>
+              <p className="font-medium text-yellow-800">Database connection unavailable</p>
+              <p className="text-sm text-yellow-700 mt-0.5">
+                The system is currently using demo data. Some features may be limited.
+              </p>
+            </div>
+          </div>
+          <Button 
+            variant="outline"
+            size="sm"
+            onClick={() => window.location.reload()}
+            className="ml-4 text-sm h-9 border-yellow-300 bg-yellow-50 hover:bg-yellow-100 text-yellow-800"
+          >
+            Retry Connection
+          </Button>
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-neutral-800">AI Systems Inventory</h1>

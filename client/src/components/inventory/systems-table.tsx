@@ -235,7 +235,7 @@ export function SystemsTable() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   
   // API data fetching with error handling
-  const { data: systems, isLoading, error } = useQuery({
+  const { data: systems, isLoading, error, isError } = useQuery({
     queryKey: ["/api/systems"],
     // Add error retry to handle temporary database connectivity issues
     retry: 3,
@@ -245,7 +245,7 @@ export function SystemsTable() {
   // Use real data from API, only use mock as fallback when there's an error
   const systemsData = systems && Array.isArray(systems) && systems.length > 0 
     ? systems 
-    : error ? mockSystems : [];
+    : isError ? mockSystems : [];
   
   // Filter systems based on search query and selected filters
   const filteredSystems = systemsData.filter((system: any) => {
@@ -386,9 +386,34 @@ export function SystemsTable() {
     );
   }
   
+  // Render retry button for database errors
+  const handleRetry = () => {
+    window.location.reload();
+  };
+  
   // Render systems table
   return (
     <div className="space-y-4">
+      {/* Error message if database connection failed */}
+      {isError && (
+        <div className="flex items-center justify-between px-4 py-3 bg-yellow-50 border border-yellow-200 rounded-md mb-4">
+          <div className="flex items-center">
+            <AlertTriangleIcon className="h-5 w-5 text-yellow-500 mr-3" />
+            <p className="text-sm text-yellow-800">
+              <span className="font-medium">Note:</span> We're temporarily using local data because of a database connection issue. Some features may be limited.
+            </p>
+          </div>
+          <Button 
+            variant="outline"
+            size="sm"
+            onClick={handleRetry}
+            className="ml-4 text-xs h-8"
+          >
+            Retry Connection
+          </Button>
+        </div>
+      )}
+      
       {/* Advanced filters for the table */}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row gap-3 justify-between">
@@ -822,9 +847,10 @@ export function SystemsTable() {
                 <TableCell colSpan={8} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center text-sm text-neutral-500">
                     <AlertTriangleIcon className="h-5 w-5 text-red-500 mb-1" />
-                    <p>Failed to load systems</p>
-                    <Button variant="outline" size="sm" className="mt-2">
-                      Retry
+                    <p className="font-medium mb-1">Using Demo Data</p>
+                    <p className="text-sm mb-2">Database connection is temporarily unavailable</p>
+                    <Button variant="outline" size="sm" className="mt-2" onClick={() => window.location.reload()}>
+                      Retry Connection
                     </Button>
                   </div>
                 </TableCell>
