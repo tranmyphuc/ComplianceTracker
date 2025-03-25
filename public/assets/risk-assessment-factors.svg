@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="700" height="300" viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="300" fill="#f8fafc" rx="10" ry="10"/>
+  
+  <!-- Title -->
+  <text x="350" y="40" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="#0f172a">Risk Assessment Factors for AI Systems</text>
+  
+  <!-- Central Circle -->
+  <circle cx="350" cy="150" r="60" fill="#bfdbfe" stroke="#3b82f6" stroke-width="3"/>
+  <text x="350" y="155" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e40af">AI Risk</text>
+  <text x="350" y="175" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e40af">Assessment</text>
+  
+  <!-- Factors -->
+  <!-- Intended Purpose -->
+  <circle cx="150" cy="90" r="50" fill="#fecdd3" stroke="#f43f5e" stroke-width="2"/>
+  <text x="150" y="85" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#be123c">Intended</text>
+  <text x="150" y="105" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#be123c">Purpose</text>
+  <line x1="198" y1="115" x2="295" y2="135" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- Potential Impact -->
+  <circle cx="150" cy="210" r="50" fill="#d9f99d" stroke="#84cc16" stroke-width="2"/>
+  <text x="150" y="205" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#3f6212">Potential</text>
+  <text x="150" y="225" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#3f6212">Impact</text>
+  <line x1="198" y1="185" x2="295" y2="165" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- Application Domain -->
+  <circle cx="550" cy="90" r="50" fill="#ddd6fe" stroke="#8b5cf6" stroke-width="2"/>
+  <text x="550" y="85" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#5b21b6">Application</text>
+  <text x="550" y="105" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#5b21b6">Domain</text>
+  <line x1="502" y1="115" x2="405" y2="135" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- Target Users -->
+  <circle cx="550" cy="210" r="50" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+  <text x="550" y="205" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#92400e">Target</text>
+  <text x="550" y="225" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#92400e">Users</text>
+  <line x1="502" y1="185" x2="405" y2="165" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- Autonomy Level -->
+  <circle cx="350" cy="250" r="40" fill="#fbd5e0" stroke="#ec4899" stroke-width="2"/>
+  <text x="350" y="245" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#9d174d">Autonomy</text>
+  <text x="350" y="265" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#9d174d">Level</text>
+  <line x1="350" y1="210" x2="350" y2="190" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5"/>
+</svg>

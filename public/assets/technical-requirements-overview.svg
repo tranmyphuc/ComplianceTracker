@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="750" height="400" viewBox="0 0 750 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="750" height="400" fill="#f8fafc" rx="10" ry="10"/>
+  
+  <!-- Title -->
+  <text x="375" y="40" font-family="Arial" font-size="22" font-weight="bold" text-anchor="middle" fill="#0f172a">Technical Requirements for High-Risk AI Systems</text>
+  <text x="375" y="70" font-family="Arial" font-size="16" text-anchor="middle" fill="#64748b">EU AI Act Articles 9-15</text>
+  
+  <!-- Requirements Grid -->
+  <!-- Row 1 -->
+  <rect x="50" y="100" width="200" height="100" fill="#bfdbfe" rx="8" ry="8" stroke="#3b82f6" stroke-width="2"/>
+  <text x="150" y="130" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e40af">Risk Management</text>
+  <text x="150" y="155" font-family="Arial" font-size="14" text-anchor="middle" fill="#1e40af">Article 9</text>
+  <text x="150" y="180" font-family="Arial" font-size="12" text-anchor="middle" fill="#1e40af">Identify, analyze and</text>
+  <text x="150" y="195" font-family="Arial" font-size="12" text-anchor="middle" fill="#1e40af">mitigate potential risks</text>
+  
+  <rect x="275" y="100" width="200" height="100" fill="#ddd6fe" rx="8" ry="8" stroke="#8b5cf6" stroke-width="2"/>
+  <text x="375" y="130" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#5b21b6">Data Governance</text>
+  <text x="375" y="155" font-family="Arial" font-size="14" text-anchor="middle" fill="#5b21b6">Article 10</text>
+  <text x="375" y="180" font-family="Arial" font-size="12" text-anchor="middle" fill="#5b21b6">High-quality datasets</text>
+  <text x="375" y="195" font-family="Arial" font-size="12" text-anchor="middle" fill="#5b21b6">and bias mitigation</text>
+  
+  <rect x="500" y="100" width="200" height="100" fill="#fecdd3" rx="8" ry="8" stroke="#f43f5e" stroke-width="2"/>
+  <text x="600" y="130" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#be123c">Technical Documentation</text>
+  <text x="600" y="155" font-family="Arial" font-size="14" text-anchor="middle" fill="#be123c">Article 11</text>
+  <text x="600" y="180" font-family="Arial" font-size="12" text-anchor="middle" fill="#be123c">Detailed records of</text>
+  <text x="600" y="195" font-family="Arial" font-size="12" text-anchor="middle" fill="#be123c">system development</text>
+  
+  <!-- Row 2 -->
+  <rect x="50" y="225" width="200" height="100" fill="#d9f99d" rx="8" ry="8" stroke="#84cc16" stroke-width="2"/>
+  <text x="150" y="255" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#3f6212">Record-Keeping</text>
+  <text x="150" y="280" font-family="Arial" font-size="14" text-anchor="middle" fill="#3f6212">Article 12</text>
+  <text x="150" y="305" font-family="Arial" font-size="12" text-anchor="middle" fill="#3f6212">Automatic logging of</text>
+  <text x="150" y="320" font-family="Arial" font-size="12" text-anchor="middle" fill="#3f6212">events and activities</text>
+  
+  <rect x="275" y="225" width="200" height="100" fill="#fde68a" rx="8" ry="8" stroke="#d97706" stroke-width="2"/>
+  <text x="375" y="255" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#92400e">Transparency</text>
+  <text x="375" y="280" font-family="Arial" font-size="14" text-anchor="middle" fill="#92400e">Article 13</text>
+  <text x="375" y="305" font-family="Arial" font-size="12" text-anchor="middle" fill="#92400e">Clear information</text>
+  <text x="375" y="320" font-family="Arial" font-size="12" text-anchor="middle" fill="#92400e">for users</text>
+  
+  <rect x="500" y="225" width="200" height="100" fill="#fbd5e0" rx="8" ry="8" stroke="#ec4899" stroke-width="2"/>
+  <text x="600" y="255" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#9d174d">Human Oversight</text>
+  <text x="600" y="280" font-family="Arial" font-size="14" text-anchor="middle" fill="#9d174d">Article 14</text>
+  <text x="600" y="305" font-family="Arial" font-size="12" text-anchor="middle" fill="#9d174d">Effective human</text>
+  <text x="600" y="320" font-family="Arial" font-size="12" text-anchor="middle" fill="#9d174d">monitoring and control</text>
+  
+  <!-- Security Element -->
+  <rect x="162.5" y="350" width="425" height="40" fill="#a5f3fc" rx="8" ry="8" stroke="#06b6d4" stroke-width="2"/>
+  <text x="375" y="375" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#0e7490">Accuracy, Robustness & Cybersecurity (Article 15)</text>
+</svg>

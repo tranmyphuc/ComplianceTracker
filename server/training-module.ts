@@ -3,6 +3,7 @@ import { storage } from './storage';
 import { trainingModules, trainingProgress } from '../shared/schema';
 import { db } from './db';
 import { eq, and } from 'drizzle-orm';
+import { aiLiteracyTrainingModule } from './modules/ai-literacy-training';
 
 export interface TrainingModule {
   id: string;
@@ -39,7 +40,7 @@ export interface TrainingProgress {
   updatedAt: Date;
 }
 
-// Sample training modules data
+// Training modules data
 const TRAINING_MODULES: TrainingModule[] = [
   {
     id: "1",
@@ -105,6 +106,14 @@ const TRAINING_MODULES: TrainingModule[] = [
       operator: "High",
       user: "Low"
     }
+  },
+  {
+    id: "ai-literacy",
+    title: aiLiteracyTrainingModule.title,
+    description: aiLiteracyTrainingModule.description,
+    estimated_time: aiLiteracyTrainingModule.estimated_time,
+    topics: aiLiteracyTrainingModule.topics,
+    role_relevance: aiLiteracyTrainingModule.role_relevance
   }
 ];
 

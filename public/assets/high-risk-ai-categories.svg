@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="750" height="350" viewBox="0 0 750 350" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="750" height="350" fill="#f8fafc" rx="10" ry="10"/>
+  
+  <!-- Title -->
+  <text x="375" y="40" font-family="Arial" font-size="22" font-weight="bold" text-anchor="middle" fill="#0f172a">High-Risk AI Categories</text>
+  <text x="375" y="70" font-family="Arial" font-size="16" text-anchor="middle" fill="#64748b">Under the EU AI Act - Annex III</text>
+  
+  <!-- Left Column -->
+  <rect x="50" y="100" width="300" height="220" fill="#fef3c7" rx="8" ry="8" stroke="#f59e0b" stroke-width="2"/>
+  <text x="200" y="125" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#92400e">Critical Infrastructure</text>
+  
+  <rect x="70" y="140" width="260" height="30" fill="#fef9c3" rx="4" ry="4"/>
+  <text x="200" y="160" font-family="Arial" font-size="14" text-anchor="middle" fill="#713f12">Biometric identification systems</text>
+  
+  <rect x="70" y="175" width="260" height="30" fill="#fef9c3" rx="4" ry="4"/>
+  <text x="200" y="195" font-family="Arial" font-size="14" text-anchor="middle" fill="#713f12">Critical infrastructure management</text>
+  
+  <rect x="70" y="210" width="260" height="30" fill="#fef9c3" rx="4" ry="4"/>
+  <text x="200" y="230" font-family="Arial" font-size="14" text-anchor="middle" fill="#713f12">Education & vocational training</text>
+  
+  <rect x="70" y="245" width="260" height="30" fill="#fef9c3" rx="4" ry="4"/>
+  <text x="200" y="265" font-family="Arial" font-size="14" text-anchor="middle" fill="#713f12">Employment & worker management</text>
+  
+  <rect x="70" y="280" width="260" height="30" fill="#fef9c3" rx="4" ry="4"/>
+  <text x="200" y="300" font-family="Arial" font-size="14" text-anchor="middle" fill="#713f12">Access to essential services</text>
+  
+  <!-- Right Column -->
+  <rect x="400" y="100" width="300" height="220" fill="#fef3c7" rx="8" ry="8" stroke="#f59e0b" stroke-width="2"/>
+  <text x="550" y="125" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#92400e">Public Safety & Rights</text>
+  
+  <rect x="420" y="140" width="260" height="30" fill="#fef9c3" rx="4" ry="4"/>
+  <text x="550" y="160" font-family="Arial" font-size="14" text-anchor="middle" fill="#713f12">Law enforcement</text>
+  
+  <rect x="420" y="175" width="260" height="30" fill="#fef9c3" rx="4" ry="4"/>
+  <text x="550" y="195" font-family="Arial" font-size="14" text-anchor="middle" fill="#713f12">Migration, asylum & border control</text>
+  
+  <rect x="420" y="210" width="260" height="30" fill="#fef9c3" rx="4" ry="4"/>
+  <text x="550" y="230" font-family="Arial" font-size="14" text-anchor="middle" fill="#713f12">Administration of justice</text>
+  
+  <rect x="420" y="245" width="260" height="30" fill="#fef9c3" rx="4" ry="4"/>
+  <text x="550" y="265" font-family="Arial" font-size="14" text-anchor="middle" fill="#713f12">Democratic processes</text>
+  
+  <rect x="420" y="280" width="260" height="30" fill="#fef9c3" rx="4" ry="4"/>
+  <text x="550" y="300" font-family="Arial" font-size="14" text-anchor="middle" fill="#713f12">Product safety components</text>
+</svg>

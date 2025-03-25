@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="750" height="500" viewBox="0 0 750 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="750" height="500" fill="#f8fafc" rx="10" ry="10"/>
+  
+  <!-- Title -->
+  <text x="375" y="40" font-family="Arial" font-size="22" font-weight="bold" text-anchor="middle" fill="#0f172a">AI Literacy Training Program</text>
+  <text x="375" y="70" font-family="Arial" font-size="16" text-anchor="middle" fill="#64748b">Comprehensive Structure for SGH Group</text>
+  
+  <!-- Module 1: Foundations -->
+  <rect x="50" y="100" width="200" height="160" fill="#bfdbfe" rx="8" ry="8" stroke="#3b82f6" stroke-width="2"/>
+  <text x="150" y="130" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#1e3a8a">Module 1</text>
+  <text x="150" y="155" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e3a8a">AI Foundations</text>
+  
+  <rect x="70" y="175" width="160" height="30" fill="#e0f2fe" rx="4" ry="4"/>
+  <text x="150" y="195" font-family="Arial" font-size="12" text-anchor="middle" fill="#0c4a6e">Basic AI Concepts</text>
+  
+  <rect x="70" y="210" width="160" height="30" fill="#e0f2fe" rx="4" ry="4"/>
+  <text x="150" y="230" font-family="Arial" font-size="12" text-anchor="middle" fill="#0c4a6e">Types of AI Systems</text>
+  
+  <!-- Module 2: EU AI Act -->
+  <rect x="275" y="100" width="200" height="160" fill="#d9f99d" rx="8" ry="8" stroke="#84cc16" stroke-width="2"/>
+  <text x="375" y="130" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#3f6212">Module 2</text>
+  <text x="375" y="155" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#3f6212">EU AI Act Overview</text>
+  
+  <rect x="295" y="175" width="160" height="30" fill="#ecfccb" rx="4" ry="4"/>
+  <text x="375" y="195" font-family="Arial" font-size="12" text-anchor="middle" fill="#3f6212">Risk Classifications</text>
+  
+  <rect x="295" y="210" width="160" height="30" fill="#ecfccb" rx="4" ry="4"/>
+  <text x="375" y="230" font-family="Arial" font-size="12" text-anchor="middle" fill="#3f6212">Key Requirements</text>
+  
+  <!-- Module 3: Role-Specific Training -->
+  <rect x="500" y="100" width="200" height="160" fill="#fecdd3" rx="8" ry="8" stroke="#f43f5e" stroke-width="2"/>
+  <text x="600" y="130" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#9f1239">Module 3</text>
+  <text x="600" y="155" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#9f1239">Role-Specific Training</text>
+  
+  <rect x="520" y="175" width="160" height="30" fill="#fee2e2" rx="4" ry="4"/>
+  <text x="600" y="195" font-family="Arial" font-size="12" text-anchor="middle" fill="#9f1239">Decision Makers</text>
+  
+  <rect x="520" y="210" width="160" height="30" fill="#fee2e2" rx="4" ry="4"/>
+  <text x="600" y="230" font-family="Arial" font-size="12" text-anchor="middle" fill="#9f1239">Technical Teams</text>
+  
+  <!-- Module 4: Technical Compliance -->
+  <rect x="50" y="285" width="200" height="160" fill="#d8b4fe" rx="8" ry="8" stroke="#a855f7" stroke-width="2"/>
+  <text x="150" y="315" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#581c87">Module 4</text>
+  <text x="150" y="340" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#581c87">Technical Compliance</text>
+  
+  <rect x="70" y="360" width="160" height="30" fill="#f3e8ff" rx="4" ry="4"/>
+  <text x="150" y="380" font-family="Arial" font-size="12" text-anchor="middle" fill="#581c87">Documentation Standards</text>
+  
+  <rect x="70" y="395" width="160" height="30" fill="#f3e8ff" rx="4" ry="4"/>
+  <text x="150" y="415" font-family="Arial" font-size="12" text-anchor="middle" fill="#581c87">Testing & Validation</text>
+  
+  <!-- Module 5: Risk Management -->
+  <rect x="275" y="285" width="200" height="160" fill="#fde68a" rx="8" ry="8" stroke="#d97706" stroke-width="2"/>
+  <text x="375" y="315" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#92400e">Module 5</text>
+  <text x="375" y="340" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#92400e">Risk Management</text>
+  
+  <rect x="295" y="360" width="160" height="30" fill="#fef3c7" rx="4" ry="4"/>
+  <text x="375" y="380" font-family="Arial" font-size="12" text-anchor="middle" fill="#92400e">Risk Assessment</text>
+  
+  <rect x="295" y="395" width="160" height="30" fill="#fef3c7" rx="4" ry="4"/>
+  <text x="375" y="415" font-family="Arial" font-size="12" text-anchor="middle" fill="#92400e">Mitigation Strategies</text>
+  
+  <!-- Module 6: Practical Application -->
+  <rect x="500" y="285" width="200" height="160" fill="#a5f3fc" rx="8" ry="8" stroke="#06b6d4" stroke-width="2"/>
+  <text x="600" y="315" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#0e7490">Module 6</text>
+  <text x="600" y="340" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#0e7490">Practical Application</text>
+  
+  <rect x="520" y="360" width="160" height="30" fill="#cffafe" rx="4" ry="4"/>
+  <text x="600" y="380" font-family="Arial" font-size="12" text-anchor="middle" fill="#0e7490">Case Studies</text>
+  
+  <rect x="520" y="395" width="160" height="30" fill="#cffafe" rx="4" ry="4"/>
+  <text x="600" y="415" font-family="Arial" font-size="12" text-anchor="middle" fill="#0e7490">Compliance Workflows</text>
+  
+  <!-- Footer -->
+  <text x="375" y="480" font-family="Arial" font-size="14" font-style="italic" text-anchor="middle" fill="#64748b">SGH Group AI Literacy Program for EU AI Act Compliance</text>
+</svg>

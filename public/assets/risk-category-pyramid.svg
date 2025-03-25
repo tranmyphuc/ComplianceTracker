@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pyramid layers -->
+  <polygon points="300,20 50,380 550,380" fill="#f4f4f5" stroke="#d4d4d8" stroke-width="2"/>
+  
+  <!-- Layer 1 - Unacceptable Risk (top) -->
+  <polygon points="300,20 220,160 380,160" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+  <text x="300" y="110" text-anchor="middle" fill="#ffffff" font-family="Arial" font-weight="bold" font-size="16">Unacceptable Risk</text>
+  <text x="300" y="130" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="12">(Prohibited)</text>
+
+  <!-- Layer 2 - High Risk -->
+  <polygon points="220,160 180,230 420,230 380,160" fill="#f97316" stroke="#c2410c" stroke-width="2"/>
+  <text x="300" y="200" text-anchor="middle" fill="#ffffff" font-family="Arial" font-weight="bold" font-size="16">High Risk</text>
+  <text x="300" y="220" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="12">(Strict Requirements)</text>
+
+  <!-- Layer 3 - Limited Risk -->
+  <polygon points="180,230 120,320 480,320 420,230" fill="#eab308" stroke="#a16207" stroke-width="2"/>
+  <text x="300" y="280" text-anchor="middle" fill="#ffffff" font-family="Arial" font-weight="bold" font-size="16">Limited Risk</text>
+  <text x="300" y="300" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="12">(Transparency Obligations)</text>
+
+  <!-- Layer 4 - Minimal Risk -->
+  <polygon points="120,320 50,380 550,380 480,320" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+  <text x="300" y="360" text-anchor="middle" fill="#ffffff" font-family="Arial" font-weight="bold" font-size="16">Minimal Risk</text>
+  <text x="300" y="380" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="12">(Light Regulation)</text>
+</svg>
