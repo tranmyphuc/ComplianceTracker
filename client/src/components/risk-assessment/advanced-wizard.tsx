@@ -888,7 +888,7 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
         
         const response = await apiRequest('/api/risk-assessments', {
           method: 'POST',
-          data: assessmentData
+          body: assessmentData
         });
         
         console.log("Assessment saved:", response);
