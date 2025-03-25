@@ -559,8 +559,8 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
     const { moduleId } = req.params;
     const userRole = req.query.role as string || 'user';
     
-    // Special handling for the AI Literacy module
-    if (moduleId === 'ai-literacy') {
+    // Check if this is the AI literacy module
+    if (moduleId === 'ai-literacy' || moduleId === 'ai_literacy') {
       console.log("Serving AI Literacy module content");
       try {
         const roleContent = aiLiteracyTrainingModule.content.default;
@@ -590,7 +590,9 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
             assessment: {
               questions: roleContent.assessments || []
             }
-          }
+          },
+          sections: formattedSections,
+          assessment: { questions: roleContent.assessments || [] }
         };
 
         return res.json(enhancedContent);
@@ -859,7 +861,8 @@ export async function getUserProgress(req: Request, res: Response): Promise<void
     const { userId } = req.query;
 
     if (!userId) {
-      return res.status(400).json({ error: 'Missing user ID' });
+      res.status(400).json({ error: 'Missing user ID' });
+      return;
     }
 
     const progress = await db
@@ -876,10 +879,10 @@ export async function getUserProgress(req: Request, res: Response): Promise<void
       };
     });
 
-    return res.json(formattedProgress);
+    res.json(formattedProgress);
   } catch (error) {
     console.error('Error fetching user progress:', error);
-    return res.status(500).json({ error: 'Failed to fetch user progress' });
+    res.status(500).json({ error: 'Failed to fetch user progress' });
   }
 }
 
