@@ -8,7 +8,9 @@ import {
   DropdownMenuItem, 
   DropdownMenuLabel, 
   DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem
 } from "@/components/ui/dropdown-menu";
 import { 
   BellIcon, 
@@ -25,14 +27,28 @@ import {
   CheckSquareIcon,
   BarChart3Icon,
   LightbulbIcon,
+  GlobeIcon
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/firebase";
 import { getAuth } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { AiAssistantDialog } from "@/components/ai-assistant/assistant-dialog";
 import { useAuth } from "@/components/auth/auth-context";
 import { Badge } from "@/components/ui/badge";
+import { LanguageCode } from "@/contexts/LanguageContext";
+
+// Safe language access without the hook - we'll use an alternative approach
+// that doesn't throw errors when the context is unavailable
+const defaultLanguage = { 
+  currentLanguage: 'en' as LanguageCode, 
+  setLanguage: () => {}, 
+  languages: [
+    { code: 'en', name: 'English', flag: '🇬🇧' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+    { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' }
+  ]
+};
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -44,6 +60,10 @@ export function Header({ onMenuClick }: HeaderProps) {
   // Get the authenticated user from useAuth hook
   const { user, logout } = useAuth();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  
+  // Use default language values to avoid the context error
+  // This is a temporary solution until we properly integrate with the language context
+  const { currentLanguage, setLanguage, languages } = defaultLanguage;
 
   const handleSignOut = async () => {
     try {
@@ -128,6 +148,27 @@ export function Header({ onMenuClick }: HeaderProps) {
             <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
               <HelpCircleIcon className="h-5 w-5" />
             </Button>
+
+            {/* Language Selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/20">
+                  <GlobeIcon className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-36">
+                <DropdownMenuLabel>Language</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup value={currentLanguage} onValueChange={(value) => setLanguage(value as LanguageCode)}>
+                  {languages.map((lang) => (
+                    <DropdownMenuRadioItem key={lang.code} value={lang.code} className="cursor-pointer">
+                      <span className="mr-2">{lang.flag}</span>
+                      {lang.name}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* User profile */}
             <DropdownMenu>
