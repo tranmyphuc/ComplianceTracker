@@ -93,26 +93,101 @@ export function AISuggestionPanel({
     setIsLoading(true);
     
     try {
-      // In a real implementation, this would call the API
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Add a new suggestion to the top of the list
-      const newSuggestion: Suggestion = {
-        id: `new-${Date.now()}`,
-        type: 'content',
-        content: 'Implement a comprehensive documentation system to track all human decisions overriding or modifying AI recommendations. This system should record the justification for each intervention, enabling retrospective analysis of override patterns.',
-        rationale: 'Documentation of human interventions helps identify systemic issues and improves transparency.',
-        articleReference: 'Article 14',
-        status: 'generated'
-      };
-      
-      setSuggestions(prev => [newSuggestion, ...prev]);
-      setExpandedSuggestions(prev => [...prev, newSuggestion.id]);
-      
-      toast({
-        title: "New suggestions generated",
-        description: "AI has provided new content recommendations based on your document."
+      // Build the prompt for AI suggestion generation
+      const prompt = `As an EU AI Act compliance expert, generate helpful suggestions
+        for a ${documentType} document about an AI system.
+        
+        Document type: ${documentType}
+        Current document content: ${documentContent?.substring(0, 500)}...
+        
+        Please provide THREE specific content suggestions that would improve this document's compliance 
+        with the EU AI Act. For each suggestion:
+        1. Provide practical, detailed content that can be directly inserted into the document
+        2. Explain the rationale behind the suggestion
+        3. Reference the relevant article in the EU AI Act`;
+        
+      // Call the DeepSeek API through our server endpoint
+      const response = await fetch('/api/analyze/document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: prompt }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Parse the AI response to extract suggestions
+      try {
+        // Try to extract structured content from the AI response
+        let suggestions: Suggestion[] = [];
+        const content = data.analysis || '';
+        
+        // Split the content by numbered sections (1., 2., 3.) or by double newlines
+        const parts = content.split(/\n\n|\d\.\s+/g).filter(Boolean);
+        
+        for (let i = 0; i < parts.length && i < 3; i++) {
+          const part = parts[i];
+          
+          // Try to extract rationale and article reference
+          const rationaleMatch = part.match(/rationale:([^\n]+)/i);
+          const articleMatch = part.match(/article (\d+)/i);
+          
+          suggestions.push({
+            id: `api-${Date.now()}-${i}`,
+            type: 'content',
+            content: part.split(/rationale:|article/i)[0].trim(),
+            rationale: rationaleMatch ? rationaleMatch[1].trim() : undefined,
+            articleReference: articleMatch ? `Article ${articleMatch[1]}` : undefined,
+            status: 'generated'
+          });
+        }
+        
+        // If parsing fails or produces empty suggestions, create a fallback suggestion
+        if (suggestions.length === 0) {
+          suggestions = [{
+            id: `api-${Date.now()}`,
+            type: 'content',
+            content: content.substring(0, 400),
+            status: 'generated'
+          }];
+        }
+        
+        // Add new suggestions to the top of the list
+        setSuggestions(prev => [...suggestions, ...prev]);
+        
+        // Expand the first new suggestion
+        if (suggestions.length > 0) {
+          setExpandedSuggestions(prev => [...prev, suggestions[0].id]);
+        }
+        
+        toast({
+          title: "New suggestions generated",
+          description: "AI has provided new content recommendations based on your document."
+        });
+      } catch (parseError) {
+        console.error('Error parsing AI response:', parseError);
+        
+        // Fallback with the raw response if parsing fails
+        const newSuggestion: Suggestion = {
+          id: `api-${Date.now()}`,
+          type: 'content',
+          content: data.analysis || 'Failed to parse AI response.',
+          status: 'generated'
+        };
+        
+        setSuggestions(prev => [newSuggestion, ...prev]);
+        setExpandedSuggestions(prev => [...prev, newSuggestion.id]);
+        
+        toast({
+          title: "Suggestions generated",
+          description: "AI has provided content recommendations, but they may need formatting."
+        });
+      }
     } catch (error) {
       console.error('Error generating suggestions:', error);
       toast({
@@ -131,15 +206,44 @@ export function AISuggestionPanel({
     setIsLoading(true);
     
     try {
-      // In a real implementation, this would call the API
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Build the prompt for the query
+      const prompt = `As an EU AI Act compliance expert, please respond to this specific query about a ${documentType} document:
+        
+        Query: "${query}"
+        Document type: ${documentType}
+        Current document content: ${documentContent?.substring(0, 300)}...
+        
+        Please provide a detailed, specific response that can be directly inserted into the document.
+        Include a brief rationale explaining why this content is important for EU AI Act compliance.
+        If relevant, reference the specific EU AI Act article that applies.`;
+        
+      // Call the API
+      const response = await fetch('/api/analyze/document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: prompt }),
+      });
       
-      // Add a new suggestion based on the query
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const content = data.analysis || '';
+      
+      // Try to extract a rationale and article reference from the content
+      const rationaleMatch = content.match(/rationale:([^\n]+)/i);
+      const articleMatch = content.match(/article (\d+)/i);
+      
+      // Create a new suggestion from the API response
       const newSuggestion: Suggestion = {
         id: `query-${Date.now()}`,
         type: 'content',
-        content: `Based on your query about "${query}", we recommend adding: The system includes configurable confidence thresholds that determine when human review is required, with lower confidence predictions automatically escalated to human experts.`,
-        rationale: 'Confidence thresholds are an effective way to implement appropriate levels of human oversight.',
+        content: content.split(/rationale:|article/i)[0].trim() || content,
+        rationale: rationaleMatch ? rationaleMatch[1].trim() : `Response to your query about "${query}"`,
+        articleReference: articleMatch ? `Article ${articleMatch[1]}` : undefined,
         status: 'generated'
       };
       
