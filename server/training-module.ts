@@ -878,14 +878,19 @@ export async function trackTrainingProgress(req: Request, res: Response): Promis
  */
 export async function getUserProgress(req: Request, res: Response): Promise<void> {
   try {
-    const { userId } = req.query;
-
-    if (!userId) {
+    // Express query parameters can be string or string[] or undefined
+    const userIdParam = req.query.userId;
+    
+    // Ensure we have a userId and it's a string
+    if (!userIdParam) {
       res.status(400).json({ error: 'Missing user ID' });
       return;
     }
-
-    // Use the postgres client with template literals for parameterized queries
+    
+    // Get the first value if it's an array, or use the string directly
+    const userId = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam;
+    
+    // Query database with proper sql template literals
     const result = await sql`
       SELECT * FROM training_progress 
       WHERE user_id = ${userId}
