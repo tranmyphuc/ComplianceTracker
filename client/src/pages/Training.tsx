@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,7 +47,7 @@ const Training: React.FC = () => {
         // In a real app, this would be an API call
         // const response = await fetch('/api/training/modules');
         // const data = await response.json();
-        
+
         // Using mock data for demo
         const data = [
           {
@@ -124,29 +123,29 @@ const Training: React.FC = () => {
             categories: ['Regulatory Overview', 'Compliance']
           }
         ];
-        
+
         setModules(data);
         setFilteredModules(data);
-        
+
         // Extract unique categories
         const allCategories = data.flatMap(module => module.categories);
         const uniqueCategories = [...new Set(allCategories)];
         setCategories(uniqueCategories);
-        
+
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching training modules:', error);
         setIsLoading(false);
       }
     };
-    
+
     fetchModules();
   }, []);
 
   useEffect(() => {
     // Filter modules based on search query and selected categories
     let result = modules;
-    
+
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(module => 
@@ -154,13 +153,13 @@ const Training: React.FC = () => {
         module.description.toLowerCase().includes(query)
       );
     }
-    
+
     if (selectedCategories.length > 0) {
       result = result.filter(module => 
         module.categories.some(category => selectedCategories.includes(category))
       );
     }
-    
+
     setFilteredModules(result);
   }, [searchQuery, selectedCategories, modules]);
 
@@ -274,7 +273,7 @@ const Training: React.FC = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <Label>Categories</Label>
                     <div className="mt-2 space-y-2">
@@ -302,7 +301,7 @@ const Training: React.FC = () => {
                       ))}
                     </div>
                   </div>
-                  
+
                   {(searchQuery || selectedCategories.length > 0) && (
                     <Button variant="outline" size="sm" onClick={clearFilters} className="w-full">
                       Clear Filters
@@ -311,7 +310,7 @@ const Training: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
-            
+
             <div className="md:w-3/4">
               <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-4">
                 {filteredModules.map((module) => (
@@ -360,7 +359,7 @@ const Training: React.FC = () => {
                     </CardFooter>
                   </Card>
                 ))}
-                
+
                 {filteredModules.length === 0 && (
                   <div className="col-span-full p-8 text-center border rounded-lg">
                     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
@@ -379,7 +378,7 @@ const Training: React.FC = () => {
             </div>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="your-progress">
           <Card>
             <CardHeader>
@@ -397,12 +396,12 @@ const Training: React.FC = () => {
                   </div>
                   <Progress value={5} className="h-2" />
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Module Progress</h3>
-                  
+
                   {modules.map((module) => (
                     <div key={module.id} className="space-y-1">
                       <div className="flex justify-between">
@@ -417,7 +416,7 @@ const Training: React.FC = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="certificates">
           <Card>
             <CardHeader>
