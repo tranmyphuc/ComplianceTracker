@@ -836,7 +836,8 @@ export async function trackTrainingProgress(req: Request, res: Response): Promis
           .update(trainingProgress)
           .set({ 
             completion,
-            updatedAt: new Date()
+            // Using the correct column name from schema
+            updated_at: new Date()
           })
           .where(eq(trainingProgress.id, existingProgress[0].id));
       }
@@ -845,10 +846,10 @@ export async function trackTrainingProgress(req: Request, res: Response): Promis
       await db
         .insert(trainingProgress)
         .values({
-          userId,
-          moduleId,
+          user_id: userId,
+          module_id: moduleId,
           completion,
-          updatedAt: new Date()
+          updated_at: new Date()
         });
     }
 
@@ -874,13 +875,13 @@ export async function getUserProgress(req: Request, res: Response): Promise<void
     const progress = await db
       .select()
       .from(trainingProgress)
-      .where(eq(trainingProgress.userId, userId as string));
+      .where(eq(trainingProgress.user_id, userId as string));
 
     // Format progress as object with moduleId as key
     const formattedProgress: Record<string, { completion: number }> = {};
 
     progress.forEach(item => {
-      formattedProgress[item.moduleId] = {
+      formattedProgress[item.module_id] = {
         completion: item.completion || 0
       };
     });
