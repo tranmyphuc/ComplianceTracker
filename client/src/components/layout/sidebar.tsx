@@ -259,7 +259,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             <Link 
               href="/guides"
               className={cn(
-                "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+                "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100 transition-colors duration-200",
                 isActive("/guides") && "bg-primary/10 text-primary font-medium",
                 "bg-orange-50"
               )}

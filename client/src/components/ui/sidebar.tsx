@@ -499,12 +499,19 @@ SidebarMenu.displayName = "SidebarMenu"
 
 const SidebarMenuItem = React.forwardRef<
   HTMLLIElement,
-  React.ComponentProps<"li">
->(({ className, ...props }, ref) => (
+  React.ComponentProps<"li"> & {
+    active?: boolean
+  }
+>(({ className, active, ...props }, ref) => (
   <li
     ref={ref}
     data-sidebar="menu-item"
-    className={cn("group/menu-item relative", className)}
+    data-active={active ? "true" : undefined}
+    className={cn(
+      "group/menu-item relative transition-colors duration-200",
+      active && "bg-primary/10 text-primary font-medium rounded-md",
+      className
+    )}
     {...props}
   />
 ))
@@ -689,7 +696,7 @@ const SidebarMenuSub = React.forwardRef<
     ref={ref}
     data-sidebar="menu-sub"
     className={cn(
-      "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5",
+      "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1.5 border-l border-sidebar-border px-2.5 py-1",
       "group-data-[collapsible=icon]:hidden",
       className
     )}
@@ -700,8 +707,21 @@ SidebarMenuSub.displayName = "SidebarMenuSub"
 
 const SidebarMenuSubItem = React.forwardRef<
   HTMLLIElement,
-  React.ComponentProps<"li">
->(({ ...props }, ref) => <li ref={ref} {...props} />)
+  React.ComponentProps<"li"> & {
+    active?: boolean
+  }
+>(({ className, active, ...props }, ref) => (
+  <li 
+    ref={ref} 
+    data-active={active ? "true" : undefined}
+    className={cn(
+      "relative px-2 py-1 rounded-md transition-colors duration-200",
+      active && "bg-primary/5 text-primary font-medium before:absolute before:left-[-13px] before:top-1/2 before:h-4 before:w-1 before:-translate-y-1/2 before:rounded-full before:bg-primary",
+      className
+    )}
+    {...props} 
+  />
+))
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
 const SidebarMenuSubButton = React.forwardRef<
