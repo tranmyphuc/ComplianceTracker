@@ -857,8 +857,8 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
         prohibitedJustification: prohibitedReason,
         recommendations,
         requiredDocumentation,
-        relevantArticles: [...new Set(relevantArticles)], // Remove duplicates
-        complianceGaps: [...new Set(complianceGaps)], // Remove duplicates
+        relevantArticles: Array.from(new Set(relevantArticles)), // Remove duplicates
+        complianceGaps: Array.from(new Set(complianceGaps)), // Remove duplicates
         nextSteps
       };
       
