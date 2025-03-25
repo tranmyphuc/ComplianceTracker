@@ -498,7 +498,7 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
 /**
  * Get all training modules
  */
-export async function getTrainingModules(req: Request, res: Response): Promise<Response> {
+export async function getTrainingModules(req: Request, res: Response): Promise<void> {
   try {
     let moduleData: any[] = [];
 
@@ -531,10 +531,10 @@ export async function getTrainingModules(req: Request, res: Response): Promise<R
       moduleData = TRAINING_MODULES;
     }
 
-    return res.json(moduleData);
+    res.json(moduleData);
   } catch (error) {
     console.error('Error fetching training modules:', error);
-    return res.status(500).json({ error: 'Failed to fetch training modules' });
+    res.status(500).json({ error: 'Failed to fetch training modules' });
   }
 }
 
@@ -747,7 +747,8 @@ export async function trackTrainingProgress(req: Request, res: Response): Promis
     const { userId, moduleId, completion } = req.body;
 
     if (!userId || !moduleId || typeof completion !== 'number') {
-      return res.status(400).json({ error: 'Missing required fields' });
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
     }
 
     // Update progress in database
@@ -783,10 +784,10 @@ export async function trackTrainingProgress(req: Request, res: Response): Promis
         });
     }
 
-    return res.json({ status: 'success', moduleId, userId, completion });
+    res.json({ status: 'success', moduleId, userId, completion });
   } catch (error) {
     console.error('Error tracking training progress:', error);
-    return res.status(500).json({ error: 'Failed to track progress' });
+    res.status(500).json({ error: 'Failed to track progress' });
   }
 }
 

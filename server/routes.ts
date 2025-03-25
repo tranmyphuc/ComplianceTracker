@@ -1470,16 +1470,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/training/modules/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const role = req.query.role as string || 'technical';
-      const module = await getTrainingModuleContent(id, role);
-
-      if (!module) {
-        return res.status(404).json({ message: 'Training module not found' });
+      const role = req.query.role as string || 'default';
+      
+      // First try to find module in the database
+      const moduleRecord = await db.select().from(trainingModules).where(eq(trainingModules.moduleId, id)).limit(1);
+      
+      if (moduleRecord && moduleRecord.length > 0) {
+        // If found in database, return it
+        const moduleData = moduleRecord[0];
+        
+        // Format the content for the enhanced UI
+        const enhancedContent = {
+          title: moduleData.title,
+          description: moduleData.description,
+          estimated_time: moduleData.estimatedTime,
+          content: {
+            slides: moduleData.content ? (typeof moduleData.content === 'string' ? JSON.parse(moduleData.content).slides : moduleData.content.slides) : [],
+            document: moduleData.content ? (typeof moduleData.content === 'string' ? JSON.parse(moduleData.content).document : moduleData.content.document) : '',
+            exercises: moduleData.content ? (typeof moduleData.content === 'string' ? JSON.parse(moduleData.content).exercises : moduleData.content.exercises) : [],
+            assessment: {
+              questions: moduleData.content ? (typeof moduleData.content === 'string' ? JSON.parse(moduleData.content).assessments : moduleData.content.assessments) : []
+            }
+          }
+        };
+        
+        return res.json(enhancedContent);
       }
-
-      res.json(module);
+      
+      // If not in database, check if it's in our MODULE_CONTENTS
+      if (MODULE_CONTENTS[id]) {
+        const roleContent = MODULE_CONTENTS[id][role] || MODULE_CONTENTS[id].default;
+        
+        // Get module info
+        const moduleInfo = TRAINING_MODULES.find(m => m.id === id) || {
+          title: roleContent.title,
+          description: "",
+          estimated_time: "30-45 minutes"
+        };
+        
+        // Format full module content for the enhanced UI
+        const enhancedContent = {
+          title: moduleInfo.title,
+          description: moduleInfo.description,
+          estimated_time: moduleInfo.estimated_time,
+          content: {
+            slides: buildSlides(roleContent),
+            document: buildDocument(roleContent, moduleInfo.title),
+            exercises: buildExercises(roleContent, id),
+            assessment: {
+              questions: roleContent.assessments || []
+            }
+          }
+        };
+        
+        return res.json(enhancedContent);
+      }
+      
+      // If module not found in either source
+      return res.status(404).json({ message: 'Training module not found' });
     } catch (error) {
-      handleError(res, error, 'Error retrieving training module content');
+      console.error('Error retrieving training module content:', error);
+      handleError(res, error as Error, 'Error retrieving training module content');
     }
   });
 
