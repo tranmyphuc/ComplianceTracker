@@ -28,7 +28,8 @@ import {
   BarChart2Icon,
   ChevronDownIcon,
   CheckIcon,
-  AlertCircleIcon
+  AlertCircleIcon,
+  XIcon
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -300,11 +301,19 @@ export function SystemsTable() {
     return 0;
   });
   
-  // Get unique departments for filtering
-  const departments = [...new Set(systemsData.map((system: any) => system.department))];
+  // Get unique departments for filtering using a different approach
+  const departmentsMap: {[key: string]: boolean} = {};
+  systemsData.forEach((system: any) => {
+    if (system.department) departmentsMap[system.department] = true;
+  });
+  const departments = Object.keys(departmentsMap);
   
-  // Get unique statuses for filtering
-  const statuses = [...new Set(systemsData.map((system: any) => system.status))];
+  // Get unique statuses for filtering using a different approach
+  const statusesMap: {[key: string]: boolean} = {};
+  systemsData.forEach((system: any) => {
+    if (system.status) statusesMap[system.status] = true;
+  });
+  const statuses = Object.keys(statusesMap);
   
   // Get risk badge styling
   const getRiskBadgeProps = (riskLevel: string) => {
