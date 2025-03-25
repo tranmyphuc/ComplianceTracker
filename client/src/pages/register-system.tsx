@@ -35,7 +35,7 @@ export default function RegisterSystem() {
           tip={{
             title: "System Registration Guide",
             content: "Accurate system registration is the foundation of EU AI Act compliance. Be sure to provide detailed information about your AI system's purpose, capabilities, and intended use cases.",
-            category: "registration",
+            category: "governance",
             relevantArticles: ["Article 16", "Article 52"],
             learnMoreLink: "/knowledge-center/system-registration"
           }}

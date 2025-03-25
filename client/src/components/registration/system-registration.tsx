@@ -121,7 +121,11 @@ const sampleAiSystems = [
   }
 ];
 
-export const SystemRegistration: React.FC = () => {
+export interface SystemRegistrationProps {
+  onFormChange?: () => void;
+}
+
+export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormChange }) => {
   const [_, setLocation] = useLocation();
   const { toast } = useToast();
   const [formData, setFormData] = useState(initialFormData);
@@ -164,6 +168,11 @@ export const SystemRegistration: React.FC = () => {
       // Also update missingFields to remove this field
       setMissingFields(prev => prev.filter(field => field !== name));
     }
+    
+    // Trigger the onFormChange callback if provided
+    if (onFormChange) {
+      onFormChange();
+    }
   };
 
   // Handle selection changes
@@ -180,6 +189,11 @@ export const SystemRegistration: React.FC = () => {
 
       // Also update missingFields to remove this field
       setMissingFields(prev => prev.filter(field => field !== name));
+    }
+    
+    // Trigger the onFormChange callback if provided
+    if (onFormChange) {
+      onFormChange();
     }
   };
 
