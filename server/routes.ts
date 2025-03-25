@@ -1057,13 +1057,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "System not found" });
       }
 
+      let newAssessment;
       try {
         // Create risk assessment
         const validatedData = insertRiskAssessmentSchema.parse(assessmentData);
         console.log("Validated assessment data:", validatedData);
         
-        const newAssessment = await storage.createRiskAssessment(validatedData);
-      } catch (validationError) {
+        newAssessment = await storage.createRiskAssessment(validatedData);
+      } catch (error) {
+        const validationError = error as Error;
         console.error("Validation error:", validationError);
         return res.status(400).json({ 
           message: "Validation error", 
@@ -1075,7 +1077,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createActivity({
         type: "risk_assessment",
         description: `Risk assessment completed for ${system.name}`,
-        systemId,
+        systemId: assessmentData.systemId,
         userId: assessmentData.createdBy || "system",
         metadata: { assessmentId: newAssessment.assessmentId }
       });
