@@ -4,6 +4,7 @@ import { trainingModules, trainingProgress } from '../shared/schema';
 import { db } from './db';
 import { eq, and } from 'drizzle-orm';
 import { aiLiteracyTrainingModule } from './modules/ai-literacy-training';
+import { marked } from 'marked';
 
 export interface TrainingModule {
   id: string;
@@ -557,37 +558,84 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
   try {
     const { moduleId } = req.params;
     const userRole = req.query.role as string || 'user';
+    
+    // Special handling for the AI Literacy module
+    if (moduleId === 'ai-literacy') {
+      console.log("Serving AI Literacy module content");
+      try {
+        const roleContent = aiLiteracyTrainingModule.content.default;
+        const moduleInfo = {
+          title: aiLiteracyTrainingModule.title,
+          description: aiLiteracyTrainingModule.description,
+          estimated_time: aiLiteracyTrainingModule.estimated_time
+        };
 
-    // Try to get module from database first
-    const module = await db.select().from(trainingModules).where(eq(trainingModules.moduleId, moduleId)).limit(1);
+        // Format the module sections for HTML display
+        const formattedSections = roleContent.sections.map(section => {
+          return {
+            title: section.title,
+            content: `<div class="prose prose-blue max-w-none mb-4">${marked.parse(section.content)}</div>`
+          };
+        });
 
-    if (module && module.length > 0) {
-      const moduleData = module[0];
-      const content = moduleData.content as any;
-
-      // Get role-specific content if available
-      const roleContent = content[userRole] || content.default;
-
-      // Format full module content for the enhanced UI
-      const enhancedContent = {
-        title: moduleData.title,
-        description: moduleData.description,
-        estimated_time: moduleData.estimatedTime,
-        content: {
-          slides: buildSlides(roleContent),
-          document: buildDocument(roleContent, moduleData.title),
-          exercises: buildExercises(roleContent, moduleId),
-          assessment: {
-            questions: roleContent.quiz || []
+        // Format full module content for the enhanced UI
+        const enhancedContent = {
+          title: moduleInfo.title,
+          description: moduleInfo.description,
+          estimated_time: moduleInfo.estimated_time,
+          content: {
+            slides: formattedSections,
+            document: roleContent.sections.map(s => `# ${s.title}\n\n${s.content}`).join('\n\n'),
+            exercises: buildExercises(roleContent, moduleId),
+            assessment: {
+              questions: roleContent.assessments || []
+            }
           }
-        }
-      };
+        };
 
-      return res.json(enhancedContent);
+        return res.json(enhancedContent);
+      } catch (error) {
+        console.error("Error preparing AI Literacy module:", error);
+        return res.status(500).json({ error: "Failed to prepare AI Literacy module content" });
+      }
+    }
+
+    // For other modules, try to get from database first
+    try {
+      const module = await db.select().from(trainingModules).where(eq(trainingModules.moduleId, moduleId)).limit(1);
+
+      if (module && module.length > 0) {
+        const moduleData = module[0];
+        const content = moduleData.content as any;
+
+        // Get role-specific content if available
+        const roleContent = content[userRole] || content.default;
+
+        // Format full module content for the enhanced UI
+        const enhancedContent = {
+          title: moduleData.title,
+          description: moduleData.description,
+          estimated_time: moduleData.estimatedTime,
+          content: {
+            slides: buildSlides(roleContent),
+            document: buildDocument(roleContent, moduleData.title),
+            exercises: buildExercises(roleContent, moduleId),
+            assessment: {
+              questions: roleContent.quiz || []
+            }
+          }
+        };
+
+        return res.json(enhancedContent);
+      }
+    } catch (dbError) {
+      console.error("Database error fetching module:", dbError);
+      // Continue to the fallback for predefined modules
     }
 
     // Fall back to sample data if not in database
     if (MODULE_CONTENTS[moduleId]) {
+      console.log(`Serving module content for ${moduleId} from MODULE_CONTENTS`);
       const roleContent = MODULE_CONTENTS[moduleId][userRole] || MODULE_CONTENTS[moduleId].default;
 
       // Get module info
