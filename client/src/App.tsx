@@ -32,6 +32,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AppLayout } from "@/components/layout/app-layout";
 import { ComplianceTipProvider } from "@/components/compliance-tips";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { 
   RiskAssessmentGuides, 
   RiskAssessmentDocumentation as LazyRiskAssessmentDocumentation,
@@ -224,13 +225,22 @@ function Router() {
   );
 }
 
+// Wrap Router with providers
+function WrappedRouter() {
+  return (
+    <LanguageProvider>
+      <Router />
+    </LanguageProvider>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ToastProvider>
           <ComplianceTipProvider jackStyle={true}>
-            <Router />
+            <WrappedRouter />
             <AiAssistantButton />
             <Toaster />
           </ComplianceTipProvider>
