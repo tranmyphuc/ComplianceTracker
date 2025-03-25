@@ -366,7 +366,7 @@ export default function Training() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-8 max-w-6xl">
+      <div className="p-6 max-w-full">
         <h1 className="text-3xl font-bold mb-8">EU AI Act Training</h1>
 
         <Skeleton className="h-[200px] w-full mb-8" />
@@ -383,7 +383,7 @@ export default function Training() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-6xl">
+    <div className="p-6 max-w-full">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">EU AI Act Training</h1>
         <div className="flex gap-2">

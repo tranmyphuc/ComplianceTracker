@@ -204,17 +204,6 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             <span>Training</span>
           </Link>
 
-          <Link 
-            href="/documentation/training"
-            className={cn(
-              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-              isActive("/documentation/training") && "bg-primary/10 text-primary font-medium"
-            )}
-            onClick={handleItemClick}
-          >
-            <FileTextIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
-            <span>Training Docs</span>
-          </Link>
 
 
           <Link 
