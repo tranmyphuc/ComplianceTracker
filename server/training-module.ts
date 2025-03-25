@@ -959,16 +959,15 @@ export async function getUserProgress(req: Request, res: Response): Promise<void
     // Safely get user ID as a string
     const userIdStr = typeof userId === 'string' ? userId : String(userId || '');
     
-    // Use a different approach for the query to avoid type issues
-    const query = 'SELECT * FROM training_progress WHERE user_id = $1';
-    const result = await sql.query(query, [userIdStr]);
+    // Use drizzle ORM instead of raw SQL
+    const result = await db.select().from(trainingProgress).where(eq(trainingProgress.userId, userIdStr));
 
     // Format progress as object with moduleId as key
     const formattedProgress: Record<string, { completion: number }> = {};
 
-    if (result && result.rows && Array.isArray(result.rows)) {
-      result.rows.forEach((item: any) => {
-        formattedProgress[item.module_id] = {
+    if (result && Array.isArray(result)) {
+      result.forEach((item: any) => {
+        formattedProgress[item.moduleId] = {
           completion: item.completion || 0
         };
       });
