@@ -23,6 +23,8 @@ export interface ComplianceTip {
   difficulty?: 'basic' | 'intermediate' | 'advanced';
   dismissible?: boolean;
   learnMoreLink?: string;
+  officialSourceUrl?: string; // URL to the official EU AI Act source
+  lastUpdated?: string; // Date when the tip was last updated
 }
 
 interface TipBubbleProps {
@@ -164,6 +166,28 @@ export function TipBubble({
                     </Badge>
                   ))}
                 </div>
+              </div>
+            )}
+            
+            {/* Official Source and Last Updated */}
+            {(tip.officialSourceUrl || tip.lastUpdated) && (
+              <div className="mb-3 text-xs">
+                {tip.lastUpdated && (
+                  <p className="text-muted-foreground mb-1">
+                    <span className="font-medium">Last Updated:</span> {tip.lastUpdated}
+                  </p>
+                )}
+                {tip.officialSourceUrl && (
+                  <a 
+                    href={tip.officialSourceUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline inline-flex items-center"
+                  >
+                    <span>Official EU AI Act Source</span>
+                    <ChevronRightIcon className="ml-1 h-3 w-3" />
+                  </a>
+                )}
               </div>
             )}
             

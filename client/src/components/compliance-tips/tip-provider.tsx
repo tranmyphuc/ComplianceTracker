@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { useLocation } from 'wouter';
 import { ComplianceTip, TipBubble } from './tip-bubble';
 
-// Sample tips by context
+// Sample tips by context with official EU AI Act source references
 const tipsByContext: Record<string, ComplianceTip[]> = {
   '/risk-assessment': [
     {
@@ -12,6 +12,8 @@ const tipsByContext: Record<string, ComplianceTip[]> = {
       category: 'risk',
       relevantArticles: ['Article 9', 'Article 10'],
       learnMoreLink: '/knowledge-center',
+      officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e1635-1-1',
+      lastUpdated: 'March 25, 2025',
     },
     {
       id: 'risk-2',
@@ -20,6 +22,30 @@ const tipsByContext: Record<string, ComplianceTip[]> = {
       category: 'governance',
       relevantArticles: ['Article 6', 'Annex III'],
       learnMoreLink: '/knowledge-center',
+      officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e1427-1-1',
+      lastUpdated: 'March 25, 2025',
+    },
+  ],
+  '/register-system': [
+    {
+      id: 'register-1',
+      title: 'System Registration Requirements',
+      content: 'All high-risk AI systems must be registered in the EU database before being placed on the market or put into service.',
+      category: 'documentation',
+      relevantArticles: ['Article 51'],
+      learnMoreLink: '/knowledge-center',
+      officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e5193-1-1',
+      lastUpdated: 'March 25, 2025',
+    },
+    {
+      id: 'register-2',
+      title: 'Technical Documentation for Registration',
+      content: 'Registration requires detailed technical documentation covering AI system design, development methods, and performance metrics.',
+      category: 'documentation',
+      relevantArticles: ['Article 11', 'Article 51'],
+      learnMoreLink: '/knowledge-center',
+      officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e2124-1-1',
+      lastUpdated: 'March 25, 2025',
     },
   ],
   '/inventory': [
@@ -30,6 +56,8 @@ const tipsByContext: Record<string, ComplianceTip[]> = {
       category: 'documentation',
       relevantArticles: ['Article 11', 'Article 18'],
       learnMoreLink: '/knowledge-center',
+      officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e2124-1-1',
+      lastUpdated: 'March 25, 2025',
     },
     {
       id: 'inventory-2',
@@ -38,6 +66,8 @@ const tipsByContext: Record<string, ComplianceTip[]> = {
       category: 'implementation',
       relevantArticles: ['Article 11'],
       learnMoreLink: '/knowledge-center',
+      officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e2124-1-1',
+      lastUpdated: 'March 25, 2025',
     },
   ],
   '/documentation': [
@@ -48,6 +78,8 @@ const tipsByContext: Record<string, ComplianceTip[]> = {
       category: 'documentation',
       relevantArticles: ['Article 11', 'Annex IV'],
       learnMoreLink: '/knowledge-center',
+      officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e2124-1-1',
+      lastUpdated: 'March 25, 2025',
     },
   ],
   '/risk-management': [
@@ -58,6 +90,8 @@ const tipsByContext: Record<string, ComplianceTip[]> = {
       category: 'risk',
       relevantArticles: ['Article 9'],
       learnMoreLink: '/knowledge-center',
+      officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e1635-1-1',
+      lastUpdated: 'March 25, 2025',
     },
     {
       id: 'risk-mgmt-2',
@@ -66,6 +100,8 @@ const tipsByContext: Record<string, ComplianceTip[]> = {
       category: 'implementation',
       relevantArticles: ['Article 9', 'Article 14'],
       learnMoreLink: '/knowledge-center',
+      officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e1635-1-1',
+      lastUpdated: 'March 25, 2025',
     },
   ],
   '/workflow': [
@@ -76,6 +112,8 @@ const tipsByContext: Record<string, ComplianceTip[]> = {
       category: 'governance',
       relevantArticles: ['Article 17', 'Article 29'],
       learnMoreLink: '/knowledge-center',
+      officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e2758-1-1',
+      lastUpdated: 'March 25, 2025',
     },
   ],
   '/training': [
@@ -86,6 +124,8 @@ const tipsByContext: Record<string, ComplianceTip[]> = {
       category: 'governance',
       relevantArticles: ['Article 14', 'Article 29'],
       learnMoreLink: '/knowledge-center',
+      officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e2366-1-1',
+      lastUpdated: 'March 25, 2025',
     },
   ],
 };
@@ -99,6 +139,8 @@ const defaultTips: ComplianceTip[] = [
     category: 'general',
     relevantArticles: ['Article 85'],
     learnMoreLink: '/knowledge-center',
+    officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e7531-1-1',
+    lastUpdated: 'March 25, 2025',
   },
   {
     id: 'default-2',
@@ -107,6 +149,8 @@ const defaultTips: ComplianceTip[] = [
     category: 'governance',
     relevantArticles: ['Article 14'],
     learnMoreLink: '/knowledge-center',
+    officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e2366-1-1',
+    lastUpdated: 'March 25, 2025',
   },
   {
     id: 'default-3',
@@ -115,6 +159,8 @@ const defaultTips: ComplianceTip[] = [
     category: 'implementation',
     relevantArticles: ['Article 10'],
     learnMoreLink: '/knowledge-center',
+    officialSourceUrl: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689#d1e1882-1-1',
+    lastUpdated: 'March 25, 2025',
   },
 ];
 
