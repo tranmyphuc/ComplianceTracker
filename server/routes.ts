@@ -26,6 +26,8 @@ import {
   callDeepSeekApi,
   determineRiskLevel
 } from "./ai-analysis";
+import { regulatoryRoutes } from "./routes/regulatory-routes";
+import { initializeRegulationUpdates } from "./regulatory-service";
 
 // Import approval workflow functions
 import {
@@ -74,8 +76,6 @@ import {
 } from './ai-key-management';
 import * as riskAssessment from './risk-assessment';
 import * as riskManagement from './risk-management'; // Added import
-import { regulatoryRoutes } from './routes/regulatory-routes';
-import { initializeRegulationUpdates } from './regulatory-service';
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
