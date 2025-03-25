@@ -1033,27 +1033,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/risk-assessments", async (req: Request, res: Response) => {
     try {
+      console.log("Risk assessment data received:", req.body);
+      
       // Parse and validate the request data
-      const validatedData = insertRiskAssessmentSchema.parse(req.body);
-      const { systemId, ...assessmentData } = validatedData;
-
-      if (!systemId) {
+      const assessmentData = req.body;
+      
+      if (!assessmentData.systemId) {
         return res.status(400).json({ message: "System ID is required" });
       }
 
+      if (!assessmentData.assessmentId) {
+        assessmentData.assessmentId = `RA-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+      }
+
+      // Add required fields if not provided
+      if (!assessmentData.status) {
+        assessmentData.status = "completed";
+      }
+
       // Check if system exists
-      const system = await storage.getAiSystemBySystemId(systemId);
+      const system = await storage.getAiSystemBySystemId(assessmentData.systemId);
       if (!system) {
         return res.status(404).json({ message: "System not found" });
       }
 
-      // Create risk assessment
-      const newAssessment = await storage.createRiskAssessment({
-        ...assessmentData,
-        systemId,
-        assessmentDate: new Date(),
-        status: "Completed"
-      });
+      try {
+        // Create risk assessment
+        const validatedData = insertRiskAssessmentSchema.parse(assessmentData);
+        console.log("Validated assessment data:", validatedData);
+        
+        const newAssessment = await storage.createRiskAssessment(validatedData);
+      } catch (validationError) {
+        console.error("Validation error:", validationError);
+        return res.status(400).json({ 
+          message: "Validation error", 
+          error: validationError.message || "Invalid assessment data"
+        });
+      }
 
       // Create activity record for the assessment
       await storage.createActivity({

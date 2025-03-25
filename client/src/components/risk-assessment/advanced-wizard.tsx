@@ -867,24 +867,28 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
       
       // Save assessment to database
       try {
+        // Prepare assessment data with required fields
+        const assessmentData = {
+          assessmentId: result.assessmentId,
+          systemId: result.systemId,
+          assessmentDate: result.date || new Date(),
+          riskLevel: result.riskLevel,
+          riskScore: result.overallScore,
+          systemCategory: assessmentMeta.systemCategory || "other",
+          prohibitedUseChecks: result.prohibitedUse ? [{ reason: result.prohibitedJustification || "Flagged as prohibited use" }] : [],
+          euAiActArticles: result.relevantArticles || [],
+          complianceGaps: result.complianceGaps || [],
+          remediationActions: result.recommendations || [],
+          evidenceDocuments: result.requiredDocumentation || [], 
+          summaryNotes: "Comprehensive risk assessment completed via advanced wizard",
+          createdBy: assessmentMeta.assessorName || "admin"
+        };
+        
+        console.log("Sending assessment data:", assessmentData);
+        
         const response = await apiRequest('/api/risk-assessments', {
           method: 'POST',
-          data: {
-            assessmentId: result.assessmentId,
-            systemId: result.systemId,
-            date: result.date,
-            assessor: result.assessor,
-            riskLevel: result.riskLevel,
-            overallScore: result.overallScore,
-            prohibitedUse: result.prohibitedUse,
-            prohibitedJustification: result.prohibitedJustification || "",
-            recommendations: result.recommendations,
-            requiredDocumentation: result.requiredDocumentation,
-            relevantArticles: result.relevantArticles,
-            complianceGaps: result.complianceGaps,
-            nextSteps: result.nextSteps,
-            categoryScores: JSON.stringify(result.categoryScores)
-          }
+          data: assessmentData
         });
         
         console.log("Assessment saved:", response);
