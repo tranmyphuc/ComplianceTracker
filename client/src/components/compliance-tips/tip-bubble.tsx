@@ -151,144 +151,172 @@ export function TipBubble({
               {tip.category.charAt(0).toUpperCase() + tip.category.slice(1)}
             </Badge>
             
-            {tip.dismissible !== false && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 absolute top-2 right-2 rounded-full"
-                onClick={handleDismiss}
-              >
-                <XIcon className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-          
-          {/* Content */}
-          <CardContent className="p-4">
-            <h4 className="font-semibold text-sm mb-3 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md">{tip.title}</h4>
-            
-            {/* English Content with Highlighting */}
-            <div className="px-2 py-1.5 bg-yellow-50 border-l-2 border-yellow-300 mb-3 rounded-sm">
-              <p className="text-sm mb-1">{tip.content}</p>
-            </div>
-            
-            {/* German Translation if available */}
-            {tip.contentGerman && (
-              <div className="mb-3 px-2 py-1.5 bg-blue-50 border-l-2 border-blue-300 rounded-sm">
-                <p className="text-xs text-muted-foreground mb-1 font-medium">Deutsche Übersetzung:</p>
-                <p className="text-sm">{tip.contentGerman}</p>
-              </div>
-            )}
-            
-            {/* Relevant Articles with Links */}
-            {tip.relevantArticles && tip.relevantArticles.length > 0 && (
-              <div className="mb-3">
-                <p className="text-xs text-muted-foreground font-medium mb-1">Relevant Articles:</p>
-                <div className="flex flex-wrap gap-1">
-                  {tip.relevantArticles.map((article) => {
-                    // If we have a specific article link, use it; otherwise use the general article link
-                    const articleUrl = tip.articleLinks?.[article] || 
-                                      `https://artificialintelligenceact.eu/the-act/${article.toLowerCase().replace(/\s+/g, '-')}/`;
-                    
-                    return (
-                      <a 
-                        key={article}
-                        href={articleUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="no-underline"
-                      >
-                        <Badge variant="outline" className="text-xs hover:bg-primary-50 cursor-pointer transition-colors">
-                          {article}
-                        </Badge>
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            
-            {/* Official Source and Last Updated */}
-            {(tip.officialSourceUrl || tip.lastUpdated) && (
-              <div className="mb-3 text-xs">
-                {tip.lastUpdated && (
-                  <p className="text-muted-foreground mb-1">
-                    <span className="font-medium">Last Updated:</span> {tip.lastUpdated}
-                  </p>
-                )}
-                {tip.officialSourceUrl && (
-                  <a 
-                    href={tip.officialSourceUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline inline-flex items-center"
-                  >
-                    <span>Official EU AI Act Source</span>
-                    <ChevronRightIcon className="ml-1 h-3 w-3" />
-                  </a>
-                )}
-              </div>
-            )}
-            
-            {/* Actions */}
-            <div className="flex justify-between items-center mt-2">
-              {tip.learnMoreLink && (
-                <Button variant="link" size="sm" className="p-0 h-8" asChild>
-                  <a href={tip.learnMoreLink} target="_blank" rel="noopener noreferrer">
-                    <span>Learn more</span>
-                    <ChevronRightIcon className="ml-1 h-3 w-3" />
-                  </a>
+            <div className="absolute top-2 right-2 flex">
+              {/* Minimize/Maximize Button */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 rounded-full mr-1"
+                      onClick={minimized ? handleMaximize : handleMinimize}
+                    >
+                      {minimized ? (
+                        <MaximizeIcon className="h-3.5 w-3.5" />
+                      ) : (
+                        <MinimizeIcon className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{minimized ? 'Maximize' : 'Minimize'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              {/* Close Button */}
+              {tip.dismissible !== false && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 rounded-full"
+                  onClick={handleDismiss}
+                >
+                  <XIcon className="h-4 w-4" />
                 </Button>
               )}
+            </div>
+          </div>
+          
+          {/* Content - Only show if not minimized */}
+          {!minimized && (
+            <CardContent className="p-4">
+              <h4 className="font-semibold text-sm mb-3 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md">{tip.title}</h4>
               
-              {onFeedback && (
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-muted-foreground mr-1">
-                    {feedbackGiven ? 'Thanks for your feedback!' : 'Was this helpful?'}
-                  </span>
-                  {!feedbackGiven && (
-                    <>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6 text-muted-foreground hover:text-green-600 hover:bg-green-50"
-                              onClick={() => handleFeedback(true)}
-                            >
-                              <ThumbsUpIcon className="h-3 w-3" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Yes, this was helpful</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+              {/* English Content with Highlighting */}
+              <div className="px-2 py-1.5 bg-yellow-50 border-l-2 border-yellow-300 mb-3 rounded-sm">
+                <p className="text-sm mb-1">{tip.content}</p>
+              </div>
+              
+              {/* German Translation if available */}
+              {tip.contentGerman && (
+                <div className="mb-3 px-2 py-1.5 bg-blue-50 border-l-2 border-blue-300 rounded-sm">
+                  <p className="text-xs text-muted-foreground mb-1 font-medium">Deutsche Übersetzung:</p>
+                  <p className="text-sm">{tip.contentGerman}</p>
+                </div>
+              )}
+              
+              {/* Relevant Articles with Links */}
+              {tip.relevantArticles && tip.relevantArticles.length > 0 && (
+                <div className="mb-3">
+                  <p className="text-xs text-muted-foreground font-medium mb-1">Relevant Articles:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {tip.relevantArticles.map((article) => {
+                      // If we have a specific article link, use it; otherwise use the general article link
+                      const articleUrl = tip.articleLinks?.[article] || 
+                                        `https://artificialintelligenceact.eu/the-act/${article.toLowerCase().replace(/\s+/g, '-')}/`;
                       
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6 text-muted-foreground hover:text-red-600 hover:bg-red-50"
-                              onClick={() => handleFeedback(false)}
-                            >
-                              <ThumbsDownIcon className="h-3 w-3" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>No, this wasn't helpful</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </>
+                      return (
+                        <a 
+                          key={article}
+                          href={articleUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="no-underline"
+                        >
+                          <Badge variant="outline" className="text-xs hover:bg-primary-50 cursor-pointer transition-colors">
+                            {article}
+                          </Badge>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              
+              {/* Official Source and Last Updated */}
+              {(tip.officialSourceUrl || tip.lastUpdated) && (
+                <div className="mb-3 text-xs">
+                  {tip.lastUpdated && (
+                    <p className="text-muted-foreground mb-1">
+                      <span className="font-medium">Last Updated:</span> {tip.lastUpdated}
+                    </p>
+                  )}
+                  {tip.officialSourceUrl && (
+                    <a 
+                      href={tip.officialSourceUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline inline-flex items-center"
+                    >
+                      <span>Official EU AI Act Source</span>
+                      <ChevronRightIcon className="ml-1 h-3 w-3" />
+                    </a>
                   )}
                 </div>
               )}
-            </div>
-          </CardContent>
+              
+              {/* Actions */}
+              <div className="flex justify-between items-center mt-2">
+                {tip.learnMoreLink && (
+                  <Button variant="link" size="sm" className="p-0 h-8" asChild>
+                    <a href={tip.learnMoreLink} target="_blank" rel="noopener noreferrer">
+                      <span>Learn more</span>
+                      <ChevronRightIcon className="ml-1 h-3 w-3" />
+                    </a>
+                  </Button>
+                )}
+                
+                {onFeedback && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground mr-1">
+                      {feedbackGiven ? 'Thanks for your feedback!' : 'Was this helpful?'}
+                    </span>
+                    {!feedbackGiven && (
+                      <>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-muted-foreground hover:text-green-600 hover:bg-green-50"
+                                onClick={() => handleFeedback(true)}
+                              >
+                                <ThumbsUpIcon className="h-3 w-3" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Yes, this was helpful</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                                onClick={() => handleFeedback(false)}
+                              >
+                                <ThumbsDownIcon className="h-3 w-3" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>No, this wasn't helpful</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          )}
         </div>
       </Card>
     </div>
