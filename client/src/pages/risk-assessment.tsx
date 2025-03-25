@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AssessmentWizard } from "@/components/risk-assessment/assessment-wizard";
 import { AdvancedRiskWizard } from "@/components/risk-assessment/advanced-wizard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,24 +16,23 @@ import {
   LightbulbIcon
 } from "lucide-react";
 import { useLocation, Link } from "wouter";
-import { InlineTip, TipButton, useComplianceTips } from "@/components/compliance-tips";
+import { InlineTip, TipButton } from "@/components/compliance-tips";
+import { useContextualTips } from "@/hooks/use-contextual-tips";
 
 export default function RiskAssessment() {
   const [activeTab, setActiveTab] = useState("advanced-wizard");
   const [location, navigate] = useLocation();
-  const { showTip, recordFeedback } = useComplianceTips();
+  
+  // Use our custom hook for contextual tips
+  const { triggerTip } = useContextualTips({
+    context: 'risk-assessment',
+    showOnMount: true,
+    delay: 1500,
+    specificTipId: 'risk-1'
+  });
   
   // Get system ID from URL if available
   const systemId = new URLSearchParams(window.location.search).get("systemId");
-  
-  // Trigger a specific tip when the component mounts
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      showTip('risk-1');
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, [showTip]);
   
   // Handle completion of assessment
   const handleAssessmentComplete = (result: any) => {
@@ -41,7 +40,7 @@ export default function RiskAssessment() {
     // This could save the assessment to the database or navigate to a results page
     
     // Show a tip when assessment is completed
-    showTip('risk-2');
+    triggerTip('risk-2');
   };
 
   return (
