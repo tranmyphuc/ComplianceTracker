@@ -17,17 +17,43 @@ export default function Inventory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRiskFilter, setSelectedRiskFilter] = useState<string | null>(null);
 
-  // Mock statistics data
+  // Use react-query to fetch statistics data
+  const { data: statsData, isLoading: statsLoading } = useQuery({
+    queryKey: ["/api/dashboard/summary"],
+    // Add error retry to handle temporary database connectivity issues
+    retry: 3,
+    retryDelay: 1000,
+    // If it fails, provide backup values but keep trying
+    placeholderData: {
+      ai_systems: {
+        total: 0,
+        high_risk: 0,
+        limited_risk: 0,
+        minimal_risk: 0,
+        unclassified: 0
+      },
+      compliance: {
+        average_score: 0,
+        needs_review: 0,
+        up_to_date: 0
+      },
+      activity: {
+        recently_added: 0
+      }
+    }
+  });
+
+  // Organize the data in a more usable format
   const stats = {
-    totalSystems: 24,
-    highRiskSystems: 8,
-    limitedRiskSystems: 12,
-    minimalRiskSystems: 4,
-    pendingClassification: 3,
-    recentlyAdded: 5,
-    needsReview: 7,
-    upToDate: 14,
-    avgComplianceScore: 72
+    totalSystems: statsData?.ai_systems?.total || 0,
+    highRiskSystems: statsData?.ai_systems?.high_risk || 0,
+    limitedRiskSystems: statsData?.ai_systems?.limited_risk || 0,
+    minimalRiskSystems: statsData?.ai_systems?.minimal_risk || 0,
+    pendingClassification: statsData?.ai_systems?.unclassified || 0,
+    recentlyAdded: statsData?.activity?.recently_added || 0,
+    needsReview: statsData?.compliance?.needs_review || 0,
+    upToDate: statsData?.compliance?.up_to_date || 0,
+    avgComplianceScore: statsData?.compliance?.average_score || 0
   };
 
   const handleRiskFilterClick = (risk: string) => {

@@ -233,13 +233,20 @@ export function SystemsTable() {
   const [sortField, setSortField] = useState<string>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   
-  // API data fetching - using mock data for development
+  // API data fetching with fallback to retrieved data
   const { data: systems, isLoading, error } = useQuery({
     queryKey: ["/api/systems"],
+    // Keep previous data on error to prevent flickering
+    keepPreviousData: true,
+    // Add error retry to handle temporary database connectivity issues
+    retry: 3,
+    retryDelay: 1000
   });
   
-  // Use mock data while API endpoint is being developed
-  const systemsData = systems || mockSystems;
+  // Use real data from API, only use mock as fallback when there's an error
+  const systemsData = systems && Array.isArray(systems) && systems.length > 0 
+    ? systems 
+    : error ? mockSystems : [];
   
   // Filter systems based on search query and selected filters
   const filteredSystems = systemsData.filter((system: any) => {
