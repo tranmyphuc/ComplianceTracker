@@ -82,7 +82,7 @@ const TRAINING_MODULES: TrainingModule[] = [
   }
 ];
 
-// Sample module content with role-specific variations
+// Module content with real EU AI Act information and German translations
 const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
   "1": {
     "default": {
@@ -306,6 +306,163 @@ const MODULE_CONTENTS: Record<string, Record<string, ModuleContent>> = {
             "Minimal risk"
           ],
           correctAnswer: "High-risk"
+        }
+      ]
+    }
+  },
+  "3": {
+    "default": {
+      title: "Technical Requirements",
+      sections: [
+        {
+          title: "Overview of Technical Requirements",
+          content: `<div class="mb-4">
+            <p class="mb-2">Articles 8-15 of the EU AI Act define the technical requirements that must be met by high-risk AI systems before they can be placed on the market. These requirements ensure safety, transparency, and accountability.</p>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Artikel 8-15 der EU-KI-Verordnung definieren die technischen Anforderungen, die von Hochrisiko-KI-Systemen erfüllt werden müssen, bevor sie auf den Markt gebracht werden können. Diese Anforderungen gewährleisten Sicherheit, Transparenz und Verantwortlichkeit.</p>
+          </div>`
+        },
+        {
+          title: "Risk Management Systems",
+          content: `<div class="mb-4">
+            <p class="mb-2">Article 9 requires high-risk AI systems to have a robust risk management system in place throughout the entire lifecycle of the AI system. This includes:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>Systematic identification and analysis of known and foreseeable risks</li>
+              <li>Estimation and evaluation of risks that may emerge during use</li>
+              <li>Adoption of appropriate risk management measures</li>
+              <li>Testing to ensure the AI system performs consistently throughout its lifecycle</li>
+            </ul>
+            <p class="mb-2">The risk management process must be iterative and continuously updated throughout the system's lifecycle.</p>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Artikel 9 verlangt, dass Hochrisiko-KI-Systeme über ein robustes Risikomanagementsystem verfügen müssen, das den gesamten Lebenszyklus des KI-Systems umfasst. Dies beinhaltet: systematische Identifizierung und Analyse bekannter und vorhersehbarer Risiken, Abschätzung und Bewertung von Risiken, die während der Nutzung auftreten können, Ergreifung geeigneter Risikomanagementmaßnahmen, und Tests, um sicherzustellen, dass das KI-System während seines gesamten Lebenszyklus konsistent funktioniert.</p>
+          </div>`
+        },
+        {
+          title: "Data Governance",
+          content: `<div class="mb-4">
+            <p class="mb-2">Article 10 mandates rigorous data governance practices for training, validation, and testing datasets. Key requirements include:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>Relevant data quality criteria for datasets (accuracy, completeness, representativeness)</li>
+              <li>Examination for possible biases that could lead to discrimination</li>
+              <li>Identification of data gaps or shortcomings</li>
+              <li>Appropriate data governance and management practices</li>
+            </ul>
+            <p class="mb-2">Special categories of personal data can only be used with adequate safeguards and when demonstrably necessary to ensure bias monitoring, detection, and correction.</p>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Artikel 10 schreibt strenge Daten-Governance-Praktiken für Trainings-, Validierungs- und Testdatensätze vor. Zu den wichtigsten Anforderungen gehören: relevante Datenqualitätskriterien für Datensätze (Genauigkeit, Vollständigkeit, Repräsentativität), Untersuchung auf mögliche Verzerrungen, die zu Diskriminierung führen könnten, Identifizierung von Datenlücken oder Mängeln und angemessene Daten-Governance- und Managementpraktiken.</p>
+          </div>`
+        },
+        {
+          title: "Technical Documentation",
+          content: `<div class="mb-4">
+            <p class="mb-2">Article 11 requires providers to create and maintain comprehensive technical documentation before placing a high-risk AI system on the market. This documentation must demonstrate compliance with requirements and provide authorities with necessary information to evaluate compliance.</p>
+            <p class="mb-2">The documentation must include:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>General description of the AI system</li>
+              <li>Detailed description of system elements and development process</li>
+              <li>Information about monitoring, functioning, and control</li>
+              <li>Detailed description of the risk management system</li>
+              <li>Description of validation and testing procedures</li>
+            </ul>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Artikel 11 verlangt von den Anbietern, vor dem Inverkehrbringen eines Hochrisiko-KI-Systems eine umfassende technische Dokumentation zu erstellen und zu pflegen. Diese Dokumentation muss die Einhaltung der Anforderungen nachweisen und den Behörden die notwendigen Informationen zur Bewertung der Konformität liefern. Die Dokumentation muss enthalten: allgemeine Beschreibung des KI-Systems, detaillierte Beschreibung der Systemelemente und des Entwicklungsprozesses, Informationen über Überwachung, Funktionsweise und Kontrolle, detaillierte Beschreibung des Risikomanagementsystems und Beschreibung der Validierungs- und Testverfahren.</p>
+          </div>`
+        },
+        {
+          title: "Record-Keeping and Logging",
+          content: `<div class="mb-4">
+            <p class="mb-2">Article 12 requires high-risk AI systems to maintain automatic logs of events while operating. These logging capabilities must ensure:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>Traceability of system functioning throughout its lifecycle</li>
+              <li>Appropriate level of traceability given the intended purpose</li>
+              <li>Recording of each use or instance of the system (date, time of use)</li>
+              <li>Recording of input data that influenced system outputs</li>
+            </ul>
+            <p class="mb-2">Logs must be kept for a minimum period based on the AI system's expected lifetime and legal obligations, with a default minimum of six months.</p>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Artikel 12 verlangt, dass Hochrisiko-KI-Systeme während des Betriebs automatische Protokolle der Ereignisse führen. Diese Protokollierungsfunktionen müssen sicherstellen: Rückverfolgbarkeit der Systemfunktion während des gesamten Lebenszyklus, angemessenes Maß an Rückverfolgbarkeit angesichts des beabsichtigten Zwecks, Aufzeichnung jeder Verwendung oder Instanz des Systems (Datum, Nutzungszeit) und Aufzeichnung von Eingabedaten, die die Systemausgaben beeinflussten.</p>
+          </div>`
+        },
+        {
+          title: "Transparency and User Information",
+          content: `<div class="mb-4">
+            <p class="mb-2">Article 13 mandates that high-risk AI systems be designed and developed to ensure appropriate transparency, enabling users to interpret the system's output and use it properly. The following must be provided to users:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>Clear and concise instructions for use</li>
+              <li>Information about the AI system's capabilities and limitations</li>
+              <li>Information about intended purpose and conditions of use</li>
+              <li>Specification of human oversight measures</li>
+              <li>Expected lifetime and maintenance measures</li>
+            </ul>
+            <p class="mb-2">Instructions must be provided before the AI system is put into service and be digital or physically accessible.</p>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Artikel 13 schreibt vor, dass Hochrisiko-KI-Systeme so konzipiert und entwickelt werden müssen, dass eine angemessene Transparenz gewährleistet ist, die es den Benutzern ermöglicht, die Ausgabe des Systems zu interpretieren und es ordnungsgemäß zu verwenden. Folgendes muss den Benutzern zur Verfügung gestellt werden: klare und präzise Gebrauchsanweisungen, Informationen über die Fähigkeiten und Einschränkungen des KI-Systems, Informationen über den beabsichtigten Zweck und die Nutzungsbedingungen, Angabe der Maßnahmen für die menschliche Aufsicht und erwartete Lebensdauer und Wartungsmaßnahmen.</p>
+          </div>`
+        },
+        {
+          title: "Human Oversight",
+          content: `<div class="mb-4">
+            <p class="mb-2">Article 14 requires high-risk AI systems to be designed and developed to enable effective human oversight during use. Human oversight measures must enable individuals to:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>Fully understand the AI system's capabilities, limitations, and potential risks</li>
+              <li>Monitor the AI system's operation to detect anomalies, dysfunctions, and unexpected performance</li>
+              <li>Intervene or interrupt the system through a "stop" button or similar procedure</li>
+              <li>Interpret the system's output and make decisions based on it</li>
+            </ul>
+            <p class="mb-2">Human oversight must be ensured either through measures built into the AI system or through obligations placed on the user.</p>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Artikel 14 verlangt, dass Hochrisiko-KI-Systeme so konzipiert und entwickelt werden, dass während der Nutzung eine wirksame menschliche Aufsicht möglich ist. Maßnahmen zur menschlichen Aufsicht müssen es Personen ermöglichen: die Fähigkeiten, Einschränkungen und potenziellen Risiken des KI-Systems vollständig zu verstehen, den Betrieb des KI-Systems zu überwachen, um Anomalien, Funktionsstörungen und unerwartete Leistungen zu erkennen, in das System einzugreifen oder es zu unterbrechen, und die Ausgabe des Systems zu interpretieren und darauf basierend Entscheidungen zu treffen.</p>
+          </div>`
+        },
+        {
+          title: "Accuracy, Robustness, and Cybersecurity",
+          content: `<div class="mb-4">
+            <p class="mb-2">Article 15 requires high-risk AI systems to be designed and developed to achieve appropriate levels of accuracy, robustness, and cybersecurity. This includes:</p>
+            <ul class="list-disc pl-6 mb-2">
+              <li>System performs consistently throughout its lifecycle according to its intended purpose</li>
+              <li>Appropriate level of accuracy as claimed in the technical documentation</li>
+              <li>Resilience against errors, inconsistencies, or attempts at manipulation</li>
+              <li>Technical redundancy measures to address system failures</li>
+              <li>Protection against unauthorized access and modifications</li>
+            </ul>
+            <p class="mb-2">The technical solutions must take into account the system's intended purpose and the level of risk posed.</p>
+            <p class="text-sm text-muted-foreground bg-blue-50 p-2 border-l-2 border-blue-300 my-2">Artikel 15 verlangt, dass Hochrisiko-KI-Systeme so konzipiert und entwickelt werden, dass sie ein angemessenes Maß an Genauigkeit, Robustheit und Cybersicherheit erreichen. Dies umfasst: Das System funktioniert während seines gesamten Lebenszyklus gemäß seinem beabsichtigten Zweck konstant, angemessenes Maß an Genauigkeit, wie in der technischen Dokumentation angegeben, Widerstandsfähigkeit gegen Fehler, Inkonsistenzen oder Manipulationsversuche, technische Redundanzmaßnahmen zur Behebung von Systemausfällen und Schutz vor unbefugtem Zugriff und Änderungen.</p>
+          </div>`
+        }
+      ],
+      assessments: [
+        {
+          question: "According to Article 10 of the EU AI Act, what should be examined in training datasets for high-risk AI systems?",
+          options: [
+            "Only the size of the dataset",
+            "Only the number of data categories",
+            "Possible biases that could lead to discrimination",
+            "Only the geographic origin of the data"
+          ],
+          correctAnswer: "Possible biases that could lead to discrimination"
+        },
+        {
+          question: "What is required by Article 12 regarding record-keeping for high-risk AI systems?",
+          options: [
+            "Manual logs maintained by users only",
+            "Automatic logs of system events throughout operation",
+            "Annual audits by external auditors only",
+            "Physical copies of all data processed"
+          ],
+          correctAnswer: "Automatic logs of system events throughout operation"
+        },
+        {
+          question: "What must human oversight measures enable according to Article 14?",
+          options: [
+            "Complete replacement of the AI system with human decisions",
+            "Training of new AI models without technical expertise",
+            "The ability to monitor, detect anomalies, intervene, and interpret the AI system",
+            "Remote control of all AI systems from a central authority"
+          ],
+          correctAnswer: "The ability to monitor, detect anomalies, intervene, and interpret the AI system"
+        },
+        {
+          question: "What is the minimum default period for keeping logs according to Article 12?",
+          options: [
+            "One month",
+            "Three months",
+            "Six months",
+            "Two years"
+          ],
+          correctAnswer: "Six months"
         }
       ]
     }
