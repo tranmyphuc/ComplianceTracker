@@ -59,6 +59,51 @@ const DemoScenarios: React.FC = () => {
       riskLevel: "Medium",
       description: "A European professional services firm implementing AI tools for consultancy, document management, and business process optimization.",
       aiSystems: ["Odoo AI", "ChatGPT Integration", "GitHub Copilot", "Document Analysis AI"]
+    },
+    {
+      id: "insurance-risk-assessment",
+      title: "AXA Insurance",
+      industry: "Insurance",
+      companySize: "Enterprise (5,000+ employees)",
+      riskLevel: "High",
+      description: "A European insurance group using AI for claims processing, risk assessment, and fraud detection.",
+      aiSystems: ["Claims Processing AI", "Risk Assessment Models", "Fraud Detection System", "Customer Behavior Analysis"]
+    },
+    {
+      id: "energy-grid-optimization",
+      title: "Iberdrola Energy",
+      industry: "Energy & Utilities",
+      companySize: "Enterprise (5,000+ employees)",
+      riskLevel: "High",
+      description: "A multinational electric utility company using AI for smart grid management, energy demand forecasting, and renewable integration.",
+      aiSystems: ["Smart Grid Management", "Energy Demand Forecasting", "Renewable Energy Optimization", "Predictive Maintenance"]
+    },
+    {
+      id: "automotive-autonomous-systems",
+      title: "Volkswagen Group",
+      industry: "Automotive",
+      companySize: "Enterprise (5,000+ employees)",
+      riskLevel: "High",
+      description: "A major European automotive manufacturer implementing driver assistance systems, autonomous driving features, and connected car technologies.",
+      aiSystems: ["Advanced Driver Assistance Systems", "Autonomous Driving Platform", "Manufacturing Quality Control", "Connected Vehicle Services"]
+    },
+    {
+      id: "agriculture-precision-farming",
+      title: "AgriTech Solutions",
+      industry: "Agriculture",
+      companySize: "Medium (250-999 employees)",
+      riskLevel: "Medium",
+      description: "An agricultural technology provider helping farmers optimize crop yields, reduce resource usage, and monitor crop health using AI and IoT.",
+      aiSystems: ["Crop Monitoring AI", "Precision Farming System", "Yield Prediction Models", "Resource Optimization Platform"]
+    },
+    {
+      id: "logistics-route-optimization",
+      title: "DHL Supply Chain",
+      industry: "Logistics & Transportation",
+      companySize: "Enterprise (5,000+ employees)",
+      riskLevel: "Medium",
+      description: "A global logistics provider using AI for route optimization, demand forecasting, warehouse automation, and supply chain management.",
+      aiSystems: ["Route Optimization AI", "Demand Forecasting System", "Warehouse Automation", "Supply Chain Risk Management"]
     }
   ];
 
@@ -75,7 +120,7 @@ const DemoScenarios: React.FC = () => {
       <Separator className="my-6" />
       
       <Tabs defaultValue="all" className="mt-6">
-        <TabsList>
+        <TabsList className="flex flex-wrap">
           <TabsTrigger value="all">All Industries</TabsTrigger>
           <TabsTrigger value="healthcare">Healthcare</TabsTrigger>
           <TabsTrigger value="finance">Financial Services</TabsTrigger>
@@ -83,6 +128,11 @@ const DemoScenarios: React.FC = () => {
           <TabsTrigger value="retail">Retail</TabsTrigger>
           <TabsTrigger value="public">Public Sector</TabsTrigger>
           <TabsTrigger value="professional">Professional Services</TabsTrigger>
+          <TabsTrigger value="insurance">Insurance</TabsTrigger>
+          <TabsTrigger value="energy">Energy & Utilities</TabsTrigger>
+          <TabsTrigger value="automotive">Automotive</TabsTrigger>
+          <TabsTrigger value="agriculture">Agriculture</TabsTrigger>
+          <TabsTrigger value="logistics">Logistics & Transportation</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all" className="mt-6">
@@ -147,6 +197,56 @@ const DemoScenarios: React.FC = () => {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {scenarios
               .filter(s => s.industry === 'Professional Services')
+              .map((scenario) => (
+                <ScenarioCard key={scenario.id} {...scenario} />
+              ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="insurance" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {scenarios
+              .filter(s => s.industry === 'Insurance')
+              .map((scenario) => (
+                <ScenarioCard key={scenario.id} {...scenario} />
+              ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="energy" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {scenarios
+              .filter(s => s.industry === 'Energy & Utilities')
+              .map((scenario) => (
+                <ScenarioCard key={scenario.id} {...scenario} />
+              ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="automotive" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {scenarios
+              .filter(s => s.industry === 'Automotive')
+              .map((scenario) => (
+                <ScenarioCard key={scenario.id} {...scenario} />
+              ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="agriculture" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {scenarios
+              .filter(s => s.industry === 'Agriculture')
+              .map((scenario) => (
+                <ScenarioCard key={scenario.id} {...scenario} />
+              ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="logistics" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {scenarios
+              .filter(s => s.industry === 'Logistics & Transportation')
               .map((scenario) => (
                 <ScenarioCard key={scenario.id} {...scenario} />
               ))}

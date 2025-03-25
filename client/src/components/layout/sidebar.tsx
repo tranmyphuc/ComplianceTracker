@@ -74,6 +74,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
 
   const mainNavigationItems = [
     { name: 'Dashboard', path: '/', icon: <HomeIcon className="w-5 h-5" /> },
+    { name: 'Demo Scenarios', path: '/demo-scenarios', icon: <FileTextIcon className="w-5 h-5" /> },
     { name: 'Strategic Planning', path: '/strategic-planning', icon: <TargetIcon className="w-5 h-5" /> },
     { name: 'Market Intelligence', path: '/market-intelligence', icon: <PieChartIconLucide className="w-5 h-5" />, highlight: true },
     { name: 'Operations Excellence', path: '/operations-excellence', icon: <BriefcaseIconLucide className="w-5 h-5" />, highlight: true },
