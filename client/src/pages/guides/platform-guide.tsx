@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft, 
   ArrowRight, 
   ChevronLeft, 
   ChevronRight, 
   Maximize2, 
-  MessageCircle 
+  MessageCircle,
+  PanelRight,
+  LightbulbIcon 
 } from "lucide-react";
 import {
   Carousel,
@@ -17,6 +20,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { AIJack } from "@/components/onboarding/ai-jack";
 
 interface GuideSlide {
   title: string;
@@ -27,6 +31,50 @@ interface GuideSlide {
 
 export default function PlatformGuide() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showSideTip, setShowSideTip] = useState(false);
+  const [tipContent, setTipContent] = useState('');
+  
+  // Map slide index to Jack's mood
+  const getJackMood = (index: number) => {
+    switch (index) {
+      case 0: return 'happy';
+      case 1: return 'neutral';
+      case 2: return 'explaining';
+      case 3: return 'thinking';
+      case 4: return 'explaining';
+      case 5: return 'happy';
+      case 6: return 'explaining';
+      case 7: return 'thinking';
+      case 8: return 'celebrating';
+      default: return 'neutral';
+    }
+  };
+  
+  // Show contextual tips when slides change
+  useEffect(() => {
+    const tips = [
+      "Click on the Dashboard link in the sidebar to quickly return to your overview at any time.",
+      "You can search for AI systems in the inventory using keywords, risk levels, or departments.",
+      "The risk assessment wizard will guide you step-by-step through the entire evaluation process.",
+      "All documentation is version-controlled, so you can track changes over time.",
+      "The Knowledge Center is regularly updated with the latest EU AI Act information.",
+      "Training certificates can be exported to PDF for your compliance records.",
+      "Configure notification preferences in the Approval Workflow settings.",
+      "The Enterprise Decision Platform integrates with your existing business data."
+    ];
+    
+    // Don't show tip for the first slide (welcome slide)
+    if (currentSlide > 0 && currentSlide < tips.length + 1) {
+      setTipContent(tips[currentSlide - 1]);
+      setShowSideTip(true);
+      
+      const timer = setTimeout(() => {
+        setShowSideTip(false);
+      }, 8000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentSlide]);
   
   const slides: GuideSlide[] = [
     {
@@ -142,8 +190,8 @@ export default function PlatformGuide() {
                           />
                         </div>
                         {slide.jackMessage && (
-                          <div className="absolute bottom-0 right-0 left-0 bg-black/60 p-4 flex items-start gap-3">
-                            <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden border-2 border-primary bg-white">
+                          <div className="absolute bottom-0 right-0 left-0 bg-gradient-to-t from-black/90 to-black/30 p-4 flex items-start gap-3">
+                            <div className="flex-shrink-0 w-14 h-14 rounded-full overflow-hidden border-2 border-primary bg-white">
                               <img 
                                 src="/assets/1000048340-modified.png" 
                                 alt="Jack from SGH ASIA" 
@@ -151,8 +199,13 @@ export default function PlatformGuide() {
                               />
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-white">Jack from SGH ASIA</p>
-                              <p className="text-white text-sm mt-1">{slide.jackMessage}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-medium text-white">Jack from SGH ASIA</p>
+                                <span className="px-2 py-0.5 bg-primary/80 text-white text-xs rounded-full">Guide</span>
+                              </div>
+                              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 mt-2 text-white text-sm">
+                                {slide.jackMessage}
+                              </div>
                             </div>
                           </div>
                         )}
@@ -182,6 +235,45 @@ export default function PlatformGuide() {
             <CarouselNext />
           </div>
         </Carousel>
+        
+        {/* Floating contextual tip with Jack */}
+        <AnimatePresence>
+          {showSideTip && (
+            <motion.div
+              initial={{ opacity: 0, x: 20, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 20, scale: 0.9 }}
+              className="fixed right-8 top-1/3 max-w-sm z-50"
+            >
+              <Card className="border-primary/30 shadow-lg relative overflow-visible">
+                <div className="absolute -left-6 top-8">
+                  <AIJack 
+                    mood={getJackMood(currentSlide) as any}
+                    size="md"
+                    animate={true}
+                  />
+                </div>
+                <CardContent className="p-4 pl-12">
+                  <div className="flex items-center gap-2 mb-2">
+                    <LightbulbIcon className="h-4 w-4 text-yellow-500" />
+                    <span className="text-sm font-medium">Pro Tip</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{tipContent}</p>
+                  <div className="mt-3 flex justify-end">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-xs"
+                      onClick={() => setShowSideTip(false)}
+                    >
+                      Got it
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
