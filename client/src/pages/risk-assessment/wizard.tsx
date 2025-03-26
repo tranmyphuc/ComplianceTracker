@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -11,9 +10,37 @@ import { Input } from "@/components/ui/input";
 import { CheckCircle, AlertTriangle, Info, ChevronRight, ChevronLeft, Save } from 'lucide-react';
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/language-switcher";
+import { toast } from "@/components/ui/use-toast";
+
+// Define the types for our wizard questions
+type TextQuestion = {
+  id: string;
+  type: 'text' | 'textarea';
+  label: string;
+  placeholder: string;
+};
+
+type RadioQuestion = {
+  id: string;
+  type: 'radio';
+  label: string;
+  options: Array<{
+    value: string;
+    label: string;
+  }>;
+};
+
+type Question = TextQuestion | RadioQuestion;
+
+type WizardStep = {
+  id: string;
+  title: string;
+  description: string;
+  questions: Question[];
+};
 
 // Define the wizard steps and questions
-const wizardSteps = [
+const wizardSteps: WizardStep[] = [
   {
     id: 'basics',
     title: 'Basic Information',
@@ -150,8 +177,10 @@ const wizardSteps = [
   }
 ];
 
+type RiskLevel = 'high' | 'medium' | 'low';
+
 // Helper function to calculate risk level based on answers
-const calculateRiskLevel = (answers) => {
+const calculateRiskLevel = (answers: Record<string, string>): RiskLevel => {
   // This is a simplified calculation for demonstration
   let riskScore = 0;
   
@@ -197,12 +226,12 @@ const calculateRiskLevel = (answers) => {
 
 const RiskAssessmentWizard: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [riskLevel, setRiskLevel] = useState(null);
-  const { t } = useLanguage();
-  const navigate = useNavigate();
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [riskLevel, setRiskLevel] = useState<RiskLevel | null>(null);
+  const { t, currentLanguage } = useLanguage();
+  const [_, navigate] = useLocation();
   
-  const handleAnswer = (questionId, value) => {
+  const handleAnswer = (questionId: string, value: string) => {
     setAnswers(prev => ({...prev, [questionId]: value}));
   };
   
@@ -226,6 +255,12 @@ const RiskAssessmentWizard: React.FC = () => {
     // In a real implementation, this would save the assessment to the database
     console.log('Assessment answers:', answers);
     console.log('Calculated risk level:', riskLevel);
+    
+    toast({
+      title: "Assessment Saved",
+      description: "Your risk assessment has been successfully saved.",
+    });
+    
     navigate('/risk-assessment/submitted');
   };
   
@@ -425,528 +460,6 @@ const RiskAssessmentWizard: React.FC = () => {
           </CardFooter>
         </Card>
       )}
-    </div>
-  );
-};
-
-export default RiskAssessmentWizard;
-import React, { useState } from 'react';
-import { useNavigate } from 'wouter';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { InfoIcon, AlertTriangle, CheckCircle, ArrowLeft, ArrowRight, HelpCircle } from 'lucide-react';
-import { useToast } from "@/components/ui/use-toast";
-import { useLanguage } from "@/contexts/LanguageContext";
-import LanguageSwitcher from "@/components/language-switcher";
-
-const RiskAssessmentWizard: React.FC = () => {
-  const { t } = useLanguage();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  // State for wizard steps
-  const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
-  
-  // State for form data
-  const [formData, setFormData] = useState({
-    // System identification
-    systemName: '',
-    systemDescription: '',
-    systemPurpose: '',
-    
-    // Usage context
-    usageContext: '',
-    userTypes: [] as string[],
-    autonomyLevel: '',
-    
-    // Data handling
-    dataTypes: [] as string[],
-    dataSources: '',
-    dataRetention: '',
-    
-    // Risk factors
-    criticalInfrastructure: false,
-    humanRights: false,
-    vulnerableGroups: false,
-    biometricIdentification: false,
-    
-    // Mitigation measures
-    humanOversight: '',
-    transparencyMeasures: '',
-    dataGovernance: '',
-    technicalSafeguards: ''
-  });
-  
-  // Handle input changes
-  const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-  
-  // Handle checkbox changes for multi-select options
-  const handleCheckboxChange = (field: string, value: string, checked: boolean) => {
-    setFormData(prev => {
-      const currentValues = prev[field as keyof typeof prev] as string[];
-      if (checked) {
-        return { ...prev, [field]: [...currentValues, value] };
-      } else {
-        return { ...prev, [field]: currentValues.filter(item => item !== value) };
-      }
-    });
-  };
-  
-  // Move to next step
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-      window.scrollTo(0, 0);
-    }
-  };
-  
-  // Move to previous step
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-      window.scrollTo(0, 0);
-    }
-  };
-  
-  // Submit the assessment
-  const submitAssessment = async () => {
-    try {
-      // Here we would normally post to an API
-      // For demonstration, we'll just show a success toast
-      toast({
-        title: "Assessment Submitted",
-        description: "Your risk assessment has been successfully created.",
-        variant: "default",
-      });
-      
-      // Navigate to results page
-      navigate("/risk-assessment/results");
-    } catch (error) {
-      toast({
-        title: "Submission Error",
-        description: "There was an error submitting your assessment. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-  
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Step 1: System Identification</h2>
-            <p className="text-muted-foreground">Let's start by identifying your AI system and its main purpose.</p>
-            
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="systemName">System Name</Label>
-                <Input
-                  id="systemName"
-                  value={formData.systemName}
-                  onChange={(e) => handleInputChange('systemName', e.target.value)}
-                  placeholder="Enter the name of your AI system"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="systemDescription">System Description</Label>
-                <Textarea
-                  id="systemDescription"
-                  value={formData.systemDescription}
-                  onChange={(e) => handleInputChange('systemDescription', e.target.value)}
-                  placeholder="Provide a brief description of your AI system"
-                  rows={3}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="systemPurpose">System Purpose</Label>
-                <Textarea
-                  id="systemPurpose"
-                  value={formData.systemPurpose}
-                  onChange={(e) => handleInputChange('systemPurpose', e.target.value)}
-                  placeholder="What is the intended purpose of your AI system?"
-                  rows={3}
-                />
-              </div>
-            </div>
-            
-            <Alert>
-              <InfoIcon className="h-4 w-4" />
-              <AlertTitle>Guidance</AlertTitle>
-              <AlertDescription>
-                Be as specific as possible when describing your system's purpose. This helps in accurately determining the risk level under the EU AI Act.
-              </AlertDescription>
-            </Alert>
-          </div>
-        );
-        
-      case 2:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Step 2: Usage Context</h2>
-            <p className="text-muted-foreground">Define how, where, and by whom the AI system will be used.</p>
-            
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="usageContext">Usage Context</Label>
-                <Textarea
-                  id="usageContext"
-                  value={formData.usageContext}
-                  onChange={(e) => handleInputChange('usageContext', e.target.value)}
-                  placeholder="Describe the context in which this AI system will be used"
-                  rows={3}
-                />
-              </div>
-              
-              <div>
-                <Label className="text-base">User Types</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                  {['General Public', 'Employees', 'Professionals', 'Children', 'Vulnerable Groups', 'Authorities'].map((userType) => (
-                    <div className="flex items-center space-x-2" key={userType}>
-                      <Checkbox 
-                        id={`userType-${userType}`} 
-                        checked={formData.userTypes.includes(userType)}
-                        onCheckedChange={(checked) => handleCheckboxChange('userTypes', userType, checked as boolean)}
-                      />
-                      <Label htmlFor={`userType-${userType}`}>{userType}</Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="autonomyLevel" className="text-base">Level of Autonomy</Label>
-                <RadioGroup 
-                  id="autonomyLevel" 
-                  value={formData.autonomyLevel}
-                  onValueChange={(value) => handleInputChange('autonomyLevel', value)}
-                  className="mt-2"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="human_oversight" id="human_oversight" />
-                    <Label htmlFor="human_oversight">Human oversight for all decisions</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="partial_autonomy" id="partial_autonomy" />
-                    <Label htmlFor="partial_autonomy">Partial autonomy (human verification for important decisions)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="full_autonomy" id="full_autonomy" />
-                    <Label htmlFor="full_autonomy">Full autonomy (operates without human intervention)</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-            
-            <Alert>
-              <InfoIcon className="h-4 w-4" />
-              <AlertTitle>Guidance</AlertTitle>
-              <AlertDescription>
-                The level of autonomy is a key factor in risk assessment. Systems with high autonomy in critical areas may be classified as high-risk under the EU AI Act.
-              </AlertDescription>
-            </Alert>
-          </div>
-        );
-        
-      case 3:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Step 3: Data Handling</h2>
-            <p className="text-muted-foreground">Tell us about the data your AI system uses and how it's managed.</p>
-            
-            <div className="space-y-4">
-              <div>
-                <Label className="text-base">Types of Data Used</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                  {[
-                    'Personal Data', 
-                    'Biometric Data', 
-                    'Health Data', 
-                    'Financial Data', 
-                    'Location Data', 
-                    'Behavioral Data',
-                    'Professional Data',
-                    'Public Data',
-                    'Synthetic Data'
-                  ].map((dataType) => (
-                    <div className="flex items-center space-x-2" key={dataType}>
-                      <Checkbox 
-                        id={`dataType-${dataType}`} 
-                        checked={formData.dataTypes.includes(dataType)}
-                        onCheckedChange={(checked) => handleCheckboxChange('dataTypes', dataType, checked as boolean)}
-                      />
-                      <Label htmlFor={`dataType-${dataType}`}>{dataType}</Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="dataSources">Data Sources</Label>
-                <Textarea
-                  id="dataSources"
-                  value={formData.dataSources}
-                  onChange={(e) => handleInputChange('dataSources', e.target.value)}
-                  placeholder="Describe where the data comes from and how it's collected"
-                  rows={3}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="dataRetention">Data Retention Policy</Label>
-                <Select
-                  value={formData.dataRetention}
-                  onValueChange={(value) => handleInputChange('dataRetention', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select data retention period" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="less_than_month">Less than a month</SelectItem>
-                    <SelectItem value="one_to_six_months">1-6 months</SelectItem>
-                    <SelectItem value="six_to_twelve_months">6-12 months</SelectItem>
-                    <SelectItem value="one_to_five_years">1-5 years</SelectItem>
-                    <SelectItem value="more_than_five_years">More than 5 years</SelectItem>
-                    <SelectItem value="indefinite">Indefinite</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Important Note</AlertTitle>
-              <AlertDescription>
-                Processing sensitive data such as biometric information, health data, or data about vulnerable groups may classify your system as high-risk under the EU AI Act.
-              </AlertDescription>
-            </Alert>
-          </div>
-        );
-        
-      case 4:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Step 4: Risk Factors</h2>
-            <p className="text-muted-foreground">Identify potential risk factors associated with your AI system.</p>
-            
-            <div className="space-y-4">
-              <div className="border rounded-lg p-4 bg-muted/50">
-                <div className="flex items-start space-x-2">
-                  <Checkbox 
-                    id="criticalInfrastructure" 
-                    checked={formData.criticalInfrastructure}
-                    onCheckedChange={(checked) => handleInputChange('criticalInfrastructure', checked)}
-                  />
-                  <div>
-                    <Label htmlFor="criticalInfrastructure" className="font-medium">Critical Infrastructure</Label>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      The system is used in critical infrastructure (e.g., energy, transportation, water supply, healthcare)
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="border rounded-lg p-4 bg-muted/50">
-                <div className="flex items-start space-x-2">
-                  <Checkbox 
-                    id="humanRights" 
-                    checked={formData.humanRights}
-                    onCheckedChange={(checked) => handleInputChange('humanRights', checked)}
-                  />
-                  <div>
-                    <Label htmlFor="humanRights" className="font-medium">Fundamental Rights Impact</Label>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      The system could impact fundamental rights (e.g., privacy, non-discrimination, freedom of expression)
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="border rounded-lg p-4 bg-muted/50">
-                <div className="flex items-start space-x-2">
-                  <Checkbox 
-                    id="vulnerableGroups" 
-                    checked={formData.vulnerableGroups}
-                    onCheckedChange={(checked) => handleInputChange('vulnerableGroups', checked)}
-                  />
-                  <div>
-                    <Label htmlFor="vulnerableGroups" className="font-medium">Vulnerable Groups</Label>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      The system is used for or impacts vulnerable groups (e.g., children, elderly, persons with disabilities)
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="border rounded-lg p-4 bg-muted/50">
-                <div className="flex items-start space-x-2">
-                  <Checkbox 
-                    id="biometricIdentification" 
-                    checked={formData.biometricIdentification}
-                    onCheckedChange={(checked) => handleInputChange('biometricIdentification', checked)}
-                  />
-                  <div>
-                    <Label htmlFor="biometricIdentification" className="font-medium">Biometric Identification</Label>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      The system performs biometric identification or categorization of natural persons
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <Alert>
-              <InfoIcon className="h-4 w-4" />
-              <AlertTitle>EU AI Act Classification</AlertTitle>
-              <AlertDescription>
-                These factors are directly aligned with the EU AI Act classification criteria for high-risk AI systems. Checking any of these boxes may indicate your system falls under high-risk categories defined in the regulation.
-              </AlertDescription>
-            </Alert>
-          </div>
-        );
-        
-      case 5:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Step 5: Mitigation Measures</h2>
-            <p className="text-muted-foreground">Describe measures implemented to mitigate potential risks.</p>
-            
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="humanOversight">Human Oversight Measures</Label>
-                <Textarea
-                  id="humanOversight"
-                  value={formData.humanOversight}
-                  onChange={(e) => handleInputChange('humanOversight', e.target.value)}
-                  placeholder="Describe how human oversight is implemented"
-                  rows={3}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="transparencyMeasures">Transparency Measures</Label>
-                <Textarea
-                  id="transparencyMeasures"
-                  value={formData.transparencyMeasures}
-                  onChange={(e) => handleInputChange('transparencyMeasures', e.target.value)}
-                  placeholder="Describe how system transparency is ensured"
-                  rows={3}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="dataGovernance">Data Governance</Label>
-                <Textarea
-                  id="dataGovernance"
-                  value={formData.dataGovernance}
-                  onChange={(e) => handleInputChange('dataGovernance', e.target.value)}
-                  placeholder="Describe your data governance practices"
-                  rows={3}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="technicalSafeguards">Technical Safeguards</Label>
-                <Textarea
-                  id="technicalSafeguards"
-                  value={formData.technicalSafeguards}
-                  onChange={(e) => handleInputChange('technicalSafeguards', e.target.value)}
-                  placeholder="Describe technical safeguards implemented"
-                  rows={3}
-                />
-              </div>
-            </div>
-            
-            <Alert variant="default" className="bg-green-50 border-green-200">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <AlertTitle>Final Step</AlertTitle>
-              <AlertDescription>
-                Proper risk mitigation measures are essential for EU AI Act compliance, especially for high-risk systems. Documenting these measures will help demonstrate due diligence.
-              </AlertDescription>
-            </Alert>
-          </div>
-        );
-        
-      default:
-        return null;
-    }
-  };
-  
-  // Render the progress indicator and step navigation
-  const renderProgressAndNavigation = () => {
-    const progress = (currentStep / totalSteps) * 100;
-    
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between text-sm text-muted-foreground">
-          <span>Step {currentStep} of {totalSteps}</span>
-          <span>{progress.toFixed(0)}% Complete</span>
-        </div>
-        <Progress value={progress} className="h-2" />
-        
-        <div className="flex justify-between pt-4">
-          <Button
-            variant="outline"
-            onClick={prevStep}
-            disabled={currentStep === 1}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Previous
-          </Button>
-          
-          {currentStep < totalSteps ? (
-            <Button onClick={nextStep}>
-              Next <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          ) : (
-            <Button onClick={submitAssessment}>
-              Submit Assessment
-            </Button>
-          )}
-        </div>
-      </div>
-    );
-  };
-  
-  return (
-    <div className="container mx-auto py-8 max-w-3xl">
-      <div className="flex justify-end mb-4">
-        <LanguageSwitcher />
-      </div>
-      
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Interactive Risk Assessment Wizard</h1>
-        <p className="text-muted-foreground mt-2">
-          Complete this step-by-step guide to assess your AI system's risk level under the EU AI Act.
-        </p>
-      </div>
-      
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          {renderStepContent()}
-        </CardContent>
-        <CardFooter className="border-t bg-muted/50 flex-col items-stretch">
-          {renderProgressAndNavigation()}
-        </CardFooter>
-      </Card>
-      
-      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-        <HelpCircle className="h-4 w-4" />
-        <span>Need assistance? Visit our <a href="/documentation/risk-assessment" className="underline">documentation</a> or <a href="/compliance-chatbot" className="underline">chat with our AI assistant</a>.</span>
-      </div>
     </div>
   );
 };
