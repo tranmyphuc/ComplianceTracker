@@ -26,18 +26,64 @@ export const aiLiteracyTrainingModule = {
           content: `
 # AI Literacy Training Program
 
-Welcome to the SGH Group AI Literacy Training program. This course is designed to equip all employees with the knowledge and skills necessary to understand, evaluate, and work with AI systems in compliance with the EU AI Act.
+![SGH Group EU AI Act Compliance](/assets/training/eu-ai-act-header.png)
 
-## Objectives
+Welcome to the SGH Group AI Literacy Training program. This comprehensive course is designed to equip all employees with the knowledge and skills necessary to understand, evaluate, and work with AI systems in compliance with the EU AI Act.
+
+## Why This Training Matters
+
+The EU AI Act represents the world's first comprehensive AI regulatory framework, with significant implications for SGH Group:
+
+![EU AI Act Impact](/assets/training/eu-ai-act-impact.png)
+
+- **Legal Compliance**: Mandatory requirements for all high-risk AI systems
+- **Business Continuity**: Non-compliant systems may be prohibited from the EU market
+- **Reputation Management**: Demonstrates SGH Group's commitment to responsible AI
+- **Competitive Advantage**: Positions SGH Group as a leader in responsible AI innovation
+- **Risk Mitigation**: Prevents potential fines of up to €35 million or 7% of global revenue
+
+## The SGH Group Approach
+
+At SGH Group, we're implementing a structured approach to EU AI Act compliance:
+
+![SGH Compliance Approach](/assets/training/compliance-approach.png)
+
+1. **AI Inventory**: Comprehensive documentation of all AI systems
+2. **Risk Classification**: Identifying high-risk systems requiring focused attention
+3. **Technical Compliance**: Implementing technical safeguards and controls
+4. **Documentation**: Creating comprehensive documentation for all systems
+5. **Training**: Ensuring all employees understand their responsibilities
+6. **Monitoring**: Ongoing compliance verification through the Executive Intelligence Dashboard
+
+## Learning Objectives
 
 By the end of this training, you will:
-- Understand fundamental AI concepts and terminology
-- Recognize different types of AI systems and their applications
-- Comprehend the EU AI Act's risk-based framework and requirements
-- Identify high-risk AI systems and necessary compliance measures
-- Know your role-specific responsibilities for EU AI Act compliance
 
-![AI Literacy Program Structure](/assets/ai-literacy-structure.svg)
+![Learning Objectives](/assets/training/learning-objectives.png)
+
+- Understand fundamental AI concepts and terminology
+- Recognize different types of AI systems used at SGH Group
+- Comprehend the EU AI Act's risk-based framework and requirements
+- Identify your role-specific responsibilities for AI compliance
+- Know how to use the Executive Intelligence Dashboard for compliance monitoring
+- Apply compliance principles to your everyday work with AI systems
+
+## Program Structure
+
+This training program consists of the following eight comprehensive modules:
+
+![AI Literacy Program Structure](/assets/training/ai-literacy-modules.png)
+
+1. **AI Fundamentals**: Core concepts and SGH Group AI systems
+2. **EU AI Act Overview**: Regulatory framework and SGH Group impact assessment
+3. **Compliance Requirements**: Technical and organizational requirements
+4. **Risk Assessment**: Structured methodology and documentation
+5. **Role-Based Responsibilities**: Department-specific compliance actions
+6. **Implementation Roadmap**: SGH Group's phased compliance approach
+7. **Practical Application**: Real-world case studies and examples
+8. **Assessment and Certification**: Knowledge verification and documentation
+
+Your progress will be tracked through the Executive Intelligence Dashboard, with completion contributing to your department's compliance metrics.
           `
         },
         {
@@ -45,62 +91,133 @@ By the end of this training, you will:
           content: `
 # Module 1: AI Fundamentals
 
+![AI Fundamentals Header](/assets/training/ai-fundamentals-header.png)
+
 ## What is Artificial Intelligence?
 
 Artificial Intelligence (AI) refers to systems designed to interact with the world through capabilities (such as data collection and processing, reasoning, prediction) that appear to resemble human intelligence.
 
-### Key AI Concepts:
+![AI Definition](/assets/training/ai-definition.png)
+
+At its core, AI is about creating computer systems that can perform tasks that typically require human intelligence:
+- Learning from experience
+- Recognizing patterns
+- Making decisions based on data
+- Adapting to new inputs
+- Solving complex problems
+
+### Key AI Concepts and Technologies:
+
+![AI Key Concepts](/assets/training/ai-key-concepts.png)
 
 - **Machine Learning (ML)**: Systems that improve their performance on a task through experience without being explicitly programmed
+  - *Example at SGH Group*: Customer churn prediction models that improve over time
+
 - **Neural Networks**: Computing systems inspired by the human brain's structure
+  - *Example at SGH Group*: Image recognition in quality control processes
+
 - **Natural Language Processing (NLP)**: AI's ability to understand and generate human language
+  - *Example at SGH Group*: Customer service chatbots and automated email response systems
+
 - **Computer Vision**: AI's ability to interpret and understand visual information
-- **Predictive Analytics**: Using data, statistical algorithms, and machine learning to identify the likelihood of future outcomes
+  - *Example at SGH Group*: Visual inspection systems in technical service operations
 
-## AI Systems at SGH Group
+- **Predictive Analytics**: Using data, statistical algorithms, and machine learning to identify future outcomes
+  - *Example at SGH Group*: Maintenance scheduling and resource forecasting
 
-As outlined in our inventory, SGH Group uses various AI systems across the organization:
+## SGH Group AI Ecosystem
+
+SGH Group utilizes a diverse range of AI systems across our organization. Understanding which systems you interact with is critical for compliance:
+
+![SGH Group AI Ecosystem](/assets/training/sgh-ai-ecosystem.png)
 
 ### General Office Productivity AI Tools:
 - **ChatGPT**: Used across departments for content generation, customer communications, and administrative tasks
+  - *Compliance Note*: Content requires human review before external sharing
+
 - **Microsoft Copilot**: Integrated into Microsoft 365 applications for document creation, data analysis, and workflow automation
+  - *Compliance Note*: Sensitive data handling policies must be followed
+
 - **Adobe Creative Suite AI**: Tools used for design, marketing materials, and content creation
+  - *Compliance Note*: Generated images must be labeled as AI-created
+
 - **Odoo AI Capabilities**: Business intelligence, CRM automation, and predictive analytics for business operations
+  - *Compliance Note*: Customer data usage subject to privacy policies
 
 ### Business-Specific AI Applications:
-- **Technical Service Management AI**: Algorithms used for service scheduling, resource allocation, or predictive maintenance
-- **Customer Service AI**: Chatbots, automated response systems, or customer interaction analysis tools
-- **Business Intelligence Tools**: Data analysis and reporting systems with AI/ML components
-- **Project Management AI**: Predictive tools for project timelines, resource allocation, or risk assessment
+- **Technical Service Management AI**: Scheduling algorithms and resource allocation optimizers
+  - *Compliance Note*: Final decisions require human approval
+
+- **Customer Service AI**: Chatbots, sentiment analysis, and automated response systems
+  - *Compliance Note*: Clear disclosure to customers about AI interaction
+
+- **Business Intelligence Tools**: Data visualization, trend analysis, and forecasting systems
+  - *Compliance Note*: Methodology transparency required for high-impact decisions
+
+- **Project Management AI**: Predictive tools for project timelines and resource allocation
+  - *Compliance Note*: AI suggestions must be documented as such
 
 ### Administrative AI Systems:
-- **HR Recruitment Tools**: AI used in CV screening or candidate assessment
-- **Financial Analysis Tools**: Forecasting, anomaly detection, or automated reporting systems
-- **Operational Optimization**: AI systems used to optimize business processes or workflows
+- **HR Recruitment Tools**: Resume screening and candidate matching systems
+  - *Compliance Note*: High-risk usage requiring stringent oversight controls
+
+- **Financial Analysis Tools**: Anomaly detection and automated reporting systems
+  - *Compliance Note*: Human verification required for all financial decisions
+
+- **Operational Optimization**: Process efficiency and workflow optimization systems
+  - *Compliance Note*: Impact assessments required before implementation
 
 ## Understanding AI Capabilities and Limitations
 
-When working with AI systems, it's important to understand:
+When working with AI systems, all SGH employees must understand both capabilities and limitations:
 
-1. **Capabilities**:
-   - Processing vast amounts of data quickly
-   - Identifying patterns humans might miss
-   - Automating repetitive tasks
-   - Providing predictions based on historical data
+![AI Capabilities and Limitations](/assets/training/ai-capabilities-limitations.png)
 
-2. **Limitations**:
-   - Limited understanding of context or nuance
-   - Potential to reflect or amplify biases in training data
-   - Lack of causal reasoning
-   - Difficulty with novel situations not represented in training data
-   - Challenges with ethical decision-making
+### Key Capabilities:
 
-3. **Recognizing AI-Generated Content**:
-   - Understand markers of AI-generated text, images, or recommendations
-   - Develop critical evaluation skills for AI outputs
-   - Know when human review is necessary
+1. **Data Processing**: AI can analyze vast datasets that would be impractical for humans
+   - *SGH Example*: Analyzing millions of customer interactions to identify service patterns
 
-Understanding these fundamentals will help you better comprehend how AI systems are regulated under the EU AI Act and your responsibilities when working with these technologies.
+2. **Pattern Recognition**: AI excels at identifying patterns that humans might miss
+   - *SGH Example*: Detecting subtle indicators of equipment failure before visible issues appear
+
+3. **Automation**: AI can perform repetitive tasks consistently and without fatigue
+   - *SGH Example*: Automated document processing and data extraction
+
+4. **Prediction**: AI can forecast trends based on historical data
+   - *SGH Example*: Resource demand forecasting for project planning
+
+### Important Limitations:
+
+1. **Context Understanding**: AI lacks deep contextual understanding and common sense
+   - *SGH Impact*: Customer service AI may misinterpret complex requests
+
+2. **Bias Reflection**: AI systems can amplify biases present in training data
+   - *SGH Impact*: HR systems must be regularly audited for fairness
+
+3. **Causal Reasoning**: AI correlates data but doesn't truly understand cause and effect
+   - *SGH Impact*: Business intelligence insights require human interpretation
+
+4. **Adaptability**: AI struggles with situations not represented in training data
+   - *SGH Impact*: Service management AI may fail with unusual cases
+
+5. **Ethical Decision-Making**: AI lacks moral reasoning and ethical judgment
+   - *SGH Impact*: Human oversight required for all consequential decisions
+
+## Responsible AI Usage at SGH Group
+
+![Responsible AI Usage](/assets/training/responsible-ai-usage.png)
+
+When working with AI systems at SGH Group, always follow these principles:
+
+1. **Maintain Human Oversight**: Never delegate critical decisions entirely to AI
+2. **Verify AI Outputs**: Cross-check important AI-generated information
+3. **Document AI Usage**: Record when AI assisted with significant decisions
+4. **Report Unusual Behavior**: Flag unexpected or concerning AI outputs
+5. **Respect Transparency Rules**: Disclose AI use to customers when required
+6. **Follow Data Protection Policies**: Only use approved data sources for AI training
+
+Understanding these AI fundamentals is the foundation for effectively implementing EU AI Act compliance at SGH Group.
           `
         },
         {
@@ -108,83 +225,186 @@ Understanding these fundamentals will help you better comprehend how AI systems 
           content: `
 # Module 2: SGH AI Tools & EU AI Act Overview
 
-The EU AI Act is the world's first comprehensive legal framework for artificial intelligence. It establishes a risk-based approach to regulating AI systems, with different requirements based on an AI system's risk level.
+![EU AI Act Overview Header](/assets/training/eu-ai-act-header.png)
+
+The EU AI Act is the world's first comprehensive legal framework for artificial intelligence, adopted in March 2024. It represents a significant milestone in the global regulation of AI technology, with far-reaching implications for all organizations developing or using AI systems in the European Union.
 
 ## Understanding the EU AI Act Framework
 
-- **Risk-Based Approach**: Different requirements based on risk level
-- **Prohibited AI Practices**: Certain AI applications are banned
-- **High-Risk AI Systems**: Subject to strict requirements
-- **Transparency Obligations**: For certain AI systems
-- **Innovation Support**: Measures to support AI innovation
-- **Governance Framework**: National authorities and European AI Board
+![EU AI Act Key Features](/assets/training/eu-ai-act-key-features.png)
 
-## Risk Classification System
+The EU AI Act establishes a comprehensive regulatory framework with several key components:
 
-The EU AI Act classifies AI systems into different risk categories:
+- **Risk-Based Approach**: Regulatory requirements are proportionate to the level of risk posed by different AI systems
+- **Prohibited AI Practices**: Explicitly bans certain AI applications deemed to pose unacceptable risks
+- **High-Risk AI Systems**: Creates stringent requirements for systems with significant potential for harm
+- **Transparency Obligations**: Mandates disclosure requirements for certain AI interactions
+- **Innovation Support**: Includes regulatory sandboxes and measures to support innovation
+- **Governance Framework**: Establishes national authorities and a European AI Board for oversight
 
-![Risk Category Pyramid](/assets/risk-category-pyramid.svg)
+## Risk Classification System: The Pyramid Approach
 
-1. **Unacceptable Risk**: Prohibited AI practices 
-   - Social scoring systems
-   - Manipulative or exploitative systems targeting vulnerabilities
-   - Real-time remote biometric identification in public spaces (with limited exceptions)
+The EU AI Act uses a four-tier risk-based approach to regulate AI systems according to their potential impact:
 
-2. **High-Risk**: AI systems in critical areas with potential significant harm
-   - Products covered by EU harmonization laws listed in Annex II
-   - Specific use cases in Annex III (employment, education, law enforcement, etc.)
+![Risk Category Pyramid](/assets/training/risk-pyramid-detailed.png)
 
-3. **Limited Risk**: AI systems with specific transparency obligations
-   - Chatbots
-   - Emotion recognition systems
-   - AI-generated or manipulated content (deepfakes)
+### 1. Unacceptable Risk: Banned AI Applications
 
-4. **Minimal Risk**: All other AI systems
-   - Light-touch regulatory approach
-   - Voluntary codes of conduct
+AI systems posing unacceptable risks to people's safety, livelihoods, or rights are prohibited entirely:
 
-## SGH Group High-Risk AI Assessment
+- **Social Scoring Systems**: AI that evaluates or classifies individuals based on social behavior or personal characteristics
+- **Manipulative Systems**: AI designed to exploit vulnerabilities of specific groups or individuals
+- **Real-time Biometric Identification**: Remote identification in public spaces (with limited exceptions for law enforcement)
+- **Predictive Policing**: AI that predicts crimes based solely on profiling or personality traits
+- **Emotion Recognition**: In workplace or educational settings for decision-making
 
-Using the EU AI Act criteria, we've assessed our AI systems at SGH Group:
+### 2. High-Risk: Strictly Regulated AI Systems
+
+AI systems in critical areas or with significant potential for harm require compliance with extensive requirements:
+
+**Category A: AI Systems in Products Covered by EU Safety Legislation (Annex II)**
+- Medical devices
+- Machinery
+- Toys
+- Elevators
+- Personal protective equipment
+- Aviation equipment
+
+**Category B: Standalone High-Risk AI Systems (Annex III)**
+- Critical infrastructure management
+- Educational and vocational training
+- Employment and worker management
+- Access to essential services
+- Law enforcement applications
+- Migration and border control
+- Administration of justice
+
+### 3. Limited Risk: Transparency Requirements
+
+AI systems that interact with humans, manipulate content, or use emotion recognition must meet transparency requirements:
+
+- **Chatbots and Virtual Assistants**: Must disclose that users are interacting with AI
+- **Emotion Recognition Systems**: Must inform users when emotions are being analyzed
+- **AI-Generated Content**: Must be labeled as artificially generated or manipulated
+- **Deep Fakes**: Must be clearly identified as synthetically generated content
+
+### 4. Minimal Risk: Voluntary Measures
+
+The vast majority of AI systems fall under this category, with light regulatory requirements:
+
+- Voluntary codes of conduct encouraged
+- Adherence to standards and best practices
+- Basic responsibility principles apply
+- Examples: Basic spam filters, AI-enabled video games, industrial robotics
+
+## SGH Group AI System Classification
+
+Using the EU AI Act risk framework, we've conducted an initial assessment of AI systems at SGH Group:
+
+![SGH AI Assessment](/assets/training/sgh-ai-assessment.png)
 
 ### Potentially High-Risk Systems at SGH:
 
-| AI System | Risk Classification | Justification |
-|-----------|---------------------|---------------|
-| HR Recruitment AI | Potentially High Risk | Falls under Annex III if used for employee evaluation, hiring decisions, or promotions |
-| Customer Service AI | Likely Low Risk | Generally not high-risk unless determining access to essential services |
-| Technical Service AI | Requires Assessment | Could be high-risk if used for critical infrastructure management |
-| Financial Analysis AI | Requires Assessment | Could be high-risk if used for credit scoring or access to essential services |
+| AI System | Risk Classification | Justification | Required Actions |
+|-----------|---------------------|---------------|------------------|
+| HR Recruitment AI | High Risk | Falls under Annex III (employment) when used for hiring decisions | Complete full compliance assessment by Q3 2025 |
+| Technical Service AI for Critical Clients | Potentially High Risk | May qualify as critical infrastructure if used for essential services | Detailed assessment of usage contexts by Q4 2025 |
+| Financial Analysis AI for Credit Decisions | High Risk | Falls under Annex III if used for access to essential services | Begin compliance documentation in Q2 2025 |
+| Customer Profiling Systems | Requires Assessment | Could be high-risk depending on usage for essential services | Conduct usage audit by Q3 2025 |
 
-### Likely Low-Risk Systems at SGH:
+### Systems with Transparency Requirements:
 
-- General productivity tools (Copilot, ChatGPT for content drafting)
-- Adobe Creative Suite AI features 
-- Basic business intelligence reporting
+| AI System | Requirements | Compliance Date |
+|-----------|--------------|----------------|
+| Customer Service Chatbot | Must disclose AI nature to users | February 2025 |
+| Virtual Assistant Tools | Must clearly identify as AI | February 2025 |
+| AI-Generated Marketing Materials | Must be labeled as AI-generated | February 2025 |
+| Emotion Analysis in Customer Feedback | Must inform users of analysis | February 2025 |
+
+### Likely Minimal-Risk Systems at SGH:
+
+- General productivity tools (Microsoft Copilot, ChatGPT for drafting)
+- Adobe Creative Suite AI features (when properly labeled)
+- Basic business intelligence reporting tools
 - Standard project management AI features
+- Internal process optimization systems
 
-## High-Risk AI Requirements
+## High-Risk AI Compliance Requirements
 
-High-risk AI systems are subject to these key requirements:
+High-risk AI systems at SGH Group must meet comprehensive requirements:
 
-1. **Risk Management System**: Ongoing risk assessment and mitigation
-2. **Data and Data Governance**: Quality control for all data used
-3. **Technical Documentation**: Detailed documentation of system development
-4. **Record-Keeping**: Automated logging of system operations
-5. **Transparency**: Clear information for users
-6. **Human Oversight**: Effective human monitoring and intervention
-7. **Accuracy, Robustness, Cybersecurity**: Performance and security measures
+![High-Risk Requirements](/assets/training/high-risk-requirements.png)
 
-## Implementation Timeline
+1. **Risk Management System** (Article 9)
+   - Establish continuous risk identification and mitigation process
+   - Document all risks and controls throughout the AI lifecycle
+   - Implement testing to verify effectiveness of controls
+   - Continuously monitor for new or changing risks
 
-Key deadlines for EU AI Act compliance:
+2. **Data and Data Governance** (Article 10)
+   - Ensure high-quality training, validation, and testing data
+   - Implement processes to identify and address biases
+   - Document data characteristics, selection choices, and limitations
+   - Establish data security and governance protocols
 
-- **February 2, 2025**: Prohibited AI practices provisions come into effect
-- **August 2, 2025**: Requirements for general-purpose AI models begin
-- **August 2, 2026**: Complete compliance required for high-risk AI systems
-- **August 2, 2027**: Final deadline for high-risk AI embedded in products
+3. **Technical Documentation** (Article 11)
+   - Create and maintain detailed system documentation
+   - Document design specifications, development methodologies
+   - Include performance metrics and validation approaches
+   - Ensure traceability of development decisions
 
-The Executive Intelligence Dashboard will track our compliance progress against these deadlines, with visual indicators showing compliance status.
+4. **Record-Keeping and Logging** (Article 12)
+   - Implement automated logging capabilities
+   - Ensure appropriate level of traceability
+   - Maintain detailed operational records
+   - Establish audit trail mechanisms
+
+5. **Transparency for Users** (Article 13)
+   - Provide clear information about capabilities and limitations
+   - Ensure users understand when they are interacting with AI
+   - Document intended purpose and appropriate use cases
+   - Communicate potential risks and limitations
+
+6. **Human Oversight** (Article 14)
+   - Design systems with appropriate oversight mechanisms
+   - Implement effective intervention capabilities
+   - Train human operators on oversight responsibilities
+   - Document oversight procedures and protocols
+
+7. **Accuracy, Robustness & Cybersecurity** (Article 15)
+   - Achieve and maintain appropriate performance levels
+   - Implement resilience against errors and inconsistencies
+   - Establish cybersecurity controls and protections
+   - Regularly test and validate system performance
+
+## SGH Group Implementation Roadmap
+
+The Executive Intelligence Dashboard tracks our compliance progress against these key deadlines:
+
+![Implementation Timeline](/assets/training/implementation-timeline-detailed.png)
+
+### February 2, 2025: Initial Compliance Date
+- All transparency requirements take effect
+- Prohibited AI practices regulations apply
+- All SGH employees must complete this training
+
+### August 2, 2025: GPAI Requirements Begin
+- Requirements for general-purpose AI models start
+- Foundation model inventory must be completed
+- Third-party AI provider compliance verification begins
+
+### August 2, 2026: Full High-Risk Compliance
+- Complete compliance required for high-risk AI systems
+- All documentation must be finalized
+- Registration in EU database must be completed
+- Conformity assessment must be completed
+
+### August 2, 2027: Final Deadlines
+- Final deadline for high-risk AI embedded in products
+- Complete integration into business processes
+- Full compliance monitoring operational
+
+The Executive Intelligence Dashboard provides real-time tracking of our compliance status with visual indicators for each deadline and system. Compliance progress metrics are visible to all department heads and the AI Governance Committee.
           `
         },
         {
