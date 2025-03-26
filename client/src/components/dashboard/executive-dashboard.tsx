@@ -1,264 +1,396 @@
 import React, { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ArrowUpRight, LightbulbIcon } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { 
+  ClipboardCheck, 
+  AlertTriangle, 
+  FileText, 
+  BookOpen, 
+  BarChart4,
+  Building2,
+  Calendar,
+  Users2
+} from "lucide-react";
+import { Link } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-// EU AI Act Compliance Component (from your existing component)
-const EUAIActCompliance: React.FC = () => {
+interface CompanyCardProps {
+  name: string;
+  industry: string;
+  size: string;
+  riskLevel: "High Risk" | "Medium Risk" | "Limited Risk";
+  description: string;
+  systems: string[];
+  onClick?: () => void;
+}
+
+const CompanyCard: React.FC<CompanyCardProps> = ({
+  name,
+  industry,
+  size,
+  riskLevel,
+  description,
+  systems,
+  onClick
+}) => {
+  const riskColorClass = 
+    riskLevel === "High Risk" 
+      ? "bg-red-100 text-red-800" 
+      : riskLevel === "Medium Risk" 
+        ? "bg-yellow-100 text-yellow-800" 
+        : "bg-green-100 text-green-800";
+
   return (
-    <Card className="rounded-lg p-6 shadow-sm">
-      <h2 className="text-xl font-bold mb-1">EU AI Act Compliance Platform</h2>
-      <p className="text-sm text-muted-foreground mb-4">Current language: English</p>
-      
-      <div className="mb-6">
-        <p className="text-sm">
-          Detailed guides and documentation to help you understand and implement EU AI Act risk assessments
-        </p>
+    <Card className="overflow-hidden border border-gray-200 rounded-lg shadow-sm h-full">
+      <div className="flex items-start justify-between p-4">
+        <div>
+          <h3 className="text-lg font-semibold">{name}</h3>
+          <div className="flex items-center mt-1 space-x-2">
+            <span className="flex items-center text-sm text-gray-600">
+              <Building2 className="h-4 w-4 mr-1" /> {industry}
+            </span>
+            <span className="text-gray-400">•</span>
+            <span className="flex items-center text-sm text-gray-600">
+              <Users2 className="h-4 w-4 mr-1" /> {size}
+            </span>
+          </div>
+        </div>
+        <Badge className={`${riskColorClass} font-medium`}>{riskLevel}</Badge>
       </div>
       
-      <div className="mb-4">
-        <h3 className="text-base font-semibold mb-1">Assessment Methodology</h3>
-        <p className="text-sm text-muted-foreground mb-2">
-          Step-by-step process for conducting risk assessments
-        </p>
-        <p className="text-sm">
-          Learn about the methodology for conducting a comprehensive risk assessment of AI systems, including risk identification, analysis, evaluation, and mitigation.
-        </p>
+      <div className="px-4 pb-2">
+        <p className="text-sm text-gray-600">{description}</p>
       </div>
       
-      <div className="mb-4">
-        <h3 className="text-base font-semibold mb-1">High-Risk System Requirements</h3>
-        <p className="text-sm text-muted-foreground mb-2">
-          Compliance requirements for high-risk AI systems
-        </p>
-        <p className="text-sm">
-          Detailed explanation of the specific requirements that apply to high-risk AI systems under the EU AI Act, including risk management, data governance, and human oversight.
-        </p>
+      <div className="px-4 pb-3">
+        <h4 className="text-sm font-medium mb-2">AI Systems:</h4>
+        <div className="flex flex-wrap gap-2">
+          {systems.map((system, index) => (
+            <Badge key={index} variant="outline" className="bg-gray-50">
+              {system}
+            </Badge>
+          ))}
+        </div>
       </div>
       
-      <Button 
-        className="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium"
-      >
-        View Guide
-      </Button>
+      <div className="border-t border-gray-200 px-4 py-3">
+        <Button 
+          className="w-full bg-blue-600 hover:bg-blue-700" 
+          onClick={onClick}
+        >
+          View Scenario
+        </Button>
+      </div>
     </Card>
   );
 };
 
-// Main Dashboard Component
-export const ExecutiveDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("overview");
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric' 
-  });
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  description?: string;
+  trend?: {
+    value: number;
+    isPositive: boolean;
+  };
+  onClick?: () => void;
+}
+
+const StatCard: React.FC<StatCardProps> = ({
+  title,
+  value,
+  icon,
+  description,
+  trend,
+  onClick
+}) => {
+  return (
+    <Card className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow" onClick={onClick}>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-gray-500">{title}</p>
+            <div className="flex items-end space-x-1 mt-1">
+              <h3 className="text-2xl font-bold">{value}</h3>
+              {trend && (
+                <span className={`text-xs ${trend.isPositive ? 'text-green-600' : 'text-red-600'} flex items-center`}>
+                  {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
+                </span>
+              )}
+            </div>
+            {description && <p className="text-xs text-gray-500 mt-1">{description}</p>}
+          </div>
+          <div className="p-2 rounded-full bg-blue-50">
+            {icon}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const ExecutiveDashboard: React.FC = () => {
+  const [activeTab, setActiveTab] = useState("euAiAct");
+  const { currentLanguage } = useLanguage();
+
+  const companies = [
+    {
+      name: "Municipality of Metropolis",
+      industry: "Public Sector",
+      size: "Large (1,000-5,000 employees)",
+      riskLevel: "High Risk" as const,
+      description: "A European city implementing AI systems to determine citizen service eligibility and urban planning.",
+      systems: ["Benefits Eligibility Assessment", "Urban Planning AI", "Public Resource Allocation System"],
+      route: "/demo-scenarios/public-sector-eligibility"
+    },
+    {
+      name: "SGH Service",
+      industry: "Professional Services",
+      size: "Medium (250-999 employees)",
+      riskLevel: "Medium Risk" as const,
+      description: "A European professional services firm implementing AI tools for consultancy, document management, and business process optimization.",
+      systems: ["Odoo AI", "ChatGPT Integration", "GitHub Copilot", "Document Analysis AI"],
+      route: "/demo-scenarios/sgh-service-consulting"
+    },
+    {
+      name: "EuroBank Financial Services",
+      industry: "Financial Services",
+      size: "Large (1,000-5,000 employees)",
+      riskLevel: "High Risk" as const,
+      description: "A pan-European bank using AI for credit decisioning and fraud detection systems.",
+      systems: ["Credit Scoring AI", "Fraud Detection System", "Anti-Money Laundering AI"],
+      route: "/demo-scenarios/fintech-fraud-detection"
+    },
+    {
+      name: "SmartFactory GmbH",
+      industry: "Manufacturing",
+      size: "Medium (250-999 employees)",
+      riskLevel: "Medium Risk" as const,
+      description: "A German industrial equipment manufacturer using AI for quality control and predictive maintenance.",
+      systems: ["Predictive Maintenance System", "Quality Control Vision System", "Production Optimization AI"],
+      route: "/demo-scenarios/manufacturing-predictive-maintenance"
+    },
+    {
+      name: "MediTech Solutions",
+      industry: "Healthcare",
+      size: "Enterprise (5,000+ employees)",
+      riskLevel: "High Risk" as const,
+      description: "A major healthcare provider implementing AI diagnostic tools across multiple EU hospitals.",
+      systems: ["Diagnostic Imaging AI", "Patient Risk Prediction", "Treatment Recommendation Engine"],
+      route: "/demo-scenarios/healthcare-ai-diagnostics"
+    },
+    {
+      name: "Mercedes-Benz",
+      industry: "Automotive",
+      size: "Enterprise (100,000+ employees)",
+      riskLevel: "High Risk" as const,
+      description: "A global automotive manufacturer implementing advanced driver assistance systems, autonomous driving, and vehicle health monitoring.",
+      systems: ["Advanced Driver Assistance Systems", "Autonomous Driving System", "Predictive Vehicle Health Monitoring"],
+      route: "/demo-scenarios/automotive-safety-systems"
+    }
+  ];
+
+  const renderAIActTab = () => {
+    return (
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <StatCard 
+            title="High-Risk AI Systems" 
+            value="14" 
+            icon={<AlertTriangle className="h-5 w-5 text-amber-500" />} 
+            description="Requires immediate compliance actions" 
+            onClick={() => console.log("Navigate to high-risk systems")}
+          />
+          <StatCard 
+            title="Risk Assessments Completed" 
+            value="62%" 
+            icon={<ClipboardCheck className="h-5 w-5 text-emerald-500" />} 
+            trend={{ value: 12, isPositive: true }}
+            onClick={() => console.log("Navigate to risk assessments")}
+          />
+          <StatCard 
+            title="Compliance Documentation" 
+            value="48%" 
+            icon={<FileText className="h-5 w-5 text-blue-500" />} 
+            description="Required documentation status"
+            onClick={() => console.log("Navigate to documentation")}
+          />
+        </div>
+
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Client Scenarios</h2>
+            <Link href="/demo-scenarios">
+              <Button variant="outline">View All</Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {companies.map((company, index) => (
+              <CompanyCard
+                key={index}
+                name={company.name}
+                industry={company.industry}
+                size={company.size}
+                riskLevel={company.riskLevel}
+                description={company.description}
+                systems={company.systems}
+                onClick={() => window.location.href = company.route}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Resources & Guides</h2>
+            <Link href="/knowledge-center">
+              <Button variant="outline">Knowledge Center</Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = "/risk-assessment/guides"}>
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-blue-100 p-3 rounded-lg">
+                    <AlertTriangle className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{currentLanguage === 'de' ? 'Risikobewertungsmethodik' : 'Risk Assessment Methodology'}</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {currentLanguage === 'de' 
+                        ? 'Schrittweiser Prozess zur Durchführung von Risikobewertungen' 
+                        : 'Step-by-step process for conducting risk assessments'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = "/knowledge-center"}>
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-amber-100 p-3 rounded-lg">
+                    <BookOpen className="h-6 w-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{currentLanguage === 'de' ? 'Anforderungen an Hochrisikosysteme' : 'High-Risk System Requirements'}</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {currentLanguage === 'de' 
+                        ? 'Compliance-Anforderungen für Hochrisiko-KI-Systeme' 
+                        : 'Compliance requirements for high-risk AI systems'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Upcoming Deadlines</h2>
+            <Link href="/workflow">
+              <Button variant="outline">View Workflow</Button>
+            </Link>
+          </div>
+          <Card>
+            <CardContent className="p-0">
+              <div className="divide-y">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <Calendar className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">High-Risk System Documentation Review</p>
+                      <p className="text-sm text-gray-600">For MediTech Solutions' Diagnostic Imaging AI</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-amber-100 text-amber-800 font-medium">Due in 5 days</Badge>
+                </div>
+                
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <Calendar className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Conformity Assessment Submission</p>
+                      <p className="text-sm text-gray-600">For EuroBank Financial Services' Credit Scoring AI</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-red-100 text-red-800 font-medium">Due tomorrow</Badge>
+                </div>
+                
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <Calendar className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Risk Management System Update</p>
+                      <p className="text-sm text-gray-600">For Mercedes-Benz Autonomous Driving System</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800 font-medium">Due in 14 days</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
+  const renderOtherTab = (tabName: string) => {
+    return (
+      <div className="py-8 text-center">
+        <h3 className="text-xl font-semibold mb-4">{tabName} Module</h3>
+        <p className="text-gray-600 mb-6">This dashboard module is coming soon in a future update.</p>
+        <Button variant="outline" onClick={() => setActiveTab("euAiAct")}>
+          Return to EU AI Act Dashboard
+        </Button>
+      </div>
+    );
+  };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold mb-1">Executive Intelligence Dashboard</h1>
-        <p className="text-muted-foreground">AI-powered insights for strategic decision making</p>
-        <p className="text-sm mt-2">Good afternoon, Admin. Here's your business overview for {formattedDate}</p>
+    <div className="container mx-auto px-4 py-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
+        <p className="text-gray-600">Overview of your organization's regulatory compliance and AI systems</p>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Business Overview</TabsTrigger>
-          <TabsTrigger value="compliance">EU AI Act Compliance</TabsTrigger>
+      <Tabs defaultValue="euAiAct" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsTrigger value="euAiAct" className="text-sm">EU AI Act Compliance</TabsTrigger>
+          <TabsTrigger value="aiInventory" className="text-sm">AI Systems Inventory</TabsTrigger>
+          <TabsTrigger value="riskManagement" className="text-sm">Risk Management</TabsTrigger>
+          <TabsTrigger value="regulatoryReporting" className="text-sm">Regulatory Reporting</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-4">
-          {/* Key Metrics Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Monthly Revenue */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Monthly Revenue</p>
-                    <h3 className="text-2xl font-bold">€4.2M</h3>
-                  </div>
-                  <span className="text-green-500 text-xs">↑ 12%</span>
-                </div>
-                <Progress className="h-2 mt-4" value={80} />
-                <p className="text-xs mt-2 text-muted-foreground">
-                  <span className="text-green-500">6% above forecast</span>
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Operational Efficiency */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Operational Efficiency</p>
-                  </div>
-                  <span className="text-green-500 text-xs">↑ 5%</span>
-                </div>
-                <div className="flex justify-center items-center my-4 relative">
-                  <div className="w-24 h-24 rounded-full border-8 border-blue-500 flex items-center justify-center">
-                    <span className="text-xl font-bold">87%</span>
-                  </div>
-                </div>
-                <p className="text-xs mt-1 text-muted-foreground text-center">
-                  <span className="text-green-500">Improved in 3 key areas</span>
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Market Share */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Market Share</p>
-                    <h3 className="text-2xl font-bold">32%</h3>
-                  </div>
-                  <span className="text-green-500 text-xs">↑ 2%</span>
-                </div>
-                <div className="mt-4 bg-gray-200 h-2 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-500 rounded-full" style={{ width: "70%" }}></div>
-                  <div className="h-full bg-green-400 rounded-full -mt-2" style={{ width: "15%" }}></div>
-                </div>
-                <p className="text-xs mt-2 text-muted-foreground">
-                  <span className="text-blue-500">Leading in 2 segments</span>
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* EU AI Act Compliance */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">EU AI Act Compliance</p>
-                    <h3 className="text-2xl font-bold">92%</h3>
-                  </div>
-                  <span className="text-green-500 text-xs">↑ 8%</span>
-                </div>
-                <Progress className="h-2 mt-4" value={92} />
-                <p className="text-xs mt-2 text-muted-foreground">
-                  <span className="text-amber-500">5 actions needed</span>
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Strategic Opportunities and Pending Decisions */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Strategic Opportunities */}
-            <Card className="lg:col-span-2">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <LightbulbIcon className="h-5 w-5 text-amber-500" />
-                    <h3 className="font-semibold">Strategic Opportunities</h3>
-                  </div>
-                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">AI-Generated</span>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="border rounded-md p-4">
-                    <h4 className="font-medium">Market Expansion Opportunity</h4>
-                    <p className="text-sm mt-1">EU AI Act regulations create new market for compliance tools and services in the technology sector.</p>
-                    <div className="flex gap-2 mt-2">
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">High Impact</span>
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">92% Confidence</span>
-                    </div>
-                    <div className="flex justify-end mt-2">
-                      <Button variant="ghost" size="sm" className="text-xs">
-                        Explore <ChevronRight className="h-3 w-3 ml-1" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="border rounded-md p-4">
-                    <h4 className="font-medium">Strategic Partnership Potential</h4>
-                    <p className="text-sm mt-1">3 potential partners identified that could strengthen your AI compliance offerings in healthcare sector.</p>
-                    <div className="flex gap-2 mt-2">
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">High Impact</span>
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">87% Confidence</span>
-                    </div>
-                    <div className="flex justify-end mt-2">
-                      <Button variant="ghost" size="sm" className="text-xs">
-                        Explore <ChevronRight className="h-3 w-3 ml-1" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-center mt-4">
-                  <Button variant="outline" size="sm" className="text-xs">
-                    View All Insights <ArrowUpRight className="h-3 w-3 ml-1" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Pending Decisions */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold">Pending Decisions</h3>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="border-b pb-3">
-                    <h4 className="font-medium text-sm">Risk Assessment Approval</h4>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">High Priority</span>
-                      <span className="text-xs text-muted-foreground">Due in 2 days</span>
-                    </div>
-                    <div className="mt-2">
-                      <Button size="sm" className="w-full text-xs">Take Action</Button>
-                    </div>
-                  </div>
-
-                  <div className="border-b pb-3">
-                    <h4 className="font-medium text-sm">Compliance Report Review</h4>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">Medium Priority</span>
-                      <span className="text-xs text-muted-foreground">Marketing</span>
-                    </div>
-                    <div className="mt-2">
-                      <Button size="sm" className="w-full text-xs">Take Action</Button>
-                    </div>
-                  </div>
-
-                  <div className="pb-2">
-                    <h4 className="font-medium text-sm">AI System Registration</h4>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">Medium Priority</span>
-                      <span className="text-xs text-muted-foreground">Operations</span>
-                    </div>
-                    <div className="mt-2">
-                      <Button size="sm" className="w-full text-xs">Take Action</Button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-center mt-4">
-                  <Button variant="outline" size="sm" className="text-xs">
-                    Manage All Decisions <ArrowUpRight className="h-3 w-3 ml-1" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <TabsContent value="euAiAct">
+          {renderAIActTab()}
         </TabsContent>
         
-        <TabsContent value="compliance">
-          <EUAIActCompliance />
+        <TabsContent value="aiInventory">
+          {renderOtherTab("AI Systems Inventory")}
+        </TabsContent>
+        
+        <TabsContent value="riskManagement">
+          {renderOtherTab("Risk Management")}
+        </TabsContent>
+        
+        <TabsContent value="regulatoryReporting">
+          {renderOtherTab("Regulatory Reporting")}
         </TabsContent>
       </Tabs>
     </div>
   );
 };
 
+export { ExecutiveDashboard };
 export default ExecutiveDashboard;
