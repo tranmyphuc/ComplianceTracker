@@ -52,6 +52,9 @@ import PublicSectorScenario from '@/pages/demo-scenarios/public-sector-eligibili
 import InsuranceScenario from '@/pages/demo-scenarios/insurance-risk-assessment';
 import EnergyScenario from '@/pages/demo-scenarios/energy-smart-grid';
 import ManufacturingScenario from '@/pages/demo-scenarios/manufacturing-predictive-maintenance';
+import ProfessionalServicesScenario from '@/pages/demo-scenarios/professional-services';
+import AutomotiveScenario from '@/pages/demo-scenarios/automotive-ai-systems';
+import LogisticsScenario from '@/pages/demo-scenarios/logistics-transportation';
 import VendorManagement from '@/pages/vendor-management';
 import ComplianceChatbotPage from "./pages/compliance-chatbot";
 
@@ -111,6 +114,9 @@ function Router() {
     "/demo-scenarios/insurance-risk-assessment",
     "/demo-scenarios/energy-smart-grid",
     "/demo-scenarios/manufacturing-predictive-maintenance",
+    "/demo-scenarios/professional-services",
+    "/demo-scenarios/automotive-ai-systems",
+    "/demo-scenarios/logistics-transportation",
     "/compliance-chatbot",
     "/advanced-analytics" // Added route
   ];
@@ -269,6 +275,15 @@ function Router() {
       </Route>
       <Route path="/demo-scenarios/manufacturing-predictive-maintenance">
         {() => renderSuspense(ManufacturingScenario)}
+      </Route>
+      <Route path="/demo-scenarios/professional-services">
+        {() => renderSuspense(ProfessionalServicesScenario)}
+      </Route>
+      <Route path="/demo-scenarios/automotive-ai-systems">
+        {() => renderSuspense(AutomotiveScenario)}
+      </Route>
+      <Route path="/demo-scenarios/logistics-transportation">
+        {() => renderSuspense(LogisticsScenario)}
       </Route>
       <Route path="/compliance-chatbot">
         {() => renderWithLayout(ComplianceChatbotPage)}
