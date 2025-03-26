@@ -688,14 +688,13 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
         return res.status(404).json({ error: "Invalid module ID" });
       }
       
-      const result = await sql`
-        SELECT * FROM training_modules 
-        WHERE module_id = ${moduleId}
-        LIMIT 1
-      `;
+      // Use drizzle query instead of sql template literals
+      const result = await db.query.trainingModules.findFirst({
+        where: eq(trainingModules.module_id, moduleId)
+      });
       
-      if (result && result.length > 0) {
-        const moduleData = result[0];
+      if (result) {
+        const moduleData = result;
         let content;
         
         try {

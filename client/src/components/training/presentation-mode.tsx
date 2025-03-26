@@ -59,7 +59,7 @@ const TrainingPresentation: React.FC<PresentationProps> = ({ moduleId, role = 't
             })),
             { 
               type: 'assessment', 
-              assessments: data.content.assessment?.questions || [], 
+              assessments: (data.content?.assessment?.questions || data.assessments || []), 
               title: 'Knowledge Check' 
             },
             { 
