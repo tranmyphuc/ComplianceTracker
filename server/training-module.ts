@@ -562,6 +562,12 @@ export async function getTrainingModules(req: Request, res: Response): Promise<v
 export async function getModuleContent(req: Request, res: Response): Promise<Response> {
   try {
     const { moduleId } = req.params;
+    if (!moduleId) {
+      console.error("Module ID is undefined or null");
+      return res.status(404).json({ error: "Invalid module ID" });
+    }
+    
+    console.log(`Fetching content for module: ${moduleId}`);
     const userRole = req.query.role as string || 'user';
     
     // Check if this is the AI literacy module
