@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -7,8 +7,48 @@ import { Separator } from "@/components/ui/separator";
 import { Building, FileCheck, ShieldAlert, Settings, FileText, BarChart4, AlertTriangle, HelpCircle, Info, CreditCard, LineChart, Lock, Database, Brain, UserCheck } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'wouter';
+import { AIJack } from '@/components/onboarding/ai-jack';
 
 const FintechScenario: React.FC = () => {
+  const [currentTab, setCurrentTab] = useState('profile');
+  const [language, setLanguage] = useState<'en' | 'de'>('en');
+  
+  // AI Jack message content based on current tab
+  const getJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "EuroBank needs to ensure its high-risk AI systems comply with the EU AI Act to avoid severe penalties that could exceed €50M when combined with existing financial regulations.";
+      case 'challenges':
+        return "EuroBank faces significant compliance challenges including regulatory overlap between the EU AI Act and financial regulations, algorithmic fairness requirements, and cross-border complexity.";
+      case 'solution':
+        return "Our solution provides EuroBank with a comprehensive compliance approach including financial-specific risk assessment and integration with existing regulatory frameworks.";
+      case 'features':
+        return "Key features for financial services include algorithmic fairness monitoring, model explainability tools, and regulatory tracking across multiple jurisdictions.";
+      case 'outcomes':
+        return "By implementing our solution, EuroBank achieved full EU AI Act compliance while reducing compliance costs by 30% and ensuring their AI systems operate responsibly.";
+      default:
+        return "Welcome to the EuroBank Financial Services case study. This financial institution needed to comply with the EU AI Act for their high-risk AI systems in fraud detection and credit scoring.";
+    }
+  };
+  
+  // German translations for AI Jack
+  const getGermanJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "EuroBank muss sicherstellen, dass seine KI-Systeme mit hohem Risiko dem EU AI Act entsprechen, um schwere Strafen zu vermeiden, die in Kombination mit bestehenden Finanzvorschriften 50 Mio. EUR überschreiten könnten.";
+      case 'challenges':
+        return "EuroBank steht vor erheblichen Compliance-Herausforderungen, darunter regulatorische Überschneidungen zwischen dem EU AI Act und Finanzvorschriften, Anforderungen an die algorithmische Fairness und grenzüberschreitende Komplexität.";
+      case 'solution':
+        return "Unsere Lösung bietet EuroBank einen umfassenden Compliance-Ansatz, einschließlich finanzspezifischer Risikobewertung und Integration mit bestehenden regulatorischen Rahmenwerken.";
+      case 'features':
+        return "Zu den wichtigsten Funktionen für Finanzdienstleistungen gehören die Überwachung der algorithmischen Fairness, Tools zur Modellinterpretation und regulatorisches Tracking über mehrere Jurisdiktionen hinweg.";
+      case 'outcomes':
+        return "Durch die Implementierung unserer Lösung erreichte EuroBank die vollständige Einhaltung des EU AI Act, reduzierte die Compliance-Kosten um 30% und stellte sicher, dass ihre KI-Systeme verantwortungsvoll arbeiten.";
+      default:
+        return "Willkommen zur EuroBank Financial Services Fallstudie. Dieses Finanzinstitut musste den EU AI Act für seine KI-Systeme mit hohem Risiko bei der Betrugserkennung und Kreditwürdigkeitsprüfung einhalten.";
+    }
+  };
+  
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="flex items-center gap-2 mb-2">
@@ -30,7 +70,25 @@ const FintechScenario: React.FC = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="profile" className="mt-6">
+      {/* AI Jack - Multilingual Guide */}
+      <div className="my-6">
+        <AIJack
+          mood="explaining"
+          message={getJackMessage()}
+          germanMessage={getGermanJackMessage()}
+          animate={true}
+          size="md"
+          language={language}
+          allowLanguageSwitch={true}
+          onLanguageChange={(lang) => setLanguage(lang)}
+        />
+      </div>
+      
+      <Tabs 
+        defaultValue="profile" 
+        className="mt-6"
+        onValueChange={(value) => setCurrentTab(value)}
+      >
         <TabsList className="grid grid-cols-5 w-full">
           <TabsTrigger value="profile">Client Profile</TabsTrigger>
           <TabsTrigger value="challenges">Compliance Challenges</TabsTrigger>

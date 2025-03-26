@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -7,8 +7,48 @@ import { Separator } from "@/components/ui/separator";
 import { Building, FileCheck, ShieldAlert, Settings, FileText, BarChart4, AlertTriangle, HelpCircle, Info, ShoppingBag, Package, PieChart, Layers, Database, UserCheck, LineChart } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'wouter';
+import { AIJack } from '@/components/onboarding/ai-jack';
 
 const RetailScenario: React.FC = () => {
+  const [currentTab, setCurrentTab] = useState('profile');
+  const [language, setLanguage] = useState<'en' | 'de'>('en');
+  
+  // AI Jack message content based on current tab
+  const getJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "EuroShop Retail Group operates recommendation engines and dynamic pricing systems that are classified as medium-risk under the EU AI Act. They need to ensure these systems are fair and transparent.";
+      case 'challenges':
+        return "EuroShop faces challenges with ensuring algorithmic fairness across customer demographics, maintaining pricing transparency, and managing compliance in 9 different European countries.";
+      case 'solution':
+        return "Our solution provides EuroShop with specialized fairness assessment frameworks for retail recommendation systems and ethics guidelines for dynamic pricing algorithms.";
+      case 'features':
+        return "Key features for retail include fairness monitoring across customer segments, price optimization ethics tools, and comprehensive integration with existing GDPR compliance measures.";
+      case 'outcomes':
+        return "By implementing our solution, EuroShop achieved full EU AI Act compliance for their recommendation and pricing systems while improving customer satisfaction by 18%.";
+      default:
+        return "Welcome to the EuroShop Retail Group case study. This retail organization needed to comply with the EU AI Act for their medium-risk AI systems including recommendation engines and dynamic pricing.";
+    }
+  };
+  
+  // German translations for AI Jack
+  const getGermanJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "Die EuroShop Retail Group betreibt Empfehlungssysteme und dynamische Preisgestaltungsalgorithmen, die gemäß dem EU AI Act als Systeme mit mittlerem Risiko eingestuft werden. Sie müssen sicherstellen, dass diese Systeme fair und transparent sind.";
+      case 'challenges':
+        return "EuroShop steht vor Herausforderungen, algorithmische Fairness über verschiedene Kundendemografien hinweg zu gewährleisten, Preistransparenz zu wahren und die Einhaltung von Vorschriften in 9 verschiedenen europäischen Ländern zu managen.";
+      case 'solution':
+        return "Unsere Lösung bietet EuroShop spezialisierte Fairness-Bewertungsrahmen für Empfehlungssysteme im Einzelhandel und Ethikrichtlinien für dynamische Preisalgorithmen.";
+      case 'features':
+        return "Zu den wichtigsten Funktionen für den Einzelhandel gehören Fairness-Monitoring über Kundensegmente hinweg, Ethik-Tools für die Preisoptimierung und umfassende Integration mit bestehenden GDPR-Compliance-Maßnahmen.";
+      case 'outcomes':
+        return "Durch die Implementierung unserer Lösung erreichte EuroShop die vollständige Einhaltung des EU AI Act für ihre Empfehlungs- und Preissysteme und verbesserte gleichzeitig die Kundenzufriedenheit um 18%.";
+      default:
+        return "Willkommen zur EuroShop Retail Group Fallstudie. Diese Einzelhandelsorganisation musste den EU AI Act für ihre KI-Systeme mit mittlerem Risiko einhalten, einschließlich Empfehlungssystemen und dynamischer Preisgestaltung.";
+    }
+  };
+  
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="flex items-center gap-2 mb-2">
@@ -30,7 +70,25 @@ const RetailScenario: React.FC = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="profile" className="mt-6">
+      {/* AI Jack - Multilingual Guide */}
+      <div className="my-6">
+        <AIJack
+          mood="helpful"
+          message={getJackMessage()}
+          germanMessage={getGermanJackMessage()}
+          animate={true}
+          size="md"
+          language={language}
+          allowLanguageSwitch={true}
+          onLanguageChange={(lang) => setLanguage(lang)}
+        />
+      </div>
+      
+      <Tabs 
+        defaultValue="profile" 
+        className="mt-6"
+        onValueChange={(value) => setCurrentTab(value)}
+      >
         <TabsList className="grid grid-cols-5 w-full">
           <TabsTrigger value="profile">Client Profile</TabsTrigger>
           <TabsTrigger value="challenges">Compliance Challenges</TabsTrigger>
