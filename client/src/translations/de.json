@@ -79,9 +79,32 @@
     "loading": "Dashboard-Daten werden geladen...",
     "error": "Dashboard-Fehler",
     "errorDescription": "Fehler beim Laden der Dashboard-Daten. Bitte versuchen Sie es später erneut.",
+    "highImportance": "Hohe Wichtigkeit",
     "tabs": {
-      "compliance": "EU-KI-Gesetz-Compliance",
-      "business": "Geschäftsauswirkungen"
+      "aiCompliance": "EU-KI-Gesetz-Compliance",
+      "businessIntelligence": "Business Intelligence"
+    },
+    "businessIntelligence": {
+      "monthlyRevenue": "Monatlicher Umsatz",
+      "operationalEfficiency": "Betriebliche Effizienz",
+      "marketShare": "Marktanteil",
+      "complianceScore": "EU-KI-Gesetz-Compliance",
+      "strategicOpportunities": "Strategische Möglichkeiten",
+      "aiPoweredAnalysis": "KI-gestützte Analyse potenzieller Geschäftsmöglichkeiten",
+      "marketExpansion": "Marktexpansionsmöglichkeit",
+      "marketExpansionDesc": "EU-KI-Gesetz-Vorschriften schaffen einen neuen Markt für Compliance-Tools und -Dienstleistungen im Technologiesektor.",
+      "strategicPartnership": "Strategisches Partnerschaftspotenzial",
+      "strategicPartnershipDesc": "3 potenzielle Partner identifiziert, die Ihre KI-Compliance-Angebote im Gesundheitssektor stärken könnten.",
+      "efficiencyImprovement": "Effizienzverbesserung identifiziert",
+      "efficiencyImprovementDesc": "Automatisierte Dokumentations-Workflows könnten die Compliance-Kosten innerhalb von 6 Monaten um 23% senken.",
+      "explore": "Erkunden",
+      "pendingDecisions": "Ausstehende Entscheidungen",
+      "decisionsRequiringAttention": "Entscheidungen, die Ihre Aufmerksamkeit erfordern",
+      "riskAssessmentApproval": "Risikobewertung Genehmigung",
+      "complianceReportReview": "Compliance-Berichtsüberprüfung",
+      "aiSystemRegistration": "KI-System-Registrierung",
+      "takeAction": "Maßnahmen ergreifen",
+      "manageAllDecisions": "Alle Entscheidungen verwalten"
     },
     "business": {
       "roi": {

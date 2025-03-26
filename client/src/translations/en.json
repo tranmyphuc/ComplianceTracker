@@ -37,8 +37,30 @@
     "error": "Dashboard Error",
     "errorDescription": "Failed to load dashboard data. Please try again later.",
     "tabs": {
-      "compliance": "EU AI Act Compliance",
-      "business": "Business Impact"
+      "aiCompliance": "EU AI Act Compliance",
+      "businessIntelligence": "Business Intelligence"
+    },
+    "businessIntelligence": {
+      "monthlyRevenue": "Monthly Revenue",
+      "operationalEfficiency": "Operational Efficiency",
+      "marketShare": "Market Share",
+      "complianceScore": "EU AI Act Compliance",
+      "strategicOpportunities": "Strategic Opportunities",
+      "aiPoweredAnalysis": "AI-powered analysis of potential business opportunities",
+      "marketExpansion": "Market Expansion Opportunity",
+      "marketExpansionDesc": "EU AI Act regulations create new market for compliance tools and services in the technology sector.",
+      "strategicPartnership": "Strategic Partnership Potential",
+      "strategicPartnershipDesc": "3 potential partners identified that could strengthen your AI compliance offerings in healthcare sector.",
+      "efficiencyImprovement": "Efficiency Improvement Identified",
+      "efficiencyImprovementDesc": "Automated documentation workflows could reduce compliance costs by 23% within 6 months.",
+      "explore": "Explore",
+      "pendingDecisions": "Pending Decisions",
+      "decisionsRequiringAttention": "Decisions requiring your attention",
+      "riskAssessmentApproval": "Risk Assessment Approval",
+      "complianceReportReview": "Compliance Report Review",
+      "aiSystemRegistration": "AI System Registration",
+      "takeAction": "Take Action",
+      "manageAllDecisions": "Manage All Decisions"
     },
     "business": {
       "roi": {

@@ -1,26 +1,32 @@
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InfoIcon, BarChart3, PieChart, TrendingUp, AlertTriangle, CheckCircle, FileText, Clock } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { InfoIcon, ArrowRight, Clock, FileText, BarChart3, AlertTriangle } from "lucide-react";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useDashboardSummary } from "@/hooks/use-dashboard-summary";
-import AIChatbotWidget from "@/components/dashboard/ai-chatbot-widget";
-import RiskAssessmentMatrix from "@/components/dashboard/risk-assessment-matrix";
-import ComplianceProgressChart from "@/components/dashboard/compliance-progress-chart";
-import ResourceUsageChart from "@/components/dashboard/resource-usage-chart";
-import AISystemsOverview from "@/components/dashboard/ai-systems-overview";
-import DashboardGuide from "@/components/dashboard/dashboard-guide";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { Separator } from "@/components/ui/separator";
+
+import ComplianceProgressChart from "@/components/dashboard/compliance-progress-chart";
+import RiskDistributionChart from "@/components/dashboard/risk-distribution-chart";
+import ResourceUsageChart from "@/components/dashboard/resource-usage-chart";
+import AIChatbotWidget from "@/components/dashboard/ai-chatbot-widget";
+import DashboardGuide from "@/components/dashboard/dashboard-guide";
+import { useDashboardSummary } from "@/lib/api/dashboard";
 
 export default function Dashboard() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [openGuide, setOpenGuide] = useState(false);
+  const [activeTab, setActiveTab] = useState("ai-compliance");
   const { data: dashboardData, isLoading, error } = useDashboardSummary();
   
   useEffect(() => {
@@ -48,27 +54,26 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <Tabs defaultValue="compliance" className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="compliance">{t("dashboard.tabs.compliance")}</TabsTrigger>
-          <TabsTrigger value="business">{t("dashboard.tabs.business")}</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="ai-compliance">{t("dashboard.tabs.aiCompliance")}</TabsTrigger>
+          <TabsTrigger value="business-intelligence">{t("dashboard.tabs.businessIntelligence")}</TabsTrigger>
         </TabsList>
-        
-        {/* EU AI Act Compliance Tab */}
-        <TabsContent value="compliance" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <TabsContent value="ai-compliance" className="mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
                   <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                    <BarChart3 className="h-6 w-6 text-blue-600" />
+                    <FileText className="h-6 w-6 text-blue-600" />
                   </div>
-                  <h3 className="font-medium mb-1">{t("dashboard.cards.systems.title")}</h3>
+                  <h3 className="font-medium mb-1">{t("dashboard.cards.totalSystems.title")}</h3>
                   <p className="text-3xl font-bold">
                     {isLoading ? "..." : dashboardData?.totalSystems}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {t("dashboard.cards.systems.description")}
+                    {t("dashboard.cards.totalSystems.description")}
                   </p>
                 </div>
               </CardContent>
@@ -77,15 +82,15 @@ export default function Dashboard() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
-                  <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
-                    <AlertTriangle className="h-6 w-6 text-red-600" />
+                  <div className="h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center mb-4">
+                    <AlertTriangle className="h-6 w-6 text-amber-600" />
                   </div>
-                  <h3 className="font-medium mb-1">{t("dashboard.cards.highRisk.title")}</h3>
+                  <h3 className="font-medium mb-1">{t("dashboard.cards.highRiskSystems.title")}</h3>
                   <p className="text-3xl font-bold">
                     {isLoading ? "..." : dashboardData?.highRiskSystems}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {t("dashboard.cards.highRisk.description")}
+                    {t("dashboard.cards.highRiskSystems.description")}
                   </p>
                 </div>
               </CardContent>
@@ -95,14 +100,14 @@ export default function Dashboard() {
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
                   <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                    <CheckCircle className="h-6 w-6 text-green-600" />
+                    <BarChart3 className="h-6 w-6 text-green-600" />
                   </div>
-                  <h3 className="font-medium mb-1">{t("dashboard.cards.compliant.title")}</h3>
+                  <h3 className="font-medium mb-1">{t("dashboard.cards.complianceRate.title")}</h3>
                   <p className="text-3xl font-bold">
-                    {isLoading ? "..." : dashboardData?.compliantSystems}
+                    {isLoading ? "..." : `${dashboardData?.complianceRate || 0}%`}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {t("dashboard.cards.compliant.description")}
+                    {t("dashboard.cards.complianceRate.description")}
                   </p>
                 </div>
               </CardContent>
@@ -126,7 +131,7 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>{t("dashboard.cards.complianceProgress.title")}</CardTitle>
@@ -140,6 +145,20 @@ export default function Dashboard() {
             </Card>
 
             <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.cards.riskDistribution.title")}</CardTitle>
+                <CardDescription>
+                  {t("dashboard.cards.riskDistribution.description")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RiskDistributionChart data={isLoading ? [] : dashboardData?.riskDistributionData || []} />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>{t("dashboard.cards.recentUpdates.title")}</CardTitle>
                 <CardDescription>
@@ -167,7 +186,11 @@ export default function Dashboard() {
                           <p className="text-sm text-muted-foreground">{update.description}</p>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge variant="outline">{update.category}</Badge>
-                            <span className="text-xs text-muted-foreground">{update.timestamp}</span>
+                            {update.importance === "high" && (
+                              <Badge variant="destructive">
+                                {t("dashboard.highImportance")}
+                              </Badge>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -176,136 +199,201 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
-          </div>
 
-          <RiskAssessmentMatrix />
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <AISystemsOverview className="lg:col-span-2" />
-            <AIChatbotWidget />
-          </div>
-        </TabsContent>
-
-        {/* Business Impact Tab */}
-        <TabsContent value="business" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center mb-4">
-                    <TrendingUp className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <h3 className="font-medium mb-1">{t("dashboard.business.roi.title")}</h3>
-                  <p className="text-3xl font-bold">
-                    {isLoading ? "..." : "€2.4M"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {t("dashboard.business.roi.description")}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                    <PieChart className="h-6 w-6 text-green-600" />
-                  </div>
-                  <h3 className="font-medium mb-1">{t("dashboard.business.efficiencyGain.title")}</h3>
-                  <p className="text-3xl font-bold">
-                    {isLoading ? "..." : "32%"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {t("dashboard.business.efficiencyGain.description")}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                    <BarChart3 className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <h3 className="font-medium mb-1">{t("dashboard.business.marketAdvantage.title")}</h3>
-                  <p className="text-3xl font-bold">
-                    {isLoading ? "..." : "18%"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {t("dashboard.business.marketAdvantage.description")}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center mb-4">
-                    <FileText className="h-6 w-6 text-orange-600" />
-                  </div>
-                  <h3 className="font-medium mb-1">{t("dashboard.business.riskReduction.title")}</h3>
-                  <p className="text-3xl font-bold">
-                    {isLoading ? "..." : "43%"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {t("dashboard.business.riskReduction.description")}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>{t("dashboard.business.resourceUsage.title")}</CardTitle>
+                <CardTitle>{t("dashboard.cards.aiAssistant.title")}</CardTitle>
                 <CardDescription>
-                  {t("dashboard.business.resourceUsage.description")}
+                  {t("dashboard.cards.aiAssistant.description")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResourceUsageChart />
+                <AIChatbotWidget />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="business-intelligence" className="mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">{t("dashboard.businessIntelligence.monthlyRevenue")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">€4.2M</div>
+                <p className="text-xs text-muted-foreground">+ 12% above forecast</p>
+                <ResourceUsageChart className="h-10 mt-2" />
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">{t("dashboard.businessIntelligence.operationalEfficiency")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">87%</div>
+                <p className="text-xs text-muted-foreground">+ 5% improvement</p>
+                <div className="flex justify-center mt-2">
+                  <div className="h-20 w-20 relative">
+                    <svg className="w-full h-full" viewBox="0 0 100 100">
+                      <circle className="text-slate-200" strokeWidth="10" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" />
+                      <circle className="text-blue-500" strokeWidth="10" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" 
+                        strokeDasharray={2 * Math.PI * 40}
+                        strokeDashoffset={2 * Math.PI * 40 * (1 - 0.87)}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-xs text-center text-muted-foreground mt-2">Improved in 3 key areas</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">{t("dashboard.businessIntelligence.marketShare")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">32%</div>
+                <p className="text-xs text-muted-foreground">+ 2% growth</p>
+                <div className="h-2 bg-slate-200 rounded-full mt-2">
+                  <div className="h-full bg-blue-500 rounded-full" style={{ width: '32%' }}></div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">Leading in 2 segments</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">{t("dashboard.businessIntelligence.complianceScore")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">92%</div>
+                <p className="text-xs text-muted-foreground">+ 6% improvement</p>
+                <div className="h-2 bg-slate-200 rounded-full mt-2">
+                  <div className="h-full bg-green-500 rounded-full" style={{ width: '92%' }}></div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">5 actions needed</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle>{t("dashboard.businessIntelligence.strategicOpportunities")}</CardTitle>
+                <CardDescription>
+                  {t("dashboard.businessIntelligence.aiPoweredAnalysis")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-medium">{t("dashboard.businessIntelligence.marketExpansion")}</h3>
+                    <p className="text-sm text-muted-foreground my-2">
+                      {t("dashboard.businessIntelligence.marketExpansionDesc")}
+                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">High Impact</Badge>
+                        <Badge variant="secondary">92% Confidence</Badge>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        {t("dashboard.businessIntelligence.explore")}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-medium">{t("dashboard.businessIntelligence.strategicPartnership")}</h3>
+                    <p className="text-sm text-muted-foreground my-2">
+                      {t("dashboard.businessIntelligence.strategicPartnershipDesc")}
+                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">High Impact</Badge>
+                        <Badge variant="secondary">87% Confidence</Badge>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        {t("dashboard.businessIntelligence.explore")}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-medium">{t("dashboard.businessIntelligence.efficiencyImprovement")}</h3>
+                    <p className="text-sm text-muted-foreground my-2">
+                      {t("dashboard.businessIntelligence.efficiencyImprovementDesc")}
+                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">Medium Impact</Badge>
+                        <Badge variant="secondary">94% Confidence</Badge>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        {t("dashboard.businessIntelligence.explore")}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>{t("dashboard.business.successStories.title")}</CardTitle>
+                <CardTitle>{t("dashboard.businessIntelligence.pendingDecisions")}</CardTitle>
                 <CardDescription>
-                  {t("dashboard.business.successStories.description")}
+                  {t("dashboard.businessIntelligence.decisionsRequiringAttention")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {isLoading ? (
-                    <p>{t("dashboard.loading")}</p>
-                  ) : (
-                    <>
-                      <div className="flex items-start gap-3 pb-3 border-b">
-                        <div className="font-medium">Healthcare AI Diagnostics</div>
-                        <Badge className="ml-auto">+€1.2M Value</Badge>
+                  <div className="border rounded-lg p-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-medium">{t("dashboard.businessIntelligence.riskAssessmentApproval")}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="destructive">High Priority</Badge>
+                          <span className="text-xs text-muted-foreground">Due in 2 days</span>
+                        </div>
                       </div>
-                      <div className="flex items-start gap-3 pb-3 border-b">
-                        <div className="font-medium">Manufacturing Predictive Maintenance</div>
-                        <Badge className="ml-auto">32% Efficiency</Badge>
+                      <Button size="sm">{t("dashboard.businessIntelligence.takeAction")}</Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-medium">{t("dashboard.businessIntelligence.complianceReportReview")}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline">Medium Priority</Badge>
+                          <span className="text-xs text-muted-foreground">Marketing</span>
+                        </div>
                       </div>
-                      <div className="flex items-start gap-3 pb-3 border-b">
-                        <div className="font-medium">Financial Risk Assessment</div>
-                        <Badge className="ml-auto">22% Risk Reduction</Badge>
+                      <Button size="sm">{t("dashboard.businessIntelligence.takeAction")}</Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-medium">{t("dashboard.businessIntelligence.aiSystemRegistration")}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline">Medium Priority</Badge>
+                          <span className="text-xs text-muted-foreground">Operations</span>
+                        </div>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <div className="font-medium">SGH Service Consulting</div>
-                        <Badge className="ml-auto">18% Growth</Badge>
-                      </div>
-                      <Separator className="my-2" />
-                      <Button variant="outline" className="w-full" size="sm">
-                        View All Case Studies
-                      </Button>
-                    </>
-                  )}
+                      <Button size="sm">{t("dashboard.businessIntelligence.takeAction")}</Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex justify-end mt-4">
+                  <Button variant="outline" className="text-sm" size="sm">
+                    {t("dashboard.businessIntelligence.manageAllDecisions")}
+                    <ArrowRight className="ml-1 h-3 w-3" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
