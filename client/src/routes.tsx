@@ -42,6 +42,15 @@ const EUAIACTGuides = lazy(() => import('./pages/training/eu-ai-act-guides')); /
 const DemoScenarios = lazy(() => import('./pages/demo-scenarios'));
 const HealthcareScenario = lazy(() => import('./pages/demo-scenarios/healthcare-ai-diagnostics'));
 const SGHServiceScenario = lazy(() => import('./pages/demo-scenarios/sgh-service-consulting'));
+const FintechScenario = lazy(() => import('./pages/demo-scenarios/fintech-fraud-detection'));
+const ManufacturingScenario = lazy(() => import('./pages/demo-scenarios/manufacturing-predictive-maintenance'));
+const RetailScenario = lazy(() => import('./pages/demo-scenarios/retail-recommendation-engine'));
+const PublicSectorScenario = lazy(() => import('./pages/demo-scenarios/public-sector-eligibility'));
+const InsuranceScenario = lazy(() => import('./pages/demo-scenarios/insurance-risk-assessment'));
+const EnergyScenario = lazy(() => import('./pages/demo-scenarios/energy-grid-optimization'));
+const AutomotiveScenario = lazy(() => import('./pages/demo-scenarios/automotive-autonomous-systems'));
+const AgricultureScenario = lazy(() => import('./pages/demo-scenarios/agriculture-precision-farming'));
+const LogisticsScenario = lazy(() => import('./pages/demo-scenarios/logistics-route-optimization'));
 
 
 const AppRoutes = () => {
@@ -83,7 +92,16 @@ const AppRoutes = () => {
     "/guides/platform-guide",
     "/demo-scenarios",
     "/demo-scenarios/healthcare-ai-diagnostics",
-    "/demo-scenarios/sgh-service-consulting"
+    "/demo-scenarios/sgh-service-consulting",
+    "/demo-scenarios/fintech-fraud-detection",
+    "/demo-scenarios/manufacturing-predictive-maintenance",
+    "/demo-scenarios/retail-recommendation-engine",
+    "/demo-scenarios/public-sector-eligibility",
+    "/demo-scenarios/insurance-risk-assessment",
+    "/demo-scenarios/energy-grid-optimization",
+    "/demo-scenarios/automotive-autonomous-systems",
+    "/demo-scenarios/agriculture-precision-farming",
+    "/demo-scenarios/logistics-route-optimization"
   ];
 
   // Check for duplicate routes
@@ -325,6 +343,60 @@ const AppRoutes = () => {
         <Route path="/demo-scenarios/sgh-service-consulting">
           <MainLayout>
             <SGHServiceScenario />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios/fintech-fraud-detection">
+          <MainLayout>
+            <FintechScenario />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios/manufacturing-predictive-maintenance">
+          <MainLayout>
+            <ManufacturingScenario />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios/retail-recommendation-engine">
+          <MainLayout>
+            <RetailScenario />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios/public-sector-eligibility">
+          <MainLayout>
+            <PublicSectorScenario />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios/insurance-risk-assessment">
+          <MainLayout>
+            <InsuranceScenario />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios/energy-grid-optimization">
+          <MainLayout>
+            <EnergyScenario />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios/automotive-autonomous-systems">
+          <MainLayout>
+            <AutomotiveScenario />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios/agriculture-precision-farming">
+          <MainLayout>
+            <AgricultureScenario />
+          </MainLayout>
+        </Route>
+
+        <Route path="/demo-scenarios/logistics-route-optimization">
+          <MainLayout>
+            <LogisticsScenario />
           </MainLayout>
         </Route>
       </Switch>
