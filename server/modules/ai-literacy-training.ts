@@ -41,9 +41,9 @@ By the end of this training, you will:
           `
         },
         {
-          title: "Module 1: AI Foundations",
+          title: "Module 1: AI Fundamentals",
           content: `
-# Module 1: AI Foundations
+# Module 1: AI Fundamentals
 
 ## What is Artificial Intelligence?
 
@@ -57,38 +57,62 @@ Artificial Intelligence (AI) refers to systems designed to interact with the wor
 - **Computer Vision**: AI's ability to interpret and understand visual information
 - **Predictive Analytics**: Using data, statistical algorithms, and machine learning to identify the likelihood of future outcomes
 
-## Types of AI Systems
+## AI Systems at SGH Group
 
-AI systems can be categorized in various ways:
+As outlined in our inventory, SGH Group uses various AI systems across the organization:
 
-1. **By Capability**:
-   - **Narrow AI** (or Weak AI): Designed for specific tasks (e.g., voice assistants, recommendation systems)
-   - **General AI** (or Strong AI): Hypothetical AI with human-like intelligence across multiple domains
+### General Office Productivity AI Tools:
+- **ChatGPT**: Used across departments for content generation, customer communications, and administrative tasks
+- **Microsoft Copilot**: Integrated into Microsoft 365 applications for document creation, data analysis, and workflow automation
+- **Adobe Creative Suite AI**: Tools used for design, marketing materials, and content creation
+- **Odoo AI Capabilities**: Business intelligence, CRM automation, and predictive analytics for business operations
 
-2. **By Learning Method**:
-   - **Supervised Learning**: Trained on labeled data
-   - **Unsupervised Learning**: Identifies patterns in unlabeled data
-   - **Reinforcement Learning**: Learns through trial and error and rewards
+### Business-Specific AI Applications:
+- **Technical Service Management AI**: Algorithms used for service scheduling, resource allocation, or predictive maintenance
+- **Customer Service AI**: Chatbots, automated response systems, or customer interaction analysis tools
+- **Business Intelligence Tools**: Data analysis and reporting systems with AI/ML components
+- **Project Management AI**: Predictive tools for project timelines, resource allocation, or risk assessment
 
-3. **By Function**:
-   - **Analytical AI**: Analysis and prediction (e.g., fraud detection)
-   - **Interactive AI**: User interaction (e.g., chatbots)
-   - **Text/Visual/Audio AI**: Processing specific data types
-   - **Autonomous Systems**: Operating with minimal human supervision
+### Administrative AI Systems:
+- **HR Recruitment Tools**: AI used in CV screening or candidate assessment
+- **Financial Analysis Tools**: Forecasting, anomaly detection, or automated reporting systems
+- **Operational Optimization**: AI systems used to optimize business processes or workflows
 
-Understanding these foundations will help you better comprehend how AI systems are regulated under the EU AI Act.
+## Understanding AI Capabilities and Limitations
+
+When working with AI systems, it's important to understand:
+
+1. **Capabilities**:
+   - Processing vast amounts of data quickly
+   - Identifying patterns humans might miss
+   - Automating repetitive tasks
+   - Providing predictions based on historical data
+
+2. **Limitations**:
+   - Limited understanding of context or nuance
+   - Potential to reflect or amplify biases in training data
+   - Lack of causal reasoning
+   - Difficulty with novel situations not represented in training data
+   - Challenges with ethical decision-making
+
+3. **Recognizing AI-Generated Content**:
+   - Understand markers of AI-generated text, images, or recommendations
+   - Develop critical evaluation skills for AI outputs
+   - Know when human review is necessary
+
+Understanding these fundamentals will help you better comprehend how AI systems are regulated under the EU AI Act and your responsibilities when working with these technologies.
           `
         },
         {
-          title: "Module 2: EU AI Act Overview",
+          title: "Module 2: SGH AI Tools & EU AI Act Overview",
           content: `
-# Module 2: EU AI Act Overview
+# Module 2: SGH AI Tools & EU AI Act Overview
 
-The EU AI Act is the world's first comprehensive legal framework for artificial intelligence. It establishes a risk-based approach to regulating AI systems.
+The EU AI Act is the world's first comprehensive legal framework for artificial intelligence. It establishes a risk-based approach to regulating AI systems, with different requirements based on an AI system's risk level.
 
-## Key Features of the EU AI Act
+## Understanding the EU AI Act Framework
 
-- **Risk-Based Framework**: Different requirements based on risk level
+- **Risk-Based Approach**: Different requirements based on risk level
 - **Prohibited AI Practices**: Certain AI applications are banned
 - **High-Risk AI Systems**: Subject to strict requirements
 - **Transparency Obligations**: For certain AI systems
@@ -101,13 +125,14 @@ The EU AI Act classifies AI systems into different risk categories:
 
 ![Risk Category Pyramid](/assets/risk-category-pyramid.svg)
 
-1. **Unacceptable Risk**: Prohibited AI practices that pose a clear threat to people's safety, livelihoods, or rights
+1. **Unacceptable Risk**: Prohibited AI practices 
    - Social scoring systems
    - Manipulative or exploitative systems targeting vulnerabilities
    - Real-time remote biometric identification in public spaces (with limited exceptions)
 
-2. **High-Risk**: AI systems used in critical areas with potential significant harm
-   - See the detailed list of high-risk categories in the next section
+2. **High-Risk**: AI systems in critical areas with potential significant harm
+   - Products covered by EU harmonization laws listed in Annex II
+   - Specific use cases in Annex III (employment, education, law enforcement, etc.)
 
 3. **Limited Risk**: AI systems with specific transparency obligations
    - Chatbots
@@ -118,17 +143,48 @@ The EU AI Act classifies AI systems into different risk categories:
    - Light-touch regulatory approach
    - Voluntary codes of conduct
 
-## High-Risk AI Categories
+## SGH Group High-Risk AI Assessment
 
-The EU AI Act specifically identifies these areas where AI is considered high-risk:
+Using the EU AI Act criteria, we've assessed our AI systems at SGH Group:
 
-![High-Risk AI Categories](/assets/high-risk-ai-categories.svg)
+### Potentially High-Risk Systems at SGH:
 
-## Timeline for Implementation
+| AI System | Risk Classification | Justification |
+|-----------|---------------------|---------------|
+| HR Recruitment AI | Potentially High Risk | Falls under Annex III if used for employee evaluation, hiring decisions, or promotions |
+| Customer Service AI | Likely Low Risk | Generally not high-risk unless determining access to essential services |
+| Technical Service AI | Requires Assessment | Could be high-risk if used for critical infrastructure management |
+| Financial Analysis AI | Requires Assessment | Could be high-risk if used for credit scoring or access to essential services |
 
-The EU AI Act follows this implementation timeline:
+### Likely Low-Risk Systems at SGH:
 
-![Implementation Timeline](/assets/implementation-timeline.svg)
+- General productivity tools (Copilot, ChatGPT for content drafting)
+- Adobe Creative Suite AI features 
+- Basic business intelligence reporting
+- Standard project management AI features
+
+## High-Risk AI Requirements
+
+High-risk AI systems are subject to these key requirements:
+
+1. **Risk Management System**: Ongoing risk assessment and mitigation
+2. **Data and Data Governance**: Quality control for all data used
+3. **Technical Documentation**: Detailed documentation of system development
+4. **Record-Keeping**: Automated logging of system operations
+5. **Transparency**: Clear information for users
+6. **Human Oversight**: Effective human monitoring and intervention
+7. **Accuracy, Robustness, Cybersecurity**: Performance and security measures
+
+## Implementation Timeline
+
+Key deadlines for EU AI Act compliance:
+
+- **February 2, 2025**: Prohibited AI practices provisions come into effect
+- **August 2, 2025**: Requirements for general-purpose AI models begin
+- **August 2, 2026**: Complete compliance required for high-risk AI systems
+- **August 2, 2027**: Final deadline for high-risk AI embedded in products
+
+The Executive Intelligence Dashboard will track our compliance progress against these deadlines, with visual indicators showing compliance status.
           `
         },
         {
@@ -253,148 +309,231 @@ A recruitment AI system used to screen job applicants would be considered high-r
           `
         },
         {
-          title: "Module 5: Role-Specific Responsibilities",
+          title: "Module 5: Role-Based Responsibilities at SGH Group",
           content: `
-# Module 5: Role-Specific Responsibilities
+# Module 5: Role-Based Responsibilities at SGH Group
 
-Different roles within the organization have specific responsibilities for ensuring AI compliance.
+Different roles within SGH Group have specific responsibilities for ensuring EU AI Act compliance. This module outlines role-specific training requirements and responsibilities.
 
-## Decision Makers
+## Technical Service Teams
 
-**Responsibilities:**
-- Setting organizational AI governance policies
+**Key Responsibilities:**
+- Understanding AI limitations in technical applications
+- Implementing human oversight for AI-assisted decisions
+- Ensuring quality control for AI-generated recommendations
+- Maintaining technical documentation
+- Reporting AI performance issues
+
+**Compliance Actions:**
+- Review technical specifications of AI systems used in service delivery
+- Implement oversight protocols for AI-assisted technical decisions
+- Document instances where AI recommendations required correction
+- Validate AI outputs against established quality standards
+- Participate in regular compliance reviews
+
+## IT and Development Teams
+
+**Key Responsibilities:**
+- Implementing technical compliance requirements
+- Creating and maintaining comprehensive documentation
+- Establishing risk management frameworks
+- Developing testing and validation methodologies
+- Configuring logging and monitoring capabilities
+
+**Compliance Actions:**
+- Design systems with compliance-by-default features
+- Document system architecture, data flows, and algorithms
+- Implement robust data governance procedures
+- Develop testing protocols for bias detection
+- Configure human oversight mechanisms
+
+## Management and Leadership
+
+**Key Responsibilities:**
+- Understanding strategic implications of the EU AI Act
+- Establishing governance structures and oversight
+- Managing risk and liability considerations
 - Allocating resources for compliance activities
-- Approving high-risk AI system deployments
-- Establishing oversight mechanisms
-- Promoting a compliance culture
+- Using Executive Intelligence Dashboard for compliance oversight
 
-**Key Actions:**
-- Stay informed about regulatory requirements
-- Include compliance considerations in strategic planning
-- Ensure adequate staffing for compliance activities
-- Review and approve risk assessments
-- Monitor organizational compliance status
+**Compliance Actions:**
+- Approve AI governance policies and procedures
+- Allocate appropriate resources for compliance implementation
+- Review high-risk AI system assessments
+- Monitor organizational compliance status via dashboard
+- Foster a compliance-focused organizational culture
 
-## Technical Teams
+## HR and Administration
 
-**Responsibilities:**
-- Designing and developing compliant AI systems
-- Implementing technical requirements (data quality, accuracy, etc.)
-- Creating and maintaining technical documentation
-- Conducting testing and validation
-- Implementing monitoring capabilities
+**Key Responsibilities:**
+- Ensuring compliant use of AI in recruitment and talent management
+- Implementing appropriate employee monitoring practices
+- Maintaining documentation for AI-assisted HR decisions
+- Managing training program completion
+- Tracking compliance certification
 
-**Key Actions:**
-- Apply compliance by design principles
-- Document system architecture and data flows
-- Implement robust data governance
-- Design effective human oversight mechanisms
-- Conduct regular technical testing
+**Compliance Actions:**
+- Implement human oversight of AI-based HR decisions
+- Ensure transparency in AI-assisted performance evaluations
+- Document justifications for AI-influenced personnel decisions
+- Track training completion via Executive Intelligence Dashboard
+- Coordinate role-specific advanced training
 
-## System Operators
+## Common Responsibilities for All Staff
 
-**Responsibilities:**
-- Day-to-day operation of AI systems
-- Monitoring system performance
-- Identifying and reporting issues
-- Implementing human oversight procedures
-- Maintaining operational records
+- Recognize AI systems they interact with
+- Understand capabilities and limitations of AI tools
+- Know when human judgment should override AI recommendations
+- Report potential compliance issues or concerns
+- Complete required AI literacy training
+- Stay informed about AI policy updates
 
-**Key Actions:**
-- Follow established operating procedures
-- Document system behavior and issues
-- Exercise appropriate human oversight
-- Participate in regular training
-- Escalate compliance concerns
+## Collaboration Framework
 
-## Compliance Officers
+Effective compliance requires cross-functional collaboration:
 
-**Responsibilities:**
-- Overseeing compliance with the EU AI Act
-- Conducting or reviewing risk assessments
-- Maintaining compliance documentation
-- Liaising with regulatory authorities
-- Coordinating internal compliance activities
+1. **AI Governance Committee**
+   - Cross-functional representation
+   - Regular review of compliance status
+   - Decision-making on high-risk systems
+   - Resource allocation recommendations
 
-**Key Actions:**
-- Stay current on regulatory developments
-- Conduct regular compliance checks
-- Maintain compliance documentation
-- Coordinate cross-functional compliance efforts
-- Develop and deliver training programs
+2. **Department Champions**
+   - Local point of contact for AI questions
+   - First-level support for compliance questions
+   - Training coordination for department members
+   - Feedback collection on AI system performance
           `
         },
         {
-          title: "Module 6: Implementation Process",
+          title: "Module 6: SGH Group Implementation Roadmap",
           content: `
-# Module 6: Implementation Process
+# Module 6: SGH Group Implementation Roadmap
 
-Implementing EU AI Act compliance is an ongoing process that requires a structured approach.
+SGH Group has established a comprehensive roadmap for implementing EU AI Act compliance across the organization. This phased approach ensures we meet all regulatory deadlines while maintaining operational continuity.
 
-## Implementation Framework
+## Phase 1: Foundation (April-July 2025)
 
-1. **Inventory and Classification**
-   - Identify all AI systems in use or development
-   - Classify systems according to risk levels
-   - Prioritize high-risk systems for compliance efforts
+### Governance Establishment
+- Appoint AI Governance Committee with cross-functional representation
+- Define roles and responsibilities for compliance oversight
+- Establish reporting mechanisms and escalation procedures
+- Create AI policy framework and usage guidelines
+- Configure Executive Intelligence Dashboard for compliance monitoring
 
-2. **Gap Analysis**
-   - Assess current systems against requirements
-   - Identify compliance gaps
-   - Document findings and recommendations
+### Complete System Inventory
+- Document all AI systems using standardized assessment template
+- Gather technical documentation from vendors
+- Interview system owners to understand implementation details
+- Create centralized AI system registry within the Executive Intelligence Dashboard
+- Configure dashboard metrics to track compliance progress
 
-3. **Compliance Roadmap**
-   - Develop detailed implementation plans
-   - Set milestones and deadlines
-   - Assign resources and responsibilities
+### Initial Risk Assessments
+- Apply EU AI Act classification framework to all identified systems
+- Prioritize potential high-risk systems for detailed assessment
+- Document initial classification justifications
+- Review results with legal counsel
+- Configure dashboard risk indicators for operational visibility
 
-4. **Compliance Implementation**
-   - Update technical systems
-   - Develop required documentation
-   - Implement governance procedures
-   - Train relevant personnel
+### Baseline Training Development
+- Design core AI literacy curriculum for all staff
+- Develop role-specific training modules
+- Create training tracking and documentation system within platform
+- Pilot training with representative user groups
+- Establish training metrics in dashboard
 
-5. **Monitoring and Continuous Improvement**
-   - Establish monitoring mechanisms
-   - Conduct regular reviews
-   - Update systems as needed
-   - Stay current with regulatory changes
+## Phase 2: High-Risk System Compliance (August 2025-February 2026)
 
-## Documentation Framework
+### Technical Documentation Enhancement
+- Develop comprehensive technical documentation for high-risk systems
+- Implement logging capabilities for system outputs and decisions
+- Create risk management documentation per Article 9 requirements
+- Establish testing and validation procedures
+- Store all documentation in centralized dashboard repository
 
-The EU AI Act requires extensive documentation for high-risk AI systems:
+### Vendor Management
+- Assess vendor compliance capabilities and plans
+- Negotiate updated contracts with compliance obligations
+- Document shared responsibilities
+- Establish ongoing compliance monitoring
+- Track vendor compliance through platform
 
-1. **General Information**
-   - System description and purpose
-   - Provider identification information
-   - Version and release information
+### Human Oversight Implementation
+- Design and document human oversight mechanisms
+- Implement override capabilities for high-risk systems
+- Create standard operating procedures for human review
+- Train staff on oversight responsibilities
+- Configure oversight monitoring in dashboard
 
-2. **Technical Documentation**
-   - System architecture and components
-   - Data specifications
-   - Development methodologies
-   - Performance metrics and benchmarks
+### Data Governance Implementation
+- Establish data quality standards for AI training data
+- Implement bias detection and mitigation processes
+- Create data documentation procedures
+- Develop testing protocols for data representativeness
+- Monitor data governance compliance through platform
 
-3. **Risk Management Documentation**
-   - Risk assessment reports
-   - Mitigation measures
-   - Ongoing monitoring procedures
+## Phase 3: Organization-Wide Implementation (March-December 2026)
 
-4. **Compliance Documentation**
-   - Conformity assessment results
-   - EU Declaration of Conformity (when applicable)
-   - Post-market monitoring plans
+### Full Training Rollout
+- Deploy core AI literacy training to all staff
+- Conduct role-specific advanced training
+- Implement training verification and documentation
+- Establish ongoing training requirements
+- Track training completion through Executive Intelligence Dashboard
 
-## Maintaining Compliance
+### Conformity Assessments
+- Conduct internal conformity assessments for high-risk systems
+- Address any identified compliance gaps
+- Prepare for external assessments where required
+- Document assessment results
+- Monitor assessment status through dashboard
 
-Compliance is not a one-time effort but requires:
+### Transparency Implementation
+- Deploy system explanations and user instructions
+- Implement AI disclosure requirements for customer-facing systems
+- Create transparency documentation
+- Train staff on communicating about AI systems
+- Track transparency documentation through platform
 
-- Regular system reviews and updates
-- Ongoing staff training
-- Monitoring of regulatory changes
-- Documentation updates
-- Regular testing and validation
-- Incident reporting and management
+## Phase 4: Ongoing Compliance (January 2027 onward)
+
+### Monitoring System
+- Implement post-market monitoring for all high-risk systems
+- Create incident detection mechanisms
+- Develop response protocols for compliance issues
+- Establish periodic compliance reviews
+- Utilize Executive Intelligence Dashboard for real-time compliance monitoring
+
+### Continuous Improvement
+- Regular reassessment of AI systems against evolving regulations
+- Update training based on implementation lessons
+- Refine governance processes
+- Incorporate industry best practices
+- Leverage "Strategic Opportunities" dashboard feature to identify efficiency improvements
+
+## Critical Implementation Deadlines
+
+### February 2, 2025
+- Complete AI literacy training for staff working with AI systems
+- Ensure compliance with prohibited AI practices
+- Configure Executive Intelligence Dashboard to show training completion rates
+
+### August 2, 2025
+- Implement requirements for general-purpose AI models
+- Establish governance structures for ongoing compliance
+- Ensure dashboard indicators reflect compliance impact on business performance
+
+### August 2, 2026
+- Complete full compliance for high-risk AI systems
+- Finalize all technical documentation
+- Register systems in EU database
+- Complete training for all staff
+- EU AI Act Compliance metric should reach maximum in dashboard
+
+### August 2, 2027
+- Ensure compliance for any remaining high-risk AI systems embedded in products
+- Complete full integration of compliance into operational processes
+- Maintain dashboard metrics with focus on operational efficiency
           `
         },
         {
