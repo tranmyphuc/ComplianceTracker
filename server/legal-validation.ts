@@ -111,7 +111,12 @@ export function validateLegalReferences(text: string): { valid: boolean; invalid
   
   // Simple regex to find article references
   const articlePattern = /article\s+(\d+[a-z]?(\(\d+\))?)/gi;
-  const matches = [...text_lower.matchAll(articlePattern)];
+  // Convert iterator to array to avoid downlevel iteration issues
+  const matches: RegExpExecArray[] = [];
+  let match: RegExpExecArray | null;
+  while ((match = articlePattern.exec(text_lower)) !== null) {
+    matches.push(match);
+  }
   
   // List of valid EU AI Act articles (simplified for demo)
   const validArticles = [
