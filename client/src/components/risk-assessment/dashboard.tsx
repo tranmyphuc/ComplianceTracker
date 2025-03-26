@@ -71,40 +71,45 @@ export const RiskAssessmentDashboard: React.FC<RiskAssessmentDashboardProps> = (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle className="text-lg">EU-KI-Gesetz Compliance-Plattform</CardTitle>
-            <CardDescription>Aktuelle Sprache: Deutsch</CardDescription>
+            <CardTitle className="text-lg">Risk Assessment Report</CardTitle>
+            <CardDescription>System compliance status and requirements</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm">
-              Detaillierte Leitfäden und Dokumentation, die Ihnen helfen, Risikobewertungen gemäß dem EU-KI-Gesetz zu verstehen und umzusetzen
+              Comprehensive overview of your AI systems' risk levels and compliance status with the EU AI Act requirements
             </p>
             
             <div className="space-y-3">
-              <h3 className="text-sm font-medium">Bewertungsmethodik</h3>
+              <h3 className="text-sm font-medium">Assessment Methodology</h3>
               <p className="text-xs text-muted-foreground">
-                Schrittweiser Prozess zur Durchführung von Risikobewertungen
+                Step-by-step process for conducting risk assessments
               </p>
             </div>
             
             <div className="space-y-3">
-              <h3 className="text-sm font-medium">Erfahren Sie mehr über die Methodik zur Durchführung einer umfassenden Risikobewertung von KI-Systemen, einschließlich Risikoidentifikation, -analyse, -bewertung und -minderung.</h3>
+              <h3 className="text-sm font-medium">Risk Categories</h3>
+              <div className="flex gap-2 mt-1">
+                <div className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-sm">High</div>
+                <div className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-sm">Limited</div>
+                <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-sm">Minimal</div>
+              </div>
             </div>
             
             <div className="space-y-3">
-              <h3 className="text-sm font-medium">Anforderungen an Hochrisikosysteme</h3>
+              <h3 className="text-sm font-medium">High-Risk System Requirements</h3>
               <p className="text-xs text-muted-foreground">
-                Compliance-Anforderungen für Hochrisiko-KI-Systeme
+                Compliance requirements for high-risk AI systems
               </p>
-            </div>
-            
-            <div className="space-y-3">
-              <p className="text-xs text-muted-foreground">
-                Detaillierte Erklärung der spezifischen Anforderungen, die gemäß dem EU-KI-Gesetz für Hochrisiko-KI-Systeme gelten, einschließlich Risikomanagement, Daten-Governance und menschlicher Aufsicht.
-              </p>
+              <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-1">
+                <li>Risk management system</li>
+                <li>Data governance measures</li>
+                <li>Technical documentation</li>
+                <li>Human oversight capabilities</li>
+              </ul>
             </div>
             
             <Button variant="outline" className="w-full" size="sm">
-              Leitfaden anzeigen
+              View Assessment Report
             </Button>
           </CardContent>
         </Card>
