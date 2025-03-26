@@ -11,7 +11,19 @@ import {
   BarChart4,
   Building2,
   Calendar,
-  Users2
+  Users2,
+  Database,
+  Server as ServerIcon,
+  Clock as ClockIcon,
+  Cpu,
+  FilePieChart,
+  CheckCheck,
+  AlertCircle,
+  ClipboardEdit,
+  FileCheck,
+  CalendarClock,
+  BookOpenText,
+  Clock
 } from "lucide-react";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -345,16 +357,525 @@ const ExecutiveDashboard: React.FC = () => {
     );
   };
 
-  const renderOtherTab = (tabName: string) => {
+  const renderAiInventoryTab = () => {
     return (
-      <div className="py-8 text-center">
-        <h3 className="text-xl font-semibold mb-4">{tabName} Module</h3>
-        <p className="text-gray-600 mb-6">This dashboard module is coming soon in a future update.</p>
-        <Button variant="outline" onClick={() => setActiveTab("euAiAct")}>
-          Return to EU AI Act Dashboard
-        </Button>
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <StatCard 
+            title="Total AI Systems" 
+            value="42" 
+            icon={<Database className="h-5 w-5 text-blue-500" />} 
+            description="Active systems in inventory" 
+            onClick={() => console.log("Navigate to AI systems inventory")}
+          />
+          <StatCard 
+            title="Deployed in Production" 
+            value="27" 
+            icon={<ServerIcon className="h-5 w-5 text-purple-500" />} 
+            trend={{ value: 3, isPositive: true }}
+            onClick={() => console.log("Navigate to production systems")}
+          />
+          <StatCard 
+            title="Pending Registration" 
+            value="8" 
+            icon={<ClockIcon className="h-5 w-5 text-amber-500" />} 
+            description="Systems needing registration"
+            onClick={() => console.log("Navigate to pending systems")}
+          />
+        </div>
+        
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{currentLanguage === 'de' ? 'KI-Systeme nach Risikoniveau' : 'AI Systems by Risk Level'}</h2>
+            <Link href="/inventory">
+              <Button variant="outline">{currentLanguage === 'de' ? 'Alle anzeigen' : 'View All'}</Button>
+            </Link>
+          </div>
+          <Card>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-5 gap-4 mb-4">
+                <div className="col-span-1">
+                  <div className="flex flex-col items-center">
+                    <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-2">
+                      <span className="text-2xl font-bold text-red-600">5</span>
+                    </div>
+                    <span className="text-sm font-medium text-center">{currentLanguage === 'de' ? 'Unzulässig' : 'Unacceptable'}</span>
+                  </div>
+                </div>
+                <div className="col-span-1">
+                  <div className="flex flex-col items-center">
+                    <div className="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center mb-2">
+                      <span className="text-2xl font-bold text-amber-600">14</span>
+                    </div>
+                    <span className="text-sm font-medium text-center">{currentLanguage === 'de' ? 'Hohes Risiko' : 'High Risk'}</span>
+                  </div>
+                </div>
+                <div className="col-span-1">
+                  <div className="flex flex-col items-center">
+                    <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                      <span className="text-2xl font-bold text-blue-600">18</span>
+                    </div>
+                    <span className="text-sm font-medium text-center">{currentLanguage === 'de' ? 'Begrenztes Risiko' : 'Limited Risk'}</span>
+                  </div>
+                </div>
+                <div className="col-span-1">
+                  <div className="flex flex-col items-center">
+                    <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-2">
+                      <span className="text-2xl font-bold text-green-600">10</span>
+                    </div>
+                    <span className="text-sm font-medium text-center">{currentLanguage === 'de' ? 'Minimales Risiko' : 'Minimal Risk'}</span>
+                  </div>
+                </div>
+                <div className="col-span-1">
+                  <div className="flex flex-col items-center">
+                    <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                      <span className="text-2xl font-bold text-gray-600">3</span>
+                    </div>
+                    <span className="text-sm font-medium text-center">{currentLanguage === 'de' ? 'Nicht klassifiziert' : 'Unclassified'}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{currentLanguage === 'de' ? 'Neueste KI-System-Registrierungen' : 'Recent AI System Registrations'}</h2>
+            <Link href="/register-system">
+              <Button variant="outline">{currentLanguage === 'de' ? 'System registrieren' : 'Register System'}</Button>
+            </Link>
+          </div>
+          <Card>
+            <CardContent className="p-0">
+              <div className="divide-y">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <Cpu className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Customer Sentiment Analysis AI</p>
+                      <p className="text-sm text-gray-600">EuroBank Financial Services • Added 2 days ago</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-amber-100 text-amber-800 font-medium">High Risk</Badge>
+                </div>
+                
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <Cpu className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Inventory Optimization System</p>
+                      <p className="text-sm text-gray-600">SmartFactory GmbH • Added 5 days ago</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-800 font-medium">Limited Risk</Badge>
+                </div>
+                
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <Cpu className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Traffic Flow Prediction</p>
+                      <p className="text-sm text-gray-600">Municipality of Metropolis • Added 1 week ago</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800 font-medium">Minimal Risk</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
+  };
+  
+  const renderRiskManagementTab = () => {
+    return (
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <StatCard 
+            title="Risk Assessments" 
+            value="27" 
+            icon={<FilePieChart className="h-5 w-5 text-amber-500" />} 
+            description="Completed assessments" 
+            onClick={() => console.log("Navigate to risk assessments")}
+          />
+          <StatCard 
+            title="Compliance Score" 
+            value="76%" 
+            icon={<CheckCheck className="h-5 w-5 text-emerald-500" />} 
+            trend={{ value: 4, isPositive: true }}
+            onClick={() => console.log("Navigate to compliance dashboard")}
+          />
+          <StatCard 
+            title="Open Risk Items" 
+            value="18" 
+            icon={<AlertCircle className="h-5 w-5 text-red-500" />} 
+            description="Items requiring attention"
+            onClick={() => console.log("Navigate to open risks")}
+          />
+        </div>
+        
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{currentLanguage === 'de' ? 'Risikoverteilung nach Kategorie' : 'Risk Distribution by Category'}</h2>
+            <Link href="/risk-management">
+              <Button variant="outline">{currentLanguage === 'de' ? 'Vollständigen Bericht anzeigen' : 'View Full Report'}</Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-semibold mb-4">{currentLanguage === 'de' ? 'Top-Risikobereiche' : 'Top Risk Areas'}</h3>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">{currentLanguage === 'de' ? 'Datenschutz' : 'Data Privacy'}</span>
+                      <span className="text-sm font-medium">78%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-red-600 h-2.5 rounded-full" style={{ width: '78%' }}></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">{currentLanguage === 'de' ? 'Technische Robustheit' : 'Technical Robustness'}</span>
+                      <span className="text-sm font-medium">65%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-amber-500 h-2.5 rounded-full" style={{ width: '65%' }}></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">{currentLanguage === 'de' ? 'Menschliche Aufsicht' : 'Human Oversight'}</span>
+                      <span className="text-sm font-medium">42%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: '42%' }}></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">{currentLanguage === 'de' ? 'Dokumentation' : 'Documentation'}</span>
+                      <span className="text-sm font-medium">35%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-green-500 h-2.5 rounded-full" style={{ width: '35%' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-semibold mb-4">{currentLanguage === 'de' ? 'Risikomanagement-Fortschritt' : 'Risk Management Progress'}</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">EuroBank Financial Services</p>
+                      <p className="text-sm text-gray-600">Credit Scoring AI</p>
+                    </div>
+                    <Badge className="bg-green-100 text-green-800 font-medium">92%</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">MediTech Solutions</p>
+                      <p className="text-sm text-gray-600">Diagnostic Imaging AI</p>
+                    </div>
+                    <Badge className="bg-amber-100 text-amber-800 font-medium">68%</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">Municipality of Metropolis</p>
+                      <p className="text-sm text-gray-600">Benefits Eligibility System</p>
+                    </div>
+                    <Badge className="bg-red-100 text-red-800 font-medium">45%</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">Mercedes-Benz</p>
+                      <p className="text-sm text-gray-600">Autonomous Driving System</p>
+                    </div>
+                    <Badge className="bg-green-100 text-green-800 font-medium">87%</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{currentLanguage === 'de' ? 'Laufende Risikobewertungen' : 'Ongoing Risk Assessments'}</h2>
+            <Link href="/risk-assessment">
+              <Button variant="outline">{currentLanguage === 'de' ? 'Neue Bewertung starten' : 'Start New Assessment'}</Button>
+            </Link>
+          </div>
+          <Card>
+            <CardContent className="p-0">
+              <div className="divide-y">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-amber-100 p-2 rounded-lg mr-4">
+                      <ClipboardEdit className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Patient Risk Prediction System</p>
+                      <p className="text-sm text-gray-600">MediTech Solutions • Started 3 days ago</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-800 font-medium">In Progress</Badge>
+                </div>
+                
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-amber-100 p-2 rounded-lg mr-4">
+                      <ClipboardEdit className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Urban Planning AI</p>
+                      <p className="text-sm text-gray-600">Municipality of Metropolis • Started 1 week ago</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-purple-100 text-purple-800 font-medium">Review</Badge>
+                </div>
+                
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-amber-100 p-2 rounded-lg mr-4">
+                      <ClipboardEdit className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Fraud Detection System</p>
+                      <p className="text-sm text-gray-600">EuroBank Financial Services • Started yesterday</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-orange-100 text-orange-800 font-medium">Draft</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+  
+  const renderRegulatoryReportingTab = () => {
+    return (
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <StatCard 
+            title="Reports Submitted" 
+            value="12" 
+            icon={<FileCheck className="h-5 w-5 text-green-500" />} 
+            description="Reports filed on time" 
+            onClick={() => console.log("Navigate to reports")}
+          />
+          <StatCard 
+            title="Upcoming Deadlines" 
+            value="4" 
+            icon={<CalendarClock className="h-5 w-5 text-blue-500" />} 
+            description="Due within 30 days"
+            onClick={() => console.log("Navigate to deadlines")}
+          />
+          <StatCard 
+            title="Regulatory Updates" 
+            value="7" 
+            icon={<BookOpenText className="h-5 w-5 text-amber-500" />} 
+            description="In the last 90 days"
+            onClick={() => console.log("Navigate to updates")}
+          />
+        </div>
+        
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{currentLanguage === 'de' ? 'Regulatorischer Compliance-Kalender' : 'Regulatory Compliance Calendar'}</h2>
+            <Link href="/reports">
+              <Button variant="outline">{currentLanguage === 'de' ? 'Vollständigen Kalender anzeigen' : 'View Full Calendar'}</Button>
+            </Link>
+          </div>
+          <Card>
+            <CardContent className="p-0">
+              <div className="divide-y">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <Calendar className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Annual Conformity Assessment</p>
+                      <p className="text-sm text-gray-600">For High-Risk Systems • Due April 15, 2025</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-amber-100 text-amber-800 font-medium">Due in 20 days</Badge>
+                </div>
+                
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <Calendar className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Risk Management System Audit</p>
+                      <p className="text-sm text-gray-600">For All Critical Systems • Due May 10, 2025</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800 font-medium">Due in 45 days</Badge>
+                </div>
+                
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <Calendar className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Technical Documentation Update</p>
+                      <p className="text-sm text-gray-600">For New System Deployments • Due April 5, 2025</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-red-100 text-red-800 font-medium">Due in 10 days</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">{currentLanguage === 'de' ? 'Aktuelle Compliance-Hinweise' : 'Recent Compliance Tips'}</h2>
+              <Link href="/knowledge-center">
+                <Button variant="outline">{currentLanguage === 'de' ? 'Mehr anzeigen' : 'View More'}</Button>
+              </Link>
+            </div>
+            <Card>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div className="pb-4 border-b border-gray-100">
+                    <h3 className="font-medium mb-1">Article 6 & 7 Implementation Timeline Clarification</h3>
+                    <p className="text-sm text-gray-600 mb-2">High-risk AI system requirements will be enforced in phases, with initial compliance for core provisions required by August 2025.</p>
+                    <div className="flex items-center text-xs text-gray-500">
+                      <Clock className="h-3.5 w-3.5 mr-1" />
+                      <span>Published March 15, 2025</span>
+                    </div>
+                  </div>
+                  
+                  <div className="pb-4 border-b border-gray-100">
+                    <h3 className="font-medium mb-1">Technical Documentation Structure Guidelines</h3>
+                    <p className="text-sm text-gray-600 mb-2">New guidelines specify required documentation formats and minimum content for high-risk AI systems.</p>
+                    <div className="flex items-center text-xs text-gray-500">
+                      <Clock className="h-3.5 w-3.5 mr-1" />
+                      <span>Published March 2, 2025</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-medium mb-1">Prohibited AI Use Case Clarifications</h3>
+                    <p className="text-sm text-gray-600 mb-2">Regulatory body has issued detailed examples of prohibited social scoring and subliminal technique applications.</p>
+                    <div className="flex items-center text-xs text-gray-500">
+                      <Clock className="h-3.5 w-3.5 mr-1" />
+                      <span>Published February 20, 2025</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">{currentLanguage === 'de' ? 'Berichtsstatus' : 'Reporting Status'}</h2>
+              <Link href="/reports">
+                <Button variant="outline">{currentLanguage === 'de' ? 'Alle Berichte' : 'All Reports'}</Button>
+              </Link>
+            </div>
+            <Card>
+              <CardContent className="p-6">
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">{currentLanguage === 'de' ? 'Konformitätserklärungen' : 'Declarations of Conformity'}</span>
+                      <span className="text-sm font-medium">86%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-green-500 h-2.5 rounded-full" style={{ width: '86%' }}></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">{currentLanguage === 'de' ? 'Risikobewertungsberichte' : 'Risk Assessment Reports'}</span>
+                      <span className="text-sm font-medium">72%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-amber-500 h-2.5 rounded-full" style={{ width: '72%' }}></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">{currentLanguage === 'de' ? 'Technische Dokumentation' : 'Technical Documentation'}</span>
+                      <span className="text-sm font-medium">65%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-amber-500 h-2.5 rounded-full" style={{ width: '65%' }}></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">{currentLanguage === 'de' ? 'Qualitätsmanagementsysteme' : 'Quality Management Systems'}</span>
+                      <span className="text-sm font-medium">54%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-red-500 h-2.5 rounded-full" style={{ width: '54%' }}></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">{currentLanguage === 'de' ? 'Menschliche Aufsichtsprotokolle' : 'Human Oversight Logs'}</span>
+                      <span className="text-sm font-medium">48%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-red-500 h-2.5 rounded-full" style={{ width: '48%' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  const renderOtherTab = (tabName: string) => {
+    if (tabName === "AI Systems Inventory") {
+      return renderAiInventoryTab();
+    } else if (tabName === "Risk Management") {
+      return renderRiskManagementTab();
+    } else if (tabName === "Regulatory Reporting") {
+      return renderRegulatoryReportingTab();
+    } else {
+      return (
+        <div className="py-8 text-center">
+          <h3 className="text-xl font-semibold mb-4">{tabName} Module</h3>
+          <p className="text-gray-600 mb-6">This dashboard module is coming soon in a future update.</p>
+          <Button variant="outline" onClick={() => setActiveTab("euAiAct")}>
+            Return to EU AI Act Dashboard
+          </Button>
+        </div>
+      );
+    }
   };
 
   return (
