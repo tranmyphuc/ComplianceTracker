@@ -561,7 +561,8 @@ export async function getTrainingModules(req: Request, res: Response): Promise<v
  */
 export async function getModuleContent(req: Request, res: Response): Promise<Response> {
   try {
-    const { moduleId } = req.params;
+    // Check for moduleId in params, fall back to id param if not found
+    const moduleId = req.params.moduleId || req.params.id;
     if (!moduleId) {
       console.error("Module ID is undefined or null");
       return res.status(404).json({ error: "Invalid module ID" });
