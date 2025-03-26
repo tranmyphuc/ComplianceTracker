@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -7,8 +7,48 @@ import { Separator } from "@/components/ui/separator";
 import { Building, FileCheck, ShieldAlert, Settings, FileText, BarChart4, AlertTriangle, HelpCircle, Info, Landmark, Users, MapPin, ClipboardList, Scale, BookOpen, ScrollText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'wouter';
+import { AIJack } from '@/components/onboarding/ai-jack';
 
 const PublicSectorScenario: React.FC = () => {
+  const [currentTab, setCurrentTab] = useState('profile');
+  const [language, setLanguage] = useState<'en' | 'de'>('en');
+  
+  // AI Jack message content based on current tab
+  const getJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "The Municipality of Metropolis needs to ensure its high-risk AI systems for benefit eligibility and urban planning comply with the EU AI Act to protect citizen rights and maintain public trust.";
+      case 'challenges':
+        return "This public sector entity faces unique compliance challenges including social fairness, heightened transparency expectations, and implementing effective human oversight with limited technical resources.";
+      case 'solution':
+        return "Our solution provides Metropolis with specialized public sector compliance including a fairness assessment methodology for benefit eligibility systems and a citizen-facing transparency portal.";
+      case 'features':
+        return "Key features for public sector entities include algorithmic impact assessment tools, public transparency interfaces, and tiered human oversight systems to handle high-volume decisions.";
+      case 'outcomes':
+        return "By implementing our solution, Metropolis achieved full EU AI Act compliance while ensuring their AI systems maintain high standards of fairness and transparency for all citizens.";
+      default:
+        return "Welcome to the Municipality of Metropolis case study. This public sector entity needed to comply with the EU AI Act for their high-risk AI systems in benefits eligibility and urban planning.";
+    }
+  };
+  
+  // German translations for AI Jack
+  const getGermanJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "Die Stadtverwaltung von Metropolis muss sicherstellen, dass ihre KI-Systeme mit hohem Risiko für Leistungsansprüche und Stadtplanung dem EU AI Act entsprechen, um die Bürgerrechte zu schützen und das Vertrauen der Öffentlichkeit zu erhalten.";
+      case 'challenges':
+        return "Diese öffentliche Einrichtung steht vor einzigartigen Compliance-Herausforderungen, darunter soziale Fairness, erhöhte Transparenzanforderungen und die Implementierung einer effektiven menschlichen Aufsicht mit begrenzten technischen Ressourcen.";
+      case 'solution':
+        return "Unsere Lösung bietet Metropolis eine spezialisierte Compliance für den öffentlichen Sektor, einschließlich einer Fairness-Bewertungsmethodik für Anspruchsberechtigungssysteme und eines bürgerorientierten Transparenzportals.";
+      case 'features':
+        return "Zu den wichtigsten Funktionen für Einrichtungen des öffentlichen Sektors gehören Tools zur Bewertung der algorithmischen Auswirkungen, öffentliche Transparenzschnittstellen und mehrstufige Aufsichtssysteme, um Entscheidungen mit hohem Volumen zu bewältigen.";
+      case 'outcomes':
+        return "Durch die Implementierung unserer Lösung erreichte Metropolis die vollständige Einhaltung des EU AI Act und stellte sicher, dass ihre KI-Systeme hohe Standards an Fairness und Transparenz für alle Bürger erfüllen.";
+      default:
+        return "Willkommen zur Fallstudie der Stadtverwaltung von Metropolis. Diese öffentliche Einrichtung musste dem EU AI Act für ihre KI-Systeme mit hohem Risiko bei der Anspruchsberechtigung für Leistungen und der Stadtplanung entsprechen.";
+    }
+  };
+  
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="flex items-center gap-2 mb-2">
@@ -30,7 +70,24 @@ const PublicSectorScenario: React.FC = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="profile" className="mt-6">
+      {/* AI Jack - Multilingual Guide */}
+      <div className="my-6">
+        <AIJack
+          mood="explaining"
+          message={getJackMessage()}
+          germanMessage={getGermanJackMessage()}
+          animate={true}
+          size="md"
+          language={language}
+          allowLanguageSwitch={true}
+          onLanguageChange={(lang) => setLanguage(lang)}
+        />
+      </div>
+      
+      <Tabs 
+        defaultValue="profile" 
+        className="mt-6"
+        onValueChange={(value) => setCurrentTab(value)}>
         <TabsList className="grid grid-cols-5 w-full">
           <TabsTrigger value="profile">Client Profile</TabsTrigger>
           <TabsTrigger value="challenges">Compliance Challenges</TabsTrigger>

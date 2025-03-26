@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -7,8 +7,48 @@ import { Separator } from "@/components/ui/separator";
 import { Building, FileCheck, ShieldAlert, Settings, FileText, BarChart4, AlertTriangle, HelpCircle, Info, Umbrella, ShieldCheck, FileSearch, PieChart, LineChart, BookCheck, UserCheck } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'wouter';
+import { AIJack } from '@/components/onboarding/ai-jack';
 
 const InsuranceScenario: React.FC = () => {
+  const [currentTab, setCurrentTab] = useState('profile');
+  const [language, setLanguage] = useState<'en' | 'de'>('en');
+  
+  // AI Jack message content based on current tab
+  const getJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "AXA Insurance must ensure its high-risk AI systems for claims processing, risk assessment, and fraud detection comply with the EU AI Act to manage exposure across 15 European countries.";
+      case 'challenges':
+        return "AXA faces significant compliance challenges including algorithmic fairness in underwriting, model explainability, and navigating complex regulatory overlaps between the EU AI Act and insurance regulations.";
+      case 'solution':
+        return "Our solution provides AXA with a specialized insurance compliance framework that integrates EU AI Act requirements with existing insurance regulations across multiple jurisdictions.";
+      case 'features':
+        return "Key features for insurance companies include bias monitoring tools for underwriting algorithms, customized explainability interfaces, and cross-border compliance tracking systems.";
+      case 'outcomes':
+        return "By implementing our solution, AXA achieved full EU AI Act compliance while reducing model risk exposure and improving customer trust through enhanced transparency.";
+      default:
+        return "Welcome to the AXA Insurance case study. This major European insurer needed to comply with the EU AI Act for their high-risk AI systems in claims processing, risk assessment, and fraud detection.";
+    }
+  };
+  
+  // German translations for AI Jack
+  const getGermanJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "AXA Versicherung muss sicherstellen, dass ihre KI-Systeme mit hohem Risiko für Schadenbearbeitung, Risikobewertung und Betrugserkennung dem EU AI Act entsprechen, um die Exposition in 15 europäischen Ländern zu managen.";
+      case 'challenges':
+        return "AXA steht vor erheblichen Compliance-Herausforderungen, darunter algorithmische Fairness bei der Risikoprüfung, Modellinterpretierbarkeit und die Navigation durch komplexe regulatorische Überschneidungen zwischen dem EU AI Act und Versicherungsvorschriften.";
+      case 'solution':
+        return "Unsere Lösung bietet AXA einen spezialisierten Compliance-Rahmen für Versicherungen, der die Anforderungen des EU AI Acts mit bestehenden Versicherungsvorschriften über mehrere Jurisdiktionen hinweg integriert.";
+      case 'features':
+        return "Zu den wichtigsten Funktionen für Versicherungsunternehmen gehören Tools zur Überwachung von Verzerrungen in Underwriting-Algorithmen, angepasste Erklärbarkeitsschnittstellen und Systeme zur Verfolgung der grenzüberschreitenden Compliance.";
+      case 'outcomes':
+        return "Durch die Implementierung unserer Lösung erreichte AXA die vollständige Einhaltung des EU AI Acts, reduzierte das Modellrisiko und verbesserte das Kundenvertrauen durch erhöhte Transparenz.";
+      default:
+        return "Willkommen zur AXA Versicherung Fallstudie. Dieser große europäische Versicherer musste den EU AI Act für seine KI-Systeme mit hohem Risiko in der Schadenbearbeitung, Risikobewertung und Betrugserkennung einhalten.";
+    }
+  };
+  
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="flex items-center gap-2 mb-2">
@@ -30,7 +70,24 @@ const InsuranceScenario: React.FC = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="profile" className="mt-6">
+      {/* AI Jack - Multilingual Guide */}
+      <div className="my-6">
+        <AIJack
+          mood="explaining"
+          message={getJackMessage()}
+          germanMessage={getGermanJackMessage()}
+          animate={true}
+          size="md"
+          language={language}
+          allowLanguageSwitch={true}
+          onLanguageChange={(lang) => setLanguage(lang)}
+        />
+      </div>
+      
+      <Tabs 
+        defaultValue="profile" 
+        className="mt-6"
+        onValueChange={(value) => setCurrentTab(value)}>
         <TabsList className="grid grid-cols-5 w-full">
           <TabsTrigger value="profile">Client Profile</TabsTrigger>
           <TabsTrigger value="challenges">Compliance Challenges</TabsTrigger>

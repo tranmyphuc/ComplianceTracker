@@ -7,25 +7,48 @@ import { Separator } from "@/components/ui/separator";
 import { Building, FileCheck, ShieldAlert, Settings, FileText, BarChart4, AlertTriangle, HelpCircle, Info, Zap, Shield, Cpu, Activity, LineChart, BookCheck, CircuitBoard } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'wouter';
+import { AIJack } from '@/components/onboarding/ai-jack';
 
 const EnergyScenario: React.FC = () => {
+  const [currentTab, setCurrentTab] = useState('profile');
   const [language, setLanguage] = useState<'en' | 'de'>('en');
   
-  const jackQuotes = {
-    en: {
-      intro: "Welcome to our EU AI Act Compliance solution demonstration for the energy sector. I'm Jack, your compliance guide. Today, we'll explore how EnergieNetz AG, a major European energy provider, successfully implemented our platform to align their AI systems with EU regulatory requirements.",
-      urgency: "The EU AI Act is no longer on the horizon—it's here, with enforcement ramifications that energy companies simply cannot ignore. The financial penalties of up to 7% of global annual revenue for non-compliance could devastate even the largest utilities. But beyond penalties, there's reputational damage and potential operational shutdowns if your AI systems aren't compliant. Our platform provides immediate risk reduction and compliance acceleration that energy providers need RIGHT NOW, not months from now when enforcement actions begin.",
-      benefits: "Our solution doesn't just protect you from penalties—it transforms compliance into competitive advantage. Within weeks, not years, you'll have fully traceable, documented AI systems that satisfy both regulators and customers. Don't let competitors gain the trust advantage while you're still figuring out what the regulations mean for your smart grid technologies.",
-      callToAction: "Schedule your personalized compliance assessment today. Unlike generic solutions, we've developed sector-specific frameworks that understand the unique challenges of energy AI applications—from grid optimization to consumption forecasting. Let me walk you through how EnergieNetz AG achieved 100% compliance with their high-risk AI systems while actually improving their operational efficiency by 28%."
-    },
-    de: {
-      intro: "Willkommen zu unserer EU-KI-Gesetz-Compliance-Lösungsdemonstration für den Energiesektor. Ich bin Jack, Ihr Compliance-Berater. Heute erkunden wir, wie EnergieNetz AG, ein großer europäischer Energieversorger, unsere Plattform erfolgreich implementiert hat, um ihre KI-Systeme mit den EU-Vorschriften in Einklang zu bringen.",
-      urgency: "Das EU-KI-Gesetz ist keine Zukunftsmusik mehr – es ist da, mit Durchsetzungskonsequenzen, die Energieunternehmen einfach nicht ignorieren können. Die finanziellen Strafen von bis zu 7% des globalen Jahresumsatzes bei Nichteinhaltung könnten selbst die größten Versorgungsunternehmen ruinieren. Aber neben Strafen drohen Reputationsschäden und mögliche Betriebsschließungen, wenn Ihre KI-Systeme nicht konform sind. Unsere Plattform bietet die sofortige Risikominderung und Compliance-Beschleunigung, die Energieversorger JETZT brauchen, nicht erst in Monaten, wenn die Durchsetzungsmaßnahmen beginnen.",
-      benefits: "Unsere Lösung schützt Sie nicht nur vor Strafen – sie verwandelt Compliance in einen Wettbewerbsvorteil. Innerhalb von Wochen, nicht Jahren, werden Sie vollständig nachvollziehbare, dokumentierte KI-Systeme haben, die sowohl Regulierungsbehörden als auch Kunden zufriedenstellen. Lassen Sie nicht zu, dass Wettbewerber den Vertrauensvorteil gewinnen, während Sie noch herausfinden, was die Vorschriften für Ihre Smart-Grid-Technologien bedeuten.",
-      callToAction: "Vereinbaren Sie noch heute Ihre persönliche Compliance-Bewertung. Im Gegensatz zu allgemeinen Lösungen haben wir sektorspezifische Frameworks entwickelt, die die einzigartigen Herausforderungen von KI-Anwendungen im Energiebereich verstehen – von der Netzoptimierung bis zur Verbrauchsprognose. Lassen Sie mich Ihnen zeigen, wie EnergieNetz AG 100% Compliance für ihre Hochrisiko-KI-Systeme erreicht und gleichzeitig ihre betriebliche Effizienz um 28% verbessert hat."
+  // AI Jack message content based on current tab
+  const getJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "EnergieNetz AG must ensure its high-risk AI systems that manage critical energy infrastructure comply with the EU AI Act to prevent penalties of up to 7% of their €45 billion annual revenue.";
+      case 'challenges':
+        return "As a utility managing essential infrastructure, EnergieNetz faces unique compliance challenges including safety-critical system requirements, technical complexity, and cross-border regulatory variations.";
+      case 'solution':
+        return "Our solution provides EnergieNetz with specialized energy sector compliance including critical infrastructure risk frameworks and integration with energy regulatory requirements.";
+      case 'features':
+        return "Key features for energy providers include real-time compliance monitoring for smart grid systems, safety-critical oversight protocols, and automated technical documentation for complex grid algorithms.";
+      case 'outcomes':
+        return "By implementing our solution, EnergieNetz achieved 100% EU AI Act compliance while improving their operational efficiency by 28% through streamlined compliance processes.";
+      default:
+        return "Welcome to the EnergieNetz AG case study. This major European energy provider needed to comply with the EU AI Act for their high-risk AI systems in smart grid management and energy infrastructure.";
     }
   };
-
+  
+  // German translations for AI Jack
+  const getGermanJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "EnergieNetz AG muss sicherstellen, dass ihre KI-Systeme mit hohem Risiko, die kritische Energieinfrastruktur verwalten, dem EU AI Act entsprechen, um Strafen von bis zu 7% ihres Jahresumsatzes von 45 Milliarden Euro zu vermeiden.";
+      case 'challenges':
+        return "Als Versorgungsunternehmen, das wesentliche Infrastruktur verwaltet, steht EnergieNetz vor einzigartigen Compliance-Herausforderungen, darunter Anforderungen an sicherheitskritische Systeme, technische Komplexität und grenzüberschreitende regulatorische Unterschiede.";
+      case 'solution':
+        return "Unsere Lösung bietet EnergieNetz eine spezialisierte Compliance für den Energiesektor, einschließlich Risikorahmen für kritische Infrastrukturen und Integration mit energieregulatorischen Anforderungen.";
+      case 'features':
+        return "Zu den wichtigsten Funktionen für Energieversorger gehören Echtzeit-Compliance-Überwachung für Smart-Grid-Systeme, Protokolle für sicherheitskritische Aufsicht und automatisierte technische Dokumentation für komplexe Netzalgorithmen.";
+      case 'outcomes':
+        return "Durch die Implementierung unserer Lösung erreichte EnergieNetz 100% EU AI Act Compliance und verbesserte gleichzeitig ihre betriebliche Effizienz um 28% durch optimierte Compliance-Prozesse.";
+      default:
+        return "Willkommen zur EnergieNetz AG Fallstudie. Dieser große europäische Energieversorger musste den EU AI Act für seine KI-Systeme mit hohem Risiko im Smart-Grid-Management und der Energieinfrastruktur einhalten.";
+    }
+  };
+  
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="flex items-center gap-2 mb-2">
@@ -47,58 +70,24 @@ const EnergyScenario: React.FC = () => {
         </div>
       </div>
       
-      <div className="mb-8 p-4 bg-primary/5 rounded-lg border border-primary/20">
-        <div className="flex items-start gap-4">
-          <div className="bg-primary/20 rounded-full p-3 hidden sm:block">
-            <img 
-              src="/assets/jack-avatar.png" 
-              alt="Jack, Compliance Guide" 
-              className="w-20 h-20 rounded-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
-              }}
-            />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <h3 className="font-semibold text-lg">Jack, Your Compliance Guide</h3>
-              <div className="flex gap-1">
-                <Button 
-                  variant={language === 'en' ? "default" : "outline"} 
-                  size="sm" 
-                  onClick={() => setLanguage('en')}
-                  className="text-xs h-7"
-                >
-                  EN
-                </Button>
-                <Button 
-                  variant={language === 'de' ? "default" : "outline"} 
-                  size="sm" 
-                  onClick={() => setLanguage('de')}
-                  className="text-xs h-7"
-                >
-                  DE
-                </Button>
-              </div>
-            </div>
-            <div className="space-y-3 text-sm">
-              <p>{jackQuotes[language].intro}</p>
-              <Alert className="bg-amber-50 text-amber-800 border-amber-200">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Urgent Compliance Need</AlertTitle>
-                <AlertDescription>
-                  {jackQuotes[language].urgency}
-                </AlertDescription>
-              </Alert>
-              <p>{jackQuotes[language].benefits}</p>
-              <p className="font-medium">{jackQuotes[language].callToAction}</p>
-            </div>
-          </div>
-        </div>
+      {/* AI Jack - Multilingual Guide */}
+      <div className="my-6">
+        <AIJack
+          mood="explaining"
+          message={getJackMessage()}
+          germanMessage={getGermanJackMessage()}
+          animate={true}
+          size="md"
+          language={language}
+          allowLanguageSwitch={true}
+          onLanguageChange={(lang) => setLanguage(lang)}
+        />
       </div>
       
-      <Tabs defaultValue="profile" className="mt-6">
+      <Tabs 
+        defaultValue="profile" 
+        className="mt-6"
+        onValueChange={(value) => setCurrentTab(value)}>
         <TabsList className="grid grid-cols-5 w-full">
           <TabsTrigger value="profile">Client Profile</TabsTrigger>
           <TabsTrigger value="challenges">Compliance Challenges</TabsTrigger>

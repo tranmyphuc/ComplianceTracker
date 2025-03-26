@@ -1,0 +1,103 @@
+Municipality of Metropolis
+High Risk
+Public Sector
+•
+Large (1,000-5,000 employees)
+
+A European city implementing AI systems to determine citizen service eligibility and urban planning.
+
+AI Systems:
+
+Benefits Eligibility Assessment
+Urban Planning AI
+Public Resource Allocation System
+View Scenario
+SGH Service
+Medium Risk
+Professional Services
+•
+Medium (250-999 employees)
+
+A European professional services firm implementing AI tools for consultancy, document management, and business process optimization.
+
+AI Systems:
+
+Odoo AI
+ChatGPT Integration
+GitHub Copilot
+Document Analysis AI
+View Scenario
+AXA Insurance
+High Risk
+Insurance
+•
+Enterprise (5,000+ employees)
+
+A European insurance group using AI for claims processing, risk assessment, and fraud detection.
+
+AI Systems:
+
+Claims Processing AI
+Risk Assessment Models
+Fraud Detection System
+Customer Behavior Analysis
+View Scenario
+EnergieNetz AG
+High Risk
+Energy & Utilities
+•
+Enterprise (10,000+ employees)
+
+A leading European energy utility using AI for smart grid management, energy consumption prediction, and predictive maintenance.
+
+AI Systems:
+
+Smart Grid Management System
+Energy Consumption Prediction
+Predictive Maintenance AI
+Customer Energy Management Platform
+View Scenario
+Mercedes-Benz
+High Risk
+Automotive
+•
+Enterprise (100,000+ employees)
+
+A global automotive manufacturer implementing advanced driver assistance systems, autonomous driving, and vehicle health monitoring.
+
+AI Systems:
+
+Advanced Driver Assistance Systems
+Autonomous Driving System
+Predictive Vehicle Health Monitoring
+Personalized Driver Experience
+View Scenario
+AgroTech Solutions
+High Risk
+Agriculture
+•
+Medium (500-1,000 employees)
+
+A European precision agriculture technology provider using AI for crop health analysis, precision application, and harvest planning.
+
+AI Systems:
+
+Crop Health Analysis System
+Precision Application Control
+Harvest Prediction & Planning
+Autonomous Equipment Guidance
+View Scenario
+DHL Express
+High Risk
+Logistics & Transportation
+•
+Enterprise (100,000+ employees)
+
+A global logistics leader using AI for route optimization, automated sorting, predictive analytics, and customs clearance.
+
+AI Systems:
+
+Route Optimization System
+Automated Sorting System
+Predictive Supply Chain Analytics
+Customs Clearance AI
