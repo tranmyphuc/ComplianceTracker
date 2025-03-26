@@ -2,19 +2,20 @@
  * AI Literacy Training Module
  * 
  * Based on the SGH Group AI Literacy Training Program for EU AI Act Compliance
+ * Created from the comprehensive EU AI Act Compliance Implementation Plan
  */
 
 export const aiLiteracyTrainingModule = {
   id: "ai-literacy",
   title: "AI Literacy Training Program",
-  description: "A comprehensive training program designed for SGH Group employees to understand AI basics and EU AI Act compliance requirements.",
+  description: "A comprehensive training program designed for SGH Group employees to understand AI basics and EU AI Act compliance requirements, including role-specific training for technical service teams, IT, management, and administration.",
   estimated_time: "60-90 minutes",
-  topics: ["AI Basics", "EU AI Act", "Risk Management", "High-Risk AI", "Documentation"],
+  topics: ["AI Fundamentals", "EU AI Act", "SGH AI Tools", "Risk Management", "Role-Based Requirements", "Documentation"],
   role_relevance: {
-    decision_maker: "Essential for strategic planning and high-level compliance decisions",
-    developer: "Critical for understanding technical compliance requirements",
-    operator: "Important for day-to-day AI system management",
-    user: "Helpful for understanding AI capabilities and limitations"
+    decision_maker: "Essential for strategic planning, governance structures, and resource allocation for compliance activities",
+    developer: "Critical for understanding technical compliance requirements, documentation, and risk management frameworks",
+    operator: "Important for understanding AI limitations, human oversight, and quality control for AI-assisted decisions",
+    user: "Helpful for understanding AI capabilities, limitations, and compliance responsibilities"
   },
   content: {
     default: {
