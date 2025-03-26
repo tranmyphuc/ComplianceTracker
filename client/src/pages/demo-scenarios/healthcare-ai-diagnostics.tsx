@@ -30,7 +30,27 @@ const HealthcareScenario: React.FC = () => {
         return "Welcome to the MediTech Solutions case study. This healthcare provider needed to comply with the EU AI Act for their high-risk AI diagnostic systems.";
     }
   };
+  
+  // German translations for AI Jack
+  const getGermanJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "Dieser Gesundheitsdienstleister verfügt über mehrere KI-Systeme mit hohem Risiko gemäß dem EU AI Act. Sie müssen die Einhaltung sicherstellen, um Strafen von bis zu 35 Mio. EUR oder 7% des globalen Umsatzes zu vermeiden.";
+      case 'challenges':
+        return "MediTech steht vor mehreren Compliance-Herausforderungen, darunter regulatorische Unsicherheit, grenzüberschreitende Komplexität und umfangreiche Dokumentationsanforderungen.";
+      case 'solution':
+        return "Unsere Lösung bietet einen umfassenden Ansatz zur Bewältigung der Compliance-Herausforderungen von MediTech durch Systemregistrierung, Risikobewertung und Dokumentationserstellung.";
+      case 'features':
+        return "Zu den wichtigsten Funktionen unserer Lösung gehören umfassende Risikobewertung, Automatisierung der technischen Dokumentation und Management der grenzüberschreitenden Compliance.";
+      case 'outcomes':
+        return "Durch die Implementierung unserer Lösung erreichte MediTech die vollständige Einhaltung des EU AI Act, reduzierte die Compliance-Kosten um 40% und vermied potenzielle Strafen.";
+      default:
+        return "Willkommen zur MediTech Solutions Fallstudie. Dieser Gesundheitsdienstleister musste den EU AI Act für seine KI-Diagnosesysteme mit hohem Risiko einhalten.";
+    }
+  };
 
+  const [language, setLanguage] = useState<'en' | 'de'>('en');
+  
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="flex items-center gap-2 mb-2">
@@ -57,10 +77,12 @@ const HealthcareScenario: React.FC = () => {
         <AIJack
           mood="explaining"
           message={getJackMessage()}
+          germanMessage={getGermanJackMessage()}
           animate={true}
           size="md"
-          language="en"
+          language={language}
           allowLanguageSwitch={true}
+          onLanguageChange={(lang) => setLanguage(lang)}
         />
       </div>
       

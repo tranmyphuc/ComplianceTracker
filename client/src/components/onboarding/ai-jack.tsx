@@ -7,6 +7,7 @@ import { BrainCircuit, Languages, Lightbulb, HelpCircle, Globe } from "lucide-re
 interface AIJackProps {
   mood: 'neutral' | 'happy' | 'thinking' | 'explaining' | 'celebrating' | 'surprised';
   message?: string;
+  germanMessage?: string;
   size?: 'sm' | 'md' | 'lg';
   animate?: boolean;
   className?: string;
@@ -20,6 +21,7 @@ interface AIJackProps {
 export function AIJack({ 
   mood = 'neutral',
   message,
+  germanMessage,
   size = 'md',
   animate = false,
   className = '',
@@ -201,7 +203,7 @@ export function AIJack({
         </motion.div>
         
         {/* Message speech bubble */}
-        {message && (
+        {(message || germanMessage) && (
           <motion.div 
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
@@ -209,7 +211,7 @@ export function AIJack({
             className="mt-4 bg-white/90 border border-primary/20 rounded-lg p-4 relative w-full max-w-md text-center text-sm md:text-base shadow-sm"
           >
             <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-white border-t border-l border-primary/20"></div>
-            {message}
+            {currentLanguage === 'en' ? message : (germanMessage || message)}
           </motion.div>
         )}
         

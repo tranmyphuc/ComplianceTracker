@@ -48,6 +48,8 @@ const ManufacturingScenario: React.FC = () => {
     }
   };
   
+  const [language, setLanguage] = useState<'en' | 'de'>('en');
+  
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="flex items-center gap-2 mb-2">
@@ -77,9 +79,9 @@ const ManufacturingScenario: React.FC = () => {
           germanMessage={getGermanJackMessage()}
           animate={true}
           size="md"
-          language="en"
+          language={language}
           allowLanguageSwitch={true}
-          onLanguageChange={(lang) => setCurrentTab(currentTab)}
+          onLanguageChange={(lang) => setLanguage(lang)}
         />
       </div>
       
