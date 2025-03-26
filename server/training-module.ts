@@ -613,7 +613,8 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
       const isDevelopmentMode = process.env.NODE_ENV === 'development';
       
       // In development mode with admin user, provide demo content
-      if (isDevelopmentMode && req.query.demo === 'true') {
+      // But never show demo content for the ai-literacy module
+      if (isDevelopmentMode && req.query.demo === 'true' && moduleId !== 'ai-literacy' && moduleId !== 'ai_literacy') {
         console.log(`Development mode: serving demo content for module ${moduleId}`);
         // Return demo content for presentation
         const demoContent = MODULE_CONTENTS[moduleId] || MODULE_CONTENTS["1"];
@@ -635,6 +636,42 @@ export async function getModuleContent(req: Request, res: Response): Promise<Res
           };
           return res.json(enhancedContent);
         }
+      }
+      
+      // Special case for AI literacy module - always serve real content
+      if (moduleId === 'ai-literacy' || moduleId === 'ai_literacy') {
+        console.log("Serving AI Literacy module content from MODULE_CONTENTS");
+        const roleContent = aiLiteracyTrainingModule.content.default;
+        const moduleInfo = {
+          title: aiLiteracyTrainingModule.title,
+          description: aiLiteracyTrainingModule.description,
+          estimated_time: aiLiteracyTrainingModule.estimated_time
+        };
+        
+        // Format the module sections for HTML display
+        const formattedSections = roleContent.sections.map(section => {
+          return {
+            title: section.title,
+            content: `<div class="prose prose-blue max-w-none mb-4">${marked.parse(section.content)}</div>`
+          };
+        });
+        
+        // Format full module content for the enhanced UI
+        const enhancedContent = {
+          title: moduleInfo.title,
+          description: moduleInfo.description,
+          estimated_time: moduleInfo.estimated_time,
+          content: {
+            slides: formattedSections,
+            document: roleContent.sections.map(s => `# ${s.title}\n\n${s.content}`).join('\n\n'),
+            exercises: buildExercises(roleContent, moduleId),
+            assessment: {
+              questions: roleContent.assessments || []
+            }
+          }
+        };
+        
+        return res.json(enhancedContent);
       }
 
       // Use the postgres client with template literals for parameterized queries
