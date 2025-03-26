@@ -29,6 +29,42 @@
       "q2": "Risk assessment tips",
       "q3": "Required documentation",
       "openFull": "Open full assistant"
+    },
+    "title": "Dashboard",
+    "subtitle": "Overview of your EU AI Act compliance status and activities",
+    "guide": "Dashboard Guide",
+    "loading": "Loading dashboard data...",
+    "error": "Dashboard Error",
+    "errorDescription": "Failed to load dashboard data. Please try again later.",
+    "tabs": {
+      "compliance": "EU AI Act Compliance",
+      "business": "Business Impact"
+    },
+    "business": {
+      "roi": {
+        "title": "ROI Value",
+        "description": "Estimated financial return from compliance investments"
+      },
+      "efficiencyGain": {
+        "title": "Efficiency Gain",
+        "description": "Operational efficiency improvements from compliance"
+      },
+      "marketAdvantage": {
+        "title": "Market Advantage",
+        "description": "Business growth attributed to compliance positioning"
+      },
+      "riskReduction": {
+        "title": "Risk Reduction",
+        "description": "Percentage reduction in compliance risk exposure"
+      },
+      "resourceUsage": {
+        "title": "Resource Allocation",
+        "description": "How resources are distributed across compliance activities"
+      },
+      "successStories": {
+        "title": "Success Stories",
+        "description": "Real-world business impacts from compliance activities"
+      }
     }
   },
   "riskAssessment": {

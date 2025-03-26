@@ -73,15 +73,41 @@
     }
   },
   "dashboard": {
-    "chatbot": {
-      "title": "KI-Assistent",
-      "description": "Erhalten Sie schnelle Compliance-Antworten",
-      "greeting": "Wie kann ich Ihnen heute bei der Einhaltung der EU-KI-Verordnung helfen?",
-      "quickQuestions": "Schnelle Fragen:",
-      "q1": "Compliance-Fristen?",
-      "q2": "Tipps zur Risikobewertung",
-      "q3": "Erforderliche Dokumentation",
-      "openFull": "Vollständigen Assistenten öffnen"
+    "title": "Dashboard",
+    "subtitle": "Überblick über Ihren EU-KI-Gesetz-Compliance-Status und Aktivitäten",
+    "guide": "Dashboard-Anleitung",
+    "loading": "Dashboard-Daten werden geladen...",
+    "error": "Dashboard-Fehler",
+    "errorDescription": "Fehler beim Laden der Dashboard-Daten. Bitte versuchen Sie es später erneut.",
+    "tabs": {
+      "compliance": "EU-KI-Gesetz-Compliance",
+      "business": "Geschäftsauswirkungen"
+    },
+    "business": {
+      "roi": {
+        "title": "ROI-Wert",
+        "description": "Geschätzter finanzieller Ertrag aus Compliance-Investitionen"
+      },
+      "efficiencyGain": {
+        "title": "Effizienzgewinn",
+        "description": "Verbesserungen der betrieblichen Effizienz durch Compliance"
+      },
+      "marketAdvantage": {
+        "title": "Marktvorteil",
+        "description": "Geschäftswachstum durch Compliance-Positionierung"
+      },
+      "riskReduction": {
+        "title": "Risikoreduktion",
+        "description": "Prozentuale Verringerung des Compliance-Risikos"
+      },
+      "resourceUsage": {
+        "title": "Ressourcenzuweisung",
+        "description": "Verteilung der Ressourcen auf Compliance-Aktivitäten"
+      },
+      "successStories": {
+        "title": "Erfolgsgeschichten",
+        "description": "Reale Geschäftsauswirkungen durch Compliance-Aktivitäten"
+      }
     }
   },
   "nav": {
