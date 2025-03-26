@@ -1,9 +1,8 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, ArrowRight, FileText } from "lucide-react";
+import { Settings } from "lucide-react";
 import { Link } from 'wouter';
-import { Separator } from '@/components/ui/separator';
 
 interface RiskAssessmentDashboardProps {
   onStartAssessment?: () => void;
@@ -12,108 +11,80 @@ interface RiskAssessmentDashboardProps {
 export const RiskAssessmentDashboard: React.FC<RiskAssessmentDashboardProps> = ({ 
   onStartAssessment 
 }) => {
-  // Jack's EU AI Act Risk Assessment Requirements content
-  const aiActRequirements = {
-    title: "Jack's Tip: EU AI Act Risk Assessment Requirements",
-    text: "Under the EU AI Act, all high-risk AI systems require a comprehensive risk assessment before deployment. Ensure you capture all needed information in this assessment.",
-    relevantArticles: ["Article 9", "Article 10", "Article 17"]
-  };
-
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Risk Assessment</h1>
-        <p className="text-muted-foreground">Evaluate and classify AI systems based on EU AI Act requirements</p>
-      </div>
-
-      <div className="flex flex-wrap gap-4">
-        <Button variant="outline" className="flex items-center gap-2" asChild>
-          <Link href="/risk-assessment/text-analyzer">
-            <FileText className="h-4 w-4" />
-            Text Risk Analyzer
-          </Link>
-        </Button>
-        <Button className="flex items-center gap-2" asChild>
-          <Link href="/register-system">
-            <ArrowRight className="h-4 w-4" />
-            Register New System
-          </Link>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Risk Assessment</h1>
+          <p className="text-muted-foreground">Evaluate and classify AI systems based on EU AI Act requirements</p>
+        </div>
+        <Button variant="outline" size="icon" className="h-9 w-9">
+          <Settings className="h-4 w-4" />
         </Button>
       </div>
 
       <Card className="border-muted bg-card/50">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <img 
-              src="/assets/1000048340-modified.png" 
-              alt="Jack" 
-              className="w-6 h-6 rounded-full"
-            />
-            <CardTitle className="text-base font-medium">{aiActRequirements.title}</CardTitle>
-          </div>
-          <CardDescription className="pt-1">
-            {aiActRequirements.text}
-          </CardDescription>
-        </CardHeader>
-        <Separator />
-        <CardContent className="pt-3">
-          <p className="text-sm text-muted-foreground font-medium">Relevant Articles:</p>
-          <div className="flex gap-2 mt-1">
-            {aiActRequirements.relevantArticles.map((article, index) => (
-              <div key={index} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-sm">
-                {article}
+        <CardContent className="p-6">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              <img 
+                src="/assets/1000048340-modified.png" 
+                alt="Jack" 
+                className="w-8 h-8 rounded-full"
+              />
+            </div>
+            <div>
+              <h3 className="text-base font-medium mb-1">Jack's Tip: EU AI Act Risk Assessment Requirements</h3>
+              <p className="text-sm text-muted-foreground">
+                Under the EU AI Act, all high-risk AI systems require a comprehensive risk assessment before deployment. Ensure you capture all needed information in this assessment.
+              </p>
+              <div className="flex gap-2 mt-2">
+                <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-sm">Article 9</div>
+                <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-sm">Article 16</div>
+                <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-sm">Article 17</div>
               </div>
-            ))}
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="col-span-1">
-          <CardHeader>
-            <CardTitle className="text-lg">Risk Assessment Report</CardTitle>
-            <CardDescription>System compliance status and requirements</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      <Card className="border-muted bg-card/50">
+        <CardContent className="p-0">
+          <div className="bg-yellow-300 p-4">
+            <h2 className="text-lg font-medium">EU AI Act Compliance Platform</h2>
+            <p className="text-sm">Current language: English</p>
+          </div>
+          <div className="p-6 space-y-6">
             <p className="text-sm">
-              Comprehensive overview of your AI systems' risk levels and compliance status with the EU AI Act requirements
+              Detailed guides and documentation to help you understand and implement EU AI Act risk assessments
             </p>
             
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">Assessment Methodology</h3>
-              <p className="text-xs text-muted-foreground">
+            <div className="space-y-2">
+              <h3 className="text-base font-medium">Assessment Methodology</h3>
+              <p className="text-sm text-muted-foreground">
                 Step-by-step process for conducting risk assessments
               </p>
+              <p className="text-sm mt-2">
+                Learn about the methodology for conducting a comprehensive risk assessment of AI systems, including risk identification, analysis, evaluation, and mitigation.
+              </p>
             </div>
             
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">Risk Categories</h3>
-              <div className="flex gap-2 mt-1">
-                <div className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-sm">High</div>
-                <div className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-sm">Limited</div>
-                <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-sm">Minimal</div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">High-Risk System Requirements</h3>
-              <p className="text-xs text-muted-foreground">
+            <div className="space-y-2">
+              <h3 className="text-base font-medium">High-Risk System Requirements</h3>
+              <p className="text-sm text-muted-foreground">
                 Compliance requirements for high-risk AI systems
               </p>
-              <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-1">
-                <li>Risk management system</li>
-                <li>Data governance measures</li>
-                <li>Technical documentation</li>
-                <li>Human oversight capabilities</li>
-              </ul>
+              <p className="text-sm mt-2">
+                Detailed explanation of the specific requirements that apply to high-risk AI systems under the EU AI Act, including risk management, data governance, and human oversight.
+              </p>
             </div>
             
-            <Button variant="outline" className="w-full" size="sm">
-              View Assessment Report
+            <Button variant="primary" className="bg-blue-800 text-white hover:bg-blue-700">
+              View Guide
             </Button>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
