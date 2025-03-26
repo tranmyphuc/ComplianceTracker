@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BrainCircuit, ExternalLink, Lightbulb, HelpCircle } from "lucide-react";
+import { BrainCircuit, Languages, Lightbulb, HelpCircle, Globe } from "lucide-react";
 
 interface AIJackProps {
   mood: 'neutral' | 'happy' | 'thinking' | 'explaining' | 'celebrating' | 'surprised';
@@ -12,6 +12,9 @@ interface AIJackProps {
   className?: string;
   showPracticePrompt?: boolean;
   onPracticeClick?: () => void;
+  language?: 'en' | 'de';
+  allowLanguageSwitch?: boolean;
+  onLanguageChange?: (lang: 'en' | 'de') => void;
 }
 
 export function AIJack({ 
@@ -21,9 +24,31 @@ export function AIJack({
   animate = false,
   className = '',
   showPracticePrompt = false,
-  onPracticeClick
+  onPracticeClick,
+  language = 'en',
+  allowLanguageSwitch = false,
+  onLanguageChange
 }: AIJackProps) {
   const [isAnimating, setIsAnimating] = useState(animate);
+  const [currentLanguage, setCurrentLanguage] = useState<'en' | 'de'>(language);
+  
+  // Translations for UI elements
+  const translations = {
+    en: {
+      practiceHeading: "Practice This Concept",
+      practiceDescription: "Apply your knowledge with interactive practice exercises",
+      tryNow: "Try Now",
+      learnMore: "Learn More",
+      excellent: "Excellent!"
+    },
+    de: {
+      practiceHeading: "Üben Sie dieses Konzept",
+      practiceDescription: "Wenden Sie Ihr Wissen mit interaktiven Übungen an",
+      tryNow: "Jetzt versuchen",
+      learnMore: "Mehr erfahren",
+      excellent: "Ausgezeichnet!"
+    }
+  };
   
   // Reset animation state periodically if animation is enabled
   useEffect(() => {
@@ -48,10 +73,36 @@ export function AIJack({
     lg: 'w-32 h-32'
   }[size];
 
+  // Handle language change
+  const handleLanguageChange = (lang: 'en' | 'de') => {
+    setCurrentLanguage(lang);
+    if (onLanguageChange) {
+      onLanguageChange(lang);
+    }
+  };
+  
   // Use Jack's image instead of SVG expressions
   return (
     <div className={`${className}`}>
       <div className="flex flex-col items-center">
+        {/* Language selector */}
+        {allowLanguageSwitch && (
+          <div className="mb-2 flex items-center justify-center gap-2">
+            <button 
+              onClick={() => handleLanguageChange('en')}
+              className={`text-xs px-2 py-1 rounded flex items-center gap-1 ${currentLanguage === 'en' ? 'bg-primary text-white' : 'bg-muted hover:bg-muted/80'}`}
+            >
+              <Globe className="h-3 w-3" /> EN
+            </button>
+            <button 
+              onClick={() => handleLanguageChange('de')}
+              className={`text-xs px-2 py-1 rounded flex items-center gap-1 ${currentLanguage === 'de' ? 'bg-primary text-white' : 'bg-muted hover:bg-muted/80'}`}
+            >
+              <Globe className="h-3 w-3" /> DE
+            </button>
+          </div>
+        )}
+        
         {/* AI Jack character */}
         <motion.div
           animate={isAnimating ? { y: [0, -5, 0, -5, 0] } : { y: 0 }}
@@ -88,7 +139,7 @@ export function AIJack({
                   className="absolute top-0 left-0 right-0 flex justify-center"
                 >
                   <div className="px-2 py-0.5 bg-yellow-500/80 text-white text-xs rounded-full">
-                    Excellent!
+                    {translations[currentLanguage].excellent}
                   </div>
                 </motion.div>
               )}
