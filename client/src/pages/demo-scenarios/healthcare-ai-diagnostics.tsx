@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -8,8 +8,29 @@ import { Separator } from "@/components/ui/separator";
 import { Building, FileCheck, ShieldAlert, Settings, FileText, BarChart4, AlertTriangle, HelpCircle, Info, CheckCircle2, Check } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'wouter';
+import { AIJack } from '@/components/onboarding/ai-jack';
 
 const HealthcareScenario: React.FC = () => {
+  const [currentTab, setCurrentTab] = useState('profile');
+  
+  // AI Jack message content based on current tab
+  const getJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "This healthcare client has multiple high-risk AI systems under the EU AI Act. They need to ensure compliance to avoid penalties of up to €35M or 7% of global revenue.";
+      case 'challenges':
+        return "MediTech faces several compliance challenges including regulatory uncertainty, cross-border complexity, and extensive documentation requirements.";
+      case 'solution':
+        return "Our solution provides a comprehensive approach to address MediTech's compliance challenges through system registration, risk assessment, and documentation generation.";
+      case 'features':
+        return "Key features of our solution include comprehensive risk assessment, technical documentation automation, and cross-border compliance management.";
+      case 'outcomes':
+        return "By implementing our solution, MediTech achieved full EU AI Act compliance, reducing compliance costs by 40% and avoiding potential penalties.";
+      default:
+        return "Welcome to the MediTech Solutions case study. This healthcare provider needed to comply with the EU AI Act for their high-risk AI diagnostic systems.";
+    }
+  };
+
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="flex items-center gap-2 mb-2">
@@ -31,7 +52,19 @@ const HealthcareScenario: React.FC = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="profile" className="mt-6">
+      {/* AI Jack - Multilingual Guide */}
+      <div className="my-6">
+        <AIJack
+          mood="explaining"
+          message={getJackMessage()}
+          animate={true}
+          size="md"
+          language="en"
+          allowLanguageSwitch={true}
+        />
+      </div>
+      
+      <Tabs defaultValue="profile" className="mt-6" onValueChange={(value) => setCurrentTab(value)}>
         <TabsList className="grid grid-cols-5 w-full">
           <TabsTrigger value="profile">Client Profile</TabsTrigger>
           <TabsTrigger value="challenges">Compliance Challenges</TabsTrigger>

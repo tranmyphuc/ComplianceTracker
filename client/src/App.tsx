@@ -46,7 +46,16 @@ import PlatformIntroduction from './pages/guides/platform-introduction';
 import PlatformGuide from './pages/guides/platform-guide'; 
 import DemoScenarios from '@/pages/demo-scenarios';
 import HealthcareScenario from '@/pages/demo-scenarios/healthcare-ai-diagnostics';
-import VendorManagement from '@/pages/vendor-management';
+import FintechScenario from '@/pages/demo-scenarios/fintech-fraud-detection';
+import ManufacturingScenario from '@/pages/demo-scenarios/manufacturing-predictive-maintenance';
+import RetailScenario from '@/pages/demo-scenarios/retail-recommendation-engine';
+import PublicSectorScenario from '@/pages/demo-scenarios/public-sector-eligibility';
+import InsuranceScenario from '@/pages/demo-scenarios/insurance-risk-assessment';
+import EnergyScenario from '@/pages/demo-scenarios/energy-smart-grid';
+import AutomotiveScenario from '@/pages/demo-scenarios/automotive-safety-systems';
+import AgricultureScenario from '@/pages/demo-scenarios/agriculture-precision-farming';
+import LogisticsScenario from '@/pages/demo-scenarios/logistics-supply-chain';
+import SGHServiceScenario from '@/pages/demo-scenarios/sgh-service-consulting';
 import ComplianceChatbotPage from "./pages/compliance-chatbot";
 
 
@@ -99,6 +108,16 @@ function Router() {
     "/guides/platform-guide",
     "/demo-scenarios",
     "/demo-scenarios/healthcare-ai-diagnostics",
+    "/demo-scenarios/fintech-fraud-detection",
+    "/demo-scenarios/manufacturing-predictive-maintenance",
+    "/demo-scenarios/retail-recommendation-engine",
+    "/demo-scenarios/public-sector-eligibility",
+    "/demo-scenarios/insurance-risk-assessment",
+    "/demo-scenarios/energy-smart-grid",
+    "/demo-scenarios/automotive-safety-systems",
+    "/demo-scenarios/agriculture-precision-farming",
+    "/demo-scenarios/logistics-supply-chain",
+    "/demo-scenarios/sgh-service-consulting",
     "/compliance-chatbot"
   ];
 
@@ -238,6 +257,36 @@ function Router() {
       </Route>
       <Route path="/demo-scenarios/healthcare-ai-diagnostics">
         {() => renderSuspense(HealthcareScenario)}
+      </Route>
+      <Route path="/demo-scenarios/fintech-fraud-detection">
+        {() => renderSuspense(FintechScenario)}
+      </Route>
+      <Route path="/demo-scenarios/manufacturing-predictive-maintenance">
+        {() => renderSuspense(ManufacturingScenario)}
+      </Route>
+      <Route path="/demo-scenarios/retail-recommendation-engine">
+        {() => renderSuspense(RetailScenario)}
+      </Route>
+      <Route path="/demo-scenarios/public-sector-eligibility">
+        {() => renderSuspense(PublicSectorScenario)}
+      </Route>
+      <Route path="/demo-scenarios/insurance-risk-assessment">
+        {() => renderSuspense(InsuranceScenario)}
+      </Route>
+      <Route path="/demo-scenarios/energy-smart-grid">
+        {() => renderSuspense(EnergyScenario)}
+      </Route>
+      <Route path="/demo-scenarios/automotive-safety-systems">
+        {() => renderSuspense(AutomotiveScenario)}
+      </Route>
+      <Route path="/demo-scenarios/agriculture-precision-farming">
+        {() => renderSuspense(AgricultureScenario)}
+      </Route>
+      <Route path="/demo-scenarios/logistics-supply-chain">
+        {() => renderSuspense(LogisticsScenario)}
+      </Route>
+      <Route path="/demo-scenarios/sgh-service-consulting">
+        {() => renderSuspense(SGHServiceScenario)}
       </Route>
       <Route path="/compliance-chatbot">
         {() => renderWithLayout(ComplianceChatbotPage)}

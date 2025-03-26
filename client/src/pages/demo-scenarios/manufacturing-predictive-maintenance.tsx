@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { Building, FileCheck, ShieldAlert, Settings, FileText, BarChart4, AlertTriangle, HelpCircle, Info, Factory, Tool, Camera, LineChart, ActivitySquare, Database, Brain, Eye } from 'lucide-react';
+import { Building, FileCheck, ShieldAlert, Settings, FileText, BarChart4, AlertTriangle, HelpCircle, Info, Factory, Wrench, Camera, LineChart, ActivitySquare, Database, Brain, Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'wouter';
 
