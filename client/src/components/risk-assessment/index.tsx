@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { HelpCircle, FileLineChart, AlertTriangle, ShieldCheck } from "lucide-react";
 import ComprehensiveRiskAssessment from './comprehensive-assessment';
 import RiskAssessmentGuide from './visual-guide';
+import RiskAssessmentDashboard from './dashboard';
 
 interface AssessmentResult {
   categoryScores: Record<string, number>;
@@ -15,32 +16,19 @@ interface AssessmentResult {
 }
 
 const RiskAssessmentPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('assessment');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [assessmentResult, setAssessmentResult] = useState<AssessmentResult | null>(null);
   
   const handleAssessmentComplete = (result: AssessmentResult) => {
     setAssessmentResult(result);
   };
   
+  const handleStartAssessment = () => {
+    setActiveTab('assessment');
+  };
+  
   return (
     <div className="container mx-auto py-6 max-w-7xl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Risk Assessment</h1>
-          <p className="text-muted-foreground mt-1">
-            Evaluate your AI system's risk level under the EU AI Act
-          </p>
-        </div>
-        <Button 
-          variant="outline" 
-          className="gap-2"
-          onClick={() => setActiveTab('guide')}
-        >
-          <HelpCircle className="h-4 w-4" />
-          View Guide
-        </Button>
-      </div>
-      
       {assessmentResult && (
         <Card className="mb-6 bg-muted/40">
           <CardContent className="pt-6">
@@ -83,10 +71,15 @@ const RiskAssessmentPage: React.FC = () => {
       )}
       
       <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-8">
+        <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="assessment">Assessment Tool</TabsTrigger>
           <TabsTrigger value="guide">Visual Guide</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="dashboard">
+          <RiskAssessmentDashboard onStartAssessment={handleStartAssessment} />
+        </TabsContent>
         
         <TabsContent value="assessment">
           <ComprehensiveRiskAssessment onComplete={handleAssessmentComplete} />
