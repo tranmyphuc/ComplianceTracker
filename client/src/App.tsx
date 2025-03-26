@@ -114,9 +114,9 @@ function Router() {
     "/demo-scenarios/insurance-risk-assessment",
     "/demo-scenarios/energy-smart-grid",
     "/demo-scenarios/manufacturing-predictive-maintenance",
-    "/demo-scenarios/professional-services",
-    "/demo-scenarios/automotive-ai-systems",
-    "/demo-scenarios/logistics-transportation",
+    "/demo-scenarios/sgh-service-consulting",
+    "/demo-scenarios/automotive-safety-systems",
+    "/demo-scenarios/logistics-supply-chain",
     "/compliance-chatbot",
     "/advanced-analytics" // Added route
   ];
@@ -276,13 +276,13 @@ function Router() {
       <Route path="/demo-scenarios/manufacturing-predictive-maintenance">
         {() => renderSuspense(ManufacturingScenario)}
       </Route>
-      <Route path="/demo-scenarios/professional-services">
+      <Route path="/demo-scenarios/sgh-service-consulting">
         {() => renderSuspense(ProfessionalServicesScenario)}
       </Route>
-      <Route path="/demo-scenarios/automotive-ai-systems">
+      <Route path="/demo-scenarios/automotive-safety-systems">
         {() => renderSuspense(AutomotiveScenario)}
       </Route>
-      <Route path="/demo-scenarios/logistics-transportation">
+      <Route path="/demo-scenarios/logistics-supply-chain">
         {() => renderSuspense(LogisticsScenario)}
       </Route>
       <Route path="/compliance-chatbot">
