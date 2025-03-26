@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { CheckCircle, AlertTriangle, Info, ChevronRight, ChevronLeft, Save } from 'lucide-react';
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/language-switcher";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 // Define the types for our wizard questions
 type TextQuestion = {
@@ -230,6 +230,7 @@ const RiskAssessmentWizard: React.FC = () => {
   const [riskLevel, setRiskLevel] = useState<RiskLevel | null>(null);
   const { t, currentLanguage } = useLanguage();
   const [_, navigate] = useLocation();
+  const { toast } = useToast();
   
   const handleAnswer = (questionId: string, value: string) => {
     setAnswers(prev => ({...prev, [questionId]: value}));
@@ -405,7 +406,7 @@ const RiskAssessmentWizard: React.FC = () => {
                 
                 {question.type === 'text' && (
                   <Input 
-                    placeholder={question.placeholder} 
+                    placeholder={(question as TextQuestion).placeholder} 
                     value={answers[question.id] || ''} 
                     onChange={(e) => handleAnswer(question.id, e.target.value)} 
                   />
@@ -413,7 +414,7 @@ const RiskAssessmentWizard: React.FC = () => {
                 
                 {question.type === 'textarea' && (
                   <Textarea 
-                    placeholder={question.placeholder} 
+                    placeholder={(question as TextQuestion).placeholder} 
                     value={answers[question.id] || ''} 
                     onChange={(e) => handleAnswer(question.id, e.target.value)} 
                   />
@@ -424,7 +425,7 @@ const RiskAssessmentWizard: React.FC = () => {
                     value={answers[question.id] || ''} 
                     onValueChange={(value) => handleAnswer(question.id, value)}
                   >
-                    {question.options.map((option) => (
+                    {(question as RadioQuestion).options.map((option) => (
                       <div key={option.value} className="flex items-center space-x-2">
                         <RadioGroupItem value={option.value} id={`${question.id}-${option.value}`} />
                         <Label htmlFor={`${question.id}-${option.value}`}>{option.label}</Label>
