@@ -6,7 +6,10 @@
  * oversight framework.
  */
 
-import { AppError, ErrorType } from './error-handling';
+import { Request, Response } from 'express';
+import { db } from './db';
+import { ValidationError } from './error-handling';
+import { z } from 'zod';
 
 export enum ConfidenceLevel {
   HIGH = 'high',
@@ -34,43 +37,67 @@ export interface LegalValidationResult {
   validationNotes?: string;
 }
 
+export const validationRequestSchema = z.object({
+  text: z.string().min(1, "Assessment text is required"),
+  type: z.enum(['assessment', 'document', 'recommendation', 'training']),
+  context: z.object({
+    systemId: z.string().optional(),
+    documentId: z.string().optional(),
+    assessmentId: z.string().optional(),
+    moduleId: z.string().optional()
+  }).optional()
+});
+
 /**
  * Analyzes AI-generated output for confidence indicators
  * Implements advanced uncertainty detection for legal assessments
  */
 export function analyzeConfidence(text: string): ConfidenceLevel {
-  // Phrases that indicate uncertainty in the assessment
-  const uncertaintyPhrases = [
-    'might be', 'possibly', 'could be', 'unclear', 'uncertain',
-    'may be', 'potential', 'arguably', 'seems', 'appears to be',
-    'not entirely clear', 'ambiguous', 'open to interpretation'
+  if (!text) return ConfidenceLevel.UNCERTAIN;
+  
+  const text_lower = text.toLowerCase();
+  
+  // Detect uncertainty markers
+  const uncertaintyMarkers = [
+    'uncertain', 'unclear', 'ambiguous', 'might', 'may', 'could', 
+    'possibly', 'perhaps', 'appear to', 'seem to', 'potentially',
+    'not entirely clear', 'difficult to determine', 'hard to assess'
   ];
   
-  // Phrases that indicate certainty in the assessment
-  const certaintyPhrases = [
-    'definitely', 'certainly', 'clearly', 'without doubt', 'unquestionably',
-    'is required', 'must be', 'explicitly states', 'according to article',
-    'precisely', 'specifically mandates', 'is prohibited'
+  // Detect hedging language
+  const hedgingLanguage = [
+    'generally', 'typically', 'usually', 'often', 'in most cases',
+    'tends to', 'likely', 'probable', 'can be considered'
   ];
   
-  // Count uncertainty and certainty indicators
-  const uncertaintyCount = uncertaintyPhrases.reduce(
-    (count, phrase) => count + (text.toLowerCase().includes(phrase) ? 1 : 0), 0
-  );
+  // Detect contradiction indicators
+  const contradictionIndicators = [
+    'however', 'although', 'nevertheless', 'on the other hand',
+    'conversely', 'in contrast', 'yet', 'but', 'despite'
+  ];
   
-  const certaintyCount = certaintyPhrases.reduce(
-    (count, phrase) => count + (text.toLowerCase().includes(phrase) ? 1 : 0), 0
-  );
+  // Count occurrences
+  const uncertaintyCount = uncertaintyMarkers.filter(marker => 
+    text_lower.includes(marker)).length;
+    
+  const hedgingCount = hedgingLanguage.filter(phrase => 
+    text_lower.includes(phrase)).length;
+    
+  const contradictionCount = contradictionIndicators.filter(indicator => 
+    text_lower.includes(indicator)).length;
   
-  // Determine confidence level based on counts
-  if (uncertaintyCount > 3 && certaintyCount < 2) {
+  // Simple scoring system
+  const totalMarkers = uncertaintyCount + hedgingCount + (contradictionCount * 2);
+  const textLength = text.length;
+  const normalizedScore = (totalMarkers / (textLength / 1000)) * 3; // Adjust for text length
+  
+  // Assign confidence level based on score
+  if (normalizedScore > 5 || contradictionCount > 3) {
     return ConfidenceLevel.LOW;
-  } else if (uncertaintyCount > 1 && certaintyCount >= 2) {
-    return ConfidenceLevel.MEDIUM;
-  } else if (uncertaintyCount <= 1 && certaintyCount >= 3) {
-    return ConfidenceLevel.HIGH;
+  } else if (normalizedScore > 2 || contradictionCount > 1) {
+    return ConfidenceLevel.MEDIUM; 
   } else {
-    return ConfidenceLevel.MEDIUM; // Default to medium confidence
+    return ConfidenceLevel.HIGH;
   }
 }
 
@@ -78,27 +105,39 @@ export function analyzeConfidence(text: string): ConfidenceLevel {
  * Validates references to EU AI Act articles in the assessment
  */
 export function validateLegalReferences(text: string): { valid: boolean; invalidReferences: string[] } {
-  // Regular expression to extract article references
-  const referencePattern = /Article (\d+)(?:\((\d+)\))?(?:\s*(?:of the EU AI Act|of Regulation|EU AI Act))?/gi;
-  const matches = [...text.matchAll(referencePattern)];
+  if (!text) return { valid: true, invalidReferences: [] };
   
-  // Extract articles and paragraphs
-  const references = matches.map(match => ({
-    article: match[1],
-    paragraph: match[2] || null
-  }));
+  const text_lower = text.toLowerCase();
   
-  // Check if references are valid
-  const validArticleRange = Array.from({ length: 85 }, (_, i) => `${i + 1}`); // Articles 1-85
+  // Simple regex to find article references
+  const articlePattern = /article\s+(\d+[a-z]?(\(\d+\))?)/gi;
+  const matches = [...text_lower.matchAll(articlePattern)];
   
-  const invalidReferences = references.filter(ref => 
-    !validArticleRange.includes(ref.article) || 
-    (ref.paragraph && parseInt(ref.paragraph) > 10) // Assuming max 10 paragraphs per article
-  ).map(ref => ref.paragraph ? `Article ${ref.article}(${ref.paragraph})` : `Article ${ref.article}`);
+  // List of valid EU AI Act articles (simplified for demo)
+  const validArticles = [
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+    '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
+    '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
+    '31', '32', '33', '34', '35', '36', '37', '38', '39', '40',
+    '41', '42', '43', '44', '45', '46', '47', '48', '49', '50',
+    '51', '52', '53', '54', '55', '56', '57', '58', '59', '60',
+    '61', '62', '63', '64', '65', '66', '67', '68', '69', '70',
+    '71', '72', '73', '74', '75', '76', '77', '78', '79', '80',
+    '81', '82', '83'
+  ];
+  
+  const invalidReferences: string[] = [];
+  
+  matches.forEach(match => {
+    const articleNumber = match[1].replace(/\(\d+\)/g, '').trim();
+    if (!validArticles.includes(articleNumber)) {
+      invalidReferences.push(`Article ${articleNumber}`);
+    }
+  });
   
   return {
     valid: invalidReferences.length === 0,
-    invalidReferences
+    invalidReferences: [...new Set(invalidReferences)] // Remove duplicates
   };
 }
 
@@ -106,21 +145,47 @@ export function validateLegalReferences(text: string): { valid: boolean; invalid
  * Checks for contradictions in the legal assessment
  */
 export function checkForContradictions(text: string): string[] {
+  if (!text) return [];
+  
   const contradictions: string[] = [];
   
-  // Check for common contradictory statements
-  const contradictionPatterns = [
-    { pattern: /is high risk.*is not high risk/is, message: "Contradicting statements about high risk classification" },
-    { pattern: /is prohibited.*is allowed/is, message: "Contradicting statements about prohibition" },
-    { pattern: /must comply.*exempt from/is, message: "Contradicting statements about compliance requirements" },
-    { pattern: /Article \d+ applies.*Article \d+ does not apply/is, message: "Contradicting statements about applicable articles" }
+  // Simple patterns that might indicate contradictions
+  const sections = text.split(/\n\n|\r\n\r\n/);
+  
+  // Look for statements that contradict each other
+  const mustPatterns = [
+    { pattern: /must ([\w\s]+)/gi, type: 'requirement' },
+    { pattern: /required to ([\w\s]+)/gi, type: 'requirement' },
+    { pattern: /shall ([\w\s]+)/gi, type: 'requirement' },
+    { pattern: /is not ([\w\s]+)/gi, type: 'prohibition' },
+    { pattern: /cannot ([\w\s]+)/gi, type: 'prohibition' },
+    { pattern: /exempt from ([\w\s]+)/gi, type: 'exemption' }
   ];
   
-  for (const { pattern, message } of contradictionPatterns) {
-    if (pattern.test(text)) {
-      contradictions.push(message);
+  const requirements: string[] = [];
+  const prohibitions: string[] = [];
+  const exemptions: string[] = [];
+  
+  mustPatterns.forEach(({ pattern, type }) => {
+    const matches = [...text.matchAll(pattern)];
+    matches.forEach(match => {
+      if (type === 'requirement') requirements.push(match[1].trim().toLowerCase());
+      if (type === 'prohibition') prohibitions.push(match[1].trim().toLowerCase());
+      if (type === 'exemption') exemptions.push(match[1].trim().toLowerCase());
+    });
+  });
+  
+  // Check for contradicting requirements/prohibitions
+  requirements.forEach(req => {
+    const contradictingReq = prohibitions.find(p => 
+      req.includes(p) || p.includes(req) || 
+      req.replace('not', '').trim() === p.replace('not', '').trim()
+    );
+    
+    if (contradictingReq) {
+      contradictions.push(`Contradicting requirements detected: must ${req} vs. cannot ${contradictingReq}`);
     }
-  }
+  });
   
   return contradictions;
 }
@@ -129,15 +194,24 @@ export function checkForContradictions(text: string): string[] {
  * Checks if all required sections are present in the assessment
  */
 export function checkRequiredSections(text: string): string[] {
+  if (!text) return ['Empty assessment text'];
+  
+  // Required sections for a compliant assessment
   const requiredSections = [
-    { name: "Risk Classification", pattern: /risk (classification|category|level)/i },
-    { name: "Required Actions", pattern: /(required|recommended|necessary) (actions|steps|measures)/i },
-    { name: "Legal Basis", pattern: /(legal basis|according to article|based on the EU AI Act)/i },
-    { name: "Limitations", pattern: /(limitations|constraints|restrictions|this (assessment|analysis) (does not|is not))/i }
+    { name: 'Risk Classification', patterns: [/risk classification/i, /risk level/i, /risk category/i] },
+    { name: 'Applicable Articles', patterns: [/applicable articles/i, /relevant articles/i, /eu ai act articles/i] },
+    { name: 'Required Documentation', patterns: [/required documentation/i, /necessary documents/i, /documentation requirements/i] },
+    { name: 'Implementation Steps', patterns: [/implementation steps/i, /compliance steps/i, /next steps/i] }
   ];
   
-  const missingSections = requiredSections.filter(section => !section.pattern.test(text))
-    .map(section => section.name);
+  const missingSections: string[] = [];
+  
+  requiredSections.forEach(section => {
+    const sectionFound = section.patterns.some(pattern => pattern.test(text));
+    if (!sectionFound) {
+      missingSections.push(`Missing required section: ${section.name}`);
+    }
+  });
   
   return missingSections;
 }
@@ -147,48 +221,65 @@ export function checkRequiredSections(text: string): string[] {
  */
 export function validateLegalOutput(outputText: string): LegalValidationResult {
   const validationResult: LegalValidationResult = {
-    isValid: true,
-    confidenceLevel: ConfidenceLevel.MEDIUM,
-    reviewStatus: ReviewStatus.VALIDATED,
+    isValid: false,
+    confidenceLevel: ConfidenceLevel.UNCERTAIN,
+    reviewStatus: ReviewStatus.PENDING_REVIEW,
     issues: [],
     warnings: [],
     reviewRequired: false,
     timestamp: new Date(),
-    validator: 'system'
+    validator: 'ai'
   };
 
-  // 1. Analyze confidence level
+  if (!outputText) {
+    validationResult.issues.push('Empty assessment text');
+    validationResult.reviewStatus = ReviewStatus.REQUIRES_LEGAL_REVIEW;
+    validationResult.reviewRequired = true;
+    validationResult.validator = 'system';
+    return validationResult;
+  }
+
+  // Analyze confidence
   validationResult.confidenceLevel = analyzeConfidence(outputText);
-  if (validationResult.confidenceLevel === ConfidenceLevel.LOW) {
-    validationResult.warnings.push("Assessment contains high uncertainty language");
-    validationResult.reviewStatus = ReviewStatus.REQUIRES_LEGAL_REVIEW;
-    validationResult.reviewRequired = true;
+  
+  // Validate legal references
+  const { valid: validReferences, invalidReferences } = validateLegalReferences(outputText);
+  if (!validReferences) {
+    for (const ref of invalidReferences) {
+      validationResult.issues.push(`Invalid reference: ${ref}`);
+    }
   }
   
-  // 2. Validate legal references
-  const referenceValidation = validateLegalReferences(outputText);
-  if (!referenceValidation.valid) {
-    validationResult.issues.push(`Invalid legal references: ${referenceValidation.invalidReferences.join(', ')}`);
-    validationResult.isValid = false;
-    validationResult.reviewRequired = true;
-  }
-  
-  // 3. Check for contradictions
+  // Check for contradictions
   const contradictions = checkForContradictions(outputText);
-  if (contradictions.length > 0) {
-    validationResult.issues.push(...contradictions);
-    validationResult.isValid = false;
-    validationResult.reviewStatus = ReviewStatus.REQUIRES_LEGAL_REVIEW;
-    validationResult.reviewRequired = true;
+  validationResult.issues.push(...contradictions);
+  
+  // Check required sections
+  const missingSections = checkRequiredSections(outputText);
+  validationResult.issues.push(...missingSections);
+  
+  // Add warnings based on confidence level
+  if (validationResult.confidenceLevel === ConfidenceLevel.MEDIUM) {
+    validationResult.warnings.push('Medium confidence detected. Consider expert review for critical decisions.');
+  } else if (validationResult.confidenceLevel === ConfidenceLevel.LOW) {
+    validationResult.warnings.push('Low confidence detected. Expert review recommended.');
   }
   
-  // 4. Check for required sections
-  const missingSections = checkRequiredSections(outputText);
-  if (missingSections.length > 0) {
-    validationResult.issues.push(`Missing required sections: ${missingSections.join(', ')}`);
-    validationResult.isValid = false;
+  // Determine review status and validity
+  if (validationResult.confidenceLevel === ConfidenceLevel.LOW || validationResult.issues.length > 2) {
+    validationResult.reviewStatus = ReviewStatus.REQUIRES_LEGAL_REVIEW;
     validationResult.reviewRequired = true;
+  } else if (validationResult.confidenceLevel === ConfidenceLevel.MEDIUM || validationResult.issues.length > 0) {
+    validationResult.reviewStatus = ReviewStatus.PENDING_REVIEW;
+    validationResult.reviewRequired = true;
+  } else {
+    validationResult.reviewStatus = ReviewStatus.VALIDATED;
+    validationResult.isValid = true;
   }
+  
+  validationResult.validationNotes = validationResult.issues.length > 0 ? 
+    'Automated validation detected issues that should be addressed before proceeding.' : 
+    'Automated validation complete. No significant issues detected.';
   
   return validationResult;
 }
@@ -197,19 +288,33 @@ export function validateLegalOutput(outputText: string): LegalValidationResult {
  * Determine if an assessment requires expert legal review
  */
 export function requiresExpertReview(assessment: any): boolean {
-  // Risk-based review requirements
-  if (assessment.riskLevel === 'high' || assessment.riskLevel === 'unacceptable') {
-    return true;
-  }
+  if (!assessment) return true;
   
-  // Confidence-based review requirements
-  if (assessment.confidenceLevel === ConfidenceLevel.LOW || assessment.confidenceLevel === ConfidenceLevel.UNCERTAIN) {
-    return true;
-  }
+  // Conditions that trigger expert review
+  const riskLevel = assessment.riskLevel?.toLowerCase() || '';
+  const highRiskTerms = ['high', 'unacceptable'];
   
-  // Issue-based review requirements
-  if (assessment.validation && (assessment.validation.issues.length > 0 || !assessment.validation.isValid)) {
-    return true;
+  // Check if it's a high-risk AI system
+  const isHighRisk = highRiskTerms.some(term => riskLevel.includes(term));
+  
+  // Simplified checks for demo purposes
+  if (isHighRisk) return true;
+  
+  if (typeof assessment === 'string') {
+    const text = assessment;
+    const confidence = analyzeConfidence(text);
+    const contradictions = checkForContradictions(text);
+    
+    return (
+      confidence === ConfidenceLevel.LOW ||
+      confidence === ConfidenceLevel.UNCERTAIN ||
+      contradictions.length > 0
+    );
+  } else if (typeof assessment === 'object') {
+    // If it's a structured assessment, check for critical fields
+    return !assessment.systemCategory || 
+           !assessment.euAiActArticles || 
+           assessment.euAiActArticles.length === 0;
   }
   
   return false;
@@ -219,50 +324,98 @@ export function requiresExpertReview(assessment: any): boolean {
  * Format assessment with legal disclaimer
  */
 export function addLegalDisclaimer(assessment: any): any {
-  // Clone the assessment to avoid modifying the original
-  const assessmentWithDisclaimer = { ...assessment };
+  const disclaimerText = "This assessment is provided for informational purposes only and does not constitute legal advice. The analysis is generated by AI models and should be reviewed by qualified legal professionals before making compliance decisions.";
   
-  // Add disclaimer based on validation results
-  const confidenceLevel = assessment.confidenceLevel || ConfidenceLevel.MEDIUM;
-  const reviewRequired = assessment.reviewRequired || false;
-  
-  // Create appropriate disclaimer
-  let disclaimer = `<div class="legal-disclaimer alert alert-${reviewRequired ? 'warning' : 'info'}">
-    <h4>Important Legal Notice</h4>
-    <p>This assessment is provided for informational purposes only and does not constitute legal advice. 
-    The analysis is generated by AI models with <strong>${confidenceLevel}</strong> confidence level and should be reviewed by qualified legal professionals 
-    before making compliance decisions.</p>`;
-  
-  // Add additional warnings for review if needed
-  if (reviewRequired) {
-    disclaimer += `<p class="text-warning"><strong>This assessment requires professional legal review</strong> before implementation.</p>`;
+  if (typeof assessment === 'string') {
+    return `${disclaimerText}\n\n${assessment}`;
+  } else if (typeof assessment === 'object') {
+    return {
+      ...assessment,
+      disclaimer: disclaimerText
+    };
   }
   
-  // Add timestamp
-  disclaimer += `<p class="text-sm">Assessment generated on ${new Date().toLocaleDateString()} based on current understanding of the EU AI Act.</p>
-  </div>`;
-  
-  assessmentWithDisclaimer.legalDisclaimer = disclaimer;
-  
-  return assessmentWithDisclaimer;
+  return assessment;
 }
 
 /**
  * Queue an assessment for expert review
  */
 export async function queueForExpertReview(assessment: any): Promise<string> {
-  // In a real system, this would connect to a review management system
+  // In a real system, this would create a database entry for legal expert review
+  // and potentially trigger notifications
+  
+  const reviewId = `review-${Date.now()}`;
+  
   // For now, we'll just return a review ID
-  const reviewId = `review-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-  
-  // Log the review request
-  console.log(`Assessment queued for expert review with ID: ${reviewId}`);
-  
-  // Update the assessment review status
-  assessment.reviewStatus = ReviewStatus.PENDING_REVIEW;
-  assessment.reviewId = reviewId;
-  
-  // In a real system, you would save this to a database, notify experts, etc.
-  
   return reviewId;
 }
+
+/**
+ * Validate assessment text and return validation results
+ */
+export const validateAssessmentText = async (req: Request, res: Response) => {
+  try {
+    const validationRequest = validationRequestSchema.safeParse(req.body);
+    
+    if (!validationRequest.success) {
+      throw new ValidationError('Invalid validation request', validationRequest.error);
+    }
+    
+    const { text, type, context } = validationRequest.data;
+    
+    // Perform validation
+    const validationResult = validateLegalOutput(text);
+    
+    // Queue for expert review if required
+    if (validationResult.reviewRequired) {
+      const reviewId = await queueForExpertReview({
+        text,
+        type,
+        context,
+        validationResult
+      });
+      
+      // Add review ID to result
+      validationResult.validationNotes = 
+        `${validationResult.validationNotes || ''} Review ID: ${reviewId}`;
+    }
+    
+    res.json({
+      success: true,
+      result: validationResult
+    });
+  } catch (error) {
+    console.error('Validation error:', error);
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+/**
+ * Add legal disclaimer to content
+ */
+export const addLegalDisclaimerToContent = async (req: Request, res: Response) => {
+  try {
+    const { content, type } = req.body;
+    
+    if (!content) {
+      throw new ValidationError('Content is required');
+    }
+    
+    const contentWithDisclaimer = addLegalDisclaimer(content);
+    
+    res.json({
+      success: true,
+      content: contentWithDisclaimer
+    });
+  } catch (error) {
+    console.error('Legal disclaimer error:', error);
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};

@@ -105,6 +105,7 @@ import {
 } from './ai-key-management';
 import * as riskAssessment from './risk-assessment';
 import * as riskManagement from './risk-management'; // Added import
+import { validateAssessmentText, addLegalDisclaimerToContent } from './legal-validation';
 
 
 import { Router } from "express";
@@ -2340,6 +2341,10 @@ if (isDemoMode) {
 
   // Register regulatory routes
   app.use('/api/regulatory', regulatoryRoutes);
+
+  // Legal validation routes
+  app.post("/api/legal/validate", validateAssessmentText);
+  app.post("/api/legal/disclaimer", addLegalDisclaimerToContent);
 
   // Initialize regulatory updates service
   initializeRegulationUpdates();
