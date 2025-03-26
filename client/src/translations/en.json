@@ -1,0 +1,36 @@
+
+
+  "chatbot": {
+    "title": "AI Compliance Assistant",
+    "description": "Ask questions about EU AI Act compliance",
+    "inputPlaceholder": "Type your question...",
+    "assistantTitle": "Compliance Assistant",
+    "assistantDescription": "Get help with risk assessment questions",
+    "assistantGreeting": "Hello! I can help with your EU AI Act risk assessment questions. What would you like to know?",
+    "commonQuestions": "Common questions:",
+    "question1": "How do I classify my AI system?",
+    "question2": "What documentation is required?",
+    "question3": "High-risk system requirements?",
+    "openAssistant": "Open Compliance Assistant"
+  },
+  "complianceChatbot": {
+    "title": "AI Compliance Assistant",
+    "description": "Get expert assistance with your EU AI Act compliance questions",
+    "infoTitle": "Interactive Assistance",
+    "infoDescription": "This AI assistant provides guidance on EU AI Act compliance topics. For official legal advice, please consult with a regulatory compliance expert.",
+    "disclaimer": "Disclaimer: This chatbot is designed to provide general guidance and information about EU AI Act compliance. The responses should not be considered legal advice."
+  }
+
+
+  "dashboard": {
+    "chatbot": {
+      "title": "AI Assistant",
+      "description": "Get quick compliance answers",
+      "greeting": "How can I help with your EU AI Act compliance today?",
+      "quickQuestions": "Quick questions:",
+      "q1": "Compliance deadlines?",
+      "q2": "Risk assessment tips",
+      "q3": "Required documentation",
+      "openFull": "Open full assistant"
+    }
+  }

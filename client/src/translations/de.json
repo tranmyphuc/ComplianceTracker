@@ -1,0 +1,36 @@
+
+
+  "chatbot": {
+    "title": "KI-Compliance-Assistent",
+    "description": "Stellen Sie Fragen zur EU-KI-Verordnung",
+    "inputPlaceholder": "Geben Sie Ihre Frage ein...",
+    "assistantTitle": "Compliance-Assistent",
+    "assistantDescription": "Erhalten Sie Hilfe bei Fragen zur Risikobewertung",
+    "assistantGreeting": "Hallo! Ich kann Ihnen bei Fragen zur Risikobewertung gemäß der EU-KI-Verordnung helfen. Was möchten Sie wissen?",
+    "commonQuestions": "Häufige Fragen:",
+    "question1": "Wie klassifiziere ich mein KI-System?",
+    "question2": "Welche Dokumentation ist erforderlich?",
+    "question3": "Anforderungen für Hochrisikosysteme?",
+    "openAssistant": "Compliance-Assistent öffnen"
+  },
+  "complianceChatbot": {
+    "title": "KI-Compliance-Assistent",
+    "description": "Erhalten Sie Expertenunterstützung bei Ihren Fragen zur EU-KI-Verordnung",
+    "infoTitle": "Interaktive Unterstützung",
+    "infoDescription": "Dieser KI-Assistent bietet Orientierung zu Themen der EU-KI-Verordnung. Für offizielle Rechtsberatung wenden Sie sich bitte an einen Experten für regulatorische Compliance.",
+    "disclaimer": "Haftungsausschluss: Dieser Chatbot soll allgemeine Anleitungen und Informationen zur Einhaltung der EU-KI-Verordnung geben. Die Antworten sollten nicht als Rechtsberatung betrachtet werden."
+  }
+
+
+  "dashboard": {
+    "chatbot": {
+      "title": "KI-Assistent",
+      "description": "Erhalten Sie schnelle Compliance-Antworten",
+      "greeting": "Wie kann ich Ihnen heute bei der Einhaltung der EU-KI-Verordnung helfen?",
+      "quickQuestions": "Schnelle Fragen:",
+      "q1": "Compliance-Fristen?",
+      "q2": "Tipps zur Risikobewertung",
+      "q3": "Erforderliche Dokumentation",
+      "openFull": "Vollständigen Assistenten öffnen"
+    }
+  }

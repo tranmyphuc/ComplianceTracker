@@ -3,9 +3,10 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ShieldAlert, Book, CheckCircle, FileText, Info, List, HelpCircle } from 'lucide-react';
+import { ShieldAlert, Book, CheckCircle, FileText, Info, List, HelpCircle, Bot, MessageSquare } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Link } from 'wouter';
 
 import { useComplianceTips } from "@/components/compliance-tips";
@@ -203,11 +204,13 @@ const RiskAssessmentGuides: React.FC = () => {
         </div>
       </div>
       
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>{t('resources.title')}</CardTitle>
-          <CardDescription>{t('resources.description')}</CardDescription>
-        </CardHeader>
+      <div className="flex flex-col md:flex-row gap-8 mt-8">
+        <div className="flex-1">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>{t('resources.title')}</CardTitle>
+              <CardDescription>{t('resources.description')}</CardDescription>
+            </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex gap-3">
@@ -251,7 +254,55 @@ const RiskAssessmentGuides: React.FC = () => {
             </div>
           </div>
         </CardContent>
-      </Card>
+          </Card>
+        </div>
+        
+        <div className="flex-1">
+          <Card className="h-full">
+            <CardHeader>
+              <div className="flex items-center">
+                <Bot className="h-5 w-5 mr-2 text-primary" />
+                <CardTitle>{t('chatbot.assistantTitle', 'Compliance Assistant')}</CardTitle>
+              </div>
+              <CardDescription>{t('chatbot.assistantDescription', 'Get help with risk assessment questions')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="bg-muted p-3 rounded-lg">
+                  <div className="flex gap-2 items-start">
+                    <Bot className="h-5 w-5 mt-1 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm">{t('chatbot.assistantGreeting', 'Hello! I can help with your EU AI Act risk assessment questions. What would you like to know?')}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">{t('chatbot.commonQuestions', 'Common questions:')}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline" className="cursor-pointer hover:bg-secondary transition-colors">
+                      {t('chatbot.question1', 'How do I classify my AI system?')}
+                    </Badge>
+                    <Badge variant="outline" className="cursor-pointer hover:bg-secondary transition-colors">
+                      {t('chatbot.question2', 'What documentation is required?')}
+                    </Badge>
+                    <Badge variant="outline" className="cursor-pointer hover:bg-secondary transition-colors">
+                      {t('chatbot.question3', 'High-risk system requirements?')}
+                    </Badge>
+                  </div>
+                </div>
+                
+                <Button variant="default" className="w-full" asChild>
+                  <a href="/compliance-chatbot">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    {t('chatbot.openAssistant', 'Open Compliance Assistant')}
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

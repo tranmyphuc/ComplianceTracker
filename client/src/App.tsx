@@ -47,6 +47,7 @@ import PlatformGuide from './pages/guides/platform-guide';
 import DemoScenarios from '@/pages/demo-scenarios';
 import HealthcareScenario from '@/pages/demo-scenarios/healthcare-ai-diagnostics';
 import VendorManagement from '@/pages/vendor-management';
+import ComplianceChatbotPage from "./pages/compliance-chatbot";
 
 
 function Router() {
@@ -95,7 +96,8 @@ function Router() {
     "/guides/platform-introduction", 
     "/guides/platform-guide",
     "/demo-scenarios",
-    "/demo-scenarios/healthcare-ai-diagnostics"
+    "/demo-scenarios/healthcare-ai-diagnostics",
+    "/compliance-chatbot"
   ];
 
   useEffect(() => {
@@ -228,6 +230,9 @@ function Router() {
       </Route>
       <Route path="/demo-scenarios/healthcare-ai-diagnostics">
         {() => renderSuspense(HealthcareScenario)}
+      </Route>
+      <Route path="/compliance-chatbot">
+        {() => renderWithLayout(ComplianceChatbotPage)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}
