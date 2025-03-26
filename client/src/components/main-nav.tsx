@@ -27,6 +27,10 @@ import {
             Compliance Chatbot
           </NavigationItem>
 
+          <NavigationItem href="/advanced-analytics" icon={<BarChart3 />}> {/* Added Advanced Analytics */}
+            Advanced Analytics
+          </NavigationItem>
+
           <DropdownMenuContent align="end" className="w-[200px]">
             <DropdownMenuItem asChild>
               <Link href="/risk-assessment">Risk Assessment</Link>

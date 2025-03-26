@@ -1,4 +1,5 @@
-"chatbot": {
+{
+  "chatbot": {
     "title": "AI Compliance Assistant",
     "description": "Ask questions about EU AI Act compliance",
     "inputPlaceholder": "Type your question...",
@@ -46,4 +47,61 @@
       "previousStep": "Previous",
       "submit": "Submit Assessment"
     }
+  },
+  "complianceChatbot": {
+    "title": "AI Act Compliance Chatbot",
+    "description": "Get expert answers to your EU AI Act compliance questions",
+    "placeholder": "Ask anything about EU AI Act compliance...",
+    "submit": "Send",
+    "startingPrompts": [
+      "What are the main requirements for high-risk AI systems?",
+      "How do I conduct a risk assessment?",
+      "What documentation is required for AI systems?",
+      "Explain Article 10 of the EU AI Act"
+    ]
+  },
+  "advancedAnalytics": {
+    "title": "Advanced Analytics",
+    "description": "Deep insights into your organization's AI compliance",
+    "timeRange": "Time Range",
+    "last30Days": "Last 30 Days",
+    "last3Months": "Last 3 Months",
+    "last6Months": "Last 6 Months",
+    "lastYear": "Last Year",
+    "complianceTrends": "Compliance Trends",
+    "riskPatterns": "Risk Patterns",
+    "systemsAnalysis": "Systems Analysis",
+    "organizationalReadiness": "Organizational Readiness",
+    "complianceScoreTrend": "Compliance Score Trend",
+    "complianceScoreTrendDesc": "Overall compliance score over time",
+    "complianceScore": "Compliance Score",
+    "complianceByRequirement": "Compliance by Requirement",
+    "complianceByRequirementDesc": "Compliance percentage by EU AI Act requirement",
+    "riskDistribution": "Risk Distribution",
+    "riskDistributionDesc": "Distribution of AI systems by risk level",
+    "topRiskCategories": "Top Risk Categories",
+    "topRiskCategoriesDesc": "Most common risk categories across systems",
+    "systemsByCategory": "Systems by Category",
+    "systemsByCategoryDesc": "Distribution of AI systems by technology category",
+    "systemRiskDistribution": "System Risk Distribution",
+    "systemRiskDistributionDesc": "Distribution of systems by EU AI Act risk classification",
+    "departmentalReadiness": "Departmental Readiness",
+    "departmentalReadinessDesc": "EU AI Act readiness by department",
+    "readinessByComponent": "Readiness by Component",
+    "readinessByComponentDesc": "Organizational readiness by compliance component",
+    "readinessScore": "Readiness Score"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "inventory": "AI Inventory",
+    "riskAssessment": "Risk Assessment",
+    "documentation": "Documentation",
+    "systemRegister": "Register System",
+    "knowledgeCenter": "Knowledge Center",
+    "compliance": "Compliance",
+    "governance": "Governance",
+    "reports": "Reports",
+    "advancedAnalytics": "Advanced Analytics",
+    "training": "Training"
   }
+}

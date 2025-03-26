@@ -1,4 +1,5 @@
-"chatbot": {
+{
+  "chatbot": {
     "title": "KI-Compliance-Assistent",
     "description": "Stellen Sie Fragen zur EU-KI-Verordnung",
     "inputPlaceholder": "Geben Sie Ihre Frage ein...",
@@ -12,11 +13,47 @@
     "openAssistant": "Compliance-Assistent öffnen"
   },
   "complianceChatbot": {
-    "title": "KI-Compliance-Assistent",
-    "description": "Erhalten Sie Expertenunterstützung bei Ihren Fragen zur EU-KI-Verordnung",
-    "infoTitle": "Interaktive Unterstützung",
-    "infoDescription": "Dieser KI-Assistent bietet Orientierung zu Themen der EU-KI-Verordnung. Für offizielle Rechtsberatung wenden Sie sich bitte an einen Experten für regulatorische Compliance.",
-    "disclaimer": "Haftungsausschluss: Dieser Chatbot soll allgemeine Anleitungen und Informationen zur Einhaltung der EU-KI-Verordnung geben. Die Antworten sollten nicht als Rechtsberatung betrachtet werden."
+    "title": "KI-Gesetz Compliance Chatbot",
+    "description": "Erhalten Sie Expertenhilfe zu Ihren Fragen zur EU-KI-Gesetz-Compliance",
+    "placeholder": "Fragen Sie etwas zur EU-KI-Gesetz-Compliance...",
+    "submit": "Senden",
+    "startingPrompts": [
+      "Was sind die Hauptanforderungen für Hochrisiko-KI-Systeme?",
+      "Wie führe ich eine Risikobewertung durch?",
+      "Welche Dokumentation ist für KI-Systeme erforderlich?",
+      "Erklären Sie Artikel 10 des EU-KI-Gesetzes"
+    ]
+  },
+  "advancedAnalytics": {
+    "title": "Erweiterte Analytik",
+    "description": "Tiefe Einblicke in die KI-Compliance Ihrer Organisation",
+    "timeRange": "Zeitraum",
+    "last30Days": "Letzte 30 Tage",
+    "last3Months": "Letzte 3 Monate",
+    "last6Months": "Letzte 6 Monate",
+    "lastYear": "Letztes Jahr",
+    "complianceTrends": "Compliance-Trends",
+    "riskPatterns": "Risikomuster",
+    "systemsAnalysis": "Systemanalyse",
+    "organizationalReadiness": "Organisationsbereitschaft",
+    "complianceScoreTrend": "Compliance-Score-Trend",
+    "complianceScoreTrendDesc": "Gesamter Compliance-Score im Zeitverlauf",
+    "complianceScore": "Compliance-Score",
+    "complianceByRequirement": "Compliance nach Anforderung",
+    "complianceByRequirementDesc": "Compliance-Prozentsatz nach EU-KI-Gesetz-Anforderung",
+    "riskDistribution": "Risikoverteilung",
+    "riskDistributionDesc": "Verteilung der KI-Systeme nach Risikolevel",
+    "topRiskCategories": "Top-Risikokategorien",
+    "topRiskCategoriesDesc": "Häufigste Risikokategorien über alle Systeme",
+    "systemsByCategory": "Systeme nach Kategorie",
+    "systemsByCategoryDesc": "Verteilung der KI-Systeme nach Technologiekategorie",
+    "systemRiskDistribution": "System-Risikoverteilung",
+    "systemRiskDistributionDesc": "Verteilung der Systeme nach EU-KI-Gesetz-Risikoklassifizierung",
+    "departmentalReadiness": "Abteilungsbereitschaft",
+    "departmentalReadinessDesc": "EU-KI-Gesetz-Bereitschaft nach Abteilung",
+    "readinessByComponent": "Bereitschaft nach Komponente",
+    "readinessByComponentDesc": "Organisatorische Bereitschaft nach Compliance-Komponente",
+    "readinessScore": "Bereitschaftswert"
   },
   "riskAssessment": {
     "title": "Risikobewertung",
@@ -46,4 +83,18 @@
       "q3": "Erforderliche Dokumentation",
       "openFull": "Vollständigen Assistenten öffnen"
     }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "inventory": "KI-Inventar",
+    "riskAssessment": "Risikobewertung",
+    "documentation": "Dokumentation",
+    "systemRegister": "System registrieren",
+    "knowledgeCenter": "Wissenszentrum",
+    "compliance": "Compliance",
+    "governance": "Governance",
+    "reports": "Berichte",
+    "advancedAnalytics": "Erweiterte Analytik",
+    "training": "Schulung"
   }
+}

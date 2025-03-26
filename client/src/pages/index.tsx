@@ -37,6 +37,12 @@ function Dashboard() {
                       New Assessment
                     </Link>
                   </Button>
+                  <Button variant="outline" size="sm" className="w-full mt-2" asChild> {/* Added Advanced Analytics Link */}
+                    <Link href="/advanced-analytics">
+                      <ArrowRight className="h-3 w-3 mr-1" />
+                      Advanced Analytics
+                    </Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>

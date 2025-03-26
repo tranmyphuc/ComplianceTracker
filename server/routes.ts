@@ -37,7 +37,7 @@ import {
  */
 function extractValue(text: string | null | undefined, key: string): string | null {
   if (!text) return null;
-  
+
   // Look for patterns like "key": "value" or key: value or "key" : "value"
   const patterns = [
     new RegExp(`["']?${key}["']?\\s*:\\s*["']([^"']+)["']`, 'i'),   // "key": "value" or 'key': 'value'
@@ -45,14 +45,14 @@ function extractValue(text: string | null | undefined, key: string): string | nu
     new RegExp(`${key}\\s*is\\s*["']?([^,"'{}\\[\\]\\n]+)["']?`, 'i'), // key is value or key is "value"
     new RegExp(`${key}:\\s*["']?([^,"'{}\\[\\]\\n]+)["']?`, 'i'),   // key: value (with or without quotes)
   ];
-  
+
   for (const pattern of patterns) {
     const match = text.match(pattern);
     if (match && match[1]) {
       return match[1].trim();
     }
   }
-  
+
   return null;
 }
 import { regulatoryRoutes } from "./routes/regulatory-routes";
@@ -106,6 +106,17 @@ import {
 import * as riskAssessment from './risk-assessment';
 import * as riskManagement from './risk-management'; // Added import
 
+
+import { Router } from "express";
+import { systemsRouter } from "./routes/systems";
+import { dashboardRouter } from "./routes/dashboard";
+import { riskAssessmentRouter } from "./routes/risk-assessment";
+import { documentationRouter } from "./routes/documentation";
+import { complianceRouter } from "./routes/compliance";
+import { knowledgeRouter } from "./routes/knowledge";
+import { trainingRouter } from "./routes/training";
+import { analyticsRouter } from "./routes/analytics"; // Added import
+import { Server } from "http";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -267,15 +278,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (Array.isArray(requestData.aiCapabilities)) {
         requestData.aiCapabilities = requestData.aiCapabilities.join(', ');
       }
-      
+
       if (Array.isArray(requestData.trainingDatasets)) {
         requestData.trainingDatasets = requestData.trainingDatasets.join(', ');
       }
-      
+
       if (Array.isArray(requestData.usageContext)) {
         requestData.usageContext = requestData.usageContext.join(', ');
       }
-      
+
       if (Array.isArray(requestData.potentialImpact)) {
         requestData.potentialImpact = requestData.potentialImpact.join(', ');
       }
@@ -355,15 +366,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (Array.isArray(requestData.aiCapabilities)) {
         requestData.aiCapabilities = requestData.aiCapabilities.join(', ');
       }
-      
+
       if (Array.isArray(requestData.trainingDatasets)) {
         requestData.trainingDatasets = requestData.trainingDatasets.join(', ');
       }
-      
+
       if (Array.isArray(requestData.usageContext)) {
         requestData.usageContext = requestData.usageContext.join(', ');
       }
-      
+
       if (Array.isArray(requestData.potentialImpact)) {
         requestData.potentialImpact = requestData.potentialImpact.join(', ');
       }
@@ -510,7 +521,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Use the safeJsonParse function to handle AI model responses
           try {
             const detailedAnalysis = safeJsonParse(detailedAnalysisJson);
-            
+
             if (detailedAnalysis) {
               res.json(detailedAnalysis);
             } else {
@@ -694,19 +705,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Log the response length for debugging
       console.log(`Received DeepSeek response with length: ${response?.length || 0} characters`);
-      
+
       // Use our enhanced safeJsonParse to handle AI model responses
       try {
         // Our enhanced safeJsonParse should handle various response formats
         suggestions = safeJsonParse(response);
-        
+
         // Log what we got back
         console.log("Parsed suggestions:", suggestions ? "Successfully parsed" : "Failed to parse");
-        
+
         if (!suggestions) {
           console.error("Failed to parse system suggestion response with safeJsonParse");
           console.log("Raw response first 200 chars:", response?.substring(0, 200));
-          
+
           // Create a new suggestion with any values we can extract directly from the raw response
           // but don't use hardcoded fallbacks
           suggestions = {
@@ -788,36 +799,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/analyze/risk-from-text", async (req: Request, res: Response) => {
     try {
       const { text } = req.body;
-      
+
       if (!text || typeof text !== 'string') {
         return res.status(400).json({ error: 'Valid text input is required' });
       }
-      
+
       // Create a structured system object from the text
       const systemData: Partial<AiSystem> = {
         description: text,
         // Extract potential name if first line looks like a title
         name: text.split('\n')[0].length < 80 ? text.split('\n')[0] : undefined
       };
-      
+
       // Use existing AI analysis functions to determine risk
       const riskLevel = await determineRiskLevel(systemData);
       const category = await analyzeSystemCategory(systemData);
       const articles = await determineRelevantArticles(systemData);
       const improvements = await generateImprovements(systemData);
-      
+
       // Check for keywords that affect risk classification
       const prohibitedKeywords = [];
       const highRiskKeywords = [];
       const limitedRiskKeywords = [];
-      
+
       // Check for prohibited keywords (Unacceptable Risk - Article 5)
       const prohibitedTerms = [
         'social scoring', 'social credit', 'mass surveillance', 'emotion inference public', 
         'biometric categorization', 'exploit vulnerabilities', 'manipulate persons', 
         'manipulate behavior', 'real-time remote biometric identification'
       ];
-      
+
       // Check for high-risk keywords (Annex III areas)
       const highRiskTerms = [
         'critical infrastructure', 'essential services', 'transportation', 'water supply',
@@ -829,37 +840,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'safety critical', 'autonomous', 'vehicle', 'aircraft', 'rail', 'maritime', 'nuclear',
         'credit score', 'creditworthiness', 'credit institution'
       ];
-      
+
       // Check for limited risk keywords (transparency obligations)
       const limitedRiskTerms = [
         'chatbot', 'virtual assistant', 'emotion recognition', 'biometric categorization',
         'deepfake', 'deep fake', 'ai-generated', 'AI generated', 'artificially generated',
         'synthetic content', 'content generation'
       ];
-      
+
       const lowerText = text.toLowerCase();
-      
+
       for (const term of prohibitedTerms) {
         if (lowerText.includes(term)) {
           prohibitedKeywords.push(term);
         }
       }
-      
+
       for (const term of highRiskTerms) {
         if (lowerText.includes(term)) {
           highRiskKeywords.push(term);
         }
       }
-      
+
       for (const term of limitedRiskTerms) {
         if (lowerText.includes(term)) {
           limitedRiskKeywords.push(term);
         }
       }
-      
+
       // Identify risk factors
       const riskFactors = [];
-      
+
       // Check for data privacy concerns
       if (lowerText.includes('personal data') || 
           lowerText.includes('sensitive data') || 
@@ -869,7 +880,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           level: 'High'
         });
       }
-      
+
       // Check for autonomous decision-making
       if (lowerText.includes('autonomous') || 
           lowerText.includes('automated decision') || 
@@ -879,7 +890,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           level: 'High'
         });
       }
-      
+
       // Check for safety-critical applications
       if (lowerText.includes('safety critical') || 
           lowerText.includes('life critical') || 
@@ -889,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           level: 'High'
         });
       }
-      
+
       // Check for vulnerable populations
       if (lowerText.includes('children') || 
           lowerText.includes('elderly') || 
@@ -901,7 +912,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           level: 'High'
         });
       }
-      
+
       // Compile the results
       const result = {
         riskLevel,
@@ -915,7 +926,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           riskFactors
         }
       };
-      
+
       res.json(result);
     } catch (err) {
       handleError(res, err as Error);
@@ -1015,7 +1026,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Since getAllRiskAssessments doesn't exist, we need to get all systems and then their assessments
       const systems = await storage.getAllAiSystems();
       const assessments = [];
-      
+
       // For each system, get its risk assessments
       for (const system of systems) {
         const systemAssessments = await storage.getRiskAssessmentsForSystem(system.systemId);
@@ -1023,7 +1034,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           assessments.push(...systemAssessments);
         }
       }
-      
+
       res.json(assessments);
     } catch (err) {
       handleError(res, err as Error);
@@ -1081,10 +1092,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/risk-assessments", async (req: Request, res: Response) => {
     try {
       console.log("Risk assessment data received:", req.body);
-      
+
       // Parse and validate the request data
       const assessmentData = req.body;
-      
+
       if (!assessmentData.systemId) {
         return res.status(400).json({ message: "System ID is required" });
       }
@@ -1108,23 +1119,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (assessmentData.prohibitedUseChecks && typeof assessmentData.prohibitedUseChecks !== 'string') {
         assessmentData.prohibitedUseChecks = JSON.stringify(assessmentData.prohibitedUseChecks);
       }
-      
+
       if (assessmentData.euAiActArticles && typeof assessmentData.euAiActArticles !== 'string') {
         assessmentData.euAiActArticles = JSON.stringify(assessmentData.euAiActArticles);
       }
-      
+
       if (assessmentData.complianceGaps && typeof assessmentData.complianceGaps !== 'string') {
         assessmentData.complianceGaps = JSON.stringify(assessmentData.complianceGaps);
       }
-      
+
       if (assessmentData.remediationActions && typeof assessmentData.remediationActions !== 'string') {
         assessmentData.remediationActions = JSON.stringify(assessmentData.remediationActions);
       }
-      
+
       if (assessmentData.evidenceDocuments && typeof assessmentData.evidenceDocuments !== 'string') {
         assessmentData.evidenceDocuments = JSON.stringify(assessmentData.evidenceDocuments);
       }
-      
+
       // Ensure date is a JavaScript Date object
       if (assessmentData.assessmentDate && typeof assessmentData.assessmentDate === 'string') {
         assessmentData.assessmentDate = new Date(assessmentData.assessmentDate);
@@ -1143,7 +1154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           error: validationError.message || "Invalid assessment data"
         });
       }
-      
+
       // Create risk assessment with validated data
       const newAssessment = await storage.createRiskAssessment(validatedData);
       console.log("New assessment created:", newAssessment);
@@ -1564,10 +1575,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/training/modules/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       // Use the existing getModuleContent function from training-module.ts
       await getModuleContent(req, res);
-      
+
     } catch (error) {
       console.error('Error retrieving training module content:', error);
       handleError(res, error as Error, 'Error retrieving training module content');
@@ -1579,14 +1590,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const isDemoMode = req.query.demo === 'true';
-      
+
       console.log(`Module info requested for ${id}, demo mode: ${isDemoMode}`);
-      
+
       // In demo mode, provide information from predefined modules
       if (isDemoMode) {
         // Find the module in our predefined list
         const module = TRAINING_MODULES.find(m => m.id === id);
-        
+
         if (module) {
           console.log(`Serving demo module info for: ${module.title}`);
           return res.json({
@@ -1598,7 +1609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       }
-      
+
       // Try to get from database otherwise
       try {
         // Use parameterized query to avoid SQL injection
@@ -1613,10 +1624,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .from(trainingModules)
         .where(eq(trainingModules.module_id, id))
         .limit(1);
-        
+
         if (result && result.length > 0) {
           const moduleData = result[0] as any;
-          
+
           const moduleInfo = {
             id: moduleData.module_id || moduleData.id,
             title: moduleData.title,
@@ -1624,20 +1635,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             estimated_time: moduleData.estimated_time,
             topics: moduleData.topics || []
           };
-          
+
           return res.json(moduleInfo);
         }
       } catch (dbError) {
         console.error("Database error fetching module info:", dbError);
       }
-      
+
       // Fall back to metadata function
       const moduleMetadata = await getTrainingModuleMetadata(id);
-      
+
       if (moduleMetadata) {
         return res.json(moduleMetadata);
       }
-      
+
       // If no module info found and we're in development mode, create a demo one
       if (process.env.NODE_ENV === 'development') {
         return res.json({
@@ -1648,14 +1659,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           topics: ["EU AI Act", "Compliance", "Demo"]
         });
       }
-      
+
       // No module found
       return res.status(404).json({ message: 'Training module not found' });
     } catch (error) {
       handleError(res, error as Error, 'Error retrieving training module info');
     }
   });
-  
+
   app.get('/api/training/modules/:id/metadata', async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -1743,11 +1754,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const moduleData = req.body;
       console.log("Adding new training module:", moduleData.moduleId);
-      
+
       // Import from schema in this scope to avoid global import issues
       const { trainingModules } = await import('../shared/schema');
       const { db } = await import('./db');
-      
+
       // Insert the module into the database
       await db.insert(trainingModules).values({
         module_id: moduleData.moduleId,
@@ -1759,7 +1770,489 @@ export async function registerRoutes(app: Express): Promise<Server> {
         role_relevance: moduleData.role_relevance || moduleData.roleRelevance,
         content: moduleData.content || { sections: [] }
       });
-      
+
+      res.json({ success: true, moduleId: moduleData.moduleId });
+    } catch (error) {
+      console.error("Error adding training module:", error);
+      handleError(res, error instanceof Error ? error : new Error(String(error)), 'Failed to add training module');
+    }
+  });
+
+  // API Key Management routes
+  app.get('/api/ai-keys', getApiKeys);
+  app.post('/api/ai-keys', addApiKey);
+  app.put('/api/ai-keys/:id', updateApiKey);
+  app.delete('/api/ai-keys/:id', deleteApiKey);
+  app.get('/api/ai-keys/test/:provider', testApiKey);
+
+  // AI Analysis endpoints
+  app.post('/api/analyze-system-category', async (req: Request, res: Response) => {
+    try {
+      const { system } = req.body;
+
+      const category = await analyzeSystemCategory(system);
+      res.json({ category });
+    } catch (error) {
+      handleError(res, error as Error);
+    }
+  });
+
+  //Risk Assessment Endpoints
+  app.get('/api/risk-assessment/:systemId', analyzeSystemRisk);
+  app.get('/api/risk-assessment/:systemId/prohibited', analyzeProhibitedUse);
+  app.get('/api/risk-assessment/:systemId/report', generateRiskReport);
+  app.get('/api/risk-assessment/:systemId/gaps', analyzeComplianceGaps);
+
+  // Training module routes
+  app.get('/api/training/modules', async (req, res) => {
+    try {
+      await getTrainingModules(req, res);
+    } catch (error) {
+      console.error('Error in training modules route handler:', error);
+      handleError(res, error as Error, 'Error retrieving training modules');
+    }
+  });
+
+  app.get('/api/training/modules/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Use the existing getModuleContent function from training-module.ts
+      await getModuleContent(req, res);
+
+    } catch (error) {
+      console.error('Error retrieving training module content:', error);
+      handleError(res, error as Error, 'Error retrieving training module content');
+    }
+  });
+
+  // Module info endpoint for the presentation mode
+  app.get('/api/training/modules/:id/info', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const isDemoMode = req.query.demo === 'true';
+
+      console.log(`Module info requested for ${id}, demo mode: ${isDemoMode}`);
+
+      // In demo mode, provide information from predefined modules
+if (isDemoMode) {
+        // Find the module in our predefined list
+        const module = TRAINING_MODULES.find(m => m.id === id);
+
+        if (module) {
+          console.log(`Serving demo module info for: ${module.title}`);
+          return res.json({
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            estimated_time: module.estimated_time,
+            topics: module.topics
+          });
+        }
+      }
+
+      // Try to get from database otherwise
+      try {
+        // Use parameterized query to avoid SQL injection
+        const result = await db.select({
+          id: trainingModules.id,
+          title: trainingModules.title,
+          description: trainingModules.description,
+          estimated_time: trainingModules.estimated_time,
+          topics: trainingModules.topics,
+          role_relevance: trainingModules.role_relevance
+        })
+        .from(trainingModules)
+        .where(eq(trainingModules.module_id, id))
+        .limit(1);
+
+        if (result && result.length > 0) {
+          const moduleData = result[0] as any;
+
+          const moduleInfo = {
+            id: moduleData.module_id || moduleData.id,
+            title: moduleData.title,
+            description: moduleData.description,
+            estimated_time: moduleData.estimated_time,
+            topics: moduleData.topics || []
+          };
+
+          return res.json(moduleInfo);
+        }
+      } catch (dbError) {
+        console.error("Database error fetching module info:", dbError);
+      }
+
+      // Fall back to metadata function
+      const moduleMetadata = await getTrainingModuleMetadata(id);
+
+      if (moduleMetadata) {
+        return res.json(moduleMetadata);
+      }
+
+      // If no module info found and we're in development mode, create a demo one
+      if (process.env.NODE_ENV === 'development') {
+        return res.json({
+          id: id,
+          title: `Training Module: ${id}`,
+          description: "Demo training module for development mode",
+          estimated_time: "20-30 minutes",
+          topics: ["EU AI Act", "Compliance", "Demo"]
+        });
+      }
+
+      // No module found
+      return res.status(404).json({ message: 'Training module not found' });
+    } catch (error) {
+      handleError(res, error as Error, 'Error retrieving training module info');
+    }
+  });
+
+  app.get('/api/training/modules/:id/metadata', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const moduleMetadata = await getTrainingModuleMetadata(id);
+
+      if (!moduleMetadata) {
+        return res.status(404).json({ message: 'Training module not found' });
+      }
+
+      res.json(moduleMetadata);
+    } catch (error) {
+      handleError(res, error as Error, 'Error retrieving training module metadata');
+    }
+  });
+
+  app.post('/api/training/complete', async (req: Request, res: Response) => {
+    try {
+      // In a real app, this would be authenticated via middleware
+      const userId = req.body.userId || 'demo-user';
+      const { moduleId } = req.body;
+
+      if (!moduleId) {
+        return res.status(400).json({ message: 'Module ID is required' });
+      }
+
+      const certificateId = await recordTrainingCompletion(userId, moduleId);
+      res.json({ success: true, certificateId });
+    } catch (error) {
+      handleError(res, error as Error, 'Error recording training completion');
+    }
+  });
+
+  app.get('/api/training/certificate/:id', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const certificate = await getTrainingCertificate(id);
+
+      if (!certificate) {
+        return res.status(404).json({ message: 'Certificate not found' });
+      }
+
+      res.json(certificate);
+    } catch (error) {
+      handleError(res, error as Error, 'Error retrieving training certificate');
+    }
+  });
+
+  app.get('/api/training/export/:id', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const format = req.query.format as string || 'markdown';
+
+      const { content, filename, contentType } = await exportTrainingModule(id, format);
+
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(content);
+    } catch (error) {
+      handleError(res, error as Error, 'Error exporting training module');
+    }
+  });
+
+  // Track user training progress
+  app.post('/api/training/progress', async (req: Request, res: Response) => {
+    try {
+      await trackTrainingProgress(req, res);
+    } catch (error) {
+      console.error('Error in tracking training progress:', error);
+      handleError(res, error as Error, 'Error tracking training progress');
+    }
+  });
+
+  // Get user training progress
+  app.get('/api/training/progress', async (req: Request, res: Response) => {
+    try {
+      await getUserProgress(req, res);
+    } catch (error) {
+      console.error('Error in getting user progress:', error);
+      handleError(res, error as Error, 'Error fetching user training progress');
+    }
+  });
+
+  // Add new training module to database
+  app.post('/api/training/add-module', async (req: Request, res: Response) => {
+    try {
+      const moduleData = req.body;
+      console.log("Adding new training module:", moduleData.moduleId);
+
+      // Import from schema in this scope to avoid global import issues
+      const { trainingModules } = await import('../shared/schema');
+      const { db } = await import('./db');
+
+      // Insert the module into the database
+      await db.insert(trainingModules).values({
+        module_id: moduleData.moduleId,
+        title: moduleData.title,
+        description: moduleData.description,
+        estimated_time: moduleData.estimated_time || moduleData.estimatedTime,
+        topics: moduleData.topics,
+        order: moduleData.order || 0,
+        role_relevance: moduleData.role_relevance || moduleData.roleRelevance,
+        content: moduleData.content || { sections: [] }
+      });
+
+      res.json({ success: true, moduleId: moduleData.moduleId });
+    } catch (error) {
+      console.error("Error adding training module:", error);
+      handleError(res, error instanceof Error ? error : new Error(String(error)), 'Failed to add training module');
+    }
+  });
+
+  // API Key Management routes
+  app.get('/api/ai-keys', getApiKeys);
+  app.post('/api/ai-keys', addApiKey);
+  app.put('/api/ai-keys/:id', updateApiKey);
+  app.delete('/api/ai-keys/:id', deleteApiKey);
+  app.get('/api/ai-keys/test/:provider', testApiKey);
+
+  // AI Analysis endpoints
+  app.post('/api/analyze-system-category', async (req: Request, res: Response) => {
+    try {
+      const { system } = req.body;
+
+      const category = await analyzeSystemCategory(system);
+      res.json({ category });
+    } catch (error) {
+      handleError(res, error as Error);
+    }
+  });
+
+  //Risk Assessment Endpoints
+  app.get('/api/risk-assessment/:systemId', analyzeSystemRisk);
+  app.get('/api/risk-assessment/:systemId/prohibited', analyzeProhibitedUse);
+  app.get('/api/risk-assessment/:systemId/report', generateRiskReport);
+  app.get('/api/risk-assessment/:systemId/gaps', analyzeComplianceGaps);
+
+  // Training module routes
+  app.get('/api/training/modules', async (req, res) => {
+    try {
+      await getTrainingModules(req, res);
+    } catch (error) {
+      console.error('Error in training modules route handler:', error);
+      handleError(res, error as Error, 'Error retrieving training modules');
+    }
+  });
+
+  app.get('/api/training/modules/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Use the existing getModuleContent function from training-module.ts
+      await getModuleContent(req, res);
+
+    } catch (error) {
+      console.error('Error retrieving training module content:', error);
+      handleError(res, error as Error, 'Error retrieving training module content');
+    }
+  });
+
+  // Module info endpoint for the presentation mode
+  app.get('/api/training/modules/:id/info', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const isDemoMode = req.query.demo === 'true';
+
+      console.log(`Module info requested for ${id}, demo mode: ${isDemoMode}`);
+
+      // In demo mode, provide information from predefined modules
+      if (isDemoMode) {
+        // Find the module in our predefined list
+        const module = TRAINING_MODULES.find(m => m.id === id);
+
+        if (module) {
+          console.log(`Serving demo module info for: ${module.title}`);
+          return res.json({
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            estimated_time: module.estimated_time,
+            topics: module.topics
+          });
+        }
+      }
+
+      // Try to get from database otherwise
+      try {
+        // Use parameterized query to avoid SQL injection
+        const result = await db.select({
+          id: trainingModules.id,
+          title: trainingModules.title,
+          description: trainingModules.description,
+          estimated_time: trainingModules.estimated_time,
+          topics: trainingModules.topics,
+          role_relevance: trainingModules.role_relevance
+        })
+        .from(trainingModules)
+        .where(eq(trainingModules.module_id, id))
+        .limit(1);
+
+        if (result && result.length > 0) {
+          const moduleData = result[0] as any;
+
+          const moduleInfo = {
+            id: moduleData.module_id || moduleData.id,
+            title: moduleData.title,
+            description: moduleData.description,
+            estimated_time: moduleData.estimated_time,
+            topics: moduleData.topics || []
+          };
+
+          return res.json(moduleInfo);
+        }
+      } catch (dbError) {
+        console.error("Database error fetching module info:", dbError);
+      }
+
+      // Fall back to metadata function
+      const moduleMetadata = await getTrainingModuleMetadata(id);
+
+      if (moduleMetadata) {
+        return res.json(moduleMetadata);
+      }
+
+      // If no module info found and we're in development mode, create a demo one
+      if (process.env.NODE_ENV === 'development') {
+        return res.json({
+          id: id,
+          title: `Training Module: ${id}`,
+          description: "Demo training module for development mode",
+          estimated_time: "20-30 minutes",
+          topics: ["EU AI Act", "Compliance", "Demo"]
+        });
+      }
+
+      // No module found
+      return res.status(404).json({ message: 'Training module not found' });
+    } catch (error) {
+      handleError(res, error as Error, 'Error retrieving training module info');
+    }
+  });
+
+  app.get('/api/training/modules/:id/metadata', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const moduleMetadata = await getTrainingModuleMetadata(id);
+
+      if (!moduleMetadata) {
+        return res.status(404).json({ message: 'Training module not found' });
+      }
+
+      res.json(moduleMetadata);
+    } catch (error) {
+      handleError(res, error as Error, 'Error retrieving training module metadata');
+    }
+  });
+
+  app.post('/api/training/complete', async (req: Request, res: Response) => {
+    try {
+      // In a real app, this would be authenticated via middleware
+      const userId = req.body.userId || 'demo-user';
+      const { moduleId } = req.body;
+
+      if (!moduleId) {
+        return res.status(400).json({ message: 'Module ID is required' });
+      }
+
+      const certificateId = await recordTrainingCompletion(userId, moduleId);
+      res.json({ success: true, certificateId });
+    } catch (error) {
+      handleError(res, error as Error, 'Error recording training completion');
+    }
+  });
+
+  app.get('/api/training/certificate/:id', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const certificate = await getTrainingCertificate(id);
+
+      if (!certificate) {
+        return res.status(404).json({ message: 'Certificate not found' });
+      }
+
+      res.json(certificate);
+    } catch (error) {
+      handleError(res, error as Error, 'Error retrieving training certificate');
+    }
+  });
+
+  app.get('/api/training/export/:id', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const format = req.query.format as string || 'markdown';
+
+      const { content, filename, contentType } = await exportTrainingModule(id, format);
+
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(content);
+    } catch (error) {
+      handleError(res, error as Error, 'Error exporting training module');
+    }
+  });
+
+  // Track user training progress
+  app.post('/api/training/progress', async (req: Request, res: Response) => {
+    try {
+      await trackTrainingProgress(req, res);
+    } catch (error) {
+      console.error('Error in tracking training progress:', error);
+      handleError(res, error as Error, 'Error tracking training progress');
+    }
+  });
+
+  // Get user training progress
+  app.get('/api/training/progress', async (req: Request, res: Response) => {
+    try {
+      await getUserProgress(req, res);
+    } catch (error) {
+      console.error('Error in getting user progress:', error);
+      handleError(res, error as Error, 'Error fetching user training progress');
+    }
+  });
+
+  // Add new training module to database
+  app.post('/api/training/add-module', async (req: Request, res: Response) => {
+    try {
+      const moduleData = req.body;
+      console.log("Adding new training module:", moduleData.moduleId);
+
+      // Import from schema in this scope to avoid global import issues
+      const { trainingModules } = await import('../shared/schema');
+      const { db } = await import('./db');
+
+      // Insert the module into the database
+      await db.insert(trainingModules).values({
+        module_id: moduleData.moduleId,
+        title: moduleData.title,
+        description: moduleData.description,
+        estimated_time: moduleData.estimated_time || moduleData.estimatedTime,
+        topics: moduleData.topics,
+        order: moduleData.order || 0,
+        role_relevance: moduleData.role_relevance || moduleData.roleRelevance,
+        content: moduleData.content || { sections: [] }
+      });
+
       res.json({ success: true, moduleId: moduleData.moduleId });
     } catch (error) {
       console.error("Error adding training module:", error);
@@ -1844,10 +2337,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Regulatory Updates Routes
   // ==========================================
-  
+
   // Register regulatory routes
   app.use('/api/regulatory', regulatoryRoutes);
-  
+
   // Initialize regulatory updates service
   initializeRegulationUpdates();
 
