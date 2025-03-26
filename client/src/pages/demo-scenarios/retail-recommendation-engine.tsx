@@ -73,7 +73,7 @@ const RetailScenario: React.FC = () => {
       {/* AI Jack - Multilingual Guide */}
       <div className="my-6">
         <AIJack
-          mood="helpful"
+          mood="explaining"
           message={getJackMessage()}
           germanMessage={getGermanJackMessage()}
           animate={true}
