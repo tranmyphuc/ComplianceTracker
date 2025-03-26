@@ -75,7 +75,12 @@ export function validateLegalReferences(text: string): { valid: boolean; invalid
   
   // Simple regex to find article references
   const articlePattern = /article\s+(\d+[a-z]?(\(\d+\))?)/gi;
-  const matches = [...text_lower.matchAll(articlePattern)];
+  // Use exec in a loop instead of matchAll to avoid downlevel iteration issues
+  const matches: RegExpExecArray[] = [];
+  let match: RegExpExecArray | null;
+  while ((match = articlePattern.exec(text_lower)) !== null) {
+    matches.push(match);
+  }
   
   // List of valid EU AI Act articles (simplified for demo)
   const validArticles = [
@@ -99,9 +104,17 @@ export function validateLegalReferences(text: string): { valid: boolean; invalid
     }
   });
   
+  // Remove duplicates without using Set spread
+  const uniqueInvalidRefs: string[] = [];
+  invalidReferences.forEach(ref => {
+    if (!uniqueInvalidRefs.includes(ref)) {
+      uniqueInvalidRefs.push(ref);
+    }
+  });
+  
   return {
     valid: invalidReferences.length === 0,
-    invalidReferences: [...new Set(invalidReferences)] // Remove duplicates
+    invalidReferences: uniqueInvalidRefs
   };
 }
 
@@ -131,12 +144,13 @@ export function checkForContradictions(text: string): string[] {
   const exemptions: string[] = [];
   
   mustPatterns.forEach(({ pattern, type }) => {
-    const matches = [...text.matchAll(pattern)];
-    matches.forEach(match => {
+    // Use exec in a loop instead of matchAll to avoid downlevel iteration issues
+    let match: RegExpExecArray | null;
+    while ((match = pattern.exec(text)) !== null) {
       if (type === 'requirement') requirements.push(match[1].trim().toLowerCase());
       if (type === 'prohibition') prohibitions.push(match[1].trim().toLowerCase());
       if (type === 'exemption') exemptions.push(match[1].trim().toLowerCase());
-    });
+    }
   });
   
   // Check for contradicting requirements/prohibitions
