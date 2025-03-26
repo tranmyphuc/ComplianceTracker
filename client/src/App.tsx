@@ -24,6 +24,7 @@ import MarketIntelligence from "@/pages/market-intelligence";
 import OperationsExcellence from "@/pages/operations-excellence";
 import GrowthInnovation from "@/pages/growth-innovation";
 import TextRiskAnalyzerPage from "@/pages/risk-assessment/text-analyzer";
+import ExecutiveDashboardPage from "@/pages/executive-dashboard";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -118,7 +119,8 @@ function Router() {
     "/demo-scenarios/automotive-safety-systems",
     "/demo-scenarios/logistics-supply-chain",
     "/compliance-chatbot",
-    "/advanced-analytics" // Added route
+    "/advanced-analytics",
+    "/executive-dashboard"
   ];
 
   useEffect(() => {
@@ -290,6 +292,9 @@ function Router() {
       </Route>
       <Route path="/advanced-analytics"> {/* Added route */}
         {() => renderWithLayout(() => <div>Advanced Analytics Placeholder</div>)} {/* Placeholder component */}
+      </Route>
+      <Route path="/executive-dashboard">
+        {() => renderWithLayout(ExecutiveDashboardPage)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}
