@@ -25,7 +25,9 @@ export default function ModuleView() {
         const isDevelopmentMode = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
         
         // Fetch module content with demo parameter in development mode
-        const response = await axios.get(`/api/training/modules/${id}${isDevelopmentMode ? '?demo=true' : ''}`);
+        // But never use demo mode for the AI Literacy module (ai-literacy)
+        const useDemo = isDevelopmentMode && id !== 'ai-literacy';
+        const response = await axios.get(`/api/training/modules/${id}${useDemo ? '?demo=true' : ''}`);
         setModuleData(response.data);
         
         console.log("Module data fetched successfully:", response.data.title);

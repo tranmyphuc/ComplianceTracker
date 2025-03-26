@@ -21,7 +21,9 @@ const TrainingPresentationPage: React.FC = () => {
         // Check if in development mode
         const isDevelopmentMode = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
         
-        const response = await fetch(`/api/training/modules/${id}/info${isDevelopmentMode ? '?demo=true' : ''}`);
+        // Don't use demo mode for AI literacy module
+        const useDemo = isDevelopmentMode && id !== 'ai-literacy';
+        const response = await fetch(`/api/training/modules/${id}/info${useDemo ? '?demo=true' : ''}`);
         const data = await response.json();
         setModuleTitle(data.title || `Training Module: ${id}`);
         console.log("Module info fetched successfully:", data.title);
