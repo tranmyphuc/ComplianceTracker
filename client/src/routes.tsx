@@ -47,10 +47,10 @@ const ManufacturingScenario = lazy(() => import('./pages/demo-scenarios/manufact
 const RetailScenario = lazy(() => import('./pages/demo-scenarios/retail-recommendation-engine'));
 const PublicSectorScenario = lazy(() => import('./pages/demo-scenarios/public-sector-eligibility'));
 const InsuranceScenario = lazy(() => import('./pages/demo-scenarios/insurance-risk-assessment'));
-const EnergyScenario = lazy(() => import('./pages/demo-scenarios/energy-grid-optimization'));
-const AutomotiveScenario = lazy(() => import('./pages/demo-scenarios/automotive-autonomous-systems'));
+const EnergyScenario = lazy(() => import('./pages/demo-scenarios/energy-smart-grid'));
+const AutomotiveScenario = lazy(() => import('./pages/demo-scenarios/automotive-safety-systems'));
 const AgricultureScenario = lazy(() => import('./pages/demo-scenarios/agriculture-precision-farming'));
-const LogisticsScenario = lazy(() => import('./pages/demo-scenarios/logistics-route-optimization'));
+const LogisticsScenario = lazy(() => import('./pages/demo-scenarios/logistics-supply-chain'));
 
 
 const AppRoutes = () => {
@@ -98,10 +98,10 @@ const AppRoutes = () => {
     "/demo-scenarios/retail-recommendation-engine",
     "/demo-scenarios/public-sector-eligibility",
     "/demo-scenarios/insurance-risk-assessment",
-    "/demo-scenarios/energy-grid-optimization",
-    "/demo-scenarios/automotive-autonomous-systems",
+    "/demo-scenarios/energy-smart-grid",
+    "/demo-scenarios/automotive-safety-systems",
     "/demo-scenarios/agriculture-precision-farming",
-    "/demo-scenarios/logistics-route-optimization"
+    "/demo-scenarios/logistics-supply-chain"
   ];
 
   // Check for duplicate routes
@@ -376,13 +376,13 @@ const AppRoutes = () => {
           </MainLayout>
         </Route>
 
-        <Route path="/demo-scenarios/energy-grid-optimization">
+        <Route path="/demo-scenarios/energy-smart-grid">
           <MainLayout>
             <EnergyScenario />
           </MainLayout>
         </Route>
 
-        <Route path="/demo-scenarios/automotive-autonomous-systems">
+        <Route path="/demo-scenarios/automotive-safety-systems">
           <MainLayout>
             <AutomotiveScenario />
           </MainLayout>
@@ -394,7 +394,7 @@ const AppRoutes = () => {
           </MainLayout>
         </Route>
 
-        <Route path="/demo-scenarios/logistics-route-optimization">
+        <Route path="/demo-scenarios/logistics-supply-chain">
           <MainLayout>
             <LogisticsScenario />
           </MainLayout>

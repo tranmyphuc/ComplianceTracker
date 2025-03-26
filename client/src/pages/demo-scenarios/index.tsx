@@ -70,40 +70,40 @@ const DemoScenarios: React.FC = () => {
       aiSystems: ["Claims Processing AI", "Risk Assessment Models", "Fraud Detection System", "Customer Behavior Analysis"]
     },
     {
-      id: "energy-grid-optimization",
-      title: "Iberdrola Energy",
+      id: "energy-smart-grid",
+      title: "EnergieNetz AG",
       industry: "Energy & Utilities",
-      companySize: "Enterprise (5,000+ employees)",
+      companySize: "Enterprise (10,000+ employees)",
       riskLevel: "High",
-      description: "A multinational electric utility company using AI for smart grid management, energy demand forecasting, and renewable integration.",
-      aiSystems: ["Smart Grid Management", "Energy Demand Forecasting", "Renewable Energy Optimization", "Predictive Maintenance"]
+      description: "A leading European energy utility using AI for smart grid management, energy consumption prediction, and predictive maintenance.",
+      aiSystems: ["Smart Grid Management System", "Energy Consumption Prediction", "Predictive Maintenance AI", "Customer Energy Management Platform"]
     },
     {
-      id: "automotive-autonomous-systems",
-      title: "Volkswagen Group",
+      id: "automotive-safety-systems",
+      title: "Mercedes-Benz",
       industry: "Automotive",
-      companySize: "Enterprise (5,000+ employees)",
+      companySize: "Enterprise (100,000+ employees)",
       riskLevel: "High",
-      description: "A major European automotive manufacturer implementing driver assistance systems, autonomous driving features, and connected car technologies.",
-      aiSystems: ["Advanced Driver Assistance Systems", "Autonomous Driving Platform", "Manufacturing Quality Control", "Connected Vehicle Services"]
+      description: "A global automotive manufacturer implementing advanced driver assistance systems, autonomous driving, and vehicle health monitoring.",
+      aiSystems: ["Advanced Driver Assistance Systems", "Autonomous Driving System", "Predictive Vehicle Health Monitoring", "Personalized Driver Experience"]
     },
     {
       id: "agriculture-precision-farming",
-      title: "AgriTech Solutions",
+      title: "AgroTech Solutions",
       industry: "Agriculture",
-      companySize: "Medium (250-999 employees)",
-      riskLevel: "Medium",
-      description: "An agricultural technology provider helping farmers optimize crop yields, reduce resource usage, and monitor crop health using AI and IoT.",
-      aiSystems: ["Crop Monitoring AI", "Precision Farming System", "Yield Prediction Models", "Resource Optimization Platform"]
+      companySize: "Medium (500-1,000 employees)",
+      riskLevel: "High",
+      description: "A European precision agriculture technology provider using AI for crop health analysis, precision application, and harvest planning.",
+      aiSystems: ["Crop Health Analysis System", "Precision Application Control", "Harvest Prediction & Planning", "Autonomous Equipment Guidance"]
     },
     {
-      id: "logistics-route-optimization",
-      title: "DHL Supply Chain",
+      id: "logistics-supply-chain",
+      title: "DHL Express",
       industry: "Logistics & Transportation",
-      companySize: "Enterprise (5,000+ employees)",
-      riskLevel: "Medium",
-      description: "A global logistics provider using AI for route optimization, demand forecasting, warehouse automation, and supply chain management.",
-      aiSystems: ["Route Optimization AI", "Demand Forecasting System", "Warehouse Automation", "Supply Chain Risk Management"]
+      companySize: "Enterprise (100,000+ employees)",
+      riskLevel: "High",
+      description: "A global logistics leader using AI for route optimization, automated sorting, predictive analytics, and customs clearance.",
+      aiSystems: ["Route Optimization System", "Automated Sorting System", "Predictive Supply Chain Analytics", "Customs Clearance AI"]
     }
   ];
 
