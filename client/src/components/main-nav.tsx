@@ -27,4 +27,20 @@ import {
             Compliance Chatbot
           </NavigationItem>
 
+          <DropdownMenuContent align="end" className="w-[200px]">
+            <DropdownMenuItem asChild>
+              <Link href="/risk-assessment">Risk Assessment</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/risk-assessment/wizard">Interactive Risk Wizard</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/risk-assessment/guides">Risk Assessment Guides</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/risk-assessment/text-analyzer">Free Text Risk Analyzer</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+
+
 // ... rest of the Navigation component ...

@@ -1,6 +1,4 @@
-
-
-  "chatbot": {
+"chatbot": {
     "title": "KI-Compliance-Assistent",
     "description": "Stellen Sie Fragen zur EU-KI-Verordnung",
     "inputPlaceholder": "Geben Sie Ihre Frage ein...",
@@ -19,9 +17,24 @@
     "infoTitle": "Interaktive Unterstützung",
     "infoDescription": "Dieser KI-Assistent bietet Orientierung zu Themen der EU-KI-Verordnung. Für offizielle Rechtsberatung wenden Sie sich bitte an einen Experten für regulatorische Compliance.",
     "disclaimer": "Haftungsausschluss: Dieser Chatbot soll allgemeine Anleitungen und Informationen zur Einhaltung der EU-KI-Verordnung geben. Die Antworten sollten nicht als Rechtsberatung betrachtet werden."
-  }
-
-
+  },
+  "riskAssessment": {
+    "title": "Risikobewertung",
+    "description": "Bewerten und verwalten Sie KI-Risiken gemäß den Anforderungen des EU AI Act",
+    "wizard": {
+      "title": "Interaktiver Risikobewertungs-Assistent",
+      "description": "Durchlaufen Sie diese schrittweise Anleitung, um das Risikoniveau Ihres KI-Systems gemäß dem EU AI Act zu bewerten",
+      "step1": "System-Identifikation",
+      "step2": "Nutzungskontext",
+      "step3": "Datenverarbeitung",
+      "step4": "Risikofaktoren",
+      "step5": "Risikominderungsmaßnahmen",
+      "guidance": "Leitfaden",
+      "nextStep": "Weiter",
+      "previousStep": "Zurück",
+      "submit": "Bewertung einreichen"
+    }
+  },
   "dashboard": {
     "chatbot": {
       "title": "KI-Assistent",

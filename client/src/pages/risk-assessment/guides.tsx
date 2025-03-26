@@ -45,6 +45,28 @@ const RiskAssessmentGuides: React.FC = () => {
       </div>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        <Card className="flex flex-col border-primary/20 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bot className="h-5 w-5 text-primary" />
+              Interactive Risk Assessment Wizard
+            </CardTitle>
+            <CardDescription>
+              Step-by-step guide to assess your AI system's risk level
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1">
+            <p className="text-sm text-muted-foreground mb-6">
+              Complete a guided assessment process with explanations at each step to help you accurately classify your AI system and identify compliance requirements.
+            </p>
+            <Button variant="default" size="sm" asChild className="w-full">
+              <Link to="/risk-assessment/wizard">
+                Start Wizard
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+        
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

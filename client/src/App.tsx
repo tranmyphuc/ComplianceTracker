@@ -66,6 +66,8 @@ function Router() {
     "/inventory",
     "/risk-assessment",
     "/risk-assessment/guides",
+    "/risk-assessment/wizard",
+    "/risk-assessment/results",
     "/risk-assessment/text-analyzer",
     "/documentation",
     "/documentation/risk-assessment",
@@ -137,6 +139,12 @@ function Router() {
       </Route>
       <Route path="/risk-assessment/guides">
         {() => renderSuspense(RiskAssessmentGuides)}
+      </Route>
+      <Route path="/risk-assessment/wizard">
+        {() => renderSuspense(lazy(() => import('./pages/risk-assessment/wizard')))}
+      </Route>
+      <Route path="/risk-assessment/results">
+        {() => renderSuspense(lazy(() => import('./pages/risk-assessment/results')))}
       </Route>
       <Route path="/risk-assessment/text-analyzer">
         {() => renderWithLayout(TextRiskAnalyzerPage)}
