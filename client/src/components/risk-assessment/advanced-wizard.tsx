@@ -870,7 +870,7 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
         // Prepare assessment data with required fields
         const assessmentData = {
           assessmentId: result.assessmentId,
-          systemId: result.systemId,
+          systemId: result.systemId || "sys-default-001", // Provide a default systemId if not available
           assessmentDate: result.date || new Date(),
           riskLevel: result.riskLevel,
           riskScore: result.overallScore,

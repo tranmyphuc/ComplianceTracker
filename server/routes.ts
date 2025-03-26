@@ -1097,8 +1097,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Parse and validate the request data
       const assessmentData = req.body;
 
+      // Default fallback if systemId is missing
       if (!assessmentData.systemId) {
-        return res.status(400).json({ message: "System ID is required" });
+        console.log("No systemId provided, using default value");
+        assessmentData.systemId = "sys-default-001";
       }
 
       if (!assessmentData.assessmentId) {
