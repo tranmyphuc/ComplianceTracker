@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -7,8 +7,47 @@ import { Separator } from "@/components/ui/separator";
 import { Building, FileCheck, ShieldAlert, Settings, FileText, BarChart4, AlertTriangle, HelpCircle, Info, Factory, Wrench, Camera, LineChart, ActivitySquare, Database, Brain, Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'wouter';
+import { AIJack } from '@/components/onboarding/ai-jack';
 
 const ManufacturingScenario: React.FC = () => {
+  const [currentTab, setCurrentTab] = useState('profile');
+  
+  // AI Jack message content based on current tab
+  const getJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "SmartFactory GmbH operates multiple medium-risk AI systems that require careful compliance measures under the EU AI Act. They need a comprehensive compliance strategy that integrates with their existing industrial standards.";
+      case 'challenges':
+        return "As both a user and provider of AI systems, SmartFactory faces unique dual-role compliance challenges and must ensure their systems meet safety requirements in critical environments.";
+      case 'solution':
+        return "Our solution provides SmartFactory with a comprehensive compliance approach including manufacturing-specific AI inventory, dual-role compliance strategy, and integrated risk assessment frameworks.";
+      case 'features':
+        return "Key features for manufacturing include industrial-specific risk evaluation, technical documentation templates, and real-time compliance monitoring across multiple production facilities.";
+      case 'outcomes':
+        return "By implementing our solution, SmartFactory achieved full EU AI Act compliance while reducing documentation effort by 60% and ensuring seamless integration with existing safety standards.";
+      default:
+        return "Welcome to the SmartFactory GmbH case study. This manufacturer needed to comply with the EU AI Act for their medium-risk predictive maintenance AI systems.";
+    }
+  };
+  
+  // German translations for AI Jack
+  const getGermanJackMessage = () => {
+    switch(currentTab) {
+      case 'profile':
+        return "SmartFactory GmbH betreibt mehrere KI-Systeme mit mittlerem Risiko, die sorgfältige Compliance-Maßnahmen gemäß dem EU AI Act erfordern. Sie benötigen eine umfassende Compliance-Strategie, die sich in ihre bestehenden Industriestandards integriert.";
+      case 'challenges':
+        return "Als Nutzer und Anbieter von KI-Systemen steht SmartFactory vor einzigartigen Compliance-Herausforderungen und muss sicherstellen, dass ihre Systeme die Sicherheitsanforderungen in kritischen Umgebungen erfüllen.";
+      case 'solution':
+        return "Unsere Lösung bietet SmartFactory einen umfassenden Compliance-Ansatz, einschließlich fertigungsspezifischem KI-Inventar, Dual-Role-Compliance-Strategie und integrierten Risikobewertungsrahmen.";
+      case 'features':
+        return "Zu den wichtigsten Funktionen für die Fertigung gehören industriespezifische Risikobewertung, technische Dokumentationsvorlagen und Echtzeit-Compliance-Überwachung über mehrere Produktionsstätten hinweg.";
+      case 'outcomes':
+        return "Durch die Implementierung unserer Lösung erreichte SmartFactory die vollständige Einhaltung des EU AI Act, reduzierte den Dokumentationsaufwand um 60% und gewährleistete eine nahtlose Integration mit bestehenden Sicherheitsstandards.";
+      default:
+        return "Willkommen zur SmartFactory GmbH Fallstudie. Dieser Hersteller musste den EU AI Act für seine KI-Systeme zur vorausschauenden Wartung mit mittlerem Risiko einhalten.";
+    }
+  };
+  
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="flex items-center gap-2 mb-2">
@@ -30,7 +69,21 @@ const ManufacturingScenario: React.FC = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="profile" className="mt-6">
+      {/* AI Jack - Multilingual Guide */}
+      <div className="my-6">
+        <AIJack
+          mood="explaining"
+          message={getJackMessage()}
+          germanMessage={getGermanJackMessage()}
+          animate={true}
+          size="md"
+          language="en"
+          allowLanguageSwitch={true}
+          onLanguageChange={(lang) => setCurrentTab(currentTab)}
+        />
+      </div>
+      
+      <Tabs defaultValue="profile" className="mt-6" onValueChange={(value) => setCurrentTab(value)}>
         <TabsList className="grid grid-cols-5 w-full">
           <TabsTrigger value="profile">Client Profile</TabsTrigger>
           <TabsTrigger value="challenges">Compliance Challenges</TabsTrigger>
@@ -344,7 +397,7 @@ const ManufacturingScenario: React.FC = () => {
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <Tool className="h-5 w-5 text-primary" />
+                  <Wrench className="h-5 w-5 text-primary" />
                   <CardTitle>Maintenance AI Compliance</CardTitle>
                 </div>
                 <CardDescription>Ensuring predictive maintenance system compliance</CardDescription>
