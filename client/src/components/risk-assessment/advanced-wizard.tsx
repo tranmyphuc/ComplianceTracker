@@ -120,6 +120,8 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
   const [selectedSystem, setSelectedSystem] = useState<string>(''); // Track selected system from dropdown
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [confirmResponsibility, setConfirmResponsibility] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewData, setPreviewData] = useState<any>(null);
   
   // Query system data if systemId is provided
   const { data: systemData, isLoading: isSystemLoading } = useQuery({
@@ -775,6 +777,111 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
     }
   };
 
+  // Prepare assessment data and show preview
+  const prepareAndPreviewAssessment = () => {
+    setIsAssessing(true);
+    try {
+      // Calculate scores for each category
+      const categoryScores: Record<string, number> = {};
+      riskCategories.forEach(category => {
+        categoryScores[category.name] = calculateCategoryScore(category.id);
+      });
+      
+      // Handle special case for prohibited use
+      // If any prohibited use questions were answered with "Yes", override risk level
+      const isProhibitedUse = riskCategories
+        .find(cat => cat.id === 'prohibited')
+        ?.questions.some(q => responses[q.id] === 'Yes');
+      
+      // Calculate overall score (weighted average, excluding prohibited since those are binary)
+      const relevantCategories = riskCategories.filter(cat => cat.id !== 'prohibited');
+      const totalScore = relevantCategories.reduce((sum, category) => {
+        return sum + calculateCategoryScore(category.id);
+      }, 0);
+      const overallScore = totalScore / relevantCategories.length;
+      
+      // Determine risk level
+      let riskLevel: 'High' | 'Limited' | 'Minimal' | 'Unacceptable';
+      if (isProhibitedUse) {
+        riskLevel = 'Unacceptable';
+      } else if (overallScore >= 75) {
+        riskLevel = 'Minimal';
+      } else if (overallScore >= 50) {
+        riskLevel = 'Limited';
+      } else {
+        riskLevel = 'High';
+      }
+      
+      // Identify relevant articles based on high-risk areas
+      const relevantArticles: string[] = [];
+      riskCategories.forEach(category => {
+        const categoryScore = calculateCategoryScore(category.id);
+        if (categoryScore < 70 && category.euArticles) {
+          relevantArticles.push(...category.euArticles);
+        }
+      });
+      
+      // Generate compliance gaps
+      const complianceGaps: string[] = [];
+      riskCategories.forEach(category => {
+        const categoryScore = calculateCategoryScore(category.id);
+        if (categoryScore < 50) {
+          category.questions.forEach(question => {
+            const response = responses[question.id];
+            if (!response || 
+                (question.type === 'slider' && response < 50) ||
+                (question.type === 'radio' && question.options && 
+                 question.options.indexOf(response) >= Math.floor(question.options.length / 2))) {
+              if (question.complianceRequirement) {
+                complianceGaps.push(question.complianceRequirement);
+              }
+            }
+          });
+        }
+      });
+      
+      // Determine required documentation
+      const requiredDocumentation = determineRequiredDocumentation(riskLevel, categoryScores);
+      
+      // Generate recommendations
+      const recommendations = generateRecommendations(categoryScores, riskLevel);
+      
+      // Generate next steps
+      const nextSteps = generateNextSteps(categoryScores, riskLevel, complianceGaps);
+      
+      // Create final assessment result
+      const result: AssessmentResult = {
+        systemId: systemId,
+        assessmentId: `RA-${Date.now()}`,
+        date: assessmentMeta.assessmentDate,
+        assessor: assessmentMeta.assessorName,
+        categoryScores,
+        overallScore,
+        riskLevel,
+        prohibitedUse: isProhibitedUse || false,
+        prohibitedJustification: prohibitedReason,
+        recommendations,
+        requiredDocumentation,
+        relevantArticles: Array.from(new Set(relevantArticles)), // Remove duplicates
+        complianceGaps: Array.from(new Set(complianceGaps)), // Remove duplicates
+        nextSteps
+      };
+      
+      // Set preview data
+      setPreviewData(result);
+      setShowPreview(true);
+      setIsAssessing(false);
+    } catch (error) {
+      console.error("Error preparing assessment:", error);
+      toast({
+        title: "Assessment Error",
+        description: "There was an error preparing the assessment preview. Please try again.",
+        variant: "destructive"
+      });
+      setIsAssessing(false);
+    }
+  };
+
   // Show confirmation dialog before completing assessment
   const showConfirmationDialog = () => {
     setShowConfirmDialog(true);
@@ -1289,6 +1396,130 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
   }, [systemData]);
 
   // Add dialog to confirm assessment submission with responsibility acknowledgment
+  // Render preview dialog
+  const renderPreviewDialog = () => (
+    <Dialog open={showPreview} onOpenChange={setShowPreview}>
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Assessment Preview</DialogTitle>
+          <DialogDescription>
+            Review your assessment results before final submission. This is how your assessment will appear once submitted.
+          </DialogDescription>
+        </DialogHeader>
+
+        {previewData && (
+          <div className="space-y-6 py-4">
+            {/* Summary Card */}
+            <Card className="overflow-hidden">
+              <CardHeader className={`
+                ${previewData.riskLevel === 'High' ? 'bg-red-50 border-b border-red-100' :
+                  previewData.riskLevel === 'Limited' ? 'bg-amber-50 border-b border-amber-100' :
+                  previewData.riskLevel === 'Minimal' ? 'bg-green-50 border-b border-green-100' :
+                  'bg-red-50 border-b border-red-100'}
+              `}>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Assessment Summary</span>
+                  <Badge className={`
+                    ${previewData.riskLevel === 'High' ? 'bg-red-600' :
+                      previewData.riskLevel === 'Limited' ? 'bg-amber-600' :
+                      previewData.riskLevel === 'Minimal' ? 'bg-green-600' :
+                      'bg-red-600'}
+                  `}>
+                    {previewData.riskLevel} Risk
+                  </Badge>
+                </CardTitle>
+                <CardDescription>
+                  Assessment ID: {previewData.assessmentId} | Date: {previewData.date}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-neutral-700">Overall Compliance Score</h4>
+                    <div className="flex items-center gap-2">
+                      <Progress value={previewData.overallScore} className="h-2" />
+                      <span className="text-sm font-medium">
+                        {Math.round(previewData.overallScore)}%
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-neutral-700">Assessor</h4>
+                    <p className="text-sm">{previewData.assessor}</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-neutral-700">System ID</h4>
+                    <p className="text-sm">{previewData.systemId || 'Manual Assessment'}</p>
+                  </div>
+                </div>
+                
+                {previewData.prohibitedUse && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-md mt-4">
+                    <h4 className="text-sm font-medium text-red-800 flex items-center">
+                      <AlertTriangle className="h-4 w-4 mr-1" />
+                      Prohibited Use Detected
+                    </h4>
+                    <p className="text-xs text-red-700 mt-1">
+                      {previewData.prohibitedJustification || 
+                        'This system falls under prohibited use cases as defined in Article 5 of the EU AI Act.'}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            {/* Category Scores */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Category Compliance Scores</CardTitle>
+                <CardDescription>
+                  Breakdown of compliance scores across assessment categories
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {Object.entries(previewData.categoryScores).map(([category, score], index) => (
+                    <div key={index} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{category}</span>
+                        <span className="text-sm">{Math.round(score as number)}%</span>
+                      </div>
+                      <Progress 
+                        value={score as number} 
+                        className={`h-2 ${
+                          (score as number) >= 75 ? 'bg-green-600' :
+                          (score as number) >= 50 ? 'bg-amber-500' :
+                          'bg-red-600'
+                        }`} 
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        <DialogFooter>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowPreview(false)}
+          >
+            Edit Assessment
+          </Button>
+          <Button 
+            onClick={showConfirmationDialog}
+          >
+            Proceed to Submit
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
+  // Render confirmation dialog
   const renderConfirmationDialog = () => (
     <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
       <DialogContent className="sm:max-w-md">
@@ -2133,7 +2364,7 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
                   
                   <div className="p-6 border rounded-md bg-neutral-50 flex flex-col items-center justify-center text-center gap-4">
                     <Button 
-                      onClick={showConfirmationDialog}
+                      onClick={prepareAndPreviewAssessment}
                       disabled={isAssessing}
                       className="gap-2"
                     >
@@ -2407,6 +2638,7 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
       </CardFooter>
       
       {/* Render the confirmation dialog */}
+      {renderPreviewDialog()}
       {renderConfirmationDialog()}
     </Card>
   );
