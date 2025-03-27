@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   AlertTriangle, 
   Check, 
@@ -117,6 +118,8 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
   const [documentationFiles, setDocumentationFiles] = useState<Array<{ name: string, uploaded: boolean }>>([]);
   const [evidenceProvided, setEvidenceProvided] = useState<Record<string, boolean>>({});
   const [selectedSystem, setSelectedSystem] = useState<string>(''); // Track selected system from dropdown
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [confirmResponsibility, setConfirmResponsibility] = useState(false);
   
   // Query system data if systemId is provided
   const { data: systemData, isLoading: isSystemLoading } = useQuery({
@@ -772,8 +775,15 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
     }
   };
 
+  // Show confirmation dialog before completing assessment
+  const showConfirmationDialog = () => {
+    setShowConfirmDialog(true);
+  };
+
   // Complete assessment
   const completeAssessment = async () => {
+    // Close dialog and set assessing flag
+    setShowConfirmDialog(false);
     setIsAssessing(true);
     
     try {
@@ -1278,6 +1288,57 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
     }
   }, [systemData]);
 
+  // Add dialog to confirm assessment submission with responsibility acknowledgment
+  const renderConfirmationDialog = () => (
+    <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Confirm Assessment Submission</DialogTitle>
+          <DialogDescription>
+            You are about to complete and submit this risk assessment. By submitting, you acknowledge and confirm your responsibility for the accuracy of the information provided.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-4 space-y-4">
+          <div className="flex items-start space-x-2">
+            <Checkbox 
+              id="responsibility-checkbox" 
+              checked={confirmResponsibility}
+              onCheckedChange={(checked) => setConfirmResponsibility(checked === true)}
+            />
+            <Label 
+              htmlFor="responsibility-checkbox" 
+              className="font-normal text-sm leading-relaxed"
+            >
+              I acknowledge that I am responsible for the accuracy and completeness of this assessment, and understand that it will be used for EU AI Act compliance purposes.
+            </Label>
+          </div>
+          
+          <div className="bg-amber-50 border border-amber-100 rounded-md p-3">
+            <h4 className="text-sm font-medium text-amber-800 mb-1">Important Notice</h4>
+            <p className="text-xs text-amber-700">
+              This risk assessment will be recorded in the compliance system and may be subject to review by regulatory authorities. Providing misleading information may have legal consequences.
+            </p>
+          </div>
+        </div>
+        <DialogFooter className="flex justify-between sm:justify-between">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowConfirmDialog(false)}
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="default" 
+            onClick={completeAssessment}
+            disabled={!confirmResponsibility}
+          >
+            I Confirm and Submit
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+  
   return (
     <Card className="border shadow-sm">
       <CardHeader className="pb-3">
@@ -2072,7 +2133,7 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
                   
                   <div className="p-6 border rounded-md bg-neutral-50 flex flex-col items-center justify-center text-center gap-4">
                     <Button 
-                      onClick={completeAssessment}
+                      onClick={showConfirmationDialog}
                       disabled={isAssessing}
                       className="gap-2"
                     >
@@ -2344,6 +2405,9 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
           )}
         </Button>
       </CardFooter>
+      
+      {/* Render the confirmation dialog */}
+      {renderConfirmationDialog()}
     </Card>
   );
 }
