@@ -1042,13 +1042,13 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
         
         toast({
           title: "Risk Assessment Complete",
-          description: `Your assessment has been saved and will redirect to Risk Management.`,
+          description: `Your assessment has been saved and will redirect to the Results page.`,
         });
         
-        // Redirect to Risk Management page after a short delay
+        // Redirect to Risk Assessment results page after a short delay
         // Use window.location for navigation since we're in a callback
         setTimeout(() => {
-          window.location.href = '/risk-management';
+          window.location.href = '/risk-assessment?tab=results';
         }, 1500);
       } catch (saveError) {
         console.error("Error saving assessment:", saveError);
