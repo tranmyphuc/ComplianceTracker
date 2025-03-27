@@ -893,12 +893,12 @@ const AdminDashboard: React.FC = () => {
                         <Label>Switching Condition</Label>
                         <Select disabled>
                           <SelectTrigger>
-                            <SelectValue placeholder="Error Rate > 5%" />
+                            <SelectValue placeholder="Error Rate &gt; 5%" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="error">Error Rate > 5%</SelectItem>
-                            <SelectItem value="latency">Latency > 2s</SelectItem>
-                            <SelectItem value="cost">Cost > Budget</SelectItem>
+                            <SelectItem value="error">Error Rate &gt; 5%</SelectItem>
+                            <SelectItem value="latency">Latency &gt; 2s</SelectItem>
+                            <SelectItem value="cost">Cost &gt; Budget</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
