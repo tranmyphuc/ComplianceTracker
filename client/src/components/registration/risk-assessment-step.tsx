@@ -130,7 +130,7 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
             
             // Update form data with determined risk level
             if (processedResults.riskLevel && typeof processedResults.riskLevel === 'string') {
-              setFormData(prev => ({
+              setFormData((prev: any) => ({
                 ...prev,
                 riskLevel: processedResults.riskLevel
               }));
@@ -146,7 +146,7 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
                   
               if (concerns.length > 0) {
                 const impact = concerns.join(". ");
-                setFormData(prev => ({
+                setFormData((prev: any) => ({
                   ...prev,
                   potentialImpact: impact
                 }));
@@ -323,56 +323,101 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* SGH AI Assistant Risk Analyzer Banner */}
-      <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-lg p-4 shadow-md border border-blue-700">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-white rounded-full p-2 h-10 w-10 flex items-center justify-center">
-              <Bot className="h-6 w-6 text-blue-700" />
+      {/* SGH ASIA AI Advanced Risk Analyzer Banner */}
+      <div className="bg-gradient-to-r from-indigo-900 to-blue-800 text-white rounded-lg p-4 shadow-md border border-blue-700">
+        <div className="flex flex-col space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-white rounded-full p-2 h-10 w-10 flex items-center justify-center">
+                <Bot className="h-6 w-6 text-blue-700" />
+              </div>
+              <div>
+                <h3 className="font-medium text-white">SGH ASIA AI Risk Analyzer</h3>
+                <p className="text-blue-100 text-sm">AI-powered EU AI Act compliance assessment</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-medium text-white">SGH AI Risk Analyzer</h3>
-              <p className="text-blue-100 text-sm">Auto-analyze system risk level based on Steps 1 & 2</p>
-            </div>
+            <Button 
+              onClick={analyzeRiskWithAI} 
+              disabled={isAnalyzing || sghAsiaAiInProgress}
+              className="bg-white text-blue-800 hover:bg-blue-50 flex items-center gap-2"
+            >
+              {isAnalyzing ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-blue-800 border-t-transparent rounded-full animate-spin"></div>
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <SparklesIcon className="h-4 w-4" />
+                  Analyze with SGH ASIA AI
+                </>
+              )}
+            </Button>
           </div>
-          <Button 
-            onClick={analyzeRiskWithAI} 
-            disabled={isAnalyzing || sghAsiaAiInProgress}
-            className="bg-white text-blue-800 hover:bg-blue-50 flex items-center gap-2"
-          >
-            {isAnalyzing ? (
-              <>
-                <div className="h-4 w-4 border-2 border-blue-800 border-t-transparent rounded-full animate-spin"></div>
-                Analyzing...
-              </>
-            ) : (
-              <>
-                <SparklesIcon className="h-4 w-4" />
-                Suggest Risk Level
-              </>
-            )}
-          </Button>
+          
+          <div className="text-xs text-blue-200 bg-blue-900/50 p-2 rounded">
+            <p className="font-medium">What SGH ASIA AI will do:</p>
+            <ul className="list-disc list-inside mt-1 space-y-1">
+              <li>Automatically classify your system based on EU AI Act criteria</li>
+              <li>Determine appropriate risk level and regulatory requirements</li>
+              <li>Identify relevant EU AI Act articles and compliance needs</li>
+              <li>Suggest mitigation strategies and documentation requirements</li>
+            </ul>
+          </div>
         </div>
       </div>
 
       {showAiAnalysis && (
-        <Alert variant={aiAnalysisRiskLevel === "high" ? "destructive" : "default"}>
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>AI Analysis Results</AlertTitle>
-          <AlertDescription>
-            <p>Based on the information provided, this system appears to be a <strong>{typeof aiAnalysisCategory === 'string' ? aiAnalysisCategory : 'Unknown'}</strong> system with a <strong>{typeof aiAnalysisRiskLevel === 'string' ? aiAnalysisRiskLevel : 'Unknown'}</strong> risk level.</p>
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 overflow-hidden">
+          <div className="bg-blue-700 text-white px-4 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <SparklesIcon className="h-4 w-4" />
+              <h3 className="font-medium">SGH ASIA AI Analysis Results</h3>
+            </div>
+            <Badge variant="outline" className="bg-white text-blue-700 border-none">
+              {typeof aiAnalysisRiskLevel === 'string' ? aiAnalysisRiskLevel.charAt(0).toUpperCase() + aiAnalysisRiskLevel.slice(1) : 'Unknown'} Risk
+            </Badge>
+          </div>
+          
+          <div className="p-4 space-y-3">
+            <div>
+              <p className="text-sm">Based on the information provided, this system appears to be a:</p>
+              <p className="font-medium text-blue-800 mt-1">{typeof aiAnalysisCategory === 'string' ? aiAnalysisCategory : 'AI System'} with {typeof aiAnalysisRiskLevel === 'string' ? aiAnalysisRiskLevel : 'unknown'} risk classification</p>
+            </div>
+            
             {relevantArticles.length > 0 && (
-              <div className="mt-2">
-                <p className="font-medium">Relevant EU AI Act Articles:</p>
+              <div>
+                <p className="text-sm font-medium text-blue-800">Relevant EU AI Act Articles:</p>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {relevantArticles.map((article: string, index: number) => (
-                    <Badge key={index} variant="outline">{article}</Badge>
+                    <Badge key={index} variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">{article}</Badge>
                   ))}
                 </div>
               </div>
             )}
-          </AlertDescription>
-        </Alert>
+            
+            {suggestedImprovements.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-blue-800">Suggested Compliance Measures:</p>
+                <ul className="text-sm mt-1 space-y-1 list-disc list-inside text-gray-700">
+                  {suggestedImprovements.slice(0, 3).map((improvement: string, index: number) => (
+                    <li key={index}>{improvement}</li>
+                  ))}
+                  {suggestedImprovements.length > 3 && (
+                    <li className="text-blue-600 cursor-pointer hover:underline">
+                      +{suggestedImprovements.length - 3} more recommendations...
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
+            
+            <div className="text-xs text-gray-500 flex items-center gap-1 mt-2">
+              <SparklesIcon className="h-3 w-3" />
+              <span>Analysis provided by SGH ASIA AI Compliance Engine</span>
+            </div>
+          </div>
+        </div>
       )}
       
       <div className="space-y-4">
@@ -386,7 +431,7 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
               disabled={isAnalyzing || sghAsiaAiInProgress}
               className="h-7 px-2 text-xs text-blue-700"
             >
-              {isAnalyzing ? "Analyzing..." : "Use SGH AI Suggestion"}
+              {isAnalyzing ? "Analyzing..." : "Use SGH ASIA AI Suggestion"}
             </Button>
           </div>
           <Select
