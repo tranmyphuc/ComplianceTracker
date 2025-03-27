@@ -168,18 +168,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
             <span>Risk Assessment</span>
           </Link>
 
-          <Link 
-            href="/risk-management"
-            className={cn(
-              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
-              isActive("/risk-management") && "bg-primary/10 text-primary font-medium",
-              "text-amber-800 hover:text-amber-900"
-            )}
-            onClick={handleItemClick}
-          >
-            <AlertTriangleIconLucide className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0 text-amber-600" />
-            <span>Risk Management</span>
-          </Link>
+          {/* Risk Management is now integrated into Risk Assessment */}
 
           <Link 
             href="/documentation"

@@ -884,6 +884,8 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
 
   // Show confirmation dialog before completing assessment
   const showConfirmationDialog = () => {
+    // First close the preview dialog, then show the confirmation dialog
+    setShowPreview(false);
     setShowConfirmDialog(true);
   };
 
