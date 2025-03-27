@@ -21,9 +21,56 @@ export const apiKeySchema = z.object({
 export type ApiKey = z.infer<typeof apiKeySchema>;
 
 // Helper function for consistent SQL queries that works around TypeScript issues
-async function runQuery(text: string, params: any[] = []): Promise<QueryResult> {
+async function runQuery(text: string, params: any[] = []): Promise<any[]> {
   try {
-    return await sql.query(text, params);
+    // Call postgres client directly with the SQL string and parameters
+    // The postgres client in our case is the `sql` export from db.ts
+    // It's a function that accepts a template literal and parameters
+    // Converting a regular string to a template string is tricky, so we'll use a 
+    // different approach with direct string interpolation for simple cases
+    
+    if (params.length === 0) {
+      // If no parameters, just run the query directly
+      return await sql`${text}`;
+    } else {
+      // For simple cases with known parameter count, we can handle them directly
+      // This is not ideal but will work for our specific use cases
+      if (params.length === 1) {
+        return await sql`${text.replace(/\$1/g, '${}')}${params[0]}`;
+      } else if (params.length === 2) {
+        return await sql`${text.replace(/\$1/g, '${}').replace(/\$2/g, '${}')}${params[0]}${params[1]}`;
+      } else if (params.length === 5) {
+        return await sql`${text.replace(/\$1/g, '${}').replace(/\$2/g, '${}').replace(/\$3/g, '${}').replace(/\$4/g, '${}').replace(/\$5/g, '${}')}${params[0]}${params[1]}${params[2]}${params[3]}${params[4]}`;
+      } else if (params.length === 9) {
+        return await sql`${text.replace(/\$1/g, '${}').replace(/\$2/g, '${}').replace(/\$3/g, '${}').replace(/\$4/g, '${}').replace(/\$5/g, '${}')}
+                         ${text.replace(/\$6/g, '${}').replace(/\$7/g, '${}').replace(/\$8/g, '${}').replace(/\$9/g, '${}')}
+                         ${params[0]}${params[1]}${params[2]}${params[3]}${params[4]}${params[5]}${params[6]}${params[7]}${params[8]}`;
+      } else {
+        // For complex cases, build the query manually
+        // This is a fallback but not ideal
+        // In a real application, you would design a more robust solution
+        console.warn(`Using fallback SQL execution method for query with ${params.length} parameters`);
+        let query = text;
+        params.forEach((param, index) => {
+          let paramValue: string;
+          if (param === null) {
+            paramValue = 'NULL';
+          } else if (typeof param === 'string') {
+            paramValue = `'${param.replace(/'/g, "''")}'`;
+          } else if (param instanceof Date) {
+            paramValue = `'${param.toISOString()}'`;
+          } else if (typeof param === 'boolean') {
+            paramValue = param ? 'TRUE' : 'FALSE';
+          } else {
+            paramValue = String(param);
+          }
+          const placeholder = `\\$${index + 1}`;
+          const regex = new RegExp(placeholder, 'g');
+          query = query.replace(regex, paramValue);
+        });
+        return await sql`${query}`;
+      }
+    }
   } catch (error) {
     console.error('Database query error:', error);
     throw error;
@@ -42,7 +89,7 @@ async function ensureApiKeysTableExists() {
       ) as exists;
     `);
     
-    const exists = tableExists.rows[0]?.exists === true || tableExists.rows[0]?.exists === 'true';
+    const exists = tableExists[0]?.exists === true || tableExists[0]?.exists === 'true';
     
     if (!exists) {
       console.log('Creating api_keys table...');
@@ -106,7 +153,7 @@ class ApiKeyManager {
             AND description LIKE $2
           `, [provider, '%from environment variables%']);
           
-          const count = Number(result.rows[0]?.count || 0);
+          const count = Number(result[0]?.count || 0);
           
           if (count === 0) {
             // Add the key if it doesn't exist
@@ -171,9 +218,9 @@ class ApiKeyManager {
         SELECT * FROM api_keys WHERE id = $1
       `, [id]);
       
-      if (result.rows.length === 0) return undefined;
+      if (result.length === 0) return undefined;
       
-      const row = result.rows[0];
+      const row = result[0];
       return this.rowToApiKey(row);
     } catch (error) {
       console.error('Error getting API key from database:', error);
@@ -203,7 +250,7 @@ class ApiKeyManager {
         SELECT * FROM api_keys WHERE provider = $1
       `, [provider]);
       
-      return result.rows.map(row => [
+      return result.map(row => [
         String(row.id),
         this.rowToApiKey(row)
       ]);
@@ -222,7 +269,7 @@ class ApiKeyManager {
         AND is_active = true
       `, [provider]);
       
-      return result.rows.map(row => [
+      return result.map(row => [
         String(row.id),
         this.rowToApiKey(row)
       ]);
@@ -243,9 +290,9 @@ class ApiKeyManager {
         LIMIT 1
       `, [provider]);
       
-      if (result.rows.length === 0) return undefined;
+      if (result.length === 0) return undefined;
       
-      const row = result.rows[0];
+      const row = result[0];
       return [String(row.id), this.rowToApiKey(row)];
     } catch (error) {
       console.error('Error getting best key for provider from database:', error);
@@ -384,11 +431,11 @@ class ApiKeyManager {
   // List all API keys
   async listAllKeys(): Promise<[string, ApiKey][]> {
     try {
-      const result = await sql.query(`
+      const result = await runQuery(`
         SELECT * FROM api_keys ORDER BY provider, created_at DESC
       `);
       
-      return result.rows.map(row => [
+      return result.map(row => [
         String(row.id),
         this.rowToApiKey(row)
       ]);

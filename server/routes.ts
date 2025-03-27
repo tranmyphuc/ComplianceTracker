@@ -1563,6 +1563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Legal validation routes
   app.post('/api/legal/validate', validateAssessmentText);
+  app.post('/api/validate/assessment', validateAssessmentText); // Alternate endpoint for system registration
   app.post('/api/legal/disclaimer', addLegalDisclaimerToContent);
 
   //Risk Assessment Endpoints
