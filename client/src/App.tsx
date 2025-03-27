@@ -140,9 +140,9 @@ function Router() {
   const renderSuspense = (Component: any, props?: any) => {
     return (
       <AppLayout>
-        <Suspense fallback={<div className="p-8 text-center">Loading content...</div>}>
+        <React.Suspense fallback={<div className="p-8 text-center">Loading content...</div>}>
           <Component {...props} />
-        </Suspense>
+        </React.Suspense>
       </AppLayout>
     );
   };
@@ -231,10 +231,18 @@ function Router() {
         {() => renderWithLayout(Dashboard)}
       </Route>
       <Route path="/settings">
-        {() => renderWithLayout(lazy(() => import('./pages/settings')))}
+        {() => 
+          <React.Suspense fallback={<div className="p-6">Loading settings...</div>}>
+            {renderWithLayout(lazy(() => import('./pages/settings')))}
+          </React.Suspense>
+        }
       </Route>
       <Route path="/settings/api-keys">
-        {() => renderWithLayout(lazy(() => import('./pages/settings/api-keys')))}
+        {() => 
+          <React.Suspense fallback={<div className="p-6">Loading API keys management...</div>}>
+            {renderWithLayout(lazy(() => import('./pages/settings/api-keys')))}
+          </React.Suspense>
+        }
       </Route>
       <Route path="/market-intelligence">
         {() => renderWithLayout(MarketIntelligence)}

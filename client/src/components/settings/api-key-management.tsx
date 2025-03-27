@@ -3,13 +3,21 @@ import React, { useState, useEffect } from 'react';
 import { 
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { 
-  Button, Dialog, DialogContent, DialogDescription, DialogFooter, 
-  DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, 
-  SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, 
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow, 
-  useToast
-} from '@/components/ui';
+  Dialog, DialogContent, DialogDescription, DialogFooter, 
+  DialogHeader, DialogTitle, DialogTrigger 
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { 
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { 
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
+} from '@/components/ui/table';
+import { useToast } from '@/hooks/use-toast';
 import { AlertCircle, CheckCircle, Plus, Settings, Trash, X } from 'lucide-react';
 
 // Define API key interface
