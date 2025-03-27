@@ -149,15 +149,7 @@ const StatCard: React.FC<StatCardProps> = ({
 
 const ExecutiveDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("euAiAct");
-  let currentLanguage = 'en';
-  
-  try {
-    // Try to use the language context, but provide a fallback if it's not available
-    const languageContext = useLanguage();
-    currentLanguage = languageContext.currentLanguage;
-  } catch (error) {
-    console.warn("Language context not available, using fallback");
-  }
+  const { currentLanguage } = useLanguage();
 
   const companies = [
     {

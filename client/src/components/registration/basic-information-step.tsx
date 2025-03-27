@@ -178,37 +178,15 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="vendor">Vendor/Provider <span className="text-red-500">*</span></Label>
-            <Select
+            <Label htmlFor="vendor">Vendor/Provider</Label>
+            <Input
+              id="vendor"
+              name="vendor"
+              placeholder="Who developed this system?"
               value={formData.vendor}
-              onValueChange={(value) => handleSelectChange('vendor', value)}
-            >
-              <SelectTrigger id="vendor" className={errors.vendor ? "border-red-500" : ""}>
-                <SelectValue placeholder="Select vendor or enter custom" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="SGH ASIA">SGH ASIA</SelectItem>
-                <SelectItem value="OpenAI">OpenAI</SelectItem>
-                <SelectItem value="Google">Google</SelectItem>
-                <SelectItem value="Microsoft">Microsoft</SelectItem>
-                <SelectItem value="Anthropic">Anthropic</SelectItem>
-                <SelectItem value="In-house">In-house Development</SelectItem>
-                <SelectItem value="custom">Custom Vendor (Enter Below)</SelectItem>
-              </SelectContent>
-            </Select>
-            {formData.vendor === "custom" && (
-              <Input
-                id="customVendor"
-                name="customVendor"
-                placeholder="Enter vendor name"
-                value={formData.customVendor || ""}
-                onChange={(e) => {
-                  handleInputChange(e);
-                  handleSelectChange('vendor', e.target.value);
-                }}
-                className="mt-2"
-              />
-            )}
+              onChange={handleInputChange}
+              className={errors.vendor ? "border-red-500" : ""}
+            />
             {errors.vendor ? (
               <p className="text-sm text-red-500 flex items-center mt-1">
                 <AlertCircle className="h-4 w-4 mr-1" />
@@ -216,7 +194,7 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
               </p>
             ) : (
               <p className="text-sm text-gray-500">
-                For internal systems, specify "In-house Development"
+                For internal systems, specify the team or division
               </p>
             )}
           </div>
