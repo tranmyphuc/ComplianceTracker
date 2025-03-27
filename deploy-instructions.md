@@ -2,6 +2,21 @@
 
 Tài liệu này cung cấp hướng dẫn chi tiết để triển khai hệ thống EU AI Act Compliance Platform từ môi trường phát triển lên môi trường sản xuất trên Replit.
 
+## Thiết Lập Nhanh Môi Trường Phát Triển
+
+Để thiết lập nhanh môi trường phát triển với đầy đủ tính năng, sử dụng script `dev-setup.js`:
+
+```
+node dev-setup.js
+```
+
+Script này sẽ tự động:
+- Kiểm tra kết nối đến cơ sở dữ liệu
+- Khởi tạo cấu trúc cơ sở dữ liệu
+- Tạo các tài khoản demo với nhiều vai trò
+- Nhập dữ liệu mô-đun đào tạo mẫu
+- Bật tất cả tính năng trong môi trường phát triển
+
 ## Bước 1: Chuẩn Bị Cơ Sở Dữ Liệu
 
 Trước khi triển khai, cần đảm bảo cơ sở dữ liệu PostgreSQL đã được khởi tạo và chứa dữ liệu ban đầu:
