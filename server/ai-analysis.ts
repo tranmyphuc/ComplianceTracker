@@ -2,8 +2,9 @@ import type { AiSystem } from '@shared/schema';
 import fetch from 'node-fetch';
 import {Request, Response} from 'express';
 import {storage} from './storage'; // Assuming storage is defined elsewhere
-import {handleError} from './error-handling'; // Assuming handleError is defined elsewhere
+import {AppError} from './error-handling'; // Import AppError instead of handleError
 import {getApiKey} from './ai-key-management'; // Import getApiKey function
+import { AIModel, callAI, safeJsonParse } from './ai-service';
 
 
 // AI API configurations
@@ -53,15 +54,38 @@ interface GoogleSearchResult {
  * Search using Google Custom Search API
  * This provides real data from the internet
  */
-async function searchGoogleApi(query: string): Promise<string> {
+async function searchGoogleApi(query: string, siteUrl?: string): Promise<string> {
   const googleSearchApiKey = getApiKey('google_search');
   if (!googleSearchApiKey) {
     throw new Error('No Google Search API key available');
   }
 
   try {
+    // Build the query URL
+    let searchUrl = `${GOOGLE_SEARCH_URL}?key=${googleSearchApiKey}&cx=${GOOGLE_SEARCH_ENGINE_ID}&q=${encodeURIComponent(query)}`;
+    
+    // If a specific site URL is provided, restrict the search to that site
+    if (siteUrl) {
+      // Extract the domain from the URL
+      let domain = siteUrl;
+      try {
+        // Remove protocol prefix and path
+        if (domain.includes('://')) {
+          domain = domain.split('://')[1];
+        }
+        // Get just the domain part
+        domain = domain.split('/')[0];
+        
+        // Add site: operator to the query
+        searchUrl += `&siteSearch=${encodeURIComponent(domain)}`;
+      } catch (e) {
+        console.error('Error parsing site URL:', e);
+        // Continue without site restriction if URL parsing fails
+      }
+    }
+
     const response = await fetch(
-      `${GOOGLE_SEARCH_URL}?key=${googleSearchApiKey}&cx=${GOOGLE_SEARCH_ENGINE_ID}&q=${encodeURIComponent(query)}`,
+      searchUrl,
       {
         method: 'GET',
         headers: {
@@ -74,13 +98,13 @@ async function searchGoogleApi(query: string): Promise<string> {
       throw new Error(`Google Search API error: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as GoogleSearchResult;
 
     // Extract and format the search results into a coherent response
     let resultText = "Based on search results:\n\n";
 
     if (data.items && data.items.length > 0) {
-      data.items.slice(0, 5).forEach((item: any, index: number) => {
+      data.items.slice(0, 5).forEach((item, index: number) => {
         resultText += `${index + 1}. ${item.title}\n`;
         resultText += `   ${item.snippet}\n\n`;
       });
