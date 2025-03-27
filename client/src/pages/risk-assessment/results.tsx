@@ -30,24 +30,20 @@ const RiskAssessmentResults: React.FC = () => {
   const [activeTab, setActiveTab] = useState('assessment');
   const [validationLoaded, setValidationLoaded] = useState(false);
   
-  // Extract parameters from URL query string
+  // Extract parameters from URL query string using window.location instead of wouter location
   const getParamsFromUrl = (): { systemId?: string; assessmentId?: string } => {
-    // Check if we have query parameters (e.g., ?systemId=123&assessmentId=456)
-    if (location.includes('?')) {
-      const queryString = location.split('?')[1];
-      const params = new URLSearchParams(queryString);
-      const systemId = params.get('systemId') || undefined;
-      const assessmentId = params.get('assessmentId') || undefined;
-      
-      console.log("Extracted query parameters:", { systemId, assessmentId });
-      return { systemId, assessmentId };
-    }
+    // Use window.location.search to get query parameters
+    const params = new URLSearchParams(window.location.search);
+    const systemId = params.get('systemId') || undefined;
+    const assessmentId = params.get('assessmentId') || undefined;
     
-    return {};
+    console.log("Extracted query parameters:", { systemId, assessmentId });
+    return { systemId, assessmentId };
   };
   
   // For debugging
   console.log("Current location:", location);
+  console.log("Window location search:", window.location.search);
   
   const { systemId, assessmentId } = getParamsFromUrl();
   
@@ -70,24 +66,12 @@ const RiskAssessmentResults: React.FC = () => {
     enabled: !!systemId
   });
   
-  // Extract the numeric ID from the assessmentId if it has the format 'RA-1234'
-  const getNumericId = (id: string | undefined): string | undefined => {
-    if (!id) return undefined;
-    // If the ID is in the format 'RA-1234', extract the numeric part
-    const match = id.match(/^RA-(\d+)$/);
-    if (match && match[1]) return match[1];
-    // Otherwise, if it's already numeric, use it as is
-    if (/^\d+$/.test(id)) return id;
-    return undefined;
-  };
-  
-  const numericAssessmentId = getNumericId(assessmentId);
-  
+  // Use the full assessment ID now that the API supports string IDs
   // Fetch the assessment data
   const { data: assessment, isLoading: assessmentLoading } = useQuery({
-    queryKey: ['/api/risk-assessments', numericAssessmentId],
-    queryFn: () => numericAssessmentId ? apiRequest(`/api/risk-assessments/${numericAssessmentId}`) : null,
-    enabled: !!numericAssessmentId
+    queryKey: ['/api/risk-assessments', assessmentId],
+    queryFn: () => assessmentId ? apiRequest(`/api/risk-assessments/${assessmentId}`) : null,
+    enabled: !!assessmentId
   });
   
   // Simulate validation loading

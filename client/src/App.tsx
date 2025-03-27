@@ -167,6 +167,9 @@ function Router() {
       <Route path="/risk-assessment/results/:systemId?/:assessmentId?">
         {() => renderSuspense(lazy(() => import('./pages/risk-assessment/results')))}
       </Route>
+      <Route path="/risk-assessment/results">
+        {() => renderSuspense(lazy(() => import('./pages/risk-assessment/results')))}
+      </Route>
       <Route path="/risk-assessment/text-analyzer">
         {() => renderWithLayout(TextRiskAnalyzerPage)}
       </Route>
