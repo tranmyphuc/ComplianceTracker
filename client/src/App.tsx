@@ -58,6 +58,7 @@ import AutomotiveScenario from '@/pages/demo-scenarios/automotive-ai-systems';
 import LogisticsScenario from '@/pages/demo-scenarios/logistics-transportation';
 import VendorManagement from '@/pages/vendor-management';
 import ComplianceChatbotPage from "./pages/compliance-chatbot";
+import LegalReviewsPage from "@/pages/legal-reviews";
 
 
 function Router() {
@@ -104,6 +105,7 @@ function Router() {
     "/market-intelligence",
     "/operations-excellence",
     "/growth-innovation",
+    "/legal-reviews",
     "/guides",
     "/guides/platform-introduction", 
     "/guides/platform-guide",
@@ -306,6 +308,9 @@ function Router() {
       </Route>
       <Route path="/executive-dashboard">
         {() => renderWithLayout(ExecutiveDashboardPage)}
+      </Route>
+      <Route path="/legal-reviews">
+        {() => renderWithLayout(LegalReviewsPage)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}

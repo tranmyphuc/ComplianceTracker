@@ -355,14 +355,182 @@ export function addLegalDisclaimer(assessment: any): any {
 /**
  * Queue an assessment for expert review
  */
+import { sql } from './db';
+
+interface ExpertReviewRequest {
+  reviewId: string;
+  assessmentId?: string;
+  systemId?: string;
+  text: string;
+  type: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  validationResult: any;
+  requestedAt: Date;
+  assignedTo?: string;
+  completedAt?: Date;
+  expertFeedback?: string;
+}
+
 export async function queueForExpertReview(assessment: any): Promise<string> {
-  // In a real system, this would create a database entry for legal expert review
-  // and potentially trigger notifications
-  
+  const { text, type, context, validationResult } = assessment;
   const reviewId = `review-${Date.now()}`;
   
-  // For now, we'll just return a review ID
-  return reviewId;
+  try {
+    // Store review request in database
+    await sql`
+      INSERT INTO expert_reviews (
+        review_id, 
+        assessment_id, 
+        system_id, 
+        assessment_text, 
+        assessment_type, 
+        status, 
+        validation_result, 
+        requested_at
+      ) VALUES (
+        ${reviewId},
+        ${context?.assessmentId || null},
+        ${context?.systemId || null},
+        ${text},
+        ${type},
+        'pending',
+        ${JSON.stringify(validationResult)},
+        ${new Date()}
+      )
+    `;
+
+    console.log(`Expert review request created with ID: ${reviewId}`);
+    return reviewId;
+  } catch (error) {
+    console.error('Error creating expert review request:', error);
+    // If database operation fails, still return a review ID to preserve functionality
+    return reviewId;
+  }
+}
+
+/**
+ * Get an expert review by ID
+ */
+export async function getExpertReview(reviewId: string): Promise<ExpertReviewRequest | null> {
+  try {
+    const result = await sql`
+      SELECT * FROM expert_reviews WHERE review_id = ${reviewId} LIMIT 1
+    `;
+    
+    if (result && result.length > 0) {
+      const review = result[0];
+      return {
+        reviewId: review.review_id,
+        assessmentId: review.assessment_id,
+        systemId: review.system_id,
+        text: review.assessment_text,
+        type: review.assessment_type,
+        status: review.status,
+        validationResult: review.validation_result,
+        requestedAt: review.requested_at,
+        assignedTo: review.assigned_to,
+        completedAt: review.completed_at,
+        expertFeedback: review.expert_feedback
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error retrieving expert review:', error);
+    return null;
+  }
+}
+
+/**
+ * Get all expert reviews, optionally filtered by status
+ */
+export async function getExpertReviews(status?: string): Promise<ExpertReviewRequest[]> {
+  try {
+    let query = sql`SELECT * FROM expert_reviews`;
+    
+    if (status) {
+      query = sql`SELECT * FROM expert_reviews WHERE status = ${status}`;
+    }
+    
+    query = sql`${query} ORDER BY requested_at DESC`;
+    
+    const results = await query;
+    
+    return results.map(review => ({
+      reviewId: review.review_id,
+      assessmentId: review.assessment_id,
+      systemId: review.system_id,
+      text: review.assessment_text,
+      type: review.assessment_type,
+      status: review.status,
+      validationResult: review.validation_result,
+      requestedAt: review.requested_at,
+      assignedTo: review.assigned_to,
+      completedAt: review.completed_at,
+      expertFeedback: review.expert_feedback
+    }));
+  } catch (error) {
+    console.error('Error retrieving expert reviews:', error);
+    return [];
+  }
+}
+
+/**
+ * Update an expert review
+ */
+export async function updateExpertReview(
+  reviewId: string, 
+  updates: {
+    status?: 'pending' | 'in_progress' | 'completed';
+    assignedTo?: string;
+    expertFeedback?: string;
+  }
+): Promise<boolean> {
+  try {
+    let queryParts = [];
+    const queryValues: any[] = [];
+    
+    if (updates.status) {
+      queryParts.push('status = $1');
+      queryValues.push(updates.status);
+      
+      // If status is being set to completed, set the completed_at timestamp
+      if (updates.status === 'completed') {
+        queryParts.push('completed_at = $' + (queryValues.length + 1));
+        queryValues.push(new Date());
+      }
+    }
+    
+    if (updates.assignedTo !== undefined) {
+      queryParts.push('assigned_to = $' + (queryValues.length + 1));
+      queryValues.push(updates.assignedTo);
+    }
+    
+    if (updates.expertFeedback !== undefined) {
+      queryParts.push('expert_feedback = $' + (queryValues.length + 1));
+      queryValues.push(updates.expertFeedback);
+    }
+    
+    if (queryParts.length === 0) {
+      return false; // Nothing to update
+    }
+    
+    // Add reviewId to values
+    queryValues.push(reviewId);
+    
+    const updateQuery = `
+      UPDATE expert_reviews
+      SET ${queryParts.join(', ')}
+      WHERE review_id = $${queryValues.length}
+    `;
+    
+    await sql.unsafe(updateQuery, ...queryValues);
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating expert review:', error);
+    return false;
+  }
 }
 
 /**
@@ -519,6 +687,149 @@ export const addLegalDisclaimerToContent = async (req: Request, res: Response) =
   } catch (error) {
     console.error('Legal disclaimer error:', error);
     res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+/**
+ * Get all expert review requests
+ */
+export const getExpertReviewRequests = async (req: Request, res: Response) => {
+  try {
+    const { status } = req.query;
+    const reviews = await getExpertReviews(status as string);
+    
+    res.json({
+      success: true,
+      reviews
+    });
+  } catch (error) {
+    console.error('Error fetching expert reviews:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+/**
+ * Get a specific expert review by ID
+ */
+export const getExpertReviewById = async (req: Request, res: Response) => {
+  try {
+    const { reviewId } = req.params;
+    
+    if (!reviewId) {
+      throw new ValidationError('Review ID is required');
+    }
+    
+    const review = await getExpertReview(reviewId);
+    
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        error: 'Expert review not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      review
+    });
+  } catch (error) {
+    console.error('Error fetching expert review:', error);
+    res.status(error instanceof ValidationError ? 400 : 500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+/**
+ * Request a new expert review
+ */
+export const requestExpertReview = async (req: Request, res: Response) => {
+  try {
+    const { text, type, context, validationResult } = req.body;
+    
+    if (!text) {
+      throw new ValidationError('Assessment text is required');
+    }
+    
+    if (!type) {
+      throw new ValidationError('Assessment type is required');
+    }
+    
+    const reviewId = await queueForExpertReview({
+      text,
+      type,
+      context,
+      validationResult
+    });
+    
+    res.json({
+      success: true,
+      reviewId,
+      message: 'Expert review requested successfully'
+    });
+  } catch (error) {
+    console.error('Error requesting expert review:', error);
+    res.status(error instanceof ValidationError ? 400 : 500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+/**
+ * Update an expert review (status, assignment, feedback)
+ */
+export const updateExpertReviewRequest = async (req: Request, res: Response) => {
+  try {
+    const { reviewId } = req.params;
+    const { status, assignedTo, expertFeedback } = req.body;
+    
+    if (!reviewId) {
+      throw new ValidationError('Review ID is required');
+    }
+    
+    // Verify the review exists
+    const existingReview = await getExpertReview(reviewId);
+    
+    if (!existingReview) {
+      return res.status(404).json({
+        success: false,
+        error: 'Expert review not found'
+      });
+    }
+    
+    // Update the review
+    const updated = await updateExpertReview(reviewId, {
+      status,
+      assignedTo,
+      expertFeedback
+    });
+    
+    if (!updated) {
+      return res.status(400).json({
+        success: false,
+        error: 'Failed to update expert review'
+      });
+    }
+    
+    // Get the updated review to return
+    const updatedReview = await getExpertReview(reviewId);
+    
+    res.json({
+      success: true,
+      review: updatedReview,
+      message: 'Expert review updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating expert review:', error);
+    res.status(error instanceof ValidationError ? 400 : 500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
     });

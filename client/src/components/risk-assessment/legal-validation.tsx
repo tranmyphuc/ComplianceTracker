@@ -61,9 +61,45 @@ const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({
     }
   };
   
-  const requestExpertReview = () => {
-    // In a real app, this would send a request for expert review
-    alert('Expert review requested. You will be notified when the review is complete.');
+  const requestExpertReview = async () => {
+    if (!assessmentText) return;
+    
+    try {
+      // Show loading state
+      setIsValidating(true);
+      
+      // Send the request to the new expert review API endpoint
+      const response = await axios.post('/api/legal/reviews', {
+        text: assessmentText,
+        type: 'assessment',
+        context: {
+          assessmentId,
+          systemId
+        },
+        validationResult
+      });
+      
+      if (response.data && response.data.success) {
+        // Update the validation result with expert review info
+        setValidationResult({
+          ...validationResult,
+          reviewStatus: 'pending_review',
+          reviewRequired: true,
+          validationNotes: `${validationResult.validationNotes || ''} Expert review requested. Review ID: ${response.data.reviewId}`
+        });
+        
+        // Show success message
+        alert(`Expert review requested successfully. Review ID: ${response.data.reviewId}`);
+      } else {
+        console.error('Expert review request failed:', response.data);
+        alert('Failed to request expert review. Please try again later.');
+      }
+    } catch (error) {
+      console.error('Error requesting expert review:', error);
+      alert('Error requesting expert review. Please try again later.');
+    } finally {
+      setIsValidating(false);
+    }
   };
   
   return (

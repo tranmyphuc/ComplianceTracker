@@ -107,7 +107,15 @@ import { getTrainingModules, getModuleContent, trackTrainingProgress, getUserPro
 // Routes imported above already
 import * as riskAssessment from './risk-assessment';
 import * as riskManagement from './risk-management'; // Added import
-import { validateAssessmentText, addLegalDisclaimerToContent, validateLegalOutput } from './legal-validation';
+import { 
+  validateAssessmentText, 
+  addLegalDisclaimerToContent, 
+  validateLegalOutput,
+  getExpertReviewRequests,
+  getExpertReviewById,
+  requestExpertReview,
+  updateExpertReviewRequest
+} from './legal-validation';
 
 
 import { Router } from "express";
@@ -2371,6 +2379,12 @@ if (isDemoMode) {
   // Legal validation routes
   app.post("/api/legal/validate", validateAssessmentText);
   app.post("/api/legal/disclaimer", addLegalDisclaimerToContent);
+  
+  // Expert review management routes
+  app.get("/api/legal/reviews", getExpertReviewRequests);
+  app.get("/api/legal/reviews/:reviewId", getExpertReviewById);
+  app.post("/api/legal/reviews", requestExpertReview);
+  app.put("/api/legal/reviews/:reviewId", updateExpertReviewRequest);
 
   // Initialize regulatory updates service
   initializeRegulationUpdates();
