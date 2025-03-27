@@ -79,6 +79,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
     { name: 'Market Intelligence', path: '/market-intelligence', icon: <PieChartIconLucide className="w-5 h-5" />, highlight: true },
     { name: 'Operations Excellence', path: '/operations-excellence', icon: <BriefcaseIconLucide className="w-5 h-5" />, highlight: true },
     { name: 'Growth & Innovation', path: '/growth-innovation', icon: <TrendingUpIconLucide className="w-5 h-5" />, highlight: true },
+    { name: 'Legal Reviews', path: '/legal-reviews', icon: <ShieldIcon className="w-5 h-5" /> },
     { name: 'Settings', path: '/settings', icon: <SettingsIcon className="w-5 h-5" /> },
   ];
 

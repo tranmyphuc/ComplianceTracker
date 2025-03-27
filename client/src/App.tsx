@@ -25,6 +25,7 @@ import OperationsExcellence from "@/pages/operations-excellence";
 import GrowthInnovation from "@/pages/growth-innovation";
 import TextRiskAnalyzerPage from "@/pages/risk-assessment/text-analyzer";
 import ExecutiveDashboardPage from "@/pages/executive-dashboard";
+import LegalReviewsPage from "@/pages/legal-reviews";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -58,7 +59,6 @@ import AutomotiveScenario from '@/pages/demo-scenarios/automotive-ai-systems';
 import LogisticsScenario from '@/pages/demo-scenarios/logistics-transportation';
 import VendorManagement from '@/pages/vendor-management';
 import ComplianceChatbotPage from "./pages/compliance-chatbot";
-import LegalReviewsPage from "@/pages/legal-reviews";
 
 
 function Router() {

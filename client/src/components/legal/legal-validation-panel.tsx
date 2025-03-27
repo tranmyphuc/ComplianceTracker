@@ -45,27 +45,73 @@ export function LegalValidationPanel({
     setIsValidating(true);
     
     try {
-      // Generate text for validation based on system details
-      const textToValidate = `
-        System Name: ${systemName}
-        System Description: ${systemDescription}
-        Risk Level: ${riskLevel}
-        
-        This AI system is categorized as a ${riskLevel} risk system under the EU AI Act. 
-        It requires comprehensive documentation, technical robustness assessments, and ongoing monitoring.
-        The system must comply with Articles 8, 9, 10, 11, 12, 13, 14, 15, and 16 of the EU AI Act.
-        
-        Transparency measures must be implemented to ensure users are aware when interacting with the system.
-        Data governance procedures must ensure high quality training data that is representative and free from bias.
-        Human oversight mechanisms should be implemented to prevent potential harms.
-      `;
+      // Fetch the actual assessment data for the system
+      const assessmentResponse = await axios.get(`/api/risk-assessments/system/${systemId}/latest`);
       
-      // Call validation API
+      // If there's no assessment for this system, use basic system details
+      let textToValidate = '';
+      let assessmentId = '';
+      
+      if (assessmentResponse.data && assessmentResponse.data.assessmentId) {
+        const assessment = assessmentResponse.data;
+        assessmentId = assessment.assessmentId;
+        
+        // Parse JSON arrays if they're stored as strings
+        const euAiActArticles = typeof assessment.euAiActArticles === 'string' 
+          ? JSON.parse(assessment.euAiActArticles) 
+          : assessment.euAiActArticles || [];
+          
+        const complianceGaps = typeof assessment.complianceGaps === 'string'
+          ? JSON.parse(assessment.complianceGaps)
+          : assessment.complianceGaps || [];
+          
+        const remediationActions = typeof assessment.remediationActions === 'string'
+          ? JSON.parse(assessment.remediationActions)
+          : assessment.remediationActions || [];
+        
+        // Generate text from the actual assessment data
+        textToValidate = `
+          System Name: ${systemName}
+          System ID: ${systemId}
+          Assessment ID: ${assessment.assessmentId}
+          Risk Level: ${assessment.riskLevel}
+          Risk Score: ${assessment.riskScore}
+          System Category: ${assessment.systemCategory}
+          
+          This AI system is categorized as a ${assessment.riskLevel} risk system under the EU AI Act.
+          
+          Relevant EU AI Act Articles:
+          ${euAiActArticles.map((article: string) => `- ${article}`).join('\n')}
+          
+          Identified Compliance Gaps:
+          ${complianceGaps.map((gap: string) => `- ${gap}`).join('\n')}
+          
+          Recommended Remediation Actions:
+          ${remediationActions.map((action: string) => `- ${action}`).join('\n')}
+          
+          Additional Notes:
+          ${assessment.summaryNotes || 'No additional notes provided.'}
+        `;
+      } else {
+        // Fallback to basic system info if no assessment exists
+        textToValidate = `
+          System Name: ${systemName}
+          System Description: ${systemDescription}
+          Risk Level: ${riskLevel || 'Unknown'}
+          
+          This AI system requires validation against the EU AI Act requirements.
+          Without a completed risk assessment, detailed compliance analysis is limited.
+          A full risk assessment is recommended to determine specific requirements.
+        `;
+      }
+      
+      // Call validation API with the real assessment data
       const response = await axios.post('/api/legal/validate', {
         text: textToValidate,
         type: 'assessment',
         context: {
-          systemId
+          systemId,
+          assessmentId
         }
       });
       
@@ -91,14 +137,104 @@ export function LegalValidationPanel({
   };
   
   // Function to request expert review
-  const handleRequestExpertReview = () => {
-    toast({
-      title: "Review Requested",
-      description: "Expert legal review has been requested for this system",
-    });
+  const handleRequestExpertReview = async () => {
+    if (!systemId) {
+      toast({
+        title: "Error",
+        description: "System ID is required to request an expert review",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    if (onRequestReview) {
-      onRequestReview();
+    try {
+      // Fetch the latest assessment data for the system
+      const assessmentResponse = await axios.get(`/api/risk-assessments/system/${systemId}/latest`);
+      
+      let assessmentText = '';
+      let assessmentId = '';
+      
+      if (assessmentResponse.data && assessmentResponse.data.assessmentId) {
+        const assessment = assessmentResponse.data;
+        assessmentId = assessment.assessmentId;
+        
+        // Parse JSON arrays if they're stored as strings
+        const euAiActArticles = typeof assessment.euAiActArticles === 'string' 
+          ? JSON.parse(assessment.euAiActArticles) 
+          : assessment.euAiActArticles || [];
+          
+        const complianceGaps = typeof assessment.complianceGaps === 'string'
+          ? JSON.parse(assessment.complianceGaps)
+          : assessment.complianceGaps || [];
+          
+        const remediationActions = typeof assessment.remediationActions === 'string'
+          ? JSON.parse(assessment.remediationActions)
+          : assessment.remediationActions || [];
+        
+        // Generate text from the actual assessment data
+        assessmentText = `
+          System Name: ${systemName}
+          System ID: ${systemId}
+          Assessment ID: ${assessment.assessmentId}
+          Risk Level: ${assessment.riskLevel}
+          Risk Score: ${assessment.riskScore}
+          System Category: ${assessment.systemCategory}
+          
+          This AI system is categorized as a ${assessment.riskLevel} risk system under the EU AI Act.
+          
+          Relevant EU AI Act Articles:
+          ${euAiActArticles.map((article: string) => `- ${article}`).join('\n')}
+          
+          Identified Compliance Gaps:
+          ${complianceGaps.map((gap: string) => `- ${gap}`).join('\n')}
+          
+          Recommended Remediation Actions:
+          ${remediationActions.map((action: string) => `- ${action}`).join('\n')}
+          
+          Additional Notes:
+          ${assessment.summaryNotes || 'No additional notes provided.'}
+        `;
+      } else {
+        // Fallback to basic system info if no assessment exists
+        assessmentText = `
+          System Name: ${systemName}
+          System Description: ${systemDescription}
+          Risk Level: ${riskLevel || 'Unknown'}
+          
+          This AI system requires expert legal review for EU AI Act compliance.
+          No risk assessment data is available for this system.
+        `;
+      }
+      
+      // Send expert review request
+      const response = await axios.post('/api/legal/expert-review', {
+        text: assessmentText,
+        type: 'assessment',
+        context: {
+          systemId,
+          assessmentId
+        }
+      });
+      
+      if (response.data && response.data.success) {
+        toast({
+          title: "Review Requested",
+          description: "Expert legal review has been requested for this system",
+        });
+        
+        if (onRequestReview) {
+          onRequestReview();
+        }
+      } else {
+        throw new Error("Failed to request expert review");
+      }
+    } catch (error) {
+      console.error("Error requesting expert review:", error);
+      toast({
+        title: "Request Error",
+        description: "There was an error requesting an expert review",
+        variant: "destructive"
+      });
     }
   };
   

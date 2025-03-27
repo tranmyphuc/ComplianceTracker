@@ -47,7 +47,7 @@ export function ExpertReviewsList({ onSelectReview, refreshInterval = 60000 }: E
   const { toast } = useToast();
   
   const { data: reviews, isLoading, isError, error } = useQuery<ExpertReview[]>({
-    queryKey: ['/api/legal/expert-review'],
+    queryKey: ['/api/legal/expert-reviews'],
     refetchInterval: refreshInterval
   });
 
@@ -149,13 +149,13 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
 
   const updateMutation = useMutation({
     mutationFn: async (data: { reviewId: string; status: string; expertFeedback?: string }) => {
-      return apiRequest(`/api/legal/expert-review/${data.reviewId}`, {
-        method: 'PUT',
+      return apiRequest(`/api/legal/expert-reviews/${data.reviewId}`, {
+        method: 'PATCH',
         body: JSON.stringify(data)
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/legal/expert-review'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/legal/expert-reviews'] });
       toast({
         title: 'Review Updated',
         description: 'The expert review has been successfully updated.',

@@ -114,7 +114,12 @@ import {
   getExpertReviewRequests,
   getExpertReviewById,
   requestExpertReview,
-  updateExpertReviewRequest
+  updateExpertReviewRequest,
+  validateLegalText,
+  queueForExpertReview,
+  getExpertReviews,
+  getExpertReview,
+  updateExpertReview
 } from './legal-validation';
 
 
@@ -1243,6 +1248,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await analyzeProhibitedUse(req, res);
     } catch (err) {
       handleError(res, err as Error);
+    }
+  });
+  
+  // Legal validation endpoints
+  app.post("/api/legal/validate", validateAssessmentText);
+  
+  // Expert review request endpoint
+  app.post("/api/legal/expert-review", async (req: Request, res: Response) => {
+    try {
+      const { text, type, context } = req.body;
+      
+      if (!text) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Text content is required for expert review" 
+        });
+      }
+      
+      // Generate quick validation result
+      const validationResult = validateLegalOutput(text);
+      
+      // Use request expert review handler
+      return requestExpertReview(req, res);
+    } catch (err) {
+      console.error("Error requesting expert review:", err);
+      handleError(res, err as Error, "Error requesting expert review");
+    }
+  });
+  
+  // Get expert reviews by status (restricted to admin users in a real app)
+  app.get("/api/legal/expert-reviews", async (req: Request, res: Response) => {
+    try {
+      const status = req.query.status as string;
+      const reviews = await getExpertReviewRequests(status);
+      
+      return res.json({
+        success: true,
+        reviews
+      });
+    } catch (err) {
+      console.error("Error retrieving expert reviews:", err);
+      handleError(res, err as Error, "Error retrieving expert reviews");
+    }
+  });
+  
+  // Get expert review by ID
+  app.get("/api/legal/expert-reviews/:reviewId", async (req: Request, res: Response) => {
+    try {
+      const { reviewId } = req.params;
+      const review = await getExpertReviewById(reviewId);
+      
+      if (!review) {
+        return res.status(404).json({
+          success: false,
+          message: "Review not found"
+        });
+      }
+      
+      return res.json({
+        success: true,
+        review
+      });
+    } catch (err) {
+      console.error("Error retrieving expert review:", err);
+      handleError(res, err as Error, "Error retrieving expert review");
+    }
+  });
+  
+  // Update expert review (restricted to expert users in a real app)
+  app.patch("/api/legal/expert-reviews/:reviewId", async (req: Request, res: Response) => {
+    try {
+      const { reviewId } = req.params;
+      const { status, expertFeedback, assignedTo } = req.body;
+      
+      const updated = await updateExpertReviewRequest(reviewId, {
+        status,
+        expertFeedback,
+        assignedTo
+      });
+      
+      if (!updated) {
+        return res.status(404).json({
+          success: false,
+          message: "Review not found or could not be updated"
+        });
+      }
+      
+      return res.json({
+        success: true,
+        message: "Review updated successfully"
+      });
+    } catch (err) {
+      console.error("Error updating expert review:", err);
+      handleError(res, err as Error, "Error updating expert review");
     }
   });
 
