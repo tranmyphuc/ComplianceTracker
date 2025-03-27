@@ -231,10 +231,10 @@ function Router() {
         {() => renderWithLayout(Dashboard)}
       </Route>
       <Route path="/settings">
-        {() => renderWithLayout(Dashboard)} {/*Existing route remains*/}
+        {() => renderWithLayout(lazy(() => import('./pages/settings')))}
       </Route>
       <Route path="/settings/api-keys">
-        {() => renderWithLayout(Dashboard)} {/* Placeholder for future API key management page*/}
+        {() => renderWithLayout(lazy(() => import('./pages/settings/api-keys')))}
       </Route>
       <Route path="/market-intelligence">
         {() => renderWithLayout(MarketIntelligence)}
