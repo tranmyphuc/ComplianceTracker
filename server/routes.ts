@@ -107,7 +107,7 @@ import { getTrainingModules, getModuleContent, trackTrainingProgress, getUserPro
 // Routes imported above already
 import * as riskAssessment from './risk-assessment';
 import * as riskManagement from './risk-management'; // Added import
-import { validateAssessmentText, addLegalDisclaimerToContent } from './legal-validation';
+import { validateAssessmentText, addLegalDisclaimerToContent, validateLegalOutput } from './legal-validation';
 
 
 import { Router } from "express";

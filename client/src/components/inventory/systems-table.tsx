@@ -37,6 +37,9 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { SystemDetailView } from "@/components/inventory/system-detail-view";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { LegalValidationPanel } from "@/components/legal/legal-validation-panel";
+import axios from "axios";
 
 // Mock system data for development purposes
 const mockSystems = [
@@ -234,6 +237,10 @@ export function SystemsTable() {
   const [sortField, setSortField] = useState<string>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   
+  // Legal validation dialog state
+  const [legalValidationOpen, setLegalValidationOpen] = useState(false);
+  const [selectedSystem, setSelectedSystem] = useState<any>(null);
+  
   // API data fetching with error handling
   const { data: systems, isLoading, error, isError } = useQuery({
     queryKey: ["/api/systems"],
@@ -391,9 +398,35 @@ export function SystemsTable() {
     window.location.reload();
   };
   
+  // Handle legal validation
+  const handleLegalValidation = (system: any) => {
+    setSelectedSystem(system);
+    setLegalValidationOpen(true);
+  };
+  
   // Render systems table
   return (
     <div className="space-y-4">
+      {/* Legal Validation Dialog */}
+      <Dialog open={legalValidationOpen} onOpenChange={setLegalValidationOpen}>
+        <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Legal Validation: {selectedSystem?.name}</DialogTitle>
+            <DialogDescription>
+              Verify EU AI Act compliance for this system with automated or expert legal review.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <LegalValidationPanel
+            systemId={selectedSystem?.id.toString()}
+            systemName={selectedSystem?.name}
+            systemDescription={selectedSystem?.description}
+            riskLevel={selectedSystem?.riskLevel}
+            onClose={() => setLegalValidationOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+      
       {/* Error message if database connection failed */}
       {isError && (
         <div className="flex items-center justify-between px-4 py-3 bg-yellow-50 border border-yellow-200 rounded-md mb-4">
@@ -949,10 +982,15 @@ export function SystemsTable() {
                           <ClipboardCheckIcon className="h-4 w-4 mr-2" />
                           Run Assessment
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleLegalValidation(system)}>
+                          <ClipboardCheckIcon className="h-4 w-4 mr-2" />
+                          Legal Validation
+                        </DropdownMenuItem>
                         <DropdownMenuItem>
                           <FileTextIcon className="h-4 w-4 mr-2" />
                           Manage Documentation
                         </DropdownMenuItem>
+
                         <DropdownMenuItem>
                           <CalendarIcon className="h-4 w-4 mr-2" />
                           Schedule Review
