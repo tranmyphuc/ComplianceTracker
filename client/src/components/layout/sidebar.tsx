@@ -81,6 +81,7 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
     { name: 'Growth & Innovation', path: '/growth-innovation', icon: <TrendingUpIconLucide className="w-5 h-5" />, highlight: true },
     { name: 'Legal Reviews', path: '/legal-reviews', icon: <ShieldIcon className="w-5 h-5" /> },
     { name: 'Settings', path: '/settings', icon: <SettingsIcon className="w-5 h-5" /> },
+    { name: 'Development Mode', path: '/development-mode', icon: <BotIcon className="w-5 h-5" /> },
   ];
 
 

@@ -1,10 +1,11 @@
 /**
  * Script to add the AI Literacy Training Module to the database
  */
-import { db } from './server/db';
-import { trainingModules } from './shared/schema';
-import { eq } from 'drizzle-orm';
-import { aiLiteracyTrainingModule } from './server/modules/ai-literacy-training';
+require('dotenv').config();
+const { db } = require('./server/db');
+const { trainingModules } = require('./shared/schema');
+const { eq } = require('drizzle-orm');
+const { aiLiteracyTrainingModule } = require('./server/modules/ai-literacy-training');
 
 async function addAILiteracyModule() {
   try {

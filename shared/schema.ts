@@ -346,3 +346,33 @@ export const updateExpertReviewSchema = z.object({
   assignedTo: z.string().optional(),
   expertFeedback: z.string().optional(),
 });
+
+// Development mode tables
+export const featureFlags = pgTable("feature_flags", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  enabled: boolean("enabled").default(false),
+  description: text("description"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+export const systemSettings = pgTable("system_settings", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  value: text("value").notNull(),
+  description: text("description"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+// Insert schemas for development mode
+export const insertFeatureFlagSchema = createInsertSchema(featureFlags).omit({ id: true });
+export const insertSystemSettingSchema = createInsertSchema(systemSettings).omit({ id: true });
+
+// Types for development mode
+export type FeatureFlag = typeof featureFlags.$inferSelect;
+export type InsertFeatureFlag = z.infer<typeof insertFeatureFlagSchema>;
+
+export type SystemSetting = typeof systemSettings.$inferSelect;
+export type InsertSystemSetting = z.infer<typeof insertSystemSettingSchema>;

@@ -133,6 +133,7 @@ import { Router } from "express";
 // import { knowledgeRouter } from "./routes/knowledge";
 // import { trainingRouter } from "./routes/training";
 // import { analyticsRouter } from "./routes/analytics"; // Added import
+import devModeRoutes from "./routes/dev-mode-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -2562,6 +2563,9 @@ if (isDemoMode) {
 
   // Initialize regulatory updates service
   initializeRegulationUpdates();
+
+  // Development mode routes
+  app.use(devModeRoutes);
 
   // Setup HTTP server
   const httpServer = createServer(app);

@@ -4,6 +4,7 @@
  */
 require('dotenv').config();
 const { db } = require('./server/db');
+const { eq } = require('drizzle-orm');
 const { 
   featureFlags, 
   systemSettings, 
@@ -41,13 +42,13 @@ async function enableAllFeatures() {
       // Kiểm tra nếu tính năng đã tồn tại
       const existingFeature = await db.select()
         .from(featureFlags)
-        .where(featureFlags.name === feature.name);
+        .where(eq(featureFlags.name, feature.name));
       
       if (existingFeature && existingFeature.length > 0) {
         // Cập nhật tính năng hiện có
         await db.update(featureFlags)
           .set({ enabled: feature.enabled, updated_at: new Date() })
-          .where(featureFlags.name === feature.name);
+          .where(eq(featureFlags.name, feature.name));
       } else {
         // Tạo tính năng mới
         await db.insert(featureFlags).values({
@@ -73,13 +74,13 @@ async function enableAllFeatures() {
       // Kiểm tra nếu cài đặt đã tồn tại
       const existingSetting = await db.select()
         .from(systemSettings)
-        .where(systemSettings.name === setting.name);
+        .where(eq(systemSettings.name, setting.name));
       
       if (existingSetting && existingSetting.length > 0) {
         // Cập nhật cài đặt hiện có
         await db.update(systemSettings)
           .set({ value: setting.value, updated_at: new Date() })
-          .where(systemSettings.name === setting.name);
+          .where(eq(systemSettings.name, setting.name));
       } else {
         // Tạo cài đặt mới
         await db.insert(systemSettings).values({

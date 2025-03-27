@@ -61,6 +61,7 @@ import VendorManagement from '@/pages/vendor-management';
 import ComplianceChatbotPage from "./pages/compliance-chatbot";
 import AdminApiKeys from "@/pages/admin/api-keys";
 import AdminDashboard from "@/pages/admin/dashboard";
+import DevelopmentMode from "@/pages/development-mode";
 
 
 function Router() {
@@ -125,7 +126,8 @@ function Router() {
     "/compliance-chatbot",
     "/advanced-analytics",
     "/executive-dashboard",
-    "/admin/dashboard" // Added route
+    "/admin/dashboard", // Added route
+    "/development-mode" // Development mode page
   ];
 
   useEffect(() => {
@@ -317,6 +319,9 @@ function Router() {
       </Route>
       <Route path="/admin/dashboard"> {/* Added route */}
         {() => renderWithLayout(AdminDashboard)} {/* Added route */}
+      </Route>
+      <Route path="/development-mode">
+        {() => renderWithLayout(DevelopmentMode)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}
