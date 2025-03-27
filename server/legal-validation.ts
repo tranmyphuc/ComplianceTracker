@@ -366,8 +366,10 @@ export async function queueForExpertReview(assessment: any): Promise<string> {
 }
 
 /**
- * Validate assessment text and return validation results
+ * Validate assessment text using AI and return validation results
  */
+import { callAI, AIModel, safeJsonParse } from './ai-service';
+
 export const validateAssessmentText = async (req: Request, res: Response) => {
   try {
     const validationRequest = validationRequestSchema.safeParse(req.body);
@@ -377,28 +379,117 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
     }
     
     const { text, type, context } = validationRequest.data;
-    
-    // Perform validation
-    const validationResult = validateLegalOutput(text);
-    
-    // Queue for expert review if required
-    if (validationResult.reviewRequired) {
-      const reviewId = await queueForExpertReview({
-        text,
-        type,
-        context,
-        validationResult
+
+    try {
+      // Use real AI model to validate the assessment text
+      console.log('Calling AI service for legal validation...');
+      
+      const prompt = `
+      As an EU AI Act legal expert, evaluate the following AI system assessment for legal compliance and validity.
+      
+      ASSESSMENT TO VALIDATE:
+      "${text}"
+      
+      Perform a comprehensive legal validation analysis addressing:
+      
+      1. Confidence Level Assessment:
+         - Analyze certainty markers in the text
+         - Identify hedging language or contradictions
+         - Determine overall confidence level (high, medium, low, uncertain)
+      
+      2. Legal References Validation:
+         - Verify all EU AI Act article references are accurate
+         - Check if citations match the actual content of those articles
+         - Note any invalid or missing important references
+      
+      3. Required Elements Check:
+         - Validate the assessment contains all legally required sections
+         - Ensure risk classification is justified with proper evidence
+         - Verify compliance measures are specifically tied to relevant requirements
+      
+      4. Contradiction Analysis:
+         - Identify any contradictory statements or recommendations
+         - Note logical inconsistencies in the legal analysis
+      
+      Respond in JSON format with these exact fields:
+      {
+        "isValid": boolean,
+        "confidenceLevel": "high" | "medium" | "low" | "uncertain",
+        "reviewStatus": "validated" | "pending_review" | "requires_legal_review" | "outdated",
+        "issues": [list of specific legal validity issues found],
+        "warnings": [list of minor concerns or things to improve],
+        "reviewRequired": boolean,
+        "validator": "ai",
+        "validationNotes": "overall assessment summary"
+      }
+      
+      ${context?.systemId ? `Context - System ID: ${context.systemId}` : ''}
+      ${context?.assessmentId ? `Context - Assessment ID: ${context.assessmentId}` : ''}
+      `;
+      
+      const aiResponse = await callAI({
+        prompt,
+        model: AIModel.DEEPSEEK,
+        temperature: 0.1,
+        maxTokens: 1500,
+        systemPrompt: "You are an expert legal validator for EU AI Act compliance assessments. You focus on detecting legal issues, consistency problems, and required elements in compliance documentation."
       });
       
-      // Add review ID to result
-      validationResult.validationNotes = 
-        `${validationResult.validationNotes || ''} Review ID: ${reviewId}`;
-    }
+      let validationResult;
+      
+      try {
+        // Try to parse the JSON response
+        validationResult = safeJsonParse(aiResponse.text);
+        
+        // Ensure result has all required fields
+        validationResult = {
+          isValid: validationResult.isValid || false,
+          confidenceLevel: validationResult.confidenceLevel || ConfidenceLevel.UNCERTAIN,
+          reviewStatus: validationResult.reviewStatus || ReviewStatus.PENDING_REVIEW,
+          issues: validationResult.issues || [],
+          warnings: validationResult.warnings || [],
+          reviewRequired: validationResult.reviewRequired || false,
+          timestamp: new Date(),
+          validator: 'ai',
+          validationNotes: validationResult.validationNotes || ''
+        };
+      } catch (parseError) {
+        console.error('Failed to parse AI validation response:', parseError);
+        
+        // Fall back to algorithmic validation as backup
+        console.log('Falling back to algorithmic validation...');
+        validationResult = validateLegalOutput(text);
+      }
     
-    res.json({
-      success: true,
-      result: validationResult
-    });
+      // Queue for expert review if required
+      if (validationResult.reviewRequired) {
+        const reviewId = await queueForExpertReview({
+          text,
+          type,
+          context,
+          validationResult
+        });
+        
+        // Add review ID to result
+        validationResult.validationNotes = 
+          `${validationResult.validationNotes || ''} Review ID: ${reviewId}`;
+      }
+      
+      res.json({
+        success: true,
+        result: validationResult
+      });
+    } catch (aiError) {
+      console.error('AI validation error, falling back to algorithmic validation:', aiError);
+      
+      // Fall back to algorithmic validation if AI fails
+      const validationResult = validateLegalOutput(text);
+      
+      res.json({
+        success: true,
+        result: validationResult
+      });
+    }
   } catch (error) {
     console.error('Validation error:', error);
     res.status(400).json({
