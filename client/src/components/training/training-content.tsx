@@ -1,14 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { 
   BookOpen, FileText, Edit, CheckSquare, Award, 
-  ArrowLeft, ArrowRight, Download, Check, AlertCircle 
+  ArrowLeft, ArrowRight, Download, Check, AlertCircle,
+  BookOpenCheck, BrainCircuit, Target, CalendarClock, 
+  Clock, ThumbsUp, X, Lightbulb
 } from "lucide-react";
 
 interface ModuleContentProps {
@@ -17,6 +20,7 @@ interface ModuleContentProps {
   content: any;
   onComplete: (score: number) => void;
   progress: number;
+  userRole?: string;
 }
 
 export const TrainingContent = ({ 
@@ -24,24 +28,59 @@ export const TrainingContent = ({
   title, 
   content, 
   onComplete,
-  progress 
+  progress,
+  userRole = 'general'
 }: ModuleContentProps) => {
   const [activeTab, setActiveTab] = useState("slides");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [assessmentAnswers, setAssessmentAnswers] = useState<Record<number, number>>({});
   const [assessmentSubmitted, setAssessmentSubmitted] = useState(false);
   const [assessmentScore, setAssessmentScore] = useState(0);
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
+  const [showSlideQuiz, setShowSlideQuiz] = useState(false);
+  const [certificateExpiry, setCertificateExpiry] = useState<Date | null>(null);
+  const [learningPath, setLearningPath] = useState<string | null>(null);
+  
+  // Set up personalized learning path based on userRole
+  useEffect(() => {
+    // Map user roles to learning paths
+    const rolePaths: Record<string, string> = {
+      'decision_maker': 'Strategic Path',
+      'developer': 'Technical Path',
+      'operator': 'Implementation Path',
+      'legal': 'Compliance Path',
+      'general': 'General Overview'
+    };
+    
+    setLearningPath(rolePaths[userRole] || 'General Overview');
+    
+    // Set certificate expiry date (1 year from completion)
+    if (progress >= 100) {
+      const expiryDate = new Date();
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      setCertificateExpiry(expiryDate);
+    }
+  }, [userRole, progress]);
   
   // Handle slides navigation
   const handleNextSlide = () => {
     if (content.slides && currentSlide < content.slides.length - 1) {
+      // If the slide has a quiz, show it before proceeding
+      const currentSlideData = content.slides[currentSlide];
+      if (currentSlideData.quiz && !quizAnswers[`slide-${currentSlide}`]) {
+        setShowSlideQuiz(true);
+        return;
+      }
+      
       setCurrentSlide(currentSlide + 1);
+      setShowSlideQuiz(false);
     }
   };
   
   const handlePrevSlide = () => {
     if (currentSlide > 0) {
       setCurrentSlide(currentSlide - 1);
+      setShowSlideQuiz(false);
     }
   };
   
@@ -53,6 +92,23 @@ export const TrainingContent = ({
       ...assessmentAnswers,
       [questionIndex]: answerIndex
     });
+  };
+  
+  // Handle quiz selection
+  const handleQuizAnswerSelect = (quizId: string, answerIndex: number) => {
+    setQuizAnswers({
+      ...quizAnswers,
+      [quizId]: answerIndex
+    });
+  };
+  
+  // Submit slide quiz
+  const submitSlideQuiz = () => {
+    setShowSlideQuiz(false);
+    // Automatically move to the next slide after answering
+    if (content.slides && currentSlide < content.slides.length - 1) {
+      setCurrentSlide(currentSlide + 1);
+    }
   };
   
   // Submit assessment
@@ -72,6 +128,11 @@ export const TrainingContent = ({
     
     if (score >= 70) {
       onComplete(score);
+      
+      // Set certificate expiry date (1 year from completion)
+      const expiryDate = new Date();
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      setCertificateExpiry(expiryDate);
     }
   };
   
@@ -138,10 +199,69 @@ export const TrainingContent = ({
               </div>
             </CardHeader>
             <CardContent>
-              {content.slides && content.slides[currentSlide] && (
+              {content.slides && content.slides[currentSlide] && !showSlideQuiz && (
                 <div className="slide-content min-h-[400px]">
                   <h3 className="text-xl font-semibold mb-4">{content.slides[currentSlide].title}</h3>
                   <div dangerouslySetInnerHTML={{ __html: content.slides[currentSlide].content }} />
+                  
+                  {/* Display learning path info if available */}
+                  {learningPath && content.slides[currentSlide].pathRelevance && (
+                    <Alert className="mt-4 bg-blue-50 border-blue-200">
+                      <Target className="h-4 w-4 text-blue-600" />
+                      <AlertTitle className="text-blue-800 font-medium">Relevance to {learningPath}</AlertTitle>
+                      <AlertDescription className="text-blue-700">
+                        {content.slides[currentSlide].pathRelevance[userRole] || 
+                         content.slides[currentSlide].pathRelevance.general ||
+                         "This content is relevant to all learning paths."}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  {/* Interactive tips based on role */}
+                  {content.slides[currentSlide].roleTips && content.slides[currentSlide].roleTips[userRole] && (
+                    <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                      <div className="flex items-start">
+                        <Lightbulb className="h-5 w-5 text-amber-600 mr-2 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-amber-800">Tip for {userRole.replace('_', ' ')}s</p>
+                          <p className="text-amber-700 text-sm mt-1">{content.slides[currentSlide].roleTips[userRole]}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Interactive quiz after slide content */}
+              {showSlideQuiz && content.slides && content.slides[currentSlide] && content.slides[currentSlide].quiz && (
+                <div className="quiz-container bg-blue-50 p-6 rounded-lg border border-blue-100">
+                  <h3 className="text-xl font-semibold mb-2">Quick Knowledge Check</h3>
+                  <p className="mb-4 text-blue-700">Test your understanding before proceeding to the next slide.</p>
+                  
+                  <div className="mb-6">
+                    <h4 className="text-lg font-medium mb-3">{content.slides[currentSlide].quiz.question}</h4>
+                    <div className="space-y-2">
+                      {content.slides[currentSlide].quiz.options.map((option: string, index: number) => (
+                        <Button
+                          key={`quiz-option-${index}`}
+                          variant={quizAnswers[`slide-${currentSlide}`] === index ? "default" : "outline"}
+                          className="w-full justify-start text-left h-auto py-3 px-4"
+                          onClick={() => handleQuizAnswerSelect(`slide-${currentSlide}`, index)}
+                        >
+                          {option}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <Button 
+                      onClick={submitSlideQuiz}
+                      disabled={quizAnswers[`slide-${currentSlide}`] === undefined}
+                    >
+                      Continue <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -325,16 +445,71 @@ export const TrainingContent = ({
                 <p className="mb-1">has successfully completed the training module</p>
                 <p className="text-lg font-semibold mb-6">{title}</p>
                 
-                <p className="text-sm mb-8">with an assessment score of {assessmentScore}%</p>
+                <p className="text-sm mb-4">with an assessment score of {assessmentScore}%</p>
                 
-                <div className="flex justify-center">
+                {certificateExpiry && (
+                  <div className="mb-6 flex flex-col items-center">
+                    <div className="flex items-center text-amber-600 mb-1">
+                      <CalendarClock className="h-4 w-4 mr-1.5" />
+                      <span className="text-sm font-medium">Valid Until: {certificateExpiry.toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Please renew your certification before expiration to maintain compliance.
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex justify-center gap-3">
                   <Button>
                     <Download className="h-4 w-4 mr-2" />
                     Download Certificate
                   </Button>
+                  {certificateExpiry && (
+                    <Button variant="outline">
+                      <CalendarClock className="h-4 w-4 mr-2" />
+                      Add Renewal Reminder
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardContent>
+            <CardFooter className="border-t bg-muted/10 flex flex-col items-stretch p-4">
+              <div className="mb-4">
+                <h4 className="font-medium mb-2">Certification Details</h4>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 text-muted-foreground mr-2" />
+                    <span>Completed: {new Date().toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <BookOpenCheck className="h-4 w-4 text-muted-foreground mr-2" />
+                    <span>Module: {moduleId}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <BrainCircuit className="h-4 w-4 text-muted-foreground mr-2" />
+                    <span>Learning Path: {learningPath}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Award className="h-4 w-4 text-muted-foreground mr-2" />
+                    <span>Score: {assessmentScore}%</span>
+                  </div>
+                </div>
+              </div>
+              
+              <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-800">
+                <div className="flex flex-col sm:flex-row sm:items-center">
+                  <div className="flex-1">
+                    <AlertTitle className="text-blue-800">Certificate Renewal Required</AlertTitle>
+                    <AlertDescription className="text-blue-700">
+                      To maintain compliance with EU AI Act requirements, this certification must be renewed annually.
+                    </AlertDescription>
+                  </div>
+                  <Button className="mt-3 sm:mt-0 sm:ml-4 bg-blue-600 hover:bg-blue-700" size="sm">
+                    Set Renewal Notification
+                  </Button>
+                </div>
+              </Alert>
+            </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>
