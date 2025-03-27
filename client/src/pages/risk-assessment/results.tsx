@@ -21,18 +21,36 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
-// Use URL parameters directly
-interface ResultsParams {
-  systemId?: string;
-  assessmentId?: string;
-}
-
-const RiskAssessmentResults: React.FC<ResultsParams> = ({ systemId, assessmentId }) => {
+// Component to display risk assessment results
+const RiskAssessmentResults: React.FC = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const [location] = useLocation();
   const [openSections, setOpenSections] = React.useState<string[]>(['overview', 'classification']);
   const [activeTab, setActiveTab] = useState('assessment');
   const [validationLoaded, setValidationLoaded] = useState(false);
+  
+  // Extract parameters from URL
+  const getParamsFromUrl = (): { systemId?: string; assessmentId?: string } => {
+    const path = location.split('/');
+    // Extract parameters from URL segments
+    // For a URL like /risk-assessment/results/25/10
+    // path[0] is empty (before the first slash)
+    // path[1] is 'risk-assessment'
+    // path[2] is 'results'
+    // path[3] is systemId (25)
+    // path[4] is assessmentId (10)
+    
+    if (path.length >= 4) {
+      const systemId = path[3];
+      const assessmentId = path.length >= 5 ? path[4] : undefined;
+      return { systemId, assessmentId };
+    }
+    
+    return {};
+  };
+  
+  const { systemId, assessmentId } = getParamsFromUrl();
   
   // Toggle section visibility
   const toggleSection = (section: string) => {
