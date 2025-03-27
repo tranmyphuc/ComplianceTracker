@@ -21,23 +21,18 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
-// Parse query parameters from URL
-function useQueryParams() {
-  const [location] = useLocation();
-  const params = new URLSearchParams(location.split('?')[1]);
-  return {
-    systemId: params.get('systemId'),
-    assessmentId: params.get('assessmentId')
-  };
+// Use URL parameters directly
+interface ResultsParams {
+  systemId?: string;
+  assessmentId?: string;
 }
 
-const RiskAssessmentResults: React.FC = () => {
+const RiskAssessmentResults: React.FC<ResultsParams> = ({ systemId, assessmentId }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [openSections, setOpenSections] = React.useState<string[]>(['overview', 'classification']);
   const [activeTab, setActiveTab] = useState('assessment');
   const [validationLoaded, setValidationLoaded] = useState(false);
-  const { systemId, assessmentId } = useQueryParams();
   
   // Toggle section visibility
   const toggleSection = (section: string) => {

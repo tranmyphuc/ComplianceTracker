@@ -23,10 +23,13 @@ import {
   FileCheck,
   CalendarClock,
   BookOpenText,
-  Clock
+  Clock,
+  Gavel
 } from "lucide-react";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { LegalValidationPanel } from "@/components/legal/legal-validation-panel";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface CompanyCardProps {
   name: string;
@@ -495,6 +498,57 @@ const ExecutiveDashboard: React.FC = () => {
     );
   };
   
+  const renderLegalValidationTab = () => {
+    return (
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <StatCard 
+            title="AI Assessments Validated" 
+            value="28" 
+            icon={<Gavel className="h-5 w-5 text-blue-500" />} 
+            description="Legally reviewed assessments" 
+            trend={{ value: 12, isPositive: true }}
+          />
+          <StatCard 
+            title="Pending Legal Review" 
+            value="7" 
+            icon={<Clock className="h-5 w-5 text-amber-500" />} 
+            description="Assessments awaiting validation"
+          />
+          <StatCard 
+            title="Confidence Level" 
+            value="High" 
+            icon={<CheckCheck className="h-5 w-5 text-emerald-500" />} 
+            description="Overall legal confidence in assessments"
+          />
+        </div>
+        
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Legal Validation Panel</h2>
+          </div>
+          <Card className="overflow-hidden">
+            <CardContent className="p-6">
+              <Alert className="mb-6">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Legal Validation Features</AlertTitle>
+                <AlertDescription>
+                  This panel allows you to validate AI-generated risk assessments and legal interpretations for legal compliance and accuracy.
+                </AlertDescription>
+              </Alert>
+              
+              <LegalValidationPanel 
+                assessmentText={`The EuroBank Financial Services' Credit Scoring AI system is classified as high-risk under the EU AI Act, Article 6(2), as it is used for evaluating creditworthiness and determining access to essential private services. 
+                
+This classification requires the implementation of risk management systems (Article 9), appropriate data governance measures (Article 10), technical documentation (Article 11), record-keeping capabilities (Article 12), and human oversight mechanisms (Article 14).`}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
   const renderRiskManagementTab = () => {
     return (
       <div>
@@ -863,6 +917,8 @@ const ExecutiveDashboard: React.FC = () => {
       return renderAiInventoryTab();
     } else if (tabName === "Risk Management") {
       return renderRiskManagementTab();
+    } else if (tabName === "Legal Validation") {
+      return renderLegalValidationTab();
     } else if (tabName === "Regulatory Reporting") {
       return renderRegulatoryReportingTab();
     } else {
@@ -886,10 +942,11 @@ const ExecutiveDashboard: React.FC = () => {
       </div>
 
       <Tabs defaultValue="euAiAct" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-6">
+        <TabsList className="grid w-full grid-cols-5 mb-6">
           <TabsTrigger value="euAiAct" className="text-sm">EU AI Act Compliance</TabsTrigger>
           <TabsTrigger value="aiInventory" className="text-sm">AI Systems Inventory</TabsTrigger>
           <TabsTrigger value="riskManagement" className="text-sm">Risk Management</TabsTrigger>
+          <TabsTrigger value="legalValidation" className="text-sm">Legal Validation</TabsTrigger>
           <TabsTrigger value="regulatoryReporting" className="text-sm">Regulatory Reporting</TabsTrigger>
         </TabsList>
         
@@ -903,6 +960,10 @@ const ExecutiveDashboard: React.FC = () => {
         
         <TabsContent value="riskManagement">
           {renderOtherTab("Risk Management")}
+        </TabsContent>
+        
+        <TabsContent value="legalValidation">
+          {renderLegalValidationTab()}
         </TabsContent>
         
         <TabsContent value="regulatoryReporting">
