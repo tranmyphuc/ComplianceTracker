@@ -1239,7 +1239,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Risk assessment not found" });
       }
 
+      // Log the update activity
+      await storage.createActivity({
+        type: 'risk_assessment_updated',
+        description: `Risk assessment updated for ID ${id}`,
+        userId: assessmentData.userId || 'system',
+        systemId: assessmentData.systemId || '',
+        timestamp: new Date(),
+        metadata: { assessmentId: updatedAssessment.assessmentId }
+      });
+
       res.json(updatedAssessment);
+    } catch (err) {
+      handleError(res, err as Error);
+    }
+  });
+
+  // Delete a risk assessment
+  app.delete("/api/risk-assessments/:id", async (req: Request, res: Response) => {
+    try {
+      const id = req.params.id;
+      let deleted;
+      
+      if (id.match(/^[0-9]+$/)) {
+        // If it's a numeric ID, delete by ID
+        deleted = await storage.deleteRiskAssessment(parseInt(id));
+      } else {
+        // If it's a string ID (like "RA-xxxx"), find it first then delete
+        const assessment = await storage.getRiskAssessmentByAssessmentId(id);
+        if (assessment) {
+          deleted = await storage.deleteRiskAssessment(assessment.id);
+        }
+      }
+
+      if (!deleted) {
+        return res.status(404).json({ message: "Risk assessment not found or could not be deleted" });
+      }
+
+      // Log the deletion activity
+      await storage.createActivity({
+        type: 'risk_assessment_deleted',
+        description: `Risk assessment deleted: ${id}`,
+        userId: req.body.userId || 'system',
+        systemId: req.body.systemId || '',
+        timestamp: new Date(),
+        metadata: { assessmentId: id }
+      });
+
+      res.json({ success: true, message: "Risk assessment deleted successfully" });
     } catch (err) {
       handleError(res, err as Error);
     }

@@ -65,6 +65,7 @@ export interface IStorage {
   getAllRiskAssessments(): Promise<RiskAssessment[]>;
   createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment>;
   updateRiskAssessment(id: number, assessment: Partial<RiskAssessment>): Promise<RiskAssessment | undefined>;
+  deleteRiskAssessment(id: number): Promise<boolean>;
 
   /**
    * Risk Management System operations
@@ -615,6 +616,10 @@ export class MemStorage implements IStorage {
     this.riskAssessments.set(id, updatedAssessment);
     return updatedAssessment;
   }
+  
+  async deleteRiskAssessment(id: number): Promise<boolean> {
+    return this.riskAssessments.delete(id);
+  }
 
   createRiskManagementSystem(rms: any): Promise<any> { throw new Error("Method not implemented."); }
   getRiskManagementSystemBySystemId(systemId: string): Promise<any> { throw new Error("Method not implemented."); }
@@ -1053,6 +1058,19 @@ export class DatabaseStorage implements IStorage {
       .where(eq(riskAssessments.id, id))
       .returning();
     return result[0];
+  }
+  
+  async deleteRiskAssessment(id: number): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(riskAssessments)
+        .where(eq(riskAssessments.id, id))
+        .returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error('Error in deleteRiskAssessment:', error);
+      return false;
+    }
   }
 
   private mapDbResultToObject(row: any): any {

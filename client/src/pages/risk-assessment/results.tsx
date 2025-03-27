@@ -1,15 +1,25 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'wouter';
+import { Link, useLocation, useNavigate } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   AlertTriangle, CheckCircle, FileDown, FileText, 
   Printer, ArrowRight, ChevronDown, ChevronUp, ArrowLeft,
-  ShieldCheck, Gavel, Loader2
+  ShieldCheck, Gavel, Loader2, Trash2
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,7 +27,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/language-switcher";
 import { LegalDisclaimerSection, LegalValidationPanel } from "@/components/risk-assessment";
 import { ConfidenceLevel } from "@/components/legal";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -25,10 +35,12 @@ import { useToast } from '@/hooks/use-toast';
 const RiskAssessmentResults: React.FC = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
+  const queryClient = useQueryClient();
   const [openSections, setOpenSections] = React.useState<string[]>(['overview', 'classification']);
   const [activeTab, setActiveTab] = useState('assessment');
   const [validationLoaded, setValidationLoaded] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   // Extract parameters from URL query string using window.location instead of wouter location
   const getParamsFromUrl = (): { systemId?: string; assessmentId?: string } => {
@@ -72,6 +84,35 @@ const RiskAssessmentResults: React.FC = () => {
     queryKey: ['/api/risk-assessments', assessmentId],
     queryFn: () => assessmentId ? apiRequest(`/api/risk-assessments/${assessmentId}`) : null,
     enabled: !!assessmentId
+  });
+  
+  // Delete assessment mutation
+  const deleteAssessmentMutation = useMutation({
+    mutationFn: () => {
+      if (!assessmentId) return Promise.reject('No assessment ID provided');
+      return apiRequest(`/api/risk-assessments/${assessmentId}`, {
+        method: 'DELETE'
+      });
+    },
+    onSuccess: () => {
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/risk-assessments'] });
+      toast({
+        title: "Assessment Deleted",
+        description: "Risk assessment has been successfully deleted",
+        variant: "default"
+      });
+      // Navigate back to the risk assessment page
+      navigate('/risk-assessment');
+    },
+    onError: (error) => {
+      console.error('Error deleting assessment:', error);
+      toast({
+        title: "Deletion Failed",
+        description: "There was an error deleting the risk assessment. Please try again.",
+        variant: "destructive"
+      });
+    }
   });
   
   // Simulate validation loading
@@ -164,6 +205,15 @@ const RiskAssessmentResults: React.FC = () => {
               <Button variant="outline" size="sm">
                 <Printer className="h-4 w-4 mr-2" />
                 Print
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-destructive hover:bg-destructive/10"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
               </Button>
             </div>
           </div>
@@ -422,6 +472,36 @@ Mitigation Measures:
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this assessment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the risk assessment
+              with ID <span className="font-mono font-semibold">{assessmentData?.assessmentId}</span>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => deleteAssessmentMutation.mutate()}
+              disabled={deleteAssessmentMutation.isPending}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {deleteAssessmentMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>Delete</>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
