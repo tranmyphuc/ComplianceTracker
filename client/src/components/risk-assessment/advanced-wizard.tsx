@@ -1007,7 +1007,7 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
           systemId: systemIdToUse, // Use the verified system ID
           assessmentDate: result.date || new Date(),
           riskLevel: result.riskLevel,
-          riskScore: result.overallScore,
+          riskScore: Math.round(result.overallScore), // Convert to integer
           systemCategory: assessmentMeta.systemCategory || "other",
           prohibitedUseChecks: result.prohibitedUse ? [{ reason: result.prohibitedJustification || "Flagged as prohibited use" }] : [],
           euAiActArticles: result.relevantArticles || [],
@@ -1024,16 +1024,34 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
         try {
           const response = await apiRequest('/api/risk-assessments', {
             method: 'POST',
-            body: assessmentData
+            body: JSON.stringify(assessmentData) // Ensure we're sending JSON
           });
           
           console.log("Assessment saved:", response);
+          
+          // Show success message
+          toast({
+            title: "Risk Assessment Completed",
+            description: "Your comprehensive risk assessment has been saved successfully."
+          });
+          
+          // Redirect to risk management page
+          setTimeout(() => {
+            navigate('/risk-management');
+          }, 1500);
         } catch (apiError: any) {
           console.error("API error details:", apiError.message);
           // If there's a more detailed error response available
           if (apiError.response) {
             console.error("Response data:", apiError.response);
           }
+          
+          // Show error toast
+          toast({
+            title: "Error Saving Assessment",
+            description: "There was an error saving your assessment. Please try again or check the console for details.",
+            variant: "destructive"
+          });
           throw apiError; // Re-throw to be caught by outer try/catch
         }
         
