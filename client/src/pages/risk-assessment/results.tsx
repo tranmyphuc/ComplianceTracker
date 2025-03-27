@@ -46,6 +46,9 @@ const RiskAssessmentResults: React.FC = () => {
     return {};
   };
   
+  // For debugging
+  console.log("Current location:", location);
+  
   const { systemId, assessmentId } = getParamsFromUrl();
   
   // Toggle section visibility
