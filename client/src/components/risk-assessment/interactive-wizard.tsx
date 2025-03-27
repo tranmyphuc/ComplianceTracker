@@ -1,14 +1,50 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoIcon, AlertTriangleIcon, HelpCircleIcon } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  InfoIcon, 
+  AlertTriangleIcon, 
+  HelpCircleIcon, 
+  ArrowRightIcon, 
+  ArrowLeftIcon, 
+  CheckCircleIcon,
+  AlertCircleIcon,
+  BookOpenIcon,
+  ChevronRightIcon,
+  DatabaseIcon,
+  UsersIcon,
+  CheckIcon
+} from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+// Types
+interface Question {
+  id: string;
+  type: string;
+  label: string;
+  explanation?: string;
+  options?: { value: string; label: string }[];
+  tooltip: string;
+}
+
+interface Step {
+  id: string;
+  title: string;
+  description: string;
+  longDescription?: string;
+  icon: any;
+  legislation?: string;
+  questions: Question[];
+}
 
 // Risk assessment wizard steps
 const STEPS = [
@@ -16,17 +52,22 @@ const STEPS = [
     id: 'purpose',
     title: 'System Purpose & Context',
     description: 'What is the purpose of your AI system?',
+    longDescription: 'Understanding your AI system\'s purpose and application domain is the first step in determining its risk level under the EU AI Act. This information helps establish the context for subsequent assessment steps and identifies potential domain-specific risk factors.',
+    icon: InfoIcon,
+    legislation: 'Article 85 of the EU AI Act requires providers to register AI systems and provide basic information about their purpose and functionality.',
     questions: [
       {
         id: 'systemPurpose',
         type: 'textarea',
         label: 'Describe the purpose and functionality of your AI system',
+        explanation: 'A clear description helps regulatory authorities understand what your AI system does, its intended use cases, and its potential impact on users and stakeholders.',
         tooltip: 'Provide details about what your AI system is designed to do and its primary functions'
       },
       {
         id: 'usageDomain',
         type: 'radio',
         label: 'Which domain will this AI system be used in?',
+        explanation: 'The domain of application is crucial for risk assessment as the EU AI Act imposes specific requirements for systems used in sensitive domains such as healthcare, education, and law enforcement.',
         options: [
           { value: 'healthcare', label: 'Healthcare' },
           { value: 'education', label: 'Education' },
@@ -44,11 +85,15 @@ const STEPS = [
     id: 'prohibited',
     title: 'Prohibited AI Practices',
     description: 'Check for prohibited practices under EU AI Act Article 5',
+    longDescription: 'The EU AI Act strictly prohibits certain AI applications that are deemed incompatible with EU values and fundamental rights. This step helps identify whether your system employs any practices that would be categorically prohibited under Article 5.',
+    icon: AlertTriangleIcon,
+    legislation: 'Article 5 of the EU AI Act outlines specific AI practices that are prohibited due to their unacceptable risk to individuals\' rights and safety.',
     questions: [
       {
         id: 'manipulationCheck',
         type: 'radio',
-        label: 'Does your AI system use subliminal techniques to manipulate a person's behavior in a manner that causes or is likely to cause harm?',
+        label: "Does your AI system use subliminal techniques to manipulate a person's behavior in a manner that causes or is likely to cause harm?",
+        explanation: "Subliminal techniques operate below the threshold of consciousness and can manipulate behavior without the person's awareness. The EU AI Act prohibits such techniques when they cause harm.",
         options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'unsure', label: 'Unsure' }],
         tooltip: 'Any system using deceptive techniques to manipulate behavior causing harm is prohibited'
       },
@@ -56,6 +101,7 @@ const STEPS = [
         id: 'vulnerabilitiesCheck',
         type: 'radio',
         label: 'Does your system exploit vulnerabilities of specific groups of persons due to their age, disability, or socioeconomic situation?',
+        explanation: "The EU AI Act specifically protects vulnerable individuals from exploitation by AI systems. Systems that target vulnerabilities of specific groups to distort behavior are prohibited.",
         options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'unsure', label: 'Unsure' }],
         tooltip: 'Systems targeting vulnerable groups to materially distort behavior are prohibited'
       },
@@ -63,6 +109,7 @@ const STEPS = [
         id: 'socialScoringCheck',
         type: 'radio',
         label: 'Does your system perform social scoring by public authorities?',
+        explanation: "Social scoring systems evaluate citizens based on behavior or characteristics. The EU AI Act prohibits systems that allow public authorities to evaluate people's trustworthiness based on social behavior or predicted personal characteristics.",
         options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'unsure', label: 'Unsure' }],
         tooltip: 'General purpose social scoring of individuals by public authorities is prohibited'
       },
@@ -70,6 +117,7 @@ const STEPS = [
         id: 'biometricIdCheck',
         type: 'radio',
         label: 'Does your system use real-time remote biometric identification in publicly accessible spaces for law enforcement?',
+        explanation: "Real-time biometric identification in public spaces for law enforcement is a significant privacy concern. The EU AI Act generally prohibits this practice with only narrow exceptions for specific serious crimes.",
         options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'unsure', label: 'Unsure' }],
         tooltip: 'With limited exceptions, real-time remote biometric identification in public spaces for law enforcement is prohibited'
       }
@@ -79,11 +127,15 @@ const STEPS = [
     id: 'high-risk',
     title: 'High-Risk Assessment',
     description: 'Determine if your AI system falls under high-risk categories (Annex III)',
+    longDescription: 'Annex III of the EU AI Act identifies specific categories of AI systems that are considered high-risk and subject to more stringent regulatory requirements. This step helps determine if your system falls into one of these high-risk categories.',
+    icon: AlertCircleIcon,
+    legislation: 'Annex III of the EU AI Act specifies the categories of AI systems that are considered high-risk and require compliance with Articles 8-15.',
     questions: [
       {
         id: 'biometricIdentification',
         type: 'radio',
         label: 'Is your system used for biometric identification or categorization of natural persons?',
+        explanation: "Biometric identification systems analyze physical, physiological or behavioral characteristics to identify individuals. The EU AI Act classifies these as high-risk due to their potential privacy implications.",
         options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }],
         tooltip: 'Systems for biometric identification are considered high-risk under Annex III'
       },
@@ -91,6 +143,7 @@ const STEPS = [
         id: 'criticalInfrastructure',
         type: 'radio',
         label: 'Is your system a component of critical infrastructure (e.g., water, gas, electricity, transport)?',
+        explanation: "AI systems that manage or make decisions affecting critical infrastructure can impact essential services and public safety. The EU AI Act considers these high-risk due to their potential societal impact.",
         options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }],
         tooltip: 'AI systems used in critical infrastructure management are considered high-risk'
       },
@@ -98,6 +151,7 @@ const STEPS = [
         id: 'educationTraining',
         type: 'radio',
         label: 'Is your system used for determining access to educational institutions or assessing students?',
+        explanation: "AI systems used in educational settings can significantly impact students' futures and career opportunities. The EU AI Act classifies these as high-risk because of their potential to affect equal access to education.",
         options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }],
         tooltip: 'Systems for educational or vocational assessment are considered high-risk'
       },
@@ -105,6 +159,7 @@ const STEPS = [
         id: 'employmentHR',
         type: 'radio',
         label: 'Is your system used for recruitment, HR decisions, or evaluating employees?',
+        explanation: "AI systems in HR and employment can significantly affect individuals' livelihoods and career opportunities. The EU AI Act classifies these as high-risk due to potential discrimination risks and impact on labor rights.",
         options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }],
         tooltip: 'Systems for employment, worker management, or access to self-employment are high-risk'
       },
@@ -112,6 +167,7 @@ const STEPS = [
         id: 'essentialServices',
         type: 'radio',
         label: 'Is your system used to evaluate access to essential services (credit scoring, social benefits, emergency services)?',
+        explanation: "AI systems that determine access to essential services directly impact individuals' basic needs and rights. The EU AI Act designates these as high-risk because limited access to services like healthcare, public benefits, or emergency services can have severe consequences.",
         options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }],
         tooltip: 'Systems affecting access to essential private or public services are high-risk'
       }
@@ -121,11 +177,15 @@ const STEPS = [
     id: 'data-governance',
     title: 'Data Governance',
     description: 'Assess data practices for your AI system',
+    longDescription: 'Data governance is a critical component of AI compliance under the EU AI Act. This step examines your data management practices to ensure training data is representative, free from bias, and handles personal data appropriately.',
+    icon: DatabaseIcon,
+    legislation: 'Article 10 of the EU AI Act mandates data governance measures including quality criteria for training data, relevant design choices, and data processing techniques.',
     questions: [
       {
         id: 'dataQuality',
         type: 'radio',
         label: 'Are data quality criteria established for training, validation, and testing datasets?',
+        explanation: "The EU AI Act requires high-risk AI systems to be trained on data that meets quality criteria to ensure accuracy and reliability. This includes having clear processes for identifying and managing data deficiencies, biases, and gaps.",
         options: [
           { value: 'yes', label: 'Yes, comprehensive criteria are established' },
           { value: 'partial', label: 'Partially implemented' },
@@ -137,6 +197,7 @@ const STEPS = [
         id: 'biasMitigation',
         type: 'radio',
         label: 'Are there measures to identify and mitigate possible biases in datasets?',
+        explanation: "Bias in AI systems can lead to discriminatory outcomes. The EU AI Act requires providers to identify and address potential biases in training, validation, and testing datasets to ensure fairness and prevent discrimination against protected groups.",
         options: [
           { value: 'yes', label: 'Yes, comprehensive measures exist' },
           { value: 'partial', label: 'Basic measures exist' },
@@ -148,6 +209,7 @@ const STEPS = [
         id: 'dataGovernance',
         type: 'textarea',
         label: 'Describe your data governance and management practices',
+        explanation: "Comprehensive data governance is essential for AI compliance. Providers must document their data sources, collection methodologies, processing techniques, and protection measures to ensure transparency and accountability throughout the AI system's lifecycle.",
         tooltip: 'Include information on data sources, collection, processing, and protection measures'
       }
     ]
@@ -156,23 +218,28 @@ const STEPS = [
     id: 'human-oversight',
     title: 'Human Oversight',
     description: 'Assess human oversight measures for your AI system',
+    longDescription: 'Human oversight is a fundamental requirement for high-risk AI systems under the EU AI Act. This step evaluates whether your system has adequate measures for humans to monitor, understand, and intervene in the operation of AI systems when necessary.',
+    icon: UsersIcon,
+    legislation: 'Article 14 of the EU AI Act requires human oversight measures to minimize risks to health, safety, and fundamental rights.',
     questions: [
       {
         id: 'oversightMeasures',
         type: 'radio',
         label: 'What level of human oversight is implemented for your AI system?',
+        explanation: "Human oversight is a cornerstone of the EU AI Act to ensure AI systems remain under human control. The appropriate level of oversight depends on the system's risk level and application context, with high-risk AI systems requiring more comprehensive human monitoring.",
         options: [
           { value: 'continuous', label: 'Continuous human oversight (human-in-the-loop)' },
           { value: 'periodic', label: 'Periodic human review and intervention capability' },
           { value: 'limited', label: 'Limited oversight for exceptional cases only' },
           { value: 'none', label: 'No human oversight implemented' }
         ],
-        tooltip: 'Article 14 requires human oversight measures appropriate to the system's risk level'
+        tooltip: "Article 14 requires human oversight measures appropriate to the system's risk level"
       },
       {
         id: 'interventionCapability',
         type: 'radio',
         label: 'Can humans intervene or interrupt system operation when necessary?',
+        explanation: "The EU AI Act requires high-risk AI systems to include mechanisms that allow humans to safely interrupt operations. This 'stop button' functionality ensures that AI systems can be halted if they begin operating outside of intended parameters or produce harmful outputs.",
         options: [
           { value: 'yes', label: 'Yes, comprehensive intervention capabilities exist' },
           { value: 'partial', label: 'Limited intervention capabilities exist' },
@@ -184,6 +251,7 @@ const STEPS = [
         id: 'oversightProcedures',
         type: 'textarea',
         label: 'Describe your human oversight procedures and mechanisms',
+        explanation: "Effective human oversight requires documented procedures and clearly defined roles. The EU AI Act expects providers of high-risk AI systems to establish protocols for monitoring system performance, detecting anomalies, and assigning oversight responsibilities to qualified personnel.",
         tooltip: 'Include details on monitoring practices, intervention protocols, and oversight responsibilities'
       }
     ]
@@ -191,11 +259,13 @@ const STEPS = [
 ];
 
 export function InteractiveRiskWizard() {
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [results, setResults] = useState<any>(null);
   const [isComplete, setIsComplete] = useState(false);
   const [prohibitedDetected, setProhibitedDetected] = useState(false);
+  const [activeTab, setActiveTab] = useState<'questions' | 'info'>('questions');
 
   // Handle response changes
   const handleResponseChange = (questionId: string, value: string) => {
@@ -372,17 +442,41 @@ export function InteractiveRiskWizard() {
   // Render current step questions
   const renderQuestions = () => {
     const { questions } = STEPS[currentStep];
+    const currentStepData = STEPS[currentStep];
     
     return (
       <div className="space-y-8">
+        {/* Step explanation section */}
+        {currentStepData.longDescription && (
+          <Alert className="bg-blue-50 border-blue-200">
+            <InfoIcon className="h-4 w-4 text-blue-500" />
+            <AlertTitle className="text-blue-700">About this step</AlertTitle>
+            <AlertDescription className="text-blue-600 mt-2">
+              {currentStepData.longDescription}
+            </AlertDescription>
+            {currentStepData.legislation && (
+              <div className="mt-2 text-sm text-blue-600 border-t border-blue-100 pt-2">
+                <strong>Relevant legislation:</strong> {currentStepData.legislation}
+              </div>
+            )}
+          </Alert>
+        )}
+        
         {questions.map(question => (
-          <div key={question.id} className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Label className="text-base font-medium">{question.label}</Label>
+          <div key={question.id} className="space-y-3 border border-muted rounded-lg p-4 bg-card">
+            <div className="flex items-start gap-2">
+              <div className="flex-1">
+                <Label className="text-base font-medium">{question.label}</Label>
+                {question.explanation && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {question.explanation}
+                  </p>
+                )}
+              </div>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full p-0">
+                    <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full p-0 mt-1">
                       <HelpCircleIcon className="h-4 w-4 text-muted-foreground" />
                       <span className="sr-only">Info</span>
                     </Button>
@@ -398,7 +492,7 @@ export function InteractiveRiskWizard() {
               <RadioGroup
                 value={responses[question.id] || ''}
                 onValueChange={value => handleResponseChange(question.id, value)}
-                className="grid grid-cols-1 gap-2"
+                className="grid grid-cols-1 gap-2 mt-2"
               >
                 {question.options?.map(option => (
                   <div key={option.value} className="flex items-center space-x-2 border rounded-md p-3 hover:bg-muted/50">
@@ -417,6 +511,7 @@ export function InteractiveRiskWizard() {
                 onChange={e => handleResponseChange(question.id, e.target.value)}
                 placeholder="Enter your response..."
                 rows={4}
+                className="mt-2"
               />
             )}
           </div>
@@ -474,7 +569,7 @@ export function InteractiveRiskWizard() {
           <h3 className="text-lg font-semibold">Key Risk Factors</h3>
           {riskFactors.length > 0 ? (
             <ul className="list-disc pl-5 space-y-1">
-              {riskFactors.map((factor, index) => (
+              {riskFactors.map((factor: string, index: number) => (
                 <li key={index}>{factor}</li>
               ))}
             </ul>
@@ -486,7 +581,7 @@ export function InteractiveRiskWizard() {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Compliance Requirements</h3>
           <ul className="list-disc pl-5 space-y-1">
-            {complianceRequirements.map((req, index) => (
+            {complianceRequirements.map((req: string, index: number) => (
               <li key={index}>{req}</li>
             ))}
           </ul>
@@ -527,9 +622,75 @@ export function InteractiveRiskWizard() {
       <CardContent>
         {!isComplete ? (
           <>
+            {/* Step Navigation Indicator */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between">
+                {STEPS.map((step, index) => (
+                  <div 
+                    key={step.id}
+                    className="flex flex-col items-center"
+                  >
+                    <div 
+                      className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+                        index < currentStep 
+                          ? 'bg-primary text-primary-foreground' 
+                          : index === currentStep
+                            ? 'bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary'
+                            : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      {index < currentStep ? (
+                        <CheckIcon className="h-5 w-5" />
+                      ) : (
+                        <span>{index + 1}</span>
+                      )}
+                    </div>
+                    <span className={`text-xs font-medium text-center ${
+                      index === currentStep ? 'text-primary' : 'text-muted-foreground'
+                    }`}>
+                      {step.title}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="relative mt-2">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full h-0.5 bg-muted"></div>
+                </div>
+                <div 
+                  className="absolute inset-0 flex items-center"
+                  style={{ 
+                    width: `calc(${(currentStep / (STEPS.length - 1)) * 100}%)`,
+                    transition: 'width 300ms ease-in-out'
+                  }}
+                >
+                  <div className="w-full h-0.5 bg-primary"></div>
+                </div>
+                <div className="relative flex justify-between">
+                  {STEPS.map((_, index) => (
+                    <div key={index} className="w-0 h-0"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">{STEPS[currentStep].title}</h3>
-              <p className="text-muted-foreground">{STEPS[currentStep].description}</p>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold">{STEPS[currentStep].title}</h3>
+                  <p className="text-muted-foreground">{STEPS[currentStep].description}</p>
+                </div>
+                
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'questions' | 'info')} className="w-auto">
+                  <TabsList className="grid w-[180px] grid-cols-2">
+                    <TabsTrigger value="questions">Questions</TabsTrigger>
+                    <TabsTrigger value="info">Info</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              
+              <Separator className="my-4" />
             </div>
             
             {prohibitedDetected && currentStep === 1 && (
@@ -542,7 +703,85 @@ export function InteractiveRiskWizard() {
               </Alert>
             )}
             
-            {renderQuestions()}
+            {activeTab === 'questions' ? renderQuestions() : (
+              <div className="space-y-4 p-4 border rounded-lg bg-blue-50">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <BookOpenIcon className="h-4 w-4 text-blue-600" />
+                  <span>EU AI Act Requirements</span>
+                </h4>
+                <div className="prose prose-sm max-w-none">
+                  {currentStep === 0 && (
+                    <div>
+                      <p>The first step to compliance is clearly identifying your AI system's purpose and domain of operation. Article 85 of the EU AI Act establishes requirements for provider registration where you must specify:</p>
+                      <ul>
+                        <li>The purpose of the AI system</li>
+                        <li>Its intended use cases</li>
+                        <li>Primary functionality</li>
+                        <li>Target users and domains</li>
+                      </ul>
+                      <p>This information helps regulatory authorities determine applicable compliance requirements based on risk categories in the Act.</p>
+                    </div>
+                  )}
+                  
+                  {currentStep === 1 && (
+                    <div>
+                      <p>Article 5 of the EU AI Act prohibits certain AI practices considered unacceptable risk, including:</p>
+                      <ul>
+                        <li>Subliminal manipulation techniques causing harm</li>
+                        <li>Exploitation of vulnerabilities of specific groups</li>
+                        <li>Social scoring by public authorities</li>
+                        <li>Real-time remote biometric identification in public spaces (with limited exceptions)</li>
+                      </ul>
+                      <p>These practices are prohibited and systems employing them cannot be placed on the EU market.</p>
+                    </div>
+                  )}
+                  
+                  {currentStep === 2 && (
+                    <div>
+                      <p>Annex III of the EU AI Act identifies high-risk AI systems that require enhanced compliance measures:</p>
+                      <ul>
+                        <li>Biometric identification and categorization systems</li>
+                        <li>Management of critical infrastructure</li>
+                        <li>Educational/vocational training access determinants</li>
+                        <li>Employment, worker management and access to self-employment</li>
+                        <li>Access to essential services</li>
+                        <li>Law enforcement applications</li>
+                        <li>Migration, asylum and border control management</li>
+                        <li>Administration of justice and democratic processes</li>
+                      </ul>
+                      <p>High-risk systems must meet stringent requirements in Articles 9-15.</p>
+                    </div>
+                  )}
+                  
+                  {currentStep === 3 && (
+                    <div>
+                      <p>Article 10 of the EU AI Act requires high-risk AI systems to implement data governance measures:</p>
+                      <ul>
+                        <li>Data quality criteria for training, validation, and testing datasets</li>
+                        <li>Bias monitoring and mitigation procedures</li>
+                        <li>Examination of potential data anomalies</li>
+                        <li>Data protection and privacy compliance</li>
+                      </ul>
+                      <p>Proper data governance helps ensure AI systems function reliably and avoid discriminatory outcomes.</p>
+                    </div>
+                  )}
+                  
+                  {currentStep === 4 && (
+                    <div>
+                      <p>Article 14 requires appropriate human oversight measures for high-risk AI systems:</p>
+                      <ul>
+                        <li>Ability to understand system capabilities and limitations</li>
+                        <li>Awareness of automation bias tendencies</li>
+                        <li>Ability to correctly interpret system output</li>
+                        <li>Capability to intervene or interrupt system operation via "stop" function</li>
+                        <li>Clear allocation of oversight responsibilities</li>
+                      </ul>
+                      <p>Human oversight ensures AI systems remain under human control and can be interrupted when necessary.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </>
         ) : (
           renderResults()
