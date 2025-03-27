@@ -235,6 +235,26 @@ export const approvalNotifications = pgTable("approval_notifications", {
   language: text("language").default("en").notNull(), // en, vi, de
 });
 
+// Expert Legal Reviews
+export const expertReviews = pgTable("expert_reviews", {
+  id: serial("id").primaryKey(),
+  reviewId: text("review_id").notNull().unique(),
+  assessmentId: text("assessment_id").references(() => riskAssessments.assessmentId),
+  systemId: text("system_id").references(() => aiSystems.systemId),
+  text: text("text").notNull(), // The content to be reviewed
+  type: text("type").notNull(), // Assessment, System, Document, etc.
+  status: text("status").default("pending").notNull(), // pending, in_progress, completed
+  validationResult: jsonb("validation_result"), // Result from automated validation
+  requestedAt: timestamp("requested_at").defaultNow(),
+  requestedBy: text("requested_by").references(() => users.uid),
+  assignedTo: text("assigned_to").references(() => users.uid),
+  assignedAt: timestamp("assigned_at"),
+  completedAt: timestamp("completed_at"),
+  expertFeedback: text("expert_feedback"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const approvalSettings = pgTable("approval_settings", {
   id: serial("id").primaryKey(),
   userId: text("user_id").references(() => users.uid).notNull(),
@@ -260,6 +280,7 @@ export const insertDocumentSchema = createInsertSchema(documents).omit({ id: tru
 export const insertRiskAssessmentSchema = createInsertSchema(riskAssessments).omit({ id: true });
 export const insertTrainingModuleSchema = createInsertSchema(trainingModules).omit({ id: true });
 export const insertTrainingProgressSchema = createInsertSchema(trainingProgress).omit({ id: true });
+export const insertExpertReviewSchema = createInsertSchema(expertReviews).omit({ id: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -292,6 +313,9 @@ export type InsertTrainingModule = z.infer<typeof insertTrainingModuleSchema>;
 export type TrainingProgress = typeof trainingProgress.$inferSelect;
 export type InsertTrainingProgress = z.infer<typeof insertTrainingProgressSchema>;
 
+export type ExpertReview = typeof expertReviews.$inferSelect;
+export type InsertExpertReview = z.infer<typeof insertExpertReviewSchema>;
+
 // Specialized schemas for the API
 export const loginSchema = z.object({
   email: z.string().email(),
@@ -305,4 +329,20 @@ export const registerSchema = z.object({
   displayName: z.string().optional(),
   department: z.string().optional(),
   role: z.string().optional(),
+});
+
+// Expert review schemas for APIs
+export const createExpertReviewSchema = z.object({
+  assessmentId: z.string().optional(),
+  systemId: z.string().optional(),
+  text: z.string().min(1, "Review text is required"),
+  type: z.string(),
+  validationResult: z.any().optional(),
+});
+
+export const updateExpertReviewSchema = z.object({
+  reviewId: z.string(),
+  status: z.enum(["pending", "in_progress", "completed"]).optional(),
+  assignedTo: z.string().optional(),
+  expertFeedback: z.string().optional(),
 });

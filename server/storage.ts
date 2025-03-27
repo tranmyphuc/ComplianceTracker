@@ -11,7 +11,8 @@ import {
   approvalAssignments, type ApprovalAssignment, type InsertApprovalAssignment,
   approvalHistory, type ApprovalHistory, type InsertApprovalHistory,
   approvalNotifications, type ApprovalNotification, type InsertApprovalNotification,
-  approvalSettings, type ApprovalSettings, type InsertApprovalSettings
+  approvalSettings, type ApprovalSettings, type InsertApprovalSettings,
+  expertReviews, type ExpertReview, type InsertExpertReview
 } from "@shared/schema";
 import { eq, desc, or, like, sql } from "drizzle-orm";
 import { db } from "./db";
@@ -133,6 +134,13 @@ export interface IStorage {
   getApprovalSettings(userId: string): Promise<ApprovalSettings | undefined>;
   createApprovalSettings(settings: InsertApprovalSettings): Promise<ApprovalSettings>;
   updateApprovalSettings(userId: string, updates: Partial<ApprovalSettings>): Promise<ApprovalSettings | undefined>;
+
+  // Expert Review operations
+  getExpertReviews(options?: { status?: string; type?: string }): Promise<ExpertReview[]>;
+  getExpertReviewById(reviewId: string): Promise<ExpertReview | null>;
+  createExpertReview(review: InsertExpertReview): Promise<ExpertReview>;
+  updateExpertReview(reviewId: string, updates: Partial<InsertExpertReview>): Promise<ExpertReview>;
+  deleteExpertReview(reviewId: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -312,6 +320,7 @@ export class MemStorage implements IStorage {
   private deadlines: Map<number, Deadline>;
   private documents: Map<number, Document>;
   private riskAssessments: Map<number, RiskAssessment>;
+  private expertReviews: Map<number, ExpertReview>;
 
   private userIdCounter: number;
   private systemIdCounter: number;
@@ -321,6 +330,7 @@ export class MemStorage implements IStorage {
   private deadlineIdCounter: number;
   private documentIdCounter: number;
   private riskAssessmentIdCounter: number;
+  private expertReviewIdCounter: number;
 
   constructor() {
     this.users = new Map();
@@ -331,6 +341,7 @@ export class MemStorage implements IStorage {
     this.deadlines = new Map();
     this.documents = new Map();
     this.riskAssessments = new Map();
+    this.expertReviews = new Map();
 
     this.userIdCounter = 1;
     this.systemIdCounter = 1;
@@ -340,6 +351,7 @@ export class MemStorage implements IStorage {
     this.deadlineIdCounter = 1;
     this.documentIdCounter = 1;
     this.riskAssessmentIdCounter = 1;
+    this.expertReviewIdCounter = 1;
 
     // Initialize with some sample departments
     this.initializeDepartments();
@@ -657,6 +669,66 @@ export class MemStorage implements IStorage {
   getApprovalSettings(userId: string): Promise<ApprovalSettings | undefined> { throw new Error("Method not implemented."); }
   createApprovalSettings(settings: InsertApprovalSettings): Promise<ApprovalSettings> { throw new Error("Method not implemented."); }
   updateApprovalSettings(userId: string, updates: Partial<ApprovalSettings>): Promise<ApprovalSettings | undefined> { throw new Error("Method not implemented."); }
+
+  // Expert Review operations
+  async getExpertReviews(options: { status?: string; type?: string } = {}): Promise<ExpertReview[]> {
+    let reviews = Array.from(this.expertReviews.values());
+    
+    if (options.status) {
+      reviews = reviews.filter(review => review.status === options.status);
+    }
+    
+    if (options.type) {
+      reviews = reviews.filter(review => review.type === options.type);
+    }
+    
+    return reviews.sort((a, b) => {
+      // Sort by most recent first
+      return new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime();
+    });
+  }
+  
+  async getExpertReviewById(reviewId: string): Promise<ExpertReview | null> {
+    const review = Array.from(this.expertReviews.values()).find(
+      review => review.reviewId === reviewId
+    );
+    
+    return review || null;
+  }
+  
+  async createExpertReview(review: InsertExpertReview): Promise<ExpertReview> {
+    const id = this.expertReviewIdCounter++;
+    const newReview: ExpertReview = { ...review, id };
+    this.expertReviews.set(id, newReview);
+    return newReview;
+  }
+  
+  async updateExpertReview(reviewId: string, updates: Partial<InsertExpertReview>): Promise<ExpertReview> {
+    const review = await this.getExpertReviewById(reviewId);
+    
+    if (!review) {
+      throw new Error(`Expert review with ID ${reviewId} not found`);
+    }
+    
+    const updatedReview: ExpertReview = {
+      ...review,
+      ...updates,
+      updatedAt: new Date()
+    };
+    
+    this.expertReviews.set(review.id, updatedReview);
+    return updatedReview;
+  }
+  
+  async deleteExpertReview(reviewId: string): Promise<boolean> {
+    const review = await this.getExpertReviewById(reviewId);
+    
+    if (!review) {
+      return false;
+    }
+    
+    return this.expertReviews.delete(review.id);
+  }
 }
 
 
@@ -1458,6 +1530,92 @@ export class DatabaseStorage implements IStorage {
       
     return result[0];
   }
+
+  // Expert Review operations
+  async getExpertReviews(options: { status?: string; type?: string } = {}): Promise<ExpertReview[]> {
+    try {
+      let query = db.select().from(expertReviews);
+      
+      if (options.status) {
+        query = query.where(eq(expertReviews.status, options.status));
+      }
+      
+      if (options.type) {
+        query = query.where(eq(expertReviews.type, options.type));
+      }
+      
+      // Sort by most recent first
+      return await query.orderBy(desc(expertReviews.requestedAt));
+    } catch (error) {
+      console.error('Error in getExpertReviews:', error);
+      return [];
+    }
+  }
+  
+  async getExpertReviewById(reviewId: string): Promise<ExpertReview | null> {
+    try {
+      const result = await db
+        .select()
+        .from(expertReviews)
+        .where(eq(expertReviews.reviewId, reviewId))
+        .limit(1);
+        
+      return result[0] || null;
+    } catch (error) {
+      console.error('Error in getExpertReviewById:', error);
+      return null;
+    }
+  }
+  
+  async createExpertReview(review: InsertExpertReview): Promise<ExpertReview> {
+    try {
+      const result = await db
+        .insert(expertReviews)
+        .values(review)
+        .returning();
+        
+      return result[0];
+    } catch (error) {
+      console.error('Error in createExpertReview:', error);
+      throw error;
+    }
+  }
+  
+  async updateExpertReview(reviewId: string, updates: Partial<InsertExpertReview>): Promise<ExpertReview> {
+    try {
+      const result = await db
+        .update(expertReviews)
+        .set({
+          ...updates,
+          updatedAt: new Date()
+        })
+        .where(eq(expertReviews.reviewId, reviewId))
+        .returning();
+        
+      if (result.length === 0) {
+        throw new Error(`Expert review with ID ${reviewId} not found`);
+      }
+      
+      return result[0];
+    } catch (error) {
+      console.error('Error in updateExpertReview:', error);
+      throw error;
+    }
+  }
+  
+  async deleteExpertReview(reviewId: string): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(expertReviews)
+        .where(eq(expertReviews.reviewId, reviewId))
+        .returning();
+        
+      return result.length > 0;
+    } catch (error) {
+      console.error('Error in deleteExpertReview:', error);
+      return false;
+    }
+  }
 }
 
 /**
@@ -1765,6 +1923,57 @@ export class HybridStorage implements IStorage {
   
   async updateApprovalSettings(userId: string, updates: Partial<ApprovalSettings>): Promise<ApprovalSettings | undefined> {
     return this.storage.updateApprovalSettings(userId, updates);
+  }
+
+  // Expert Review operations
+  async getExpertReviews(options: { status?: string; type?: string } = {}): Promise<ExpertReview[]> {
+    try {
+      return await this.storage.getExpertReviews(options);
+    } catch (error) {
+      console.error("Error in getExpertReviews, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getExpertReviews(options);
+    }
+  }
+  
+  async getExpertReviewById(reviewId: string): Promise<ExpertReview | null> {
+    try {
+      return await this.storage.getExpertReviewById(reviewId);
+    } catch (error) {
+      console.error("Error in getExpertReviewById, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getExpertReviewById(reviewId);
+    }
+  }
+  
+  async createExpertReview(review: InsertExpertReview): Promise<ExpertReview> {
+    try {
+      return await this.storage.createExpertReview(review);
+    } catch (error) {
+      console.error("Error in createExpertReview, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.createExpertReview(review);
+    }
+  }
+  
+  async updateExpertReview(reviewId: string, updates: Partial<InsertExpertReview>): Promise<ExpertReview> {
+    try {
+      return await this.storage.updateExpertReview(reviewId, updates);
+    } catch (error) {
+      console.error("Error in updateExpertReview, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.updateExpertReview(reviewId, updates);
+    }
+  }
+  
+  async deleteExpertReview(reviewId: string): Promise<boolean> {
+    try {
+      return await this.storage.deleteExpertReview(reviewId);
+    } catch (error) {
+      console.error("Error in deleteExpertReview, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.deleteExpertReview(reviewId);
+    }
   }
 }
 

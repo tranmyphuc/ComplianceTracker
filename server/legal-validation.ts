@@ -698,8 +698,11 @@ export const addLegalDisclaimerToContent = async (req: Request, res: Response) =
  */
 export const getExpertReviewRequests = async (req: Request, res: Response) => {
   try {
-    const { status } = req.query;
-    const reviews = await getExpertReviews(status as string);
+    const { status, type } = req.query;
+    const reviews = await storage.getExpertReviews({
+      status: status as string | undefined,
+      type: type as string | undefined
+    });
     
     res.json({
       success: true,
@@ -725,7 +728,7 @@ export const getExpertReviewById = async (req: Request, res: Response) => {
       throw new ValidationError('Review ID is required');
     }
     
-    const review = await getExpertReview(reviewId);
+    const review = await storage.getExpertReviewById(reviewId);
     
     if (!review) {
       return res.status(404).json({
