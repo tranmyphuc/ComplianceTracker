@@ -1281,7 +1281,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/legal/expert-reviews", async (req: Request, res: Response) => {
     try {
       const status = req.query.status as string;
-      const reviews = await getExpertReviewRequests(status);
+      const type = req.query.type as string;
+      
+      // Direct database access instead of going through the middleware function
+      const reviews = await storage.getExpertReviews({
+        status: status,
+        type: type
+      });
       
       return res.json({
         success: true,
@@ -1297,7 +1303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/legal/expert-reviews/:reviewId", async (req: Request, res: Response) => {
     try {
       const { reviewId } = req.params;
-      const review = await getExpertReviewById(reviewId);
+      const review = await storage.getExpertReviewById(reviewId);
       
       if (!review) {
         return res.status(404).json({
@@ -1322,10 +1328,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { reviewId } = req.params;
       const { status, expertFeedback, assignedTo } = req.body;
       
-      const updated = await updateExpertReviewRequest(reviewId, {
-        status,
+      // Direct storage update instead of using middleware function
+      const updated = await storage.updateExpertReview(reviewId, {
+        status: status as any,
         expertFeedback,
-        assignedTo
+        assignedTo,
+        ...(status === 'completed' ? { completedAt: new Date() } : {})
       });
       
       if (!updated) {
@@ -1337,7 +1345,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       return res.json({
         success: true,
-        message: "Review updated successfully"
+        message: "Review updated successfully",
+        review: updated
       });
     } catch (err) {
       console.error("Error updating expert review:", err);

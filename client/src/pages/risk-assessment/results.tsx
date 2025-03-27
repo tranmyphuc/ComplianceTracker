@@ -127,18 +127,13 @@ const RiskAssessmentResults: React.FC = () => {
     );
   }
   
-  // Process the data for display
+  // Process the data for display - use only data from the API
   const assessmentData = {
     systemName: system.name,
-    riskLevel: assessment.riskLevel || "High Risk",
+    riskLevel: assessment.riskLevel,
     date: new Date(assessment.assessmentDate || Date.now()).toLocaleDateString(),
     assessmentId: assessment.assessmentId,
-    riskFactors: assessment.riskParameters || [
-      { name: "Employment Context", severity: "high", description: "Used for employee evaluation and career decisions" },
-      { name: "Fundamental Rights", severity: "medium", description: "Could impact employment opportunities and professional development" },
-      { name: "Autonomy Level", severity: "medium", description: "Partial autonomy with human verification for key decisions" },
-      { name: "Data Types", severity: "high", description: "Processes personal and professional performance data" }
-    ],
+    riskFactors: assessment.riskParameters || [],
     relevantArticles: assessment.euAiActArticles ? assessment.euAiActArticles.map((article: string) => {
       const [id, name] = article.split(':');
       return {
@@ -146,24 +141,9 @@ const RiskAssessmentResults: React.FC = () => {
         name: name?.trim() || "EU AI Act Article",
         description: "Requirements related to this AI system category"
       };
-    }) : [
-      { id: "Art. 6.2", name: "High-Risk AI Systems", description: "Evaluation of natural persons in employment contexts" },
-      { id: "Art. 9", name: "Risk Management", description: "Requirements for ongoing risk assessment and mitigation" },
-      { id: "Art. 10", name: "Data Governance", description: "Requirements for data quality and governance" },
-      { id: "Art. 13", name: "Transparency", description: "Information to be provided to users of high-risk AI systems" },
-      { id: "Art. 14", name: "Human Oversight", description: "Requirements for effective human oversight" }
-    ],
-    complianceGaps: assessment.complianceGaps?.map((gap: any) => gap.description) || [
-      "Human oversight measures require additional documentation and implementation",
-      "Transparency information for affected employees needs enhancement",
-      "Data governance processes need to be formalized and documented"
-    ],
-    mitigationMeasures: assessment.remediationActions || [
-      "Implement detailed human review protocols for all evaluation decisions",
-      "Add employee appeals process and feedback mechanism",
-      "Enhance decision explanation and transparency features",
-      "Document data governance procedures and quality controls"
-    ]
+    }) : [],
+    complianceGaps: assessment.complianceGaps?.map((gap: any) => gap.description) || [],
+    mitigationMeasures: assessment.remediationActions || []
   };
   
   return (
@@ -258,17 +238,23 @@ const RiskAssessmentResults: React.FC = () => {
               <CollapsibleContent>
                 <CardContent>
                   <div className="space-y-4">
-                    {assessmentData.riskFactors.map((factor, index) => (
-                      <div key={index} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-semibold">{factor.name}</h3>
-                          <Badge variant={factor.severity === "high" ? "destructive" : "default"}>
-                            {factor.severity === "high" ? "High Impact" : "Medium Impact"}
-                          </Badge>
+                    {assessmentData.riskFactors.length === 0 ? (
+                      <Alert variant="default">
+                        <AlertDescription>No risk factors have been identified for this assessment.</AlertDescription>
+                      </Alert>
+                    ) : (
+                      assessmentData.riskFactors.map((factor, index) => (
+                        <div key={index} className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-semibold">{factor.name}</h3>
+                            <Badge variant={factor.severity === "high" ? "destructive" : "default"}>
+                              {factor.severity === "high" ? "High Impact" : "Medium Impact"}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{factor.description}</p>
                         </div>
-                        <p className="text-sm text-muted-foreground">{factor.description}</p>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </CollapsibleContent>
@@ -290,15 +276,21 @@ const RiskAssessmentResults: React.FC = () => {
               <CollapsibleContent>
                 <CardContent>
                   <div className="space-y-4">
-                    {assessmentData.relevantArticles.map((article, index) => (
-                      <div key={index} className="border rounded-lg p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="outline" className="font-mono">{article.id}</Badge>
-                          <h3 className="font-semibold">{article.name}</h3>
+                    {assessmentData.relevantArticles.length === 0 ? (
+                      <Alert variant="default">
+                        <AlertDescription>No EU AI Act articles have been identified for this assessment.</AlertDescription>
+                      </Alert>
+                    ) : (
+                      assessmentData.relevantArticles.map((article, index) => (
+                        <div key={index} className="border rounded-lg p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="outline" className="font-mono">{article.id}</Badge>
+                            <h3 className="font-semibold">{article.name}</h3>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{article.description}</p>
                         </div>
-                        <p className="text-sm text-muted-foreground">{article.description}</p>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </CollapsibleContent>
@@ -320,11 +312,17 @@ const RiskAssessmentResults: React.FC = () => {
               <CollapsibleContent>
                 <CardContent>
                   <div className="space-y-4">
-                    <ul className="list-disc pl-5 space-y-2">
-                      {assessmentData.complianceGaps.map((gap, index) => (
-                        <li key={index} className="text-muted-foreground">{gap}</li>
-                      ))}
-                    </ul>
+                    {assessmentData.complianceGaps.length === 0 ? (
+                      <Alert variant="default">
+                        <AlertDescription>No compliance gaps have been identified for this assessment.</AlertDescription>
+                      </Alert>
+                    ) : (
+                      <ul className="list-disc pl-5 space-y-2">
+                        {assessmentData.complianceGaps.map((gap, index) => (
+                          <li key={index} className="text-muted-foreground">{gap}</li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </CardContent>
               </CollapsibleContent>
@@ -346,14 +344,20 @@ const RiskAssessmentResults: React.FC = () => {
               <CollapsibleContent>
                 <CardContent>
                   <div className="space-y-4">
-                    <ul className="space-y-2">
-                      {assessmentData.mitigationMeasures.map((measure, index) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                          <span>{measure}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    {assessmentData.mitigationMeasures.length === 0 ? (
+                      <Alert variant="default">
+                        <AlertDescription>No mitigation measures have been identified for this assessment.</AlertDescription>
+                      </Alert>
+                    ) : (
+                      <ul className="space-y-2">
+                        {assessmentData.mitigationMeasures.map((measure, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <span>{measure}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </CardContent>
               </CollapsibleContent>
