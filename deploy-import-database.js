@@ -1,84 +1,66 @@
-import { exec } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+/**
+ * Script to initialize database with demo data for deployment
+ */
+const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const { db } = require('./server/db');
 
-// Get current directory
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Path to the latest database export
-const exportDir = path.join(__dirname, 'db-exports');
-const latestExport = path.join(exportDir, 'latest.sql');
-
-// Check if export file exists
-if (!fs.existsSync(latestExport)) {
-  console.error('Database export file not found!');
-  console.error(`Expected at: ${latestExport}`);
-  console.error('Please run node export-database.js first to create an export file.');
-  process.exit(1);
-}
-
-// Check database status
-console.log('Checking if database exists and is accessible...');
-exec('psql $DATABASE_URL -c "SELECT 1"', (error, stdout, stderr) => {
-  if (error) {
-    console.error(`Database connection error: ${error.message}`);
-    console.error('Please ensure the database is created and DATABASE_URL is set correctly.');
+/**
+ * Run initialization steps in sequence
+ */
+async function initializeDatabase() {
+  try {
+    console.log('Starting database initialization for deployment...');
+    
+    // Step 1: Check database connection
+    console.log('Step 1: Checking database connection...');
+    await runScript('node check-db.js');
+    
+    // Step 2: Initialize database schema
+    console.log('Step 2: Initializing database schema...');
+    await runScript('npx tsx init-db.ts');
+    
+    // Step 3: Create demo users for different roles
+    console.log('Step 3: Creating demo users for different roles...');
+    await runScript('node create-demo-users.js');
+    
+    // Step 4: Seed training modules with interactive content
+    console.log('Step 4: Seeding training modules with interactive content...');
+    await runScript('node seed-training-modules.js');
+    
+    console.log('Database initialization completed successfully!');
+    console.log('\nYou can now deploy the application and use the demo accounts:');
+    console.log('- Admin: admin@demo.com / Admin123!');
+    console.log('- Technical: technical@demo.com / Technical123!');
+    console.log('- Legal: legal@demo.com / Legal123!');
+    console.log('- Decision Maker: decision@demo.com / Decision123!');
+    console.log('- Operator: operator@demo.com / Operator123!');
+    
+  } catch (error) {
+    console.error('Error initializing database:', error);
     process.exit(1);
   }
-  
-  console.log('Database connection successful.');
-  console.log('Proceeding with automatic import for deployment...');
-  
-  // Drop all tables and import fresh data
-  dropTablesAndImport();
-});
-
-function dropTablesAndImport() {
-  console.log('Dropping all existing tables...');
-  exec('psql $DATABASE_URL -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"', 
-    (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error dropping tables: ${error.message}`);
-        process.exit(1);
-      }
-      
-      console.log('All tables dropped successfully.');
-      importDatabase();
-    });
 }
 
-function importDatabase() {
-  console.log(`Importing database from ${latestExport}...`);
-  exec(`psql $DATABASE_URL < ${latestExport}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Import error: ${error.message}`);
-      process.exit(1);
-    }
-    
-    if (stderr) {
-      console.error(`Import warnings: ${stderr}`);
-    }
-    
-    console.log('Database import completed successfully.');
-    
-    // Display table statistics
-    console.log('Table statistics after import:');
-    exec(`psql $DATABASE_URL -c "
-      SELECT 
-        table_name, 
-        pg_size_pretty(pg_relation_size('public.' || table_name)) as size,
-        pg_total_relation_size('public.' || table_name) as total_bytes
-      FROM information_schema.tables 
-      WHERE table_schema = 'public'
-      ORDER BY table_name;
-    "`, (error, stdout, stderr) => {
+/**
+ * Run a script and return a promise
+ */
+function runScript(command) {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
       if (error) {
-        console.error(`Stats error: ${error.message}`);
-        return;
+        console.error(`Error executing ${command}:`, error);
+        return reject(error);
       }
+      
       console.log(stdout);
+      if (stderr) console.error(stderr);
+      
+      resolve();
     });
   });
 }
+
+// Run the initialization process
+initializeDatabase();
