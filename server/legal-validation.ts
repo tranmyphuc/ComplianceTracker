@@ -355,7 +355,6 @@ export function addLegalDisclaimer(assessment: any): any {
 /**
  * Queue an assessment for expert review
  */
-import { sql } from './db';
 
 interface ExpertReviewRequest {
   reviewId: string;
@@ -376,28 +375,20 @@ export async function queueForExpertReview(assessment: any): Promise<string> {
   const reviewId = `review-${Date.now()}`;
   
   try {
-    // Store review request in database
-    await sql`
-      INSERT INTO expert_reviews (
-        review_id, 
-        assessment_id, 
-        system_id, 
-        text, 
-        type, 
-        status, 
-        validation_result, 
-        requested_at
-      ) VALUES (
-        ${reviewId},
-        ${context?.assessmentId || null},
-        ${context?.systemId || null},
-        ${text},
-        ${type},
-        'pending',
-        ${JSON.stringify(validationResult)},
-        ${new Date()}
-      )
-    `;
+    // Import storage here to avoid undefined error
+    const { storage } = await import('./storage');
+    
+    // Use storage interface to create the expert review
+    await storage.createExpertReview({
+      reviewId,
+      assessmentId: context?.assessmentId || null,
+      systemId: context?.systemId || null,
+      text,
+      type,
+      status: 'pending',
+      validationResult: JSON.stringify(validationResult),
+      requestedAt: new Date()
+    });
 
     console.log(`Expert review request created with ID: ${reviewId}`);
     return reviewId;
@@ -413,24 +404,24 @@ export async function queueForExpertReview(assessment: any): Promise<string> {
  */
 export async function getExpertReview(reviewId: string): Promise<ExpertReviewRequest | null> {
   try {
-    const result = await sql`
-      SELECT * FROM expert_reviews WHERE review_id = ${reviewId} LIMIT 1
-    `;
+    // Import storage here to avoid undefined error
+    const { storage } = await import('./storage');
     
-    if (result && result.length > 0) {
-      const review = result[0];
+    const review = await storage.getExpertReviewById(reviewId);
+    
+    if (review) {
       return {
-        reviewId: review.review_id,
-        assessmentId: review.assessment_id,
-        systemId: review.system_id,
+        reviewId: review.reviewId,
+        assessmentId: review.assessmentId,
+        systemId: review.systemId,
         text: review.text,
         type: review.type,
         status: review.status,
-        validationResult: review.validation_result,
-        requestedAt: review.requested_at,
-        assignedTo: review.assigned_to,
-        completedAt: review.completed_at,
-        expertFeedback: review.expert_feedback
+        validationResult: review.validationResult,
+        requestedAt: review.requestedAt,
+        assignedTo: review.assignedTo,
+        completedAt: review.completedAt,
+        expertFeedback: review.expertFeedback
       };
     }
     
@@ -446,28 +437,29 @@ export async function getExpertReview(reviewId: string): Promise<ExpertReviewReq
  */
 export async function getExpertReviews(status?: string): Promise<ExpertReviewRequest[]> {
   try {
-    let query = sql`SELECT * FROM expert_reviews`;
+    // Import storage here to avoid undefined error
+    const { storage } = await import('./storage');
     
+    const options: { status?: string; type?: string } = {};
     if (status) {
-      query = sql`SELECT * FROM expert_reviews WHERE status = ${status}`;
+      options.status = status;
     }
     
-    query = sql`${query} ORDER BY requested_at DESC`;
+    const reviews = await storage.getExpertReviews(options);
     
-    const results = await query;
-    
-    return results.map(review => ({
-      reviewId: review.review_id,
-      assessmentId: review.assessment_id,
-      systemId: review.system_id,
+    // Map to the expected format
+    return reviews.map(review => ({
+      reviewId: review.reviewId,
+      assessmentId: review.assessmentId,
+      systemId: review.systemId,
       text: review.text,
       type: review.type,
       status: review.status,
-      validationResult: review.validation_result,
-      requestedAt: review.requested_at,
-      assignedTo: review.assigned_to,
-      completedAt: review.completed_at,
-      expertFeedback: review.expert_feedback
+      validationResult: review.validationResult,
+      requestedAt: review.requestedAt,
+      assignedTo: review.assignedTo,
+      completedAt: review.completedAt,
+      expertFeedback: review.expertFeedback
     }));
   } catch (error) {
     console.error('Error retrieving expert reviews:', error);
@@ -487,44 +479,35 @@ export async function updateExpertReview(
   }
 ): Promise<boolean> {
   try {
-    let queryParts = [];
-    const queryValues: any[] = [];
+    // Import storage here to avoid undefined error
+    const { storage } = await import('./storage');
+    
+    // Prepare updates object
+    const updateObj: any = {};
     
     if (updates.status) {
-      queryParts.push('status = $1');
-      queryValues.push(updates.status);
+      updateObj.status = updates.status;
       
       // If status is being set to completed, set the completed_at timestamp
       if (updates.status === 'completed') {
-        queryParts.push('completed_at = $' + (queryValues.length + 1));
-        queryValues.push(new Date());
+        updateObj.completedAt = new Date();
       }
     }
     
     if (updates.assignedTo !== undefined) {
-      queryParts.push('assigned_to = $' + (queryValues.length + 1));
-      queryValues.push(updates.assignedTo);
+      updateObj.assignedTo = updates.assignedTo;
     }
     
     if (updates.expertFeedback !== undefined) {
-      queryParts.push('expert_feedback = $' + (queryValues.length + 1));
-      queryValues.push(updates.expertFeedback);
+      updateObj.expertFeedback = updates.expertFeedback;
     }
     
-    if (queryParts.length === 0) {
+    if (Object.keys(updateObj).length === 0) {
       return false; // Nothing to update
     }
     
-    // Add reviewId to values
-    queryValues.push(reviewId);
-    
-    const updateQuery = `
-      UPDATE expert_reviews
-      SET ${queryParts.join(', ')}
-      WHERE review_id = $${queryValues.length}
-    `;
-    
-    await sql.unsafe(updateQuery, ...queryValues);
+    // Update using storage
+    await storage.updateExpertReview(reviewId, updateObj);
     
     return true;
   } catch (error) {
@@ -536,7 +519,6 @@ export async function updateExpertReview(
 /**
  * Validate assessment text using AI and return validation results
  */
-import { callAI, AIModel, safeJsonParse } from './ai-service';
 
 export const validateAssessmentText = async (req: Request, res: Response) => {
   try {
@@ -551,6 +533,9 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
     try {
       // Use real AI model to validate the assessment text
       console.log('Calling AI service for legal validation...');
+      
+      // Import AI service
+      const { callAI, AIModel, safeJsonParse } = await import('./ai-service');
       
       const prompt = `
       As an EU AI Act legal expert, evaluate the following AI system assessment for legal compliance and validity.
@@ -699,10 +684,16 @@ export const addLegalDisclaimerToContent = async (req: Request, res: Response) =
 export const getExpertReviewRequests = async (req: Request, res: Response) => {
   try {
     const { status, type } = req.query;
+    
+    // Import storage here to avoid undefined error
+    const { storage } = await import('./storage');
+    
     const reviews = await storage.getExpertReviews({
       status: status as string | undefined,
       type: type as string | undefined
     });
+    
+    console.log('Expert reviews found:', reviews.length);
     
     res.json({
       success: true,
@@ -727,6 +718,9 @@ export const getExpertReviewById = async (req: Request, res: Response) => {
     if (!reviewId) {
       throw new ValidationError('Review ID is required');
     }
+    
+    // Import storage here to avoid undefined error
+    const { storage } = await import('./storage');
     
     const review = await storage.getExpertReviewById(reviewId);
     
