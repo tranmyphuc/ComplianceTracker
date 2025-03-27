@@ -116,6 +116,7 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
   });
   const [documentationFiles, setDocumentationFiles] = useState<Array<{ name: string, uploaded: boolean }>>([]);
   const [evidenceProvided, setEvidenceProvided] = useState<Record<string, boolean>>({});
+  const [selectedSystem, setSelectedSystem] = useState<string>(''); // Track selected system from dropdown
   
   // Query system data if systemId is provided
   const { data: systemData, isLoading: isSystemLoading } = useQuery({
@@ -868,9 +869,23 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
       // Save assessment to database
       try {
         // Prepare assessment data with required fields
+        // For system ID handling - important to ensure assessments appear in Risk Management
+        let systemIdToUse = result.systemId;
+        
+        // Only if we have no system selected and in new assessment mode,
+        // use the selected system from the dropdown as a fallback
+        if (!systemIdToUse && selectedSystem) {
+          systemIdToUse = selectedSystem;
+        }
+        
+        // If we still don't have a system, throw an error - don't use default system ID
+        if (!systemIdToUse) {
+          throw new Error("No system selected. Please select an AI system from the dropdown or register a new one.");
+        }
+        
         const assessmentData = {
           assessmentId: result.assessmentId,
-          systemId: result.systemId || "sys-default-001", // Provide a default systemId if not available
+          systemId: systemIdToUse, // Use the verified system ID
           assessmentDate: result.date || new Date(),
           riskLevel: result.riskLevel,
           riskScore: result.overallScore,
@@ -1241,6 +1256,13 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
     );
   };
 
+  // Initialize selectedSystem when systemId changes
+  useEffect(() => {
+    if (systemId) {
+      setSelectedSystem(systemId);
+    }
+  }, [systemId]);
+
   // Load system data from API if systemId is provided
   useEffect(() => {
     if (systemData) {
@@ -1332,8 +1354,11 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
                           <Skeleton className="h-10 w-full" />
                         ) : (
                           <Select
+                            value={selectedSystem}
                             onValueChange={(value) => {
                               if (value) {
+                                // Set local state for use in assessment submission
+                                setSelectedSystem(value);
                                 // Navigate to the same page with systemId parameter
                                 navigate(`/risk-assessment?systemId=${value}`);
                               }
