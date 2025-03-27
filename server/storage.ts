@@ -950,10 +950,49 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllRiskAssessments(): Promise<RiskAssessment[]> {
-    return await db
-      .select()
-      .from(riskAssessments)
-      .orderBy(desc(riskAssessments.assessmentDate));
+    try {
+      const results = await db
+        .select()
+        .from(riskAssessments)
+        .orderBy(desc(riskAssessments.assessmentDate));
+      
+      // Process results to ensure JSON fields are properly parsed
+      return results.map(assessment => {
+        try {
+          // Parse JSON string fields if they exist
+          if (assessment.prohibitedUseChecks && typeof assessment.prohibitedUseChecks === 'string') {
+            assessment.prohibitedUseChecks = JSON.parse(assessment.prohibitedUseChecks);
+          }
+          
+          if (assessment.riskParameters && typeof assessment.riskParameters === 'string') {
+            assessment.riskParameters = JSON.parse(assessment.riskParameters);
+          }
+          
+          if (assessment.euAiActArticles && typeof assessment.euAiActArticles === 'string') {
+            assessment.euAiActArticles = JSON.parse(assessment.euAiActArticles);
+          }
+          
+          if (assessment.complianceGaps && typeof assessment.complianceGaps === 'string') {
+            assessment.complianceGaps = JSON.parse(assessment.complianceGaps);
+          }
+          
+          if (assessment.remediationActions && typeof assessment.remediationActions === 'string') {
+            assessment.remediationActions = JSON.parse(assessment.remediationActions);
+          }
+          
+          if (assessment.evidenceDocuments && typeof assessment.evidenceDocuments === 'string') {
+            assessment.evidenceDocuments = JSON.parse(assessment.evidenceDocuments);
+          }
+        } catch (e) {
+          console.error("Error parsing JSON fields for assessment:", assessment.assessmentId, e);
+        }
+        
+        return assessment;
+      });
+    } catch (error) {
+      console.error("Error in getAllRiskAssessments:", error);
+      return [];
+    }
   }
 
   async createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment> {

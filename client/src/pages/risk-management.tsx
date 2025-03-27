@@ -29,7 +29,8 @@ import {
   Activity,
   FlaskConical,
   Users,
-  ArrowRight
+  ArrowRight,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -160,14 +161,36 @@ export default function RiskManagement() {
   });
 
   // Fetch all risk assessments for Risk Management
-  const { data: riskAssessments, isLoading: isLoadingAssessments } = useQuery({
-    queryKey: ['/api/risk-management/assessments'],
+  const { data: riskAssessments, isLoading: isLoadingAssessments, error: riskAssessmentError } = useQuery({
+    queryKey: ['/api/risk-assessments'],
   });
+  
+  useEffect(() => {
+    if (riskAssessmentError) {
+      console.error('Error fetching risk assessments:', riskAssessmentError);
+      toast({
+        title: "Error",
+        description: "Failed to load risk assessments data",
+        variant: "destructive"
+      });
+    }
+  }, [riskAssessmentError, toast]);
 
   // Fetch risk management systems with assessments
-  const { data: riskManagementSystems, isLoading: isLoadingRms, refetch: refetchRms } = useQuery({
+  const { data: riskManagementSystems, isLoading: isLoadingRms, error: rmsError, refetch: refetchRms } = useQuery({
     queryKey: ['/api/risk-management/systems'],
   });
+  
+  useEffect(() => {
+    if (rmsError) {
+      console.error('Error fetching risk management systems:', rmsError);
+      toast({
+        title: "Error",
+        description: "Failed to load risk management systems data",
+        variant: "destructive"
+      });
+    }
+  }, [rmsError, toast]);
 
   // Fetch risk controls for the selected system
   const { data: riskControls, isLoading: isLoadingControls, refetch: refetchControls } = useQuery({
@@ -182,7 +205,7 @@ export default function RiskManagement() {
   });
 
   // Simulate data for development (remove this when backend is available)
-  const mockSystems = systems || Array(5).fill(0).map((_, i) => ({
+  const mockSystems: AiSystem[] = Array.isArray(systems) ? systems : Array(5).fill(0).map((_, i) => ({
     id: i + 1,
     systemId: `AI-SYS-100${i+1}`,
     name: `AI System ${i+1}`,
@@ -198,23 +221,26 @@ export default function RiskManagement() {
     lastUpdated: new Date().toISOString(),
     status: 'Active',
     internalOwner: 'Jane Doe'
-  })) as AiSystem[];
+  }));
 
-  const mockRiskManagementSystems = riskManagementSystems || (mockSystems ? mockSystems.slice(0, 3).map((system: AiSystem) => ({
-    rmsId: `RMS-${system.systemId}`,
-    systemId: system.systemId,
-    status: 'active' as const,
-    createdDate: new Date().toISOString(),
-    lastUpdateDate: new Date().toISOString(),
-    reviewCycle: 'quarterly' as const,
-    responsiblePerson: 'John Smith',
-    version: 1.0,
-    notes: 'Initial risk management system setup'
-  })) : []);
+  const mockRiskManagementSystems: RiskManagementSystem[] = Array.isArray(riskManagementSystems) ? riskManagementSystems : 
+    (Array.isArray(mockSystems) && mockSystems.length > 0 
+      ? mockSystems.slice(0, 3).map((system: AiSystem) => ({
+          rmsId: `RMS-${system.systemId}`,
+          systemId: system.systemId,
+          status: 'active' as const,
+          createdDate: new Date().toISOString(),
+          lastUpdateDate: new Date().toISOString(),
+          reviewCycle: 'quarterly' as const,
+          responsiblePerson: 'John Smith',
+          version: 1.0,
+          notes: 'Initial risk management system setup'
+        })) 
+      : []);
 
-  const mockRiskControls = riskControls || Array(4).fill(0).map((_, i) => ({
+  const mockRiskControls: RiskControl[] = Array.isArray(riskControls) ? riskControls : Array(4).fill(0).map((_, i) => ({
     controlId: `CTRL-${i+1}`,
-    systemId: selectedSystem,
+    systemId: selectedSystem || '',
     name: `Control ${i+1}`,
     description: 'This control addresses compliance requirements',
     controlType: ['technical', 'procedural', 'organizational', 'contractual'][i % 4] as 'technical' | 'procedural' | 'organizational' | 'contractual',
@@ -223,11 +249,11 @@ export default function RiskManagement() {
     implementationDate: new Date().toISOString(),
     responsiblePerson: 'Jane Smith',
     notes: 'This control addresses technical risks'
-  })) as RiskControl[];
+  }));
 
-  const mockRiskEvents = riskEvents || Array(3).fill(0).map((_, i) => ({
+  const mockRiskEvents: RiskEvent[] = Array.isArray(riskEvents) ? riskEvents : Array(3).fill(0).map((_, i) => ({
     eventId: `EVENT-${i+1}`,
-    systemId: selectedSystem,
+    systemId: selectedSystem || '',
     eventType: ['incident', 'near_miss', 'user_feedback'][i % 3] as 'incident' | 'near_miss' | 'user_feedback',
     severity: ['low', 'medium', 'high'][i % 3] as 'low' | 'medium' | 'high',
     description: 'Unexpected behavior in the system',
@@ -238,7 +264,7 @@ export default function RiskManagement() {
     rootCause: 'Configuration error',
     mitigationActions: ['Update configuration', 'Restart system'],
     relatedControls: [`CTRL-${i+1}`]
-  })) as RiskEvent[];
+  }));
 
   // Set default selected system
   useEffect(() => {
@@ -433,6 +459,95 @@ export default function RiskManagement() {
   );
 
   // Function to render the risk management overview
+  // Function to render risk assessments section
+  const renderRiskAssessments = () => {
+    // Filter assessments for the current system if a system is selected
+    const filteredAssessments = selectedSystem && Array.isArray(riskAssessments)
+      ? riskAssessments.filter((assessment: any) => assessment.systemId === selectedSystem)
+      : Array.isArray(riskAssessments) ? riskAssessments : [];
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">Risk Assessments</h3>
+          <Button variant="outline" size="sm" asChild>
+            <a href="/risk-assessment/wizard">
+              <Plus className="h-4 w-4 mr-2" />
+              New Assessment
+            </a>
+          </Button>
+        </div>
+        
+        {isLoadingAssessments ? (
+          <div className="flex justify-center py-8">
+            <div className="flex flex-col items-center space-y-2">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Loading assessments...</p>
+            </div>
+          </div>
+        ) : filteredAssessments.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>System</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Risk Level</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredAssessments.map((assessment: any) => (
+                <TableRow key={assessment.assessmentId}>
+                  <TableCell className="font-mono text-xs">
+                    {assessment.assessmentId}
+                  </TableCell>
+                  <TableCell>
+                    {mockSystems && mockSystems.find((sys: AiSystem) => sys.systemId === assessment.systemId)?.name || assessment.systemId}
+                  </TableCell>
+                  <TableCell>
+                    {assessment.assessmentDate ? new Date(assessment.assessmentDate).toLocaleDateString() : 'N/A'}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={
+                      assessment.riskLevel === 'High' || assessment.riskLevel === 'high' ? 'destructive' : 
+                      assessment.riskLevel === 'Limited' || assessment.riskLevel === 'limited' ? 'outline' : 
+                      'secondary'
+                    }>
+                      {assessment.riskLevel}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="capitalize">{assessment.status}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <a href={`/risk-assessment?tab=results&assessmentId=${assessment.assessmentId}&systemId=${assessment.systemId}`}>
+                      <Button variant="ghost" size="sm">
+                        <FileText className="h-4 w-4 mr-2" />
+                        View
+                      </Button>
+                    </a>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>No Assessments</AlertTitle>
+            <AlertDescription>
+              {selectedSystem 
+                ? "No risk assessments have been conducted for this system yet." 
+                : "No risk assessments have been conducted yet."}
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
+    );
+  };
+
   const renderOverview = () => {
     const selectedSystem = getSelectedSystemData();
     const selectedRms = getSelectedRms();
@@ -525,6 +640,17 @@ export default function RiskManagement() {
                 )}
               </div>
             </div>
+          </CardContent>
+        </Card>
+        
+        {/* Risk Assessments Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Risk Assessments</CardTitle>
+            <CardDescription>Completed and ongoing risk assessments for this system</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {renderRiskAssessments()}
           </CardContent>
         </Card>
         

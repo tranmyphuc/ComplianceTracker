@@ -1084,6 +1084,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Risk Assessment Routes
+  // Get all risk assessments for the risk management page
+  app.get("/api/risk-assessments", async (req: Request, res: Response) => {
+    try {
+      // Make sure getAllRiskAssessments method is properly defined in the storage interface
+      const assessments = await storage.getAllRiskAssessments();
+      console.log("Fetched risk assessments:", assessments?.length || 0);
+      res.json(assessments || []);
+    } catch (err) {
+      console.error("Error fetching risk assessments:", err);
+      handleError(res, err as Error, "Failed to fetch risk assessments");
+    }
+  });
+
   app.get("/api/risk-assessments/system/:systemId", async (req: Request, res: Response) => {
     try {
       const systemId = req.params.systemId;
