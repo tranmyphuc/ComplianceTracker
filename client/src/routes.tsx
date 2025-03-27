@@ -1,17 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Route, Switch } from 'wouter';
 import Loading from './components/ui/loading';
-
-// Basic layout component
-const MainLayout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="app-container">
-      <div className="content-container">
-        {children}
-      </div>
-    </div>
-  );
-};
+import MainLayout from './layouts/MainLayout';
 
 // Lazy-loaded components - only include what we know exists
 const Dashboard = lazy(() => import('./pages/dashboard'));
