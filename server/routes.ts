@@ -31,6 +31,14 @@ import {
   safeJsonParse
 } from "./ai-analysis";
 
+import {
+  getApiKeys,
+  addApiKey,
+  updateApiKey,
+  deleteApiKey,
+  testApiKey
+} from "./ai-key-management";
+
 /**
  * Helper function to extract values from unstructured AI text responses
  * This is used as a fallback when JSON parsing fails
@@ -96,28 +104,22 @@ import {
 } from './regulatory-updates';
 import { analyzeSystemRisk, analyzeProhibitedUse, generateRiskReport, analyzeComplianceGaps } from './risk-assessment';
 import { getTrainingModules, getModuleContent, trackTrainingProgress, getUserProgress, getTrainingModuleContent, getTrainingModuleMetadata, recordTrainingCompletion, getTrainingCertificate, exportTrainingModule, TRAINING_MODULES } from './training-module';
-import { 
-  getApiKeys, 
-  addApiKey, 
-  updateApiKey, 
-  deleteApiKey, 
-  testApiKey 
-} from './ai-key-management';
+// Routes imported above already
 import * as riskAssessment from './risk-assessment';
 import * as riskManagement from './risk-management'; // Added import
 import { validateAssessmentText, addLegalDisclaimerToContent } from './legal-validation';
 
 
 import { Router } from "express";
-import { systemsRouter } from "./routes/systems";
-import { dashboardRouter } from "./routes/dashboard";
-import { riskAssessmentRouter } from "./routes/risk-assessment";
-import { documentationRouter } from "./routes/documentation";
-import { complianceRouter } from "./routes/compliance";
-import { knowledgeRouter } from "./routes/knowledge";
-import { trainingRouter } from "./routes/training";
-import { analyticsRouter } from "./routes/analytics"; // Added import
-import { Server } from "http";
+// These router imports don't exist, commented out for now:
+// import { systemsRouter } from "./routes/systems";
+// import { dashboardRouter } from "./routes/dashboard";
+// import { riskAssessmentRouter } from "./routes/risk-assessment";
+// import { documentationRouter } from "./routes/documentation";
+// import { complianceRouter } from "./routes/compliance";
+// import { knowledgeRouter } from "./routes/knowledge";
+// import { trainingRouter } from "./routes/training";
+// import { analyticsRouter } from "./routes/analytics"; // Added import
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
