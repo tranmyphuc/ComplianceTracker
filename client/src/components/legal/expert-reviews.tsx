@@ -152,12 +152,22 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
 
   const updateMutation = useMutation({
     mutationFn: async (data: { reviewId: string; status: string; expertFeedback?: string }) => {
+      // Fix for double-JSON string issue
+      const requestData = {
+        status: data.status,
+        expertFeedback: data.expertFeedback,
+        assignedTo: 'Legal Expert' // Default assignee
+      };
+      
+      console.log('Sending update request with data:', requestData);
+      
       return apiRequest(`/api/legal/expert-reviews/${data.reviewId}`, {
         method: 'PATCH',
-        body: JSON.stringify(data)
+        body: JSON.stringify(requestData)
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Successfully updated review:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/legal/expert-reviews'] });
       toast({
         title: 'Review Updated',
@@ -168,6 +178,7 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
       }
     },
     onError: (error) => {
+      console.error('Error updating review:', error);
       toast({
         title: 'Error Updating Review',
         description: `Failed to update review: ${(error as Error).message || 'Unknown error'}`,

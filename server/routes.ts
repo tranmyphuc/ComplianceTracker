@@ -2489,6 +2489,12 @@ if (isDemoMode) {
   app.post("/api/legal/disclaimer", addLegalDisclaimerToContent);
   
   // Expert review management routes
+  app.get("/api/legal/expert-reviews", getExpertReviewRequests);
+  app.get("/api/legal/expert-reviews/:reviewId", getExpertReviewById);
+  app.post("/api/legal/expert-reviews", requestExpertReview);
+  app.patch("/api/legal/expert-reviews/:reviewId", updateExpertReviewRequest);
+  
+  // Keep old routes for backward compatibility
   app.get("/api/legal/reviews", getExpertReviewRequests);
   app.get("/api/legal/reviews/:reviewId", getExpertReviewById);
   app.post("/api/legal/reviews", requestExpertReview);
