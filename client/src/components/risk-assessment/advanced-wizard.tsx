@@ -1035,10 +1035,7 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
             description: "Your comprehensive risk assessment has been saved successfully."
           });
           
-          // Redirect to risk management page
-          setTimeout(() => {
-            navigate('/risk-management');
-          }, 1500);
+          // We'll use the final redirect at the end of this function
         } catch (apiError: any) {
           console.error("API error details:", apiError.message);
           // If there's a more detailed error response available
