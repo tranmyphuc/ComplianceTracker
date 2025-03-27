@@ -983,11 +983,11 @@ export function SystemsTable() {
                           Run Assessment
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleLegalValidation(system)}>
-                          <ClipboardCheckIcon className="h-4 w-4 mr-2" />
+                          <FileTextIcon className="h-4 w-4 mr-2" />
                           Legal Validation
                         </DropdownMenuItem>
                         <DropdownMenuItem>
-                          <FileTextIcon className="h-4 w-4 mr-2" />
+                          <BarChart2Icon className="h-4 w-4 mr-2" />
                           Manage Documentation
                         </DropdownMenuItem>
 
