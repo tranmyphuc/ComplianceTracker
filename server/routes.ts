@@ -219,8 +219,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/systems/:id", async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
-      const system = await storage.getAiSystem(id);
+      // Check if the ID is numeric or a system ID (like "AI-SYS-4818")
+      const id = req.params.id;
+      let system;
+      
+      if (id.match(/^[0-9]+$/)) {
+        // If it's a numeric ID, fetch by ID
+        system = await storage.getAiSystem(parseInt(id));
+      } else {
+        // If it's a string ID (like "AI-SYS-xxxx"), fetch by systemId
+        system = await storage.getAiSystemBySystemId(id);
+      }
 
       if (!system) {
         return res.status(404).json({ message: "System not found" });
@@ -1079,8 +1088,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/risk-assessments/:id", async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
-      const assessment = await storage.getRiskAssessment(id);
+      const id = req.params.id;
+      let assessment;
+      
+      if (id.match(/^[0-9]+$/)) {
+        // If it's a numeric ID, fetch by ID
+        assessment = await storage.getRiskAssessment(parseInt(id));
+      } else {
+        // If it's a string ID (like "RA-xxxx"), fetch by assessmentId
+        assessment = await storage.getRiskAssessmentByAssessmentId(id);
+      }
 
       if (!assessment) {
         return res.status(404).json({ message: "Risk assessment not found" });
