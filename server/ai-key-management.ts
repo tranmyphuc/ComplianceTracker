@@ -1,119 +1,22 @@
+import { Request, Response } from "express";
+import { v4 as uuidv4 } from "uuid";
+import { z } from "zod";
+import { sql } from "./db";
 
-import { Request, Response } from 'express';
-import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
-import { db, sql } from './db';
-import { QueryResult } from 'pg';
-
-// Define schema for API key data
+// API Key Schema
 export const apiKeySchema = z.object({
-  provider: z.string().min(1),
-  key: z.string().min(1),
+  provider: z.string(),
+  key: z.string(),
   description: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean().optional(),
   usageLimit: z.number().optional(),
-  usageCount: z.number().default(0),
+  usageCount: z.number().optional(),
   lastUsed: z.date().optional(),
-  createdAt: z.date().default(() => new Date()),
-  updatedAt: z.date().default(() => new Date()),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional()
 });
 
 export type ApiKey = z.infer<typeof apiKeySchema>;
-
-// Helper function for consistent SQL queries that works around TypeScript issues
-async function runQuery(text: string, params: any[] = []): Promise<any[]> {
-  try {
-    // Call postgres client directly with the SQL string and parameters
-    // The postgres client in our case is the `sql` export from db.ts
-    // It's a function that accepts a template literal and parameters
-    // Converting a regular string to a template string is tricky, so we'll use a 
-    // different approach with direct string interpolation for simple cases
-    
-    if (params.length === 0) {
-      // If no parameters, just run the query directly
-      return await sql`${text}`;
-    } else {
-      // For simple cases with known parameter count, we can handle them directly
-      // This is not ideal but will work for our specific use cases
-      if (params.length === 1) {
-        return await sql`${text.replace(/\$1/g, '${}')}${params[0]}`;
-      } else if (params.length === 2) {
-        return await sql`${text.replace(/\$1/g, '${}').replace(/\$2/g, '${}')}${params[0]}${params[1]}`;
-      } else if (params.length === 5) {
-        return await sql`${text.replace(/\$1/g, '${}').replace(/\$2/g, '${}').replace(/\$3/g, '${}').replace(/\$4/g, '${}').replace(/\$5/g, '${}')}${params[0]}${params[1]}${params[2]}${params[3]}${params[4]}`;
-      } else if (params.length === 9) {
-        return await sql`${text.replace(/\$1/g, '${}').replace(/\$2/g, '${}').replace(/\$3/g, '${}').replace(/\$4/g, '${}').replace(/\$5/g, '${}')}
-                         ${text.replace(/\$6/g, '${}').replace(/\$7/g, '${}').replace(/\$8/g, '${}').replace(/\$9/g, '${}')}
-                         ${params[0]}${params[1]}${params[2]}${params[3]}${params[4]}${params[5]}${params[6]}${params[7]}${params[8]}`;
-      } else {
-        // For complex cases, build the query manually
-        // This is a fallback but not ideal
-        // In a real application, you would design a more robust solution
-        console.warn(`Using fallback SQL execution method for query with ${params.length} parameters`);
-        let query = text;
-        params.forEach((param, index) => {
-          let paramValue: string;
-          if (param === null) {
-            paramValue = 'NULL';
-          } else if (typeof param === 'string') {
-            paramValue = `'${param.replace(/'/g, "''")}'`;
-          } else if (param instanceof Date) {
-            paramValue = `'${param.toISOString()}'`;
-          } else if (typeof param === 'boolean') {
-            paramValue = param ? 'TRUE' : 'FALSE';
-          } else {
-            paramValue = String(param);
-          }
-          const placeholder = `\\$${index + 1}`;
-          const regex = new RegExp(placeholder, 'g');
-          query = query.replace(regex, paramValue);
-        });
-        return await sql`${query}`;
-      }
-    }
-  } catch (error) {
-    console.error('Database query error:', error);
-    throw error;
-  }
-}
-
-// Create API Keys table if it doesn't exist
-async function ensureApiKeysTableExists() {
-  try {
-    // Check if api_keys table exists directly with SQL query string
-    const tableExists = await runQuery(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public'
-        AND table_name = 'api_keys'
-      ) as exists;
-    `);
-    
-    const exists = tableExists[0]?.exists === true || tableExists[0]?.exists === 'true';
-    
-    if (!exists) {
-      console.log('Creating api_keys table...');
-      await runQuery(`
-        CREATE TABLE IF NOT EXISTS api_keys (
-          id TEXT PRIMARY KEY,
-          provider TEXT NOT NULL,
-          key TEXT NOT NULL,
-          description TEXT,
-          is_active BOOLEAN DEFAULT true,
-          usage_limit INTEGER,
-          usage_count INTEGER DEFAULT 0,
-          last_used TIMESTAMP,
-          created_at TIMESTAMP DEFAULT NOW(),
-          updated_at TIMESTAMP DEFAULT NOW()
-        );
-      `);
-      console.log('api_keys table created successfully');
-    }
-  } catch (error) {
-    console.error('Error ensuring api_keys table exists:', error);
-    throw error;
-  }
-}
 
 // API Key manager class with persistent database storage
 class ApiKeyManager {
@@ -124,10 +27,47 @@ class ApiKeyManager {
 
   private async init() {
     try {
-      await ensureApiKeysTableExists();
+      await this.ensureApiKeysTableExists();
       await this.initializeFromEnv();
     } catch (error) {
       console.error('Error initializing API Key Manager:', error);
+    }
+  }
+
+  private async ensureApiKeysTableExists() {
+    try {
+      // Check if api_keys table exists directly with SQL query using tagged template literals
+      const tableExists = await sql`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public'
+          AND table_name = 'api_keys'
+        ) as exists
+      `;
+
+      const exists = tableExists[0]?.exists === true || tableExists[0]?.exists === 'true';
+      
+      if (!exists) {
+        console.log('Creating api_keys table...');
+        await sql`
+          CREATE TABLE IF NOT EXISTS api_keys (
+            id TEXT PRIMARY KEY,
+            provider TEXT NOT NULL,
+            key TEXT NOT NULL,
+            description TEXT,
+            is_active BOOLEAN DEFAULT true,
+            usage_limit INTEGER,
+            usage_count INTEGER DEFAULT 0,
+            last_used TIMESTAMP,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+          )
+        `;
+        console.log('api_keys table created successfully');
+      }
+    } catch (error) {
+      console.error('Error ensuring api_keys table exists:', error);
+      throw error;
     }
   }
 
@@ -147,11 +87,11 @@ class ApiKeyManager {
       if (apiKey) {
         try {
           // Check if we already have a key for this provider from env
-          const result = await runQuery(`
+          const result = await sql`
             SELECT COUNT(*) as count FROM api_keys 
-            WHERE provider = $1
-            AND description LIKE $2
-          `, [provider, '%from environment variables%']);
+            WHERE provider = ${provider}
+            AND description LIKE ${'%from environment variables%'}
+          `;
           
           const count = Number(result[0]?.count || 0);
           
@@ -182,27 +122,25 @@ class ApiKeyManager {
     const id = uuidv4();
     
     try {
-      const createdAt = keyData.createdAt ? keyData.createdAt.toISOString() : new Date().toISOString();
-      const updatedAt = keyData.updatedAt ? keyData.updatedAt.toISOString() : new Date().toISOString();
+      const createdAt = keyData.createdAt || new Date();
+      const updatedAt = keyData.updatedAt || new Date();
 
-      await runQuery(`
+      await sql`
         INSERT INTO api_keys (
           id, provider, key, description, is_active, 
           usage_limit, usage_count, created_at, updated_at
         ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9
+          ${id}, 
+          ${keyData.provider}, 
+          ${keyData.key}, 
+          ${keyData.description || null}, 
+          ${keyData.isActive === false ? false : true}, 
+          ${keyData.usageLimit || null}, 
+          ${keyData.usageCount || 0}, 
+          ${createdAt}, 
+          ${updatedAt}
         )
-      `, [
-        id, 
-        keyData.provider, 
-        keyData.key, 
-        keyData.description || null, 
-        keyData.isActive ? true : false, 
-        keyData.usageLimit || null, 
-        keyData.usageCount || 0, 
-        createdAt, 
-        updatedAt
-      ]);
+      `;
       
       return id;
     } catch (error) {
@@ -214,9 +152,9 @@ class ApiKeyManager {
   // Get an API key by ID
   async getKey(id: string): Promise<ApiKey | undefined> {
     try {
-      const result = await runQuery(`
-        SELECT * FROM api_keys WHERE id = $1
-      `, [id]);
+      const result = await sql`
+        SELECT * FROM api_keys WHERE id = ${id}
+      `;
       
       if (result.length === 0) return undefined;
       
@@ -246,9 +184,9 @@ class ApiKeyManager {
   // Get all keys for a specific provider
   async getKeysByProvider(provider: string): Promise<[string, ApiKey][]> {
     try {
-      const result = await runQuery(`
-        SELECT * FROM api_keys WHERE provider = $1
-      `, [provider]);
+      const result = await sql`
+        SELECT * FROM api_keys WHERE provider = ${provider}
+      `;
       
       return result.map(row => [
         String(row.id),
@@ -263,11 +201,11 @@ class ApiKeyManager {
   // Get active keys for a provider
   async getActiveKeysByProvider(provider: string): Promise<[string, ApiKey][]> {
     try {
-      const result = await runQuery(`
+      const result = await sql`
         SELECT * FROM api_keys 
-        WHERE provider = $1
+        WHERE provider = ${provider}
         AND is_active = true
-      `, [provider]);
+      `;
       
       return result.map(row => [
         String(row.id),
@@ -282,13 +220,13 @@ class ApiKeyManager {
   // Get the best key for a provider (for now, just returns the first active key)
   async getBestKeyForProvider(provider: string): Promise<[string, ApiKey] | undefined> {
     try {
-      const result = await runQuery(`
+      const result = await sql`
         SELECT * FROM api_keys 
-        WHERE provider = $1
+        WHERE provider = ${provider}
         AND is_active = true 
         ORDER BY created_at DESC 
         LIMIT 1
-      `, [provider]);
+      `;
       
       if (result.length === 0) return undefined;
       
@@ -307,53 +245,53 @@ class ApiKeyManager {
       let updated = false;
       
       if ('provider' in updates && updates.provider !== undefined) {
-        await runQuery(`
-          UPDATE api_keys SET provider = $1 WHERE id = $2
-        `, [updates.provider, id]);
+        await sql`
+          UPDATE api_keys SET provider = ${updates.provider} WHERE id = ${id}
+        `;
         updated = true;
       }
       
       if ('key' in updates && updates.key !== undefined) {
-        await runQuery(`
-          UPDATE api_keys SET key = $1 WHERE id = $2
-        `, [updates.key, id]);
+        await sql`
+          UPDATE api_keys SET key = ${updates.key} WHERE id = ${id}
+        `;
         updated = true;
       }
       
       if ('description' in updates) {
-        await runQuery(`
-          UPDATE api_keys SET description = $1 WHERE id = $2
-        `, [updates.description || null, id]);
+        await sql`
+          UPDATE api_keys SET description = ${updates.description || null} WHERE id = ${id}
+        `;
         updated = true;
       }
       
       if ('isActive' in updates && updates.isActive !== undefined) {
-        await runQuery(`
-          UPDATE api_keys SET is_active = $1 WHERE id = $2
-        `, [updates.isActive ? true : false, id]);
+        await sql`
+          UPDATE api_keys SET is_active = ${updates.isActive ? true : false} WHERE id = ${id}
+        `;
         updated = true;
       }
       
       if ('usageLimit' in updates) {
-        await runQuery(`
-          UPDATE api_keys SET usage_limit = $1 WHERE id = $2
-        `, [updates.usageLimit || null, id]);
+        await sql`
+          UPDATE api_keys SET usage_limit = ${updates.usageLimit || null} WHERE id = ${id}
+        `;
         updated = true;
       }
       
       if ('usageCount' in updates && updates.usageCount !== undefined) {
-        await runQuery(`
-          UPDATE api_keys SET usage_count = $1 WHERE id = $2
-        `, [updates.usageCount, id]);
+        await sql`
+          UPDATE api_keys SET usage_count = ${updates.usageCount} WHERE id = ${id}
+        `;
         updated = true;
       }
       
       // Always update the updated_at timestamp if any field was updated
       if (updated) {
-        const nowIsoString = new Date().toISOString();
-        await runQuery(`
-          UPDATE api_keys SET updated_at = $1 WHERE id = $2
-        `, [nowIsoString, id]);
+        const now = new Date();
+        await sql`
+          UPDATE api_keys SET updated_at = ${now} WHERE id = ${id}
+        `;
       }
       
       return updated;
@@ -366,9 +304,9 @@ class ApiKeyManager {
   // Delete an API key
   async deleteKey(id: string): Promise<boolean> {
     try {
-      await runQuery(`
-        DELETE FROM api_keys WHERE id = $1
-      `, [id]);
+      await sql`
+        DELETE FROM api_keys WHERE id = ${id}
+      `;
       
       // Assuming success if no errors are thrown
       return true;
@@ -394,15 +332,15 @@ class ApiKeyManager {
       }
       
       // Update the key with new usage count and last used time
-      const nowIsoString = new Date().toISOString();
-      await runQuery(`
+      const now = new Date();
+      await sql`
         UPDATE api_keys 
-        SET usage_count = $1, 
-            last_used = $2,
-            is_active = $3,
-            updated_at = $4
-        WHERE id = $5
-      `, [newUsageCount, nowIsoString, isActive, nowIsoString, id]);
+        SET usage_count = ${newUsageCount}, 
+            last_used = ${now},
+            is_active = ${isActive},
+            updated_at = ${now}
+        WHERE id = ${id}
+      `;
       
       // Assuming success if no errors
       return true;
@@ -431,9 +369,9 @@ class ApiKeyManager {
   // List all API keys
   async listAllKeys(): Promise<[string, ApiKey][]> {
     try {
-      const result = await runQuery(`
+      const result = await sql`
         SELECT * FROM api_keys ORDER BY provider, created_at DESC
-      `);
+      `;
       
       return result.map(row => [
         String(row.id),
