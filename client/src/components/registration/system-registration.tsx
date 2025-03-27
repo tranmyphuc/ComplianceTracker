@@ -39,6 +39,7 @@ import { RegistrationGuide } from "./registration-guide";
 import { BasicInformationStep } from './basic-information-step';
 import { TechnicalDetailsStep } from './technical-details-step';
 import { RiskAssessmentStep } from './risk-assessment-step';
+import { LegalValidationStep } from './legal-validation-step';
 import { ReviewSubmitStep } from './review-submit-step';
 
 const initialFormData = {
@@ -199,7 +200,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
   // Navigate to the next step
   const goToNextStep = () => {
-    if (currentStep < 4) {
+    if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -287,7 +288,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     });
     
     // Validate the confirmation checkboxes in the final step
-    if (currentStep === 4) {
+    if (currentStep === 5) {
       if (!formData.confirmAccuracy) {
         errors.confirmAccuracy = "You must confirm that the information is accurate";
       }
@@ -461,6 +462,14 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         );
 
       case 4:
+        return (
+          <LegalValidationStep 
+            formData={formData}
+            errors={validationErrors}
+          />
+        );
+
+      case 5:
         return (
           <ReviewSubmitStep 
             formData={formData} 
@@ -1070,7 +1079,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
           {/* Steps indicator */}
           <div className="mb-6">
             <div className="flex justify-between mb-2">
-              {['Basic Information', 'AI Details', 'Risk Assessment', 'Review & Submit'].map((step, index) => (
+              {['Basic Information', 'AI Details', 'Risk Assessment', 'Legal Validation', 'Review & Submit'].map((step, index) => (
                 <div 
                   key={index} 
                   className={`text-xs font-medium ${currentStep > index + 1 ? 'text-primary' : 
@@ -1083,7 +1092,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
             <div className="h-2 w-full bg-neutral-100 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-primary transition-all duration-300" 
-                style={{ width: `${(currentStep / 4) * 100}%` }}
+                style={{ width: `${(currentStep / 5) * 100}%` }}
               />
             </div>
           </div>
@@ -1121,6 +1130,13 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
             )}
 
             {currentStep === 4 && (
+              <LegalValidationStep 
+                formData={formData}
+                errors={validationErrors}
+              />
+            )}
+
+            {currentStep === 5 && (
               <ReviewSubmitStep 
                 formData={formData} 
                 setFormData={setFormData}
@@ -1140,7 +1156,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
                 </Button>
               )}
 
-              {currentStep < 4 ? (
+              {currentStep < 5 ? (
                 <Button 
                   type="button" 
                   className="ml-auto" 
