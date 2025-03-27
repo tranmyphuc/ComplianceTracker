@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   AlertTriangle, CheckCircle, FileDown, FileText, 
   Printer, ArrowRight, ChevronDown, ChevronUp, ArrowLeft,
-  ShieldCheck, Gavel
+  ShieldCheck, Gavel, Loader2
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,12 +17,27 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/language-switcher";
 import { LegalDisclaimerSection, LegalValidationPanel } from "@/components/risk-assessment";
 import { ConfidenceLevel } from "@/components/legal";
+import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
+
+// Parse query parameters from URL
+function useQueryParams() {
+  const [location] = useLocation();
+  const params = new URLSearchParams(location.split('?')[1]);
+  return {
+    systemId: params.get('systemId'),
+    assessmentId: params.get('assessmentId')
+  };
+}
 
 const RiskAssessmentResults: React.FC = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [openSections, setOpenSections] = React.useState<string[]>(['overview', 'classification']);
   const [activeTab, setActiveTab] = useState('assessment');
   const [validationLoaded, setValidationLoaded] = useState(false);
+  const { systemId, assessmentId } = useQueryParams();
   
   // Toggle section visibility
   const toggleSection = (section: string) => {
@@ -36,6 +51,20 @@ const RiskAssessmentResults: React.FC = () => {
   // Check if a section is open
   const isSectionOpen = (section: string) => openSections.includes(section);
   
+  // Fetch the system data
+  const { data: system, isLoading: systemLoading } = useQuery({
+    queryKey: ['/api/systems', systemId],
+    queryFn: () => systemId ? apiRequest(`/api/systems/${systemId}`) : null,
+    enabled: !!systemId
+  });
+  
+  // Fetch the assessment data
+  const { data: assessment, isLoading: assessmentLoading } = useQuery({
+    queryKey: ['/api/risk-assessments', assessmentId],
+    queryFn: () => assessmentId ? apiRequest(`/api/risk-assessments/${assessmentId}`) : null,
+    enabled: !!assessmentId
+  });
+  
   // Simulate validation loading
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -45,31 +74,82 @@ const RiskAssessmentResults: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
   
-  // Mock assessment data - in a real app this would come from the API
+  useEffect(() => {
+    if (!systemId || !assessmentId) {
+      toast({
+        title: "Missing Parameters",
+        description: "System ID or Assessment ID is missing from the URL",
+        variant: "destructive"
+      });
+    }
+  }, [systemId, assessmentId, toast]);
+  
+  // If we're still loading data, show a loading indicator
+  if (systemLoading || assessmentLoading) {
+    return (
+      <div className="flex items-center justify-center h-[70vh]">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading assessment data...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // If data is missing, show an error
+  if (!system || !assessment) {
+    return (
+      <div className="container mx-auto py-8 max-w-4xl">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Data Missing</AlertTitle>
+          <AlertDescription>
+            Could not load the requested assessment data. Please check the URL parameters and try again.
+          </AlertDescription>
+        </Alert>
+        <div className="mt-4">
+          <Button variant="outline" asChild>
+            <Link to="/risk-assessment">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Risk Assessment
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Process the data for display
   const assessmentData = {
-    systemName: "Employee Performance Assessment AI",
-    riskLevel: "High Risk",
-    date: new Date().toLocaleDateString(),
-    assessmentId: "RA-" + Math.floor(Math.random() * 10000),
-    riskFactors: [
+    systemName: system.name,
+    riskLevel: assessment.riskLevel || "High Risk",
+    date: new Date(assessment.assessmentDate || Date.now()).toLocaleDateString(),
+    assessmentId: assessment.assessmentId,
+    riskFactors: assessment.riskParameters || [
       { name: "Employment Context", severity: "high", description: "Used for employee evaluation and career decisions" },
       { name: "Fundamental Rights", severity: "medium", description: "Could impact employment opportunities and professional development" },
       { name: "Autonomy Level", severity: "medium", description: "Partial autonomy with human verification for key decisions" },
       { name: "Data Types", severity: "high", description: "Processes personal and professional performance data" }
     ],
-    relevantArticles: [
+    relevantArticles: assessment.euAiActArticles ? assessment.euAiActArticles.map((article: string) => {
+      const [id, name] = article.split(':');
+      return {
+        id: id.trim(),
+        name: name?.trim() || "EU AI Act Article",
+        description: "Requirements related to this AI system category"
+      };
+    }) : [
       { id: "Art. 6.2", name: "High-Risk AI Systems", description: "Evaluation of natural persons in employment contexts" },
       { id: "Art. 9", name: "Risk Management", description: "Requirements for ongoing risk assessment and mitigation" },
       { id: "Art. 10", name: "Data Governance", description: "Requirements for data quality and governance" },
       { id: "Art. 13", name: "Transparency", description: "Information to be provided to users of high-risk AI systems" },
       { id: "Art. 14", name: "Human Oversight", description: "Requirements for effective human oversight" }
     ],
-    complianceGaps: [
+    complianceGaps: assessment.complianceGaps?.map((gap: any) => gap.description) || [
       "Human oversight measures require additional documentation and implementation",
       "Transparency information for affected employees needs enhancement",
       "Data governance processes need to be formalized and documented"
     ],
-    mitigationMeasures: [
+    mitigationMeasures: assessment.remediationActions || [
       "Implement detailed human review protocols for all evaluation decisions",
       "Add employee appeals process and feedback mechanism",
       "Enhance decision explanation and transparency features",

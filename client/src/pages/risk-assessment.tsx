@@ -429,9 +429,20 @@ export default function RiskAssessment() {
                                     </div>
                                   </TableCell>
                                   <TableCell>
-                                    <Link href={`/risk-assessment/assessment/${assessment.assessmentId}`}>
-                                      <Button variant="outline" size="sm">View Details</Button>
-                                    </Link>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      onClick={() => {
+                                        toast({
+                                          title: "Assessment Details",
+                                          description: `Viewing details for assessment ${assessment.assessmentId}`,
+                                        });
+                                        // Navigate to the results tab with this assessment selected
+                                        window.location.href = `/risk-assessment/results?systemId=${assessment.systemId}&assessmentId=${assessment.assessmentId}`;
+                                      }}
+                                    >
+                                      View Details
+                                    </Button>
                                   </TableCell>
                                 </TableRow>
                               ))}

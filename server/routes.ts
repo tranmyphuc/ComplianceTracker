@@ -2300,40 +2300,40 @@ if (isDemoMode) {
   // ==========================================
 
   // Create a new approval workflow
-  app.post("/api/approval-workflows", createApprovalWorkflow);
+  app.post("/api/approval/workflows", createApprovalWorkflow);
 
   // Get approval workflows with filtering and pagination
-  app.get("/api/approval-workflows", getApprovalWorkflows);
+  app.get("/api/approval/workflows", getApprovalWorkflows);
 
   // Get a specific approval workflow by ID
-  app.get("/api/approval-workflows/:id", getApprovalWorkflowById);
+  app.get("/api/approval/workflows/:id", getApprovalWorkflowById);
 
   // Update an approval workflow status
-  app.put("/api/approval-workflows/:id/status", updateApprovalStatus);
+  app.put("/api/approval/workflows/:id/status", updateApprovalStatus);
 
   // Assign an approval workflow to a user
-  app.post("/api/approval-workflows/:id/assign", assignApprovalWorkflow);
+  app.post("/api/approval/workflows/:id/assign", assignApprovalWorkflow);
 
   // Get user notifications with pagination
-  app.get("/api/notifications", getUserNotifications);
+  app.get("/api/approval/notifications", getUserNotifications);
 
   // Mark notifications as read
-  app.put("/api/notifications/mark-read", markNotificationsAsRead);
+  app.put("/api/approval/notifications/mark-read", markNotificationsAsRead);
 
   // Get unread notification count
-  app.get("/api/notifications/unread-count", getUnreadNotificationCount);
+  app.get("/api/approval/notifications/unread-count", getUnreadNotificationCount);
 
   // Get user approval settings
-  app.get("/api/approval-settings", getUserApprovalSettings);
+  app.get("/api/approval/settings", getUserApprovalSettings);
 
   // Update user approval settings
-  app.put("/api/approval-settings", updateUserApprovalSettings);
+  app.put("/api/approval/settings", updateUserApprovalSettings);
 
   // Get approval statistics
-  app.get("/api/approval-statistics", getApprovalStatistics);
+  app.get("/api/approval/statistics", getApprovalStatistics);
 
   // Schedule reminder checks (this would typically be called by a cron job)
-  app.post("/api/approval-workflows/schedule-reminders", async (req: Request, res: Response) => {
+  app.post("/api/approval/workflows/schedule-reminders", async (req: Request, res: Response) => {
     try {
       await scheduleReminders();
       res.json({ success: true, message: "Reminders scheduled successfully" });
