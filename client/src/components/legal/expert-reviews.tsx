@@ -46,10 +46,13 @@ interface ExpertReviewsListProps {
 export function ExpertReviewsList({ onSelectReview, refreshInterval = 60000 }: ExpertReviewsListProps) {
   const { toast } = useToast();
   
-  const { data: reviews, isLoading, isError, error } = useQuery<ExpertReview[]>({
+  const { data, isLoading, isError, error } = useQuery<{ success: boolean; reviews: ExpertReview[] }>({
     queryKey: ['/api/legal/expert-reviews'],
     refetchInterval: refreshInterval
   });
+  
+  // Extract reviews from the response data
+  const reviews = data?.reviews;
 
   if (isLoading) {
     return (
@@ -105,7 +108,7 @@ export function ExpertReviewsList({ onSelectReview, refreshInterval = 60000 }: E
             </TableRow>
           </TableHeader>
           <TableBody>
-            {reviews.map((review) => (
+            {Array.isArray(reviews) && reviews.map((review) => (
               <TableRow key={review.reviewId}>
                 <TableCell className="font-medium">{review.type}</TableCell>
                 <TableCell>{getStatusBadge(review.status)}</TableCell>
