@@ -177,7 +177,7 @@ export function RiskAssessmentWizard({ systemId }: { systemId?: string }) {
       // Submit to API
       const response = await apiRequest('/api/risk-assessments', {
         method: 'POST',
-        body: JSON.stringify(assessmentData) // Ensure we're sending JSON
+        body: assessmentData // apiRequest will handle JSON.stringify
       });
       
       console.log("Standard assessment saved:", response);

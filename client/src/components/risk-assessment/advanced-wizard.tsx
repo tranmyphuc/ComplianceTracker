@@ -1024,7 +1024,7 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
         try {
           const response = await apiRequest('/api/risk-assessments', {
             method: 'POST',
-            body: JSON.stringify(assessmentData) // Ensure we're sending JSON
+            body: assessmentData // apiRequest will handle JSON.stringify
           });
           
           console.log("Assessment saved:", response);
