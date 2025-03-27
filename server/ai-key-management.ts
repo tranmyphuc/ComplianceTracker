@@ -18,6 +18,11 @@ export const apiKeySchema = z.object({
 
 export type ApiKey = z.infer<typeof apiKeySchema>;
 
+// Helper to format dates as ISO strings for PostgreSQL
+function formatDate(date: Date): string {
+  return date.toISOString();
+}
+
 // API Key manager class with persistent database storage
 class ApiKeyManager {
   constructor() {
@@ -124,6 +129,10 @@ class ApiKeyManager {
     try {
       const createdAt = keyData.createdAt || new Date();
       const updatedAt = keyData.updatedAt || new Date();
+      
+      // Format dates as ISO strings
+      const createdAtStr = formatDate(createdAt);
+      const updatedAtStr = formatDate(updatedAt);
 
       await sql`
         INSERT INTO api_keys (
@@ -137,8 +146,8 @@ class ApiKeyManager {
           ${keyData.isActive === false ? false : true}, 
           ${keyData.usageLimit || null}, 
           ${keyData.usageCount || 0}, 
-          ${createdAt}, 
-          ${updatedAt}
+          ${createdAtStr}, 
+          ${updatedAtStr}
         )
       `;
       
@@ -288,7 +297,7 @@ class ApiKeyManager {
       
       // Always update the updated_at timestamp if any field was updated
       if (updated) {
-        const now = new Date();
+        const now = formatDate(new Date());
         await sql`
           UPDATE api_keys SET updated_at = ${now} WHERE id = ${id}
         `;
@@ -332,7 +341,7 @@ class ApiKeyManager {
       }
       
       // Update the key with new usage count and last used time
-      const now = new Date();
+      const now = formatDate(new Date());
       await sql`
         UPDATE api_keys 
         SET usage_count = ${newUsageCount}, 

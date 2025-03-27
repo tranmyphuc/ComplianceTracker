@@ -53,11 +53,24 @@ const RiskAssessmentResults: React.FC<ResultsParams> = ({ systemId, assessmentId
     enabled: !!systemId
   });
   
+  // Extract the numeric ID from the assessmentId if it has the format 'RA-1234'
+  const getNumericId = (id: string | undefined): string | undefined => {
+    if (!id) return undefined;
+    // If the ID is in the format 'RA-1234', extract the numeric part
+    const match = id.match(/^RA-(\d+)$/);
+    if (match && match[1]) return match[1];
+    // Otherwise, if it's already numeric, use it as is
+    if (/^\d+$/.test(id)) return id;
+    return undefined;
+  };
+  
+  const numericAssessmentId = getNumericId(assessmentId);
+  
   // Fetch the assessment data
   const { data: assessment, isLoading: assessmentLoading } = useQuery({
-    queryKey: ['/api/risk-assessments', assessmentId],
-    queryFn: () => assessmentId ? apiRequest(`/api/risk-assessments/${assessmentId}`) : null,
-    enabled: !!assessmentId
+    queryKey: ['/api/risk-assessments', numericAssessmentId],
+    queryFn: () => numericAssessmentId ? apiRequest(`/api/risk-assessments/${numericAssessmentId}`) : null,
+    enabled: !!numericAssessmentId
   });
   
   // Simulate validation loading
