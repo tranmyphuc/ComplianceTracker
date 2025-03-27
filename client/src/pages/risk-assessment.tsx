@@ -116,10 +116,6 @@ export default function RiskAssessment() {
         />
       </div>
       
-      {/* Language Demo - this shows our language switching in action */}
-      <div className="mb-6">
-        <LanguageDemo />
-      </div>
       
       <Tabs
         defaultValue={activeTab}
