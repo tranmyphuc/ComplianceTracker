@@ -59,6 +59,8 @@ import AutomotiveScenario from '@/pages/demo-scenarios/automotive-ai-systems';
 import LogisticsScenario from '@/pages/demo-scenarios/logistics-transportation';
 import VendorManagement from '@/pages/vendor-management';
 import ComplianceChatbotPage from "./pages/compliance-chatbot";
+import AdminApiKeys from "@/pages/admin/api-keys";
+import AdminDashboard from "@/pages/admin/dashboard";
 
 
 function Router() {
@@ -122,7 +124,8 @@ function Router() {
     "/demo-scenarios/logistics-supply-chain",
     "/compliance-chatbot",
     "/advanced-analytics",
-    "/executive-dashboard"
+    "/executive-dashboard",
+    "/admin/dashboard" // Added route
   ];
 
   useEffect(() => {
@@ -311,6 +314,9 @@ function Router() {
       </Route>
       <Route path="/legal-reviews">
         {() => renderWithLayout(LegalReviewsPage)}
+      </Route>
+      <Route path="/admin/dashboard"> {/* Added route */}
+        {() => renderWithLayout(AdminDashboard)} {/* Added route */}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}
