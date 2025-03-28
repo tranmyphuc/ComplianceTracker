@@ -158,3 +158,22 @@
 .risk-minimal {
   @apply text-[#16a34a] bg-[#16a34a]/10 border-[#16a34a]/20;
 }
+
+/* Animation for progress bars in AI process stepper */
+@keyframes progressIndeterminate {
+  0% {
+    transform: translateX(-100%);
+    width: 50%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    transform: translateX(100%);
+    width: 50%;
+  }
+}
+
+.animate-progress-indeterminate {
+  animation: progressIndeterminate 1.5s infinite;
+}

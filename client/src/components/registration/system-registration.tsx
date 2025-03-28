@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { FileTextIcon, SparklesIcon, BrainIcon, UploadIcon, BotIcon, SearchIcon, CheckIcon, FileIcon, ShieldAlertIcon, AlertCircleIcon, AlertTriangleIcon, Globe, LinkIcon, PenIcon, X as XIcon, ZapIcon } from "lucide-react";
+import { FileTextIcon, SparklesIcon, BrainIcon, UploadIcon, BotIcon, SearchIcon, CheckIcon, FileIcon, ShieldAlertIcon, AlertCircleIcon, AlertTriangleIcon, Globe, LinkIcon, PenIcon, X as XIcon, ZapIcon, Info as InfoIcon } from "lucide-react";
 
 // Extend the Window interface to add our smart completion timer
 declare global {
@@ -54,6 +54,8 @@ import { TechnicalDetailsStep } from './technical-details-step';
 import { RiskAssessmentStep } from './risk-assessment-step';
 import { LegalValidationStep } from './legal-validation-step';
 import { ReviewSubmitStep } from './review-submit-step';
+import { AutoFillGuidanceModal } from './AutoFillGuidanceModal';
+import { AutoFillProcessStepper, defaultAutoFillSteps } from './AutoFillProcessStepper';
 
 const initialFormData = {
   name: '',
@@ -179,6 +181,11 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [showSystemRecommendations, setShowSystemRecommendations] = useState(false);
   const [smartCompletionActive, setSmartCompletionActive] = useState(false);
+  
+  // New state variables for the auto-fill guidance
+  const [showGuidanceModal, setShowGuidanceModal] = useState(false);
+  const [autoFillSteps, setAutoFillSteps] = useState(defaultAutoFillSteps);
+  const [currentAutoFillStep, setCurrentAutoFillStep] = useState<string | undefined>(undefined);
 
   // Handle input changes with smart completion
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -810,9 +817,29 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     }
   }, [formData.description]);
 
+  // Show the guidance modal before starting auto-fill
+  const showAutoFillGuidance = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setShowGuidanceModal(true);
+  };
+  
+  // Handle starting the auto-fill process after guidance
+  const handleStartAutoFill = (template?: string) => {
+    // If a template was selected, use it as input
+    if (template) {
+      setAiTextInput(template);
+    }
+    
+    // Close the guidance modal
+    setShowGuidanceModal(false);
+    
+    // Start the actual AI suggestion process
+    getAiSuggestions(template);
+  };
+  
   // AI-powered suggestions from name or description
-  const getAiSuggestions = async () => {
-    const systemDescription = formData.name || formData.description || aiTextInput;
+  const getAiSuggestions = async (templateText?: string) => {
+    const systemDescription = templateText || formData.name || formData.description || aiTextInput;
     if (!systemDescription || systemDescription.trim().length < 5) {
       toast({
         variant: "destructive",
@@ -826,6 +853,18 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
     setExtractionInProgress(true);
     setAiExtractionStatus('extracting');
+    
+    // Reset and update steps for the process visualization
+    const updatedSteps = [...autoFillSteps].map(step => ({
+      ...step,
+      status: step.id === 'validation' ? 'processing' as const : 'pending' as const
+    }));
+    setAutoFillSteps(updatedSteps);
+    setCurrentAutoFillStep('validation');
+    
+    // Show the auto-fill modal with the process visualization
+    setAiModalOpen(true);
+    setAiTab('process');
 
     // Simulate progress for better UX
     const progressInterval = setInterval(() => {
@@ -1033,6 +1072,13 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         </div>
       )}
 
+      {/* Auto-fill Guidance Modal */}
+      <AutoFillGuidanceModal 
+        isOpen={showGuidanceModal}
+        onClose={() => setShowGuidanceModal(false)}
+        onStartAutoFill={handleStartAutoFill}
+      />
+
       {/* AI Auto-fill Dialog */}
       <Dialog open={aiModalOpen} onOpenChange={setAiModalOpen}>
         <DialogContent className="sm:max-w-[600px]">
@@ -1044,9 +1090,10 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
           </DialogHeader>
 
           <Tabs value={aiTab} onValueChange={setAiTab} className="mt-2">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="input">Text Input</TabsTrigger>
               <TabsTrigger value="upload">File Upload</TabsTrigger>
+              <TabsTrigger value="process">Process</TabsTrigger>
             </TabsList>
             <TabsContent value="input" className="space-y-4 py-4">
               <div className="space-y-4">
@@ -1062,7 +1109,10 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
                 </div>
                 <div className="flex justify-end">
                   <Button 
-                    onClick={getAiSuggestions} 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      getAiSuggestions();
+                    }} 
                     disabled={extractionInProgress || aiTextInput.length < 5}
                   >
                     {extractionInProgress ? (
@@ -1132,6 +1182,34 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
                       </>
                     )}
                   </Button>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="process" className="space-y-4 py-4">
+              <div className="space-y-6">
+                <div className="text-center py-2">
+                  <h3 className="text-lg font-medium">AI Auto-fill Process</h3>
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1">
+                    Follow the steps below to automatically extract and analyze AI system information
+                  </p>
+                </div>
+                
+                <AutoFillProcessStepper steps={autoFillSteps} currentStepId={currentAutoFillStep} />
+                
+                <div className="bg-blue-50 p-4 rounded-md text-sm">
+                  <div className="flex items-start">
+                    <InfoIcon className="h-5 w-5 text-blue-600 mr-2 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-blue-900">About our AI auto-fill technology:</p>
+                      <p className="mt-1 text-blue-800">
+                        This feature uses advanced AI to analyze your system description and 
+                        automatically extract relevant information for EU AI Act compliance. 
+                        Our AI doesn't use simple keyword matching - instead, it performs 
+                        deep semantic analysis to accurately categorize systems according to 
+                        EU AI Act classifications.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </TabsContent>
@@ -1249,7 +1327,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setAiModalOpen(true)}
+                    onClick={showAutoFillGuidance}
                   >
                     <SparklesIcon className="h-4 w-4 mr-2" />
                     AI Auto-fill
