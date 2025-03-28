@@ -60,7 +60,85 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
     }, 300);
     
     try {
-      // API call to validate the assessment text
+      // Convert system details to comprehensive text for AI analysis
+      const systemDescription = 
+        `Name: ${formData.name}\n` +
+        `Vendor: ${formData.vendor || 'Unknown'}\n` + 
+        `Version: ${formData.version || 'Unknown'}\n` + 
+        `Department: ${formData.department || 'Unknown'}\n` + 
+        `Purpose: ${formData.purpose || 'Unknown'}\n` + 
+        `Description: ${formData.description || 'Unknown'}\n` + 
+        `AI Capabilities: ${formData.aiCapabilities || 'Unknown'}\n` + 
+        `Training Datasets: ${formData.trainingDatasets || 'Unknown'}\n` +
+        `Usage Context: ${formData.usageContext || 'Unknown'}\n` +
+        `Risk Level: ${formData.riskLevel || 'Unknown'}\n` +
+        `Potential Impact: ${formData.potentialImpact || 'Unknown'}\n` + 
+        `Vulnerabilities: ${formData.vulnerabilities || 'Unknown'}\n` +
+        `Mitigation Measures: ${formData.mitigationMeasures || 'Unknown'}`;
+      
+      // AI legality validation call with full system information
+      const response = await fetch('/api/legal/analyze-compliance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: systemDescription,
+          analysisType: 'euaia_compliance',
+          name: formData.name,
+          description: formData.description,
+          purpose: formData.purpose,
+          riskLevel: formData.riskLevel,
+          systemCategory: formData.systemCategory || "Unknown",
+          aiCapabilities: formData.aiCapabilities,
+          trainingDatasets: formData.trainingDatasets,
+          potentialImpact: formData.potentialImpact,
+          vulnerabilities: formData.vulnerabilities
+        })
+      });
+      
+      // If first API fails, try fallback validation endpoint
+      if (!response.ok) {
+        console.warn('Primary validation API failed, trying fallback endpoint');
+        return await fallbackValidation();
+      }
+      
+      // Process the response
+      const result = await response.json();
+      
+      if (!result || typeof result !== 'object') {
+        console.warn('Invalid primary validation response, trying fallback');
+        return await fallbackValidation();
+      }
+      
+      // Process successful response
+      processValidationResult(result);
+    } catch (error) {
+      console.error('Error in primary validation:', error);
+      try {
+        // Try fallback validation in case of error
+        await fallbackValidation();
+      } catch (fallbackError) {
+        console.error('Both validation attempts failed:', fallbackError);
+        clearInterval(progressInterval);
+        
+        toast({
+          title: "Validation Failed",
+          description: "There was an error validating your system. Please try again.",
+          variant: "destructive"
+        });
+        
+        // Reset the validation state
+        resetValidationState();
+      }
+    } finally {
+      clearInterval(progressInterval);
+    }
+  };
+  
+  // Fallback validation endpoint if the primary one fails
+  const fallbackValidation = async () => {
+    try {
       const response = await fetch('/api/validate/assessment', {
         method: 'POST',
         headers: {
@@ -73,103 +151,167 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
           riskLevel: formData.riskLevel,
           systemCategory: formData.systemCategory || "Unknown",
           aiCapabilities: formData.aiCapabilities,
-          trainingDatasets: formData.trainingDatasets
+          trainingDatasets: formData.trainingDatasets,
+          potentialImpact: formData.potentialImpact,
+          vulnerabilities: formData.vulnerabilities
         })
       });
       
-      clearInterval(progressInterval);
-      
       if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+        throw new Error(`Fallback validation error: ${response.status}`);
       }
       
       // Process the response
       const result = await response.json();
+      processValidationResult(result);
       
-      // Transform the API response to match our expected format
-      const transformedResult: ValidatorResult = {
-        issues: [],
-        confidenceScore: 0,
-        status: 'valid',
-        validatedTimestamp: new Date().toISOString()
+      return true;
+    } catch (error) {
+      console.error('Fallback validation failed:', error);
+      throw error;
+    }
+  };
+  
+  // Process validation API response into our expected format
+  const processValidationResult = (result: any) => {
+    // Transform the API response to match our expected format
+    const transformedResult: ValidatorResult = {
+      issues: [],
+      confidenceScore: 0,
+      status: 'valid',
+      validatedTimestamp: new Date().toISOString()
+    };
+    
+    // Map API response to our format
+    if (result) {
+      // Map confidence level to score
+      const confidenceMap: Record<string, number> = {
+        'high': 90,
+        'medium': 75,
+        'low': 60,
+        'uncertain': 50
       };
       
-      // Map API response to our format
-      if (result) {
-        // Map confidence level to score
-        const confidenceMap: Record<string, number> = {
-          'high': 90,
-          'medium': 75,
-          'low': 60,
-          'uncertain': 50
-        };
-        
-        transformedResult.confidenceScore = result.confidenceLevel 
-          ? confidenceMap[result.confidenceLevel] || 70
+      transformedResult.confidenceScore = result.confidenceLevel 
+        ? confidenceMap[result.confidenceLevel.toLowerCase()] || 70
+        : result.confidenceScore
+          ? typeof result.confidenceScore === 'number'
+            ? result.confidenceScore
+            : parseInt(result.confidenceScore, 10) || 70
           : 70;
-        
-        // Map validity status
+      
+      // Map validity status (handle different API response formats)
+      if (result.status && typeof result.status === 'string') {
+        if (result.status.toLowerCase().includes('valid')) {
+          if (result.status.toLowerCase().includes('warning')) {
+            transformedResult.status = 'valid_with_warnings';
+          } else {
+            transformedResult.status = 'valid';
+          }
+        } else {
+          transformedResult.status = 'invalid';
+        }
+      } else if (result.isValid !== undefined) {
         transformedResult.status = result.isValid 
           ? (result.warnings && result.warnings.length > 0 ? 'valid_with_warnings' : 'valid')
           : 'invalid';
-        
-        // Combine issues and warnings with appropriate severity levels
-        const issues = Array.isArray(result.issues) ? result.issues : [];
-        const warnings = Array.isArray(result.warnings) ? result.warnings : [];
-        
-        // Add critical issues
-        transformedResult.issues = [
-          ...issues.map((issue: string) => ({
-            description: issue,
-            severity: 'critical' as const
-          })),
-          
-          // Add warnings with warning severity
-          ...warnings.map((warning: string) => ({
-            description: warning,
-            severity: 'warning' as const
-          }))
-        ];
-        
-        // Include recommendations as info-level issues if available
-        if (result.recommendations && Array.isArray(result.recommendations)) {
-          const recommendations = result.recommendations.map((rec: string) => ({
-            description: rec,
-            severity: 'info' as const,
-            articleRef: undefined
-          }));
-          
-          transformedResult.issues = [...transformedResult.issues, ...recommendations];
-        }
+      } else if (result.complianceStatus) {
+        transformedResult.status = result.complianceStatus === 'compliant' 
+          ? 'valid' 
+          : result.complianceStatus === 'partially_compliant' 
+            ? 'valid_with_warnings' 
+            : 'invalid';
       }
       
-      setValidationResult(transformedResult);
+      // Process validation issues from different API response formats
+      const processIssues = () => {
+        // Get issues from different possible API response structures
+        const issues: ValidationIssue[] = [];
+        
+        // Process critical issues
+        const criticalIssues = result.issues || result.violations || result.criticalIssues || [];
+        if (Array.isArray(criticalIssues)) {
+          issues.push(...criticalIssues.map((issue: any) => {
+            const issueText = typeof issue === 'string' ? issue : issue.description || issue.text || JSON.stringify(issue);
+            const articleRef = typeof issue === 'object' && issue.article ? issue.article : undefined;
+            
+            return {
+              description: issueText,
+              severity: 'critical' as const,
+              articleRef
+            };
+          }));
+        }
+        
+        // Process warnings
+        const warnings = result.warnings || result.concerns || [];
+        if (Array.isArray(warnings)) {
+          issues.push(...warnings.map((warning: any) => {
+            const warningText = typeof warning === 'string' ? warning : warning.description || warning.text || JSON.stringify(warning);
+            const articleRef = typeof warning === 'object' && warning.article ? warning.article : undefined;
+            
+            return {
+              description: warningText,
+              severity: 'warning' as const,
+              articleRef
+            };
+          }));
+        }
+        
+        // Process recommendations/suggestions
+        const recommendations = result.recommendations || result.suggestions || [];
+        if (Array.isArray(recommendations)) {
+          issues.push(...recommendations.map((rec: any) => {
+            const recText = typeof rec === 'string' ? rec : rec.description || rec.text || JSON.stringify(rec);
+            const articleRef = typeof rec === 'object' && rec.article ? rec.article : undefined;
+            
+            return {
+              description: recText,
+              severity: 'info' as const,
+              articleRef
+            };
+          }));
+        }
+        
+        return issues;
+      };
       
-      setValidationProgress(100);
-      setTimeout(() => {
-        setValidationComplete(true);
-        setValidationInProgress(false);
-      }, 500);
+      transformedResult.issues = processIssues();
       
-      toast({
-        title: "Legal Validation Complete",
-        description: "The system has been analyzed for legal compliance.",
-      });
-    } catch (error) {
-      console.error('Error validating system:', error);
-      clearInterval(progressInterval);
+      // If no issues were found but there's a message, add it as an info issue
+      if (transformedResult.issues.length === 0 && result.message) {
+        transformedResult.issues.push({
+          description: result.message,
+          severity: 'info'
+        });
+      }
       
-      toast({
-        title: "Validation Failed",
-        description: "There was an error validating your system. Please try again.",
-        variant: "destructive"
-      });
-      
-      // Handle validation error - just reset the validation state
-      setValidationProgress(0);
-      setValidationComplete(false);
-      setValidationInProgress(false);
+      // Set notes if available
+      if (result.notes || result.legalNotes) {
+        transformedResult.notes = result.notes || result.legalNotes;
+      }
     }
+    
+    // Update state with processed results
+    setValidationResult(transformedResult);
+    setValidationProgress(100);
+    
+    setTimeout(() => {
+      setValidationComplete(true);
+      setValidationInProgress(false);
+    }, 500);
+    
+    toast({
+      title: "Legal Validation Complete",
+      description: "The system has been analyzed for legal compliance.",
+    });
+  };
+  
+  // Reset validation state in case of error
+  const resetValidationState = () => {
+    setValidationProgress(0);
+    setValidationComplete(false);
+    setValidationInProgress(false);
   };
   
   const getStatusLabel = (status: string | undefined) => {

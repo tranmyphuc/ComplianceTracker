@@ -89,7 +89,7 @@ export function ExpertReviewsList({ onSelectReview, refreshInterval = 60000 }: E
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-48">
-        <Spinner size="lg" />
+        <div className="h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin m-auto" />
         <span className="ml-2">Loading expert reviews...</span>
       </div>
     );
@@ -388,7 +388,7 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
         {/* AI System Information Section */}
         {isLoadingDetails && (
           <div className="py-4 flex justify-center">
-            <Spinner size="md" className="mr-2" />
+            <div className="h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2" />
             <span>Loading detailed information...</span>
           </div>
         )}
@@ -758,7 +758,7 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
           >
             {updateMutation.isPending ? (
               <>
-                <Spinner size="sm" className="mr-2" />
+                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                 Saving...
               </>
             ) : (

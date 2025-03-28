@@ -83,6 +83,70 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
         return;
       }
       
+      // First try to analyze using AI text analysis
+      const systemDescription = 
+        `Name: ${formData.name}\n` +
+        `Vendor: ${formData.vendor || 'Unknown'}\n` + 
+        `Version: ${formData.version || 'Unknown'}\n` + 
+        `Department: ${formData.department}\n` + 
+        `Purpose: ${formData.purpose || 'Unknown'}\n` + 
+        `Description: ${formData.description || 'Unknown'}\n` + 
+        `AI Capabilities: ${formData.aiCapabilities || 'Unknown'}\n` + 
+        `Training Datasets: ${formData.trainingDatasets || 'Unknown'}\n` +
+        `Usage Context: ${formData.usageContext || 'Unknown'}`;
+      
+      // Call the AI analysis API with text input
+      const analysisResponse = await fetch('/api/analyze/ai-system-text', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: systemDescription,
+          analysisType: 'risk_assessment'
+        })
+      });
+
+      if (!analysisResponse.ok) {
+        console.warn('Text analysis failed, falling back to system data analysis');
+        // Fall back to system data analysis if text analysis fails
+        return await fallbackToSystemAnalysis();
+      }
+
+      // Process AI text analysis response
+      const aiResults = await analysisResponse.json();
+      
+      if (!aiResults || typeof aiResults !== 'object') {
+        console.warn('Invalid AI text analysis response, falling back to system data analysis');
+        return await fallbackToSystemAnalysis();
+      }
+      
+      // Extract risk assessment data from AI response
+      const processedResults = processAIResults(aiResults);
+      
+      // Update the UI and form data with the results
+      updateWithResults(processedResults);
+      
+      toast({
+        title: "AI Analysis Complete",
+        description: "SGH ASIA AI has analyzed your system and suggested a risk level.",
+      });
+    } catch (error) {
+      console.error('Error analyzing risk:', error);
+      toast({
+        title: "Analysis Failed",
+        description: "There was an error analyzing your AI system. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+      setSghAsiaAiInProgress(false);
+    }
+  };
+  
+  // Fallback to system data analysis if text analysis fails
+  const fallbackToSystemAnalysis = async () => {
+    try {
       // Add analysis type parameter to request detailed risk parameters
       const dataToSend = {
         ...formData,
@@ -126,90 +190,172 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
                 : []
             };
             
-            setSghAsiaAiResults(processedResults);
-            
-            // Update form data with determined risk level
-            if (processedResults.riskLevel && typeof processedResults.riskLevel === 'string') {
-              setFormData(prev => ({
-                ...prev,
-                riskLevel: processedResults.riskLevel
-              }));
-            }
-            
-            // Generate potential impact if empty
-            if (!formData.potentialImpact && results.specificConcerns) {
-              const concerns = Array.isArray(results.specificConcerns) 
-                ? results.specificConcerns 
-                : typeof results.specificConcerns === 'string'
-                  ? [results.specificConcerns]
-                  : [];
-                  
-              if (concerns.length > 0) {
-                const impact = concerns.join(". ");
-                setFormData(prev => ({
-                  ...prev,
-                  potentialImpact: impact
-                }));
-              }
-            }
+            // Update with processed results
+            updateWithResults(processedResults);
           } catch (processingError) {
             console.error('Error processing detailed risk factors:', processingError);
             // Fall back to basic processing
-            handleBasicResults(results);
+            updateWithResults(results);
           }
         } else {
           // Handle basic analysis results
-          handleBasicResults(results);
+          updateWithResults(results);
         }
       } else {
         // Handle invalid response
         throw new Error("Received invalid response format from API");
       }
       
-      // Helper function to handle basic analysis results
-      function handleBasicResults(results: any) {
-        setSghAsiaAiResults(results);
-        
-        // Update risk level in form - with additional validation
-        const riskLevel = results.riskLevel || results.riskClassification;
-        if (riskLevel && typeof riskLevel === 'string') {
-          setFormData(prev => ({
-            ...prev,
-            riskLevel: riskLevel
-          }));
-        }
-        
-        // Generate potential impact if empty
-        if (!formData.potentialImpact && results.potentialImpact) {
-          const impact = typeof results.potentialImpact === 'string' 
-            ? results.potentialImpact
-            : Array.isArray(results.potentialImpact)
-              ? results.potentialImpact.join(". ")
-              : '';
-              
-          if (impact) {
-            setFormData(prev => ({
-              ...prev,
-              potentialImpact: impact
-            }));
-          }
-        }
-      }
-
-      toast({
-        title: "AI Analysis Complete",
-        description: "SGH ASIA AI has analyzed your system and suggested a risk level.",
-      });
+      return true;
     } catch (error) {
-      console.error('Error analyzing risk:', error);
-      toast({
-        title: "Analysis Failed",
-        description: "There was an error analyzing your AI system. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsAnalyzing(false);
-      setSghAsiaAiInProgress(false);
+      console.error('Error in fallback analysis:', error);
+      throw error;
+    }
+  };
+  
+  // Process AI results to extract relevant risk assessment data
+  const processAIResults = (aiResults: any) => {
+    // Initialize with default structure
+    const processedResults: any = {
+      riskLevel: 'unknown',
+      relevantArticles: [],
+      suggestedImprovements: [],
+      category: '',
+      potentialImpact: '',
+      vulnerabilities: [],
+      riskFactors: []
+    };
+    
+    try {
+      // Extract risk level
+      if (aiResults.riskLevel) {
+        processedResults.riskLevel = aiResults.riskLevel.toLowerCase();
+      } else if (aiResults.riskClassification) {
+        processedResults.riskLevel = aiResults.riskClassification.toLowerCase();
+      } else if (aiResults.risk_level) {
+        processedResults.riskLevel = aiResults.risk_level.toLowerCase();
+      }
+      
+      // Extract system category
+      if (aiResults.category) {
+        processedResults.category = aiResults.category;
+      } else if (aiResults.systemCategory) {
+        processedResults.category = aiResults.systemCategory;
+      } else if (aiResults.system_type) {
+        processedResults.category = aiResults.system_type;
+      }
+      
+      // Extract potential impact
+      if (aiResults.potentialImpact) {
+        processedResults.potentialImpact = typeof aiResults.potentialImpact === 'string'
+          ? aiResults.potentialImpact
+          : Array.isArray(aiResults.potentialImpact)
+            ? aiResults.potentialImpact.join('. ')
+            : '';
+      } else if (aiResults.impact) {
+        processedResults.potentialImpact = typeof aiResults.impact === 'string'
+          ? aiResults.impact
+          : Array.isArray(aiResults.impact)
+            ? aiResults.impact.join('. ')
+            : '';
+      }
+      
+      // Extract relevant EU AI Act articles
+      if (aiResults.relevantArticles) {
+        processedResults.relevantArticles = Array.isArray(aiResults.relevantArticles)
+          ? aiResults.relevantArticles
+          : typeof aiResults.relevantArticles === 'string'
+            ? [aiResults.relevantArticles]
+            : [];
+      } else if (aiResults.euAiActArticles) {
+        processedResults.relevantArticles = Array.isArray(aiResults.euAiActArticles)
+          ? aiResults.euAiActArticles
+          : typeof aiResults.euAiActArticles === 'string'
+            ? [aiResults.euAiActArticles]
+            : [];
+      }
+      
+      // Extract suggestions/improvements
+      if (aiResults.suggestedImprovements) {
+        processedResults.suggestedImprovements = Array.isArray(aiResults.suggestedImprovements)
+          ? aiResults.suggestedImprovements
+          : typeof aiResults.suggestedImprovements === 'string'
+            ? [aiResults.suggestedImprovements]
+            : [];
+      } else if (aiResults.mitigationStrategies) {
+        processedResults.suggestedImprovements = Array.isArray(aiResults.mitigationStrategies)
+          ? aiResults.mitigationStrategies
+          : typeof aiResults.mitigationStrategies === 'string'
+            ? [aiResults.mitigationStrategies]
+            : [];
+      } else if (aiResults.recommendations) {
+        processedResults.suggestedImprovements = Array.isArray(aiResults.recommendations)
+          ? aiResults.recommendations
+          : typeof aiResults.recommendations === 'string'
+            ? [aiResults.recommendations]
+            : [];
+      }
+      
+      // Extract vulnerabilities
+      if (aiResults.vulnerabilities) {
+        processedResults.vulnerabilities = Array.isArray(aiResults.vulnerabilities)
+          ? aiResults.vulnerabilities.join('. ')
+          : typeof aiResults.vulnerabilities === 'string'
+            ? aiResults.vulnerabilities
+            : '';
+      }
+      
+      return processedResults;
+    } catch (error) {
+      console.error('Error processing AI results:', error);
+      return processedResults;
+    }
+  };
+  
+  // Update UI and form data with processed results
+  const updateWithResults = (results: any) => {
+    if (!results) return;
+    
+    setSghAsiaAiResults(results);
+    
+    // Update risk level in form if available
+    if (results.riskLevel && typeof results.riskLevel === 'string') {
+      setFormData(prev => ({
+        ...prev,
+        riskLevel: results.riskLevel.toLowerCase()
+      }));
+    }
+    
+    // Update potential impact if empty and available in results
+    if (!formData.potentialImpact && results.potentialImpact) {
+      const impact = typeof results.potentialImpact === 'string' 
+        ? results.potentialImpact
+        : Array.isArray(results.potentialImpact)
+          ? results.potentialImpact.join(". ")
+          : '';
+          
+      if (impact) {
+        setFormData(prev => ({
+          ...prev,
+          potentialImpact: impact
+        }));
+      }
+    }
+    
+    // Update vulnerabilities if empty and available in results
+    if (!formData.vulnerabilities && results.vulnerabilities) {
+      const vulnerabilities = typeof results.vulnerabilities === 'string' 
+        ? results.vulnerabilities
+        : Array.isArray(results.vulnerabilities)
+          ? results.vulnerabilities.join(". ")
+          : '';
+          
+      if (vulnerabilities) {
+        setFormData(prev => ({
+          ...prev,
+          vulnerabilities: vulnerabilities
+        }));
+      }
     }
   };
   
