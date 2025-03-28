@@ -113,12 +113,11 @@ import * as riskManagement from './risk-management'; // Added import
 import { 
   validateAssessmentText, 
   addLegalDisclaimerToContent, 
-  validateLegalOutput,
+  validateLegalOutput as validateLegal,
   getExpertReviewRequests,
   getExpertReviewById,
   requestExpertReview,
   updateExpertReviewRequest,
-  validateLegalText,
   queueForExpertReview,
   getExpertReviews,
   getExpertReview,
@@ -1091,7 +1090,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all risk assessments for the risk management page
   app.get("/api/risk-assessments", async (req: Request, res: Response) => {
     try {
-      // Make sure getAllRiskAssessments method is properly defined in the storage interface
       const assessments = await storage.getAllRiskAssessments();
       console.log("Fetched risk assessments:", assessments?.length || 0);
       res.json(assessments || []);
@@ -1150,9 +1148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (assessment.evidenceDocuments && typeof assessment.evidenceDocuments === 'string') {
           assessment.evidenceDocuments = JSON.parse(assessment.evidenceDocuments);
         }
-        if (assessment.riskParameters && typeof assessment.riskParameters === 'string') {
-          assessment.riskParameters = JSON.parse(assessment.riskParameters);
-        }
+        // The riskParameters field is not defined in the schema, so we'll skip this check
       } catch (parseError) {
         console.error("Error parsing assessment JSON fields:", parseError);
         // Continue with the original data if parsing fails
@@ -1356,7 +1352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Generate quick validation result
-      const validationResult = validateLegalOutput(text);
+      const validationResult = validateLegal(text);
       
       // Use request expert review handler
       return requestExpertReview(req, res);

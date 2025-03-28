@@ -969,9 +969,7 @@ export class DatabaseStorage implements IStorage {
             assessment.prohibitedUseChecks = JSON.parse(assessment.prohibitedUseChecks);
           }
           
-          if (assessment.riskParameters && typeof assessment.riskParameters === 'string') {
-            assessment.riskParameters = JSON.parse(assessment.riskParameters);
-          }
+          // Skip riskParameters parsing as it's not defined in the schema
           
           if (assessment.euAiActArticles && typeof assessment.euAiActArticles === 'string') {
             assessment.euAiActArticles = JSON.parse(assessment.euAiActArticles);
@@ -1906,6 +1904,10 @@ export class HybridStorage implements IStorage {
   async getRiskAssessmentsForSystem(systemId: string): Promise<RiskAssessment[]> {
     return this.storage.getRiskAssessmentsForSystem(systemId);
   }
+  
+  async getAllRiskAssessments(): Promise<RiskAssessment[]> {
+    return this.storage.getAllRiskAssessments();
+  }
 
   async createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment> {
     return this.storage.createRiskAssessment(assessment);
@@ -1913,6 +1915,10 @@ export class HybridStorage implements IStorage {
 
   async updateRiskAssessment(id: number, assessment: Partial<RiskAssessment>): Promise<RiskAssessment | undefined> {
     return this.storage.updateRiskAssessment(id, assessment);
+  }
+  
+  async deleteRiskAssessment(id: number): Promise<boolean> {
+    return this.storage.deleteRiskAssessment(id);
   }
 
   // Approval workflow operations

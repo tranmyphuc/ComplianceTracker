@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +35,39 @@ import { Progress } from "@nextui-org/react";
 // Chart.js imports
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
+
+// Define interfaces for API data
+interface AISystem {
+  id?: number;
+  systemId: string;
+  name: string;
+  description?: string;
+  vendor?: string;
+  department?: string;
+  purpose?: string;
+  version?: string;
+  status?: string;
+}
+
+interface ArticleRef {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface RiskAssessment {
+  id?: number;
+  assessmentId: string;
+  systemId: string;
+  createdBy?: string;
+  createdAt?: string | Date;
+  status?: string;
+  riskLevel: string;
+  riskScore: number;
+  euAiActArticles?: ArticleRef[] | string;
+  complianceGaps?: string[] | string;
+  summaryNotes?: string;
+}
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
@@ -114,9 +149,29 @@ const ComplianceFactorsChart = ({ complianceGaps }: { complianceGaps: string[] }
   );
 };
 
+// Default articles for fallback
+const defaultArticles = [
+  { id: "Article 5", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+  { id: "Article 10", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+  { id: "Article 14", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+  { id: "Article 15", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+  { id: "Article 17", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+  { id: "Article 61", name: "EU AI Act Article", description: "Requirements related to this AI system category" }
+];
+
+// Default compliance gaps for fallback
+const defaultComplianceGaps = [
+  "Systems must not use subliminal techniques to distort behavior causing harm",
+  "Systems must not exploit vulnerabilities of specific groups",
+  "Social scoring systems by public authorities are prohibited",
+  "Remote biometric identification systems in publicly accessible spaces for law enforcement are prohibited with exceptions",
+  "Limited risk systems require transparency measures"
+];
+
 // Component to display risk assessment results
 const RiskAssessmentResults: React.FC = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [location, setLocation] = useLocation();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
@@ -129,29 +184,81 @@ const RiskAssessmentResults: React.FC = () => {
   const systemId = searchParams.get('systemId');
   const assessmentId = searchParams.get('assessmentId');
 
-  const [assessmentData, setAssessmentData] = useState({
-    systemName: "OpenAI ChatGPT Assistant",
-    riskLevel: "Limited",
-    date: "3/27/2025",
-    assessmentId: assessmentId || "RA-12345",
-    riskScore: 61,
-    riskFactors: [],
-    relevantArticles: [
-      { id: "Article 5", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
-      { id: "Article 10", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
-      { id: "Article 14", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
-      { id: "Article 15", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
-      { id: "Article 17", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
-      { id: "Article 61", name: "EU AI Act Article", description: "Requirements related to this AI system category" }
-    ],
-    complianceGaps: [
-      "Systems must not use subliminal techniques to distort behavior causing harm",
-      "Systems must not exploit vulnerabilities of specific groups",
-      "Social scoring systems by public authorities are prohibited",
-      "Remote biometric identification systems in publicly accessible spaces for law enforcement are prohibited with exceptions",
-      "Limited risk systems require transparency measures"
-    ]
+  // Fetch system details
+  const { data: systemData, isLoading: isLoadingSystem } = useQuery<AISystem>({
+    queryKey: [`/api/systems/${systemId}`],
+    enabled: !!systemId,
   });
+
+  // Fetch assessment data
+  const { 
+    data: assessmentRawData, 
+    isLoading: isLoadingAssessment,
+    error: assessmentError
+  } = useQuery<RiskAssessment>({
+    queryKey: [`/api/risk-assessments/${assessmentId}`],
+    enabled: !!assessmentId,
+  });
+
+  // Initialize assessment data state
+  const [assessmentData, setAssessmentData] = useState({
+    systemName: "Loading...",
+    riskLevel: "Unknown",
+    date: "Loading...",
+    assessmentId: assessmentId || "Loading...",
+    riskScore: 0,
+    riskFactors: [],
+    relevantArticles: defaultArticles,
+    complianceGaps: defaultComplianceGaps
+  });
+
+  // Update assessment data when API responses are received
+  useEffect(() => {
+    // Combine system and assessment data
+    if (systemData && assessmentRawData) {
+      const formattedDate = assessmentRawData.createdAt
+        ? new Date(assessmentRawData.createdAt).toLocaleDateString() 
+        : new Date().toLocaleDateString();
+
+      // Extract compliance gaps from assessment data if available
+      const gaps = assessmentRawData.complianceGaps
+        ? (typeof assessmentRawData.complianceGaps === 'string' 
+            ? JSON.parse(assessmentRawData.complianceGaps) 
+            : assessmentRawData.complianceGaps)
+        : defaultComplianceGaps;
+
+      // Extract EU AI Act articles if available
+      const articles = assessmentRawData.euAiActArticles
+        ? (typeof assessmentRawData.euAiActArticles === 'string' 
+            ? JSON.parse(assessmentRawData.euAiActArticles) 
+            : assessmentRawData.euAiActArticles)
+        : defaultArticles;
+
+      // Update assessment data state
+      setAssessmentData({
+        systemName: systemData.name || "AI System",
+        riskLevel: assessmentRawData.riskLevel || "Limited",
+        date: formattedDate,
+        assessmentId: assessmentRawData.assessmentId || assessmentId || "RA-12345",
+        riskScore: assessmentRawData.riskScore || 61,
+        riskFactors: [],
+        relevantArticles: typeof articles === 'object' ? articles : defaultArticles,
+        complianceGaps: Array.isArray(gaps) ? gaps : defaultComplianceGaps
+      });
+    }
+  }, [systemData, assessmentRawData, assessmentId]);
+
+  // Show error toast if fetching assessment fails
+  useEffect(() => {
+    if (assessmentError) {
+      console.error("Error loading assessment:", assessmentError);
+      toast({
+        title: "Error Loading Assessment",
+        description: "Could not load the assessment details. Please try again.",
+        variant: "destructive"
+      });
+    }
+  }, [assessmentError, toast]);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import { 
   Card, 
   CardHeader, 
@@ -74,6 +76,54 @@ const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({
   const [aiProcessingStep, setAiProcessingStep] = useState(0);
   const [currentTab, setCurrentTab] = useState('analysis');
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Request expert review mutation
+  const requestExpertReviewMutation = {
+    isPending: false,
+    mutate: async () => {
+      try {
+        // Make API call to request expert review
+        const response = await axios.post('/api/legal/expert-reviews', {
+          text: content || initialContent,
+          type: 'risk_assessment_review',
+          context: {
+            systemId,
+            assessmentId
+          },
+          validationResult // Include the AI validation result 
+        });
+
+        if (response.data && response.data.success) {
+          // Show success toast
+          toast({
+            title: "Expert Review Requested",
+            description: "Your assessment has been submitted for expert legal review",
+            variant: "default",
+          });
+
+          // Invalidate any cached review data
+          queryClient.invalidateQueries({ queryKey: ['/api/legal/expert-reviews'] });
+          
+          // Redirect to the legal reviews page
+          window.location.href = '/legal-reviews';
+        } else {
+          toast({
+            title: "Request Failed",
+            description: "Could not request expert review. Please try again.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Error requesting expert review:", error);
+        toast({
+          title: "Error",
+          description: "Failed to request expert review. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   // Validate using backend API
   const validateMutation = {
@@ -375,14 +425,27 @@ const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({
           >
             Reset
           </Button>
-          <Button 
-            variant="default" 
-            onClick={() => validateMutation.mutate(content)}
-            size="sm"
-            disabled={validateMutation.isPending}
-          >
-            Re-validate
-          </Button>
+          <div className="space-x-2">
+            <Button 
+              variant="default" 
+              onClick={() => validateMutation.mutate(content)}
+              size="sm"
+              disabled={validateMutation.isPending}
+            >
+              Re-validate
+            </Button>
+            <Button 
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                // Send to expert review
+                requestExpertReviewMutation.mutate();
+              }}
+            >
+              <FileText className="h-4 w-4 mr-1" />
+              Request Expert Review
+            </Button>
+          </div>
         </CardFooter>
       </Card>
     );

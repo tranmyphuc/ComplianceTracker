@@ -522,7 +522,7 @@ export default function RiskManagement() {
                     <Badge variant="outline" className="capitalize">{assessment.status}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <a href={`/risk-assessment?tab=results&assessmentId=${assessment.assessmentId}&systemId=${assessment.systemId}`}>
+                    <a href={`/risk-assessment/results?assessmentId=${assessment.assessmentId}&systemId=${assessment.systemId}`}>
                       <Button variant="ghost" size="sm">
                         <FileText className="h-4 w-4 mr-2" />
                         View
