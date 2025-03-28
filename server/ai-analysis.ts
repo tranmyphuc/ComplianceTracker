@@ -61,28 +61,54 @@ function extractSystemNameFromPrompt(prompt: string): string | null {
   
   const lowerPrompt = prompt.toLowerCase();
   
-  // Check for specific keywords that might indicate medical imaging systems
-  // Give medical imaging systems higher priority over facial recognition
-  if (lowerPrompt.includes('medical imaging') || 
-      lowerPrompt.includes('radiology') || 
-      lowerPrompt.includes('diagnostic imaging') || 
-      lowerPrompt.includes('pacs') || 
-      lowerPrompt.includes('dicom') || 
-      lowerPrompt.includes('x-ray') ||
-      lowerPrompt.includes('mri') ||
-      lowerPrompt.includes('ct scan') ||
-      lowerPrompt.includes('ultrasound') ||
-      lowerPrompt.includes('medical scan') ||
-      (lowerPrompt.includes('hospital') && lowerPrompt.includes('image')) ||
+  // Check for specific HR/recruitment systems first
+  if (lowerPrompt === 'manatal') {
+    console.log('Detected Manatal recruitment system');
+    return 'hrRecruiting';
+  }
+  
+  // Create array of medical imaging related terms to check
+  const medicalTerms = [
+    'medical imaging', 'radiology', 'diagnostic imaging', 'pacs', 'dicom', 
+    'x-ray', 'mri', 'ct scan', 'ultrasound', 'medical scan', 'mammogram',
+    'mammography', 'breast imaging', 'breast scan', 'tomography', 'radiograph',
+    'sonogram', 'echocardiogram', 'pet scan', 'fluoroscopy', 'angiography',
+    'bone scan', 'medical image', 'medical diagnosis', 'diagnostic', 'pathology',
+    'radiological', 'screening', 'healthcare imaging', 'patient image', 'clinical imaging'
+  ];
+  
+  // Check for medical imaging terms with high priority - any match should return this
+  for (const term of medicalTerms) {
+    if (lowerPrompt.includes(term)) {
+      console.log(`Detected medical imaging term: ${term}`);
+      return 'medicalImaging';
+    }
+  }
+  
+  // Combined patterns for medical contexts
+  if ((lowerPrompt.includes('hospital') && lowerPrompt.includes('image')) || 
       (lowerPrompt.includes('medical') && lowerPrompt.includes('diagnosis')) ||
-      (lowerPrompt.includes('healthcare') && lowerPrompt.includes('imaging'))) {
+      (lowerPrompt.includes('healthcare') && lowerPrompt.includes('imaging')) ||
+      (lowerPrompt.includes('patient') && lowerPrompt.includes('scan'))) {
+    console.log('Detected medical imaging from combined terms');
     return 'medicalImaging';
   }
   
-  // Look for more system types to avoid misclassification
-  if (lowerPrompt.includes('facial recognition') || 
-      lowerPrompt.includes('face detection') || 
-      (lowerPrompt.includes('face') && lowerPrompt.includes('recognition'))) {
+  // Check face recognition only after no medical terms were found
+  const faceTerms = ['facial recognition', 'face detection', 'face id', 'biometric', 
+                     'face verification', 'person identification'];
+                     
+  for (const term of faceTerms) {
+    if (lowerPrompt.includes(term)) {
+      console.log(`Detected facial recognition term: ${term}`);
+      return 'faceRecognition';
+    }
+  }
+  
+  // Combined patterns for face recognition as fallback
+  if ((lowerPrompt.includes('face') && lowerPrompt.includes('recognition')) ||
+      (lowerPrompt.includes('facial') && lowerPrompt.includes('identity'))) {
+    console.log('Detected facial recognition from combined terms');
     return 'faceRecognition';
   }
   
@@ -692,6 +718,24 @@ function simulateDeepSeekResponse(prompt: string, detectedSystemType?: string): 
     // If a specific system type was detected earlier and passed in, use it directly
     if (detectedSystemType) {
       // For our new standardized system type format
+      if (detectedSystemType === 'hrRecruiting') {
+        console.log(`Using pre-detected HR recruiting system type (Manatal)`);
+        return JSON.stringify({
+          name: "Manatal Recruitment System",
+          vendor: "Manatal.com",
+          version: "2024",
+          department: "Human Resources",
+          purpose: "AI-powered recruitment software designed to source and hire candidates faster, with tools for HR teams, recruitment agencies, and headhunters.",
+          capabilities: "Candidate Sourcing, Resume Analysis, Applicant Tracking, Hiring Workflow Management, AI Matching",
+          dataSources: "Resumes, Applications, Job Descriptions, Candidate Profiles, Professional Networks",
+          outputTypes: "Candidate Recommendations, Talent Pool Reports, Hiring Analytics, Interview Schedules",
+          usageContext: "Recruitment, talent acquisition, hiring processes, HR management",
+          potentialImpact: "Improved hiring efficiency, better candidate matching, reduced time-to-hire",
+          riskLevel: "High",
+          confidenceScore: 95 // High confidence when using pre-detected type
+        });
+      }
+      
       if (detectedSystemType === 'medicalImaging' && systemTypes.medicalImaging) {
         const matchedSystem = systemTypes.medicalImaging;
         console.log(`Using pre-detected medical imaging system type`);
