@@ -4,7 +4,7 @@ import {Request, Response} from 'express';
 import {storage} from './storage'; // Assuming storage is defined elsewhere
 import {AppError} from './error-handling'; // Import AppError instead of handleError
 import {getApiKey} from './ai-key-management'; // Import getApiKey function
-import { AIModel, callAI, safeJsonParse } from './ai-service';
+import { AIModel, callAI } from './ai-service'; // Removed safeJsonParse import as we have our own implementation
 
 
 // AI API configurations
@@ -17,7 +17,7 @@ const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/
 
 // Google Search API configuration
 const GOOGLE_SEARCH_API_KEY = process.env.GOOGLE_SEARCH_API_KEY;
-const GOOGLE_SEARCH_ENGINE_ID = 'f8dd79e8afd604b0d'; // Default search engine ID
+const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID || 'f8dd79e8afd604b0d'; // Use env var or default
 const GOOGLE_SEARCH_URL = 'https://www.googleapis.com/customsearch/v1';
 
 // Define response types for the APIs
@@ -48,6 +48,85 @@ interface GoogleSearchResult {
   searchInformation?: {
     totalResults: string;
   };
+}
+
+/**
+ * Extract potential AI system name from a prompt
+ * @param prompt The user input or system description
+ * @returns Potential system name or null if none detected
+ */
+function extractSystemNameFromPrompt(prompt: string): string | null {
+  // Skip if no prompt
+  if (!prompt) return null;
+  
+  const lowerPrompt = prompt.toLowerCase();
+  
+  // Check for specific keywords that might indicate medical imaging systems
+  if (lowerPrompt.includes('medical imaging') || 
+      lowerPrompt.includes('radiology') || 
+      lowerPrompt.includes('diagnostic imaging') || 
+      lowerPrompt.includes('pacs') || 
+      lowerPrompt.includes('dicom') ||
+      (lowerPrompt.includes('hospital') && lowerPrompt.includes('image'))) {
+    return 'Medical Imaging AI System';
+  }
+  
+  // Look for more system types to avoid misclassification
+  if (lowerPrompt.includes('facial recognition') || 
+      lowerPrompt.includes('face detection') || 
+      (lowerPrompt.includes('face') && lowerPrompt.includes('recognition'))) {
+    return 'Facial Recognition System';
+  }
+  
+  if (lowerPrompt.includes('chatgpt') || lowerPrompt.includes('chat gpt')) {
+    return 'ChatGPT';
+  }
+  
+  if (lowerPrompt.includes('gemini')) {
+    return 'Google Gemini';
+  }
+  
+  if (lowerPrompt.includes('claude')) {
+    return 'Claude AI';
+  }
+  
+  if (lowerPrompt.includes('deepseek')) {
+    return 'DeepSeek AI';
+  }
+  
+  // Try to extract system name from typical patterns
+  // Pattern: "System Name: XYZ"
+  if (prompt.includes('System Name:')) {
+    const afterSystemName = prompt.split('System Name:')[1];
+    const firstLine = afterSystemName.split('\n')[0].trim();
+    return firstLine || null;
+  }
+  
+  // Pattern: "Name: XYZ"
+  if (prompt.includes('Name:')) {
+    const afterName = prompt.split('Name:')[1];
+    const firstLine = afterName.split('\n')[0].trim();
+    return firstLine || null;
+  }
+  
+  // Extract from system description if available
+  if (prompt.includes('System Description:') || prompt.includes('Description:')) {
+    let description = '';
+    if (prompt.includes('System Description:')) {
+      description = prompt.split('System Description:')[1].split('\n\n')[0].trim();
+    } else {
+      description = prompt.split('Description:')[1].split('\n\n')[0].trim();
+    }
+    
+    // Extract potential name from first 10 words of description
+    if (description) {
+      const words = description.split(' ');
+      const potentialName = words.slice(0, Math.min(10, words.length)).join(' ');
+      return potentialName;
+    }
+  }
+  
+  return null;
 }
 
 /**
@@ -258,6 +337,77 @@ export function safeJsonParse(jsonString: string): any {
 
 export async function callDeepSeekApi(prompt: string, detectedSystemType?: string): Promise<string> {
   try {
+    // Extract any AI system name hints from the prompt
+    const systemNameHints = extractSystemNameFromPrompt(prompt);
+    console.log('Extracted system name hints:', systemNameHints);
+    
+    // First, try Google Search if API keys are available - this is our first step for accurate classification
+    if (GOOGLE_SEARCH_API_KEY && process.env.GOOGLE_SEARCH_ENGINE_ID) {
+      try {
+        console.log('Attempting hybrid approach with Google Search first...');
+        
+        // If we have a system name hint, create a more targeted search query
+        let searchQuery = systemNameHints 
+          ? `${systemNameHints} AI system specifications EU AI Act classification`
+          : prompt.substring(0, 200) + " AI system description specifications EU compliance";
+          
+        // Perform Google search
+        const searchResults = await searchGoogleApi(searchQuery);
+        console.log('Google Search returned results:', searchResults.substring(0, 100) + '...');
+        
+        // Prepare for the AI analysis with search-enhanced information
+        const enhancedPrompt = `
+        Based on the following information and search results, provide accurate information about this AI system:
+        
+        ORIGINAL DESCRIPTION:
+        ${prompt}
+        
+        SEARCH RESULTS:
+        ${searchResults}
+        
+        Please analyze both the original description and search results to correctly identify the AI system.
+        Be careful not to misclassify systems - for example, do not confuse medical imaging AI with facial recognition.
+        
+        Output your answer in the requested JSON format.
+        `;
+        
+        // Now use AI to process the enhanced search-based information
+        if (DEEPSEEK_API_KEY) {
+          // Primary option: Use DeepSeek directly for enhanced analysis
+          // Use the built-in fetch mechanism for DeepSeek API
+          console.log('Using DeepSeek API with enhanced search-based prompt');
+          const response = await fetch(DEEPSEEK_API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+            },
+            body: JSON.stringify({
+              model: 'deepseek-chat',
+              messages: [{ role: 'user', content: enhancedPrompt }],
+              temperature: 0.7
+            }),
+            signal: AbortSignal.timeout(10000)
+          });
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`DeepSeek API error with enhanced prompt: ${response.status} - ${errorText}`);
+          }
+          
+          const data = await response.json() as DeepSeekResponse;
+          return data.choices[0].message.content;
+        } else if (GEMINI_API_KEY) {
+          // Secondary option: Use Gemini for enhanced analysis
+          return await callGeminiApi(enhancedPrompt);
+        }
+      } catch (searchError) {
+        console.error('Hybrid approach with Google Search failed, falling back to AI-only:', searchError);
+        // Continue to AI-only approach
+      }
+    }
+    
+    // If Google Search approach failed or keys aren't available, fall back to AI-only approach
     // Check if DeepSeek API key is present
     if (!DEEPSEEK_API_KEY) {
       console.log('DeepSeek API key not found, checking for Gemini API');
@@ -484,6 +634,17 @@ function simulateDeepSeekResponse(prompt: string, detectedSystemType?: string): 
         purpose: "A biometric identification system that analyzes facial features to verify identity or identify individuals from digital images or video frames.",
         capabilities: "Facial Detection, Feature Extraction, Pattern Recognition, Matching Algorithm",
         dataSources: "Facial Image Databases, Video Footage, Employee Records",
+        riskLevel: "High"
+      },
+      medicalImaging: {
+        keywords: ['medical', 'imaging', 'radiology', 'diagnostic', 'diagnosis', 'patient', 'hospital', 'x-ray', 'scan', 'mri', 'dicom', 'pacs'],
+        name: "Medical Imaging AI System",
+        vendor: "HealthTech Innovations",
+        version: "2.4.1",
+        department: "Radiology",
+        purpose: "An AI system that analyzes medical images to assist healthcare professionals in diagnosing conditions and diseases through automated detection and highlighting of potential areas of concern.",
+        capabilities: "Image Analysis, Anomaly Detection, Pattern Recognition, Clinical Decision Support",
+        dataSources: "Medical Images, Patient Scans, Radiology Databases, Anonymized Clinical Data",
         riskLevel: "High"
       },
       hrScreening: {
