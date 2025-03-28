@@ -1,17 +1,19 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { ConfidenceLevel, ReviewStatus } from '@/lib/types/legal-validation';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { 
-  CheckCircleIcon, 
   AlertTriangleIcon, 
-  XCircleIcon, 
+  CheckCircleIcon, 
   InfoIcon, 
   UserIcon, 
-  ClockIcon,
-  FileTextIcon
-} from "lucide-react";
-import { ConfidenceLevel, ReviewStatus } from './legal-disclaimer';
+  AlertCircleIcon, 
+  XCircleIcon, 
+  BotIcon, 
+  ShieldIcon 
+} from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ValidationResultProps {
   isValid: boolean;
@@ -27,7 +29,7 @@ interface ValidationResultProps {
   className?: string;
 }
 
-export const ValidationResult: React.FC<ValidationResultProps> = ({
+export function ValidationResult({
   isValid,
   confidenceLevel,
   reviewStatus,
@@ -38,149 +40,188 @@ export const ValidationResult: React.FC<ValidationResultProps> = ({
   validator,
   validationNotes,
   onRequestReview,
-  className = ''
-}) => {
-  // Determine status icon and color
-  const getStatusDetails = () => {
-    if (isValid && confidenceLevel === ConfidenceLevel.HIGH) {
-      return {
-        icon: <CheckCircleIcon className="h-6 w-6 text-green-500" />,
-        title: "Valid Assessment",
-        color: "text-green-500",
-        description: "This assessment has been validated and has a high confidence level."
-      };
-    } else if (isValid && confidenceLevel === ConfidenceLevel.MEDIUM) {
-      return {
-        icon: <CheckCircleIcon className="h-6 w-6 text-blue-500" />,
-        title: "Valid Assessment",
-        color: "text-blue-500",
-        description: "This assessment has been validated with a medium confidence level."
-      };
-    } else if (!isValid || confidenceLevel === ConfidenceLevel.LOW) {
-      return {
-        icon: <AlertTriangleIcon className="h-6 w-6 text-amber-500" />,
-        title: "Requires Review",
-        color: "text-amber-500",
-        description: "This assessment requires further review due to validation issues or low confidence."
-      };
-    } else if (reviewStatus === ReviewStatus.OUTDATED) {
-      return {
-        icon: <XCircleIcon className="h-6 w-6 text-red-500" />,
-        title: "Outdated Assessment",
-        color: "text-red-500",
-        description: "This assessment may be outdated due to regulatory changes."
-      };
-    } else {
-      return {
-        icon: <InfoIcon className="h-6 w-6 text-gray-500" />,
-        title: "Assessment Information",
-        color: "text-gray-500",
-        description: "Review the validation results for this assessment."
-      };
+  className
+}: ValidationResultProps) {
+  const getConfidenceBadge = () => {
+    switch (confidenceLevel) {
+      case 'high':
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">High Confidence</Badge>;
+      case 'medium':
+        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">Medium Confidence</Badge>;
+      case 'low':
+        return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Low Confidence</Badge>;
+      default:
+        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Uncertain</Badge>;
     }
   };
 
-  const statusDetails = getStatusDetails();
-  
-  // Get validator icon
-  const getValidatorIcon = () => {
-    switch (validator) {
-      case 'expert':
-        return <UserIcon className="h-4 w-4 mr-1" />;
-      case 'ai':
-        return <FileTextIcon className="h-4 w-4 mr-1" />;
-      case 'system':
+  const getStatusBadge = () => {
+    switch (reviewStatus) {
+      case 'validated':
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Validated</Badge>;
+      case 'pending_review':
+        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">Pending Review</Badge>;
+      case 'requires_legal_review':
+        return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Requires Legal Review</Badge>;
+      case 'outdated':
+        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Outdated</Badge>;
       default:
-        return <InfoIcon className="h-4 w-4 mr-1" />;
+        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Unknown</Badge>;
     }
   };
-  
-  // Get confidence badge color
-  const getConfidenceBadgeColor = () => {
+
+  const getConfidenceScore = () => {
     switch (confidenceLevel) {
-      case ConfidenceLevel.HIGH:
-        return "bg-green-100 text-green-800 hover:bg-green-100";
-      case ConfidenceLevel.MEDIUM:
-        return "bg-blue-100 text-blue-800 hover:bg-blue-100";
-      case ConfidenceLevel.LOW:
-        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100";
-      case ConfidenceLevel.UNCERTAIN:
-        return "bg-red-100 text-red-800 hover:bg-red-100";
-      default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-100";
+      case 'high': return 90;
+      case 'medium': return 65;
+      case 'low': return 35;
+      default: return 20;
     }
   };
-  
+
+  const getProgressColor = () => {
+    switch (confidenceLevel) {
+      case 'high': return 'bg-green-500';
+      case 'medium': return 'bg-amber-500';
+      case 'low': return 'bg-red-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
   return (
-    <Card className={`shadow-sm ${className}`}>
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-4">
-            {statusDetails.icon}
-            <div>
-              <CardTitle className={statusDetails.color}>{statusDetails.title}</CardTitle>
-              <CardDescription>{statusDetails.description}</CardDescription>
+    <div className={className}>
+      <div className="border-2 rounded-xl overflow-hidden mb-6 shadow-sm">
+        <div className={`p-4 ${isValid ? 'bg-green-50' : 'bg-amber-50'}`}>
+          <div className="flex justify-between items-start">
+            <div className="flex items-center space-x-3">
+              <div className={`p-2 rounded-full ${isValid ? 'bg-green-100' : 'bg-amber-100'}`}>
+                {isValid ? (
+                  <CheckCircleIcon className="text-green-600 h-5 w-5" />
+                ) : (
+                  <AlertTriangleIcon className="text-amber-600 h-5 w-5" />
+                )}
+              </div>
+              <div>
+                <h3 className="text-lg font-medium">{isValid ? 'Validation Passed' : 'Validation Issues Found'}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {isValid 
+                    ? 'This assessment appears to be legally compliant'
+                    : 'Some issues were detected that require attention'}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {getConfidenceBadge()}
+              {getStatusBadge()}
             </div>
           </div>
-          <Badge className={getConfidenceBadgeColor()}>
-            {confidenceLevel.charAt(0).toUpperCase() + confidenceLevel.slice(1)} Confidence
-          </Badge>
         </div>
-      </CardHeader>
-      <CardContent>
-        {(issues.length > 0 || warnings.length > 0) && (
-          <div className="space-y-4">
-            {issues.length > 0 && (
-              <div>
-                <h4 className="font-medium text-red-600 mb-2">Validation Issues</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  {issues.map((issue, index) => (
-                    <li key={`issue-${index}`} className="text-red-600">{issue}</li>
-                  ))}
-                </ul>
+
+        <div className="p-4 border-t">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium text-sm flex items-center gap-2">
+              <BotIcon className="h-4 w-4 text-primary" />
+              AI Confidence Level
+            </h4>
+            <span className="text-sm font-medium">{getConfidenceScore()}%</span>
+          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="w-full">
+                  <Progress 
+                    value={getConfidenceScore()} 
+                    className="h-2" 
+                    indicatorClassName={getProgressColor()} 
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>AI's confidence in its assessment: {confidenceLevel}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+
+      {validationNotes && (
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-4">
+          <h4 className="font-medium mb-2 flex items-center gap-2">
+            <InfoIcon className="h-4 w-4 text-blue-600" />
+            Validation Notes
+          </h4>
+          <p className="text-sm">{validationNotes}</p>
+        </div>
+      )}
+
+      {issues.length > 0 && (
+        <div className="mb-4">
+          <h4 className="font-medium mb-3 flex items-center gap-2">
+            <AlertCircleIcon className="h-4 w-4 text-red-500" />
+            Issues Found
+          </h4>
+          <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 scrollbar-thin">
+            {issues.map((issue, index) => (
+              <div key={index} className="flex gap-3 text-sm p-3 bg-red-50 rounded-lg border border-red-100">
+                <XCircleIcon className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                <span>{issue}</span>
               </div>
-            )}
-            
-            {warnings.length > 0 && (
-              <div>
-                <h4 className="font-medium text-amber-600 mb-2">Validation Warnings</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  {warnings.map((warning, index) => (
-                    <li key={`warning-${index}`} className="text-amber-600">{warning}</li>
-                  ))}
-                </ul>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {warnings.length > 0 && (
+        <div className="mb-4">
+          <h4 className="font-medium mb-3 flex items-center gap-2">
+            <AlertTriangleIcon className="h-4 w-4 text-amber-500" />
+            Warnings
+          </h4>
+          <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 scrollbar-thin">
+            {warnings.map((warning, index) => (
+              <div key={index} className="flex gap-3 text-sm p-3 bg-amber-50 rounded-lg border border-amber-100">
+                <AlertTriangleIcon className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                <span>{warning}</span>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isValid && (
+        <div className="mb-4">
+          <div className="flex gap-3 text-sm p-3 bg-green-50 rounded-lg border border-green-100">
+            <CheckCircleIcon className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+            <span>This assessment meets the basic legal requirements for AI compliance documentation.</span>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-4 border-t">
+        <div className="text-sm text-muted-foreground flex items-center gap-2">
+          <div className="bg-primary/10 p-1.5 rounded-full">
+            {validator === 'ai' ? (
+              <BotIcon className="h-3.5 w-3.5 text-primary" />
+            ) : validator === 'expert' ? (
+              <UserIcon className="h-3.5 w-3.5 text-primary" />
+            ) : (
+              <ShieldIcon className="h-3.5 w-3.5 text-primary" />
             )}
           </div>
-        )}
-        
-        {validationNotes && (
-          <div className="mt-4">
-            <h4 className="font-medium mb-2">Validation Notes</h4>
-            <p className="text-gray-700">{validationNotes}</p>
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="flex justify-between border-t pt-4">
-        <div className="flex items-center text-sm text-gray-500">
-          <span className="flex items-center mr-4">
-            {getValidatorIcon()}
-            Validated by {validator.charAt(0).toUpperCase() + validator.slice(1)}
-          </span>
-          <span className="flex items-center">
-            <ClockIcon className="h-4 w-4 mr-1" />
-            {timestamp.toLocaleDateString()}
+          <span>
+            Validated by <span className="font-medium">{validator === 'ai' ? 'AI System' : validator === 'expert' ? 'Legal Expert' : 'System Check'}</span>
+            <span className="mx-1">•</span>
+            {timestamp.toLocaleString()}
           </span>
         </div>
-        
+
         {reviewRequired && onRequestReview && (
-          <Button variant="outline" onClick={onRequestReview}>
+          <Button onClick={onRequestReview} className="gap-2">
+            <UserIcon className="h-4 w-4" />
             Request Expert Review
           </Button>
         )}
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
-};
-
-export default ValidationResult;
+}
