@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { 
   AlertTriangle, 
   CheckCircle, 
@@ -26,7 +26,8 @@ import {
   List, 
   ArrowRight,
   AlertCircle,
-  BarChart4
+  BarChart4,
+  Circle
 } from 'lucide-react';
 
 export interface ValidationResult {
