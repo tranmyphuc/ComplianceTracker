@@ -174,18 +174,48 @@ const RiskAssessmentResults: React.FC = () => {
     riskLevel: assessment.riskLevel,
     date: new Date(assessment.assessmentDate || Date.now()).toLocaleDateString(),
     assessmentId: assessment.assessmentId,
-    riskFactors: assessment.riskParameters || [],
-    relevantArticles: assessment.euAiActArticles ? assessment.euAiActArticles.map((article: string) => {
-      const [id, name] = article.split(':');
-      return {
-        id: id.trim(),
-        name: name?.trim() || "EU AI Act Article",
-        description: "Requirements related to this AI system category"
-      };
-    }) : [],
-    complianceGaps: assessment.complianceGaps?.map((gap: any) => gap.description) || [],
-    mitigationMeasures: assessment.remediationActions || []
+    riskScore: assessment.riskScore || 0,
+    // Process risk parameters if they exist
+    riskFactors: assessment.riskParameters ? 
+      (typeof assessment.riskParameters === 'string' ? 
+        JSON.parse(assessment.riskParameters) : 
+        assessment.riskParameters) || [] : [],
+    // Process relevant articles if they exist
+    relevantArticles: assessment.euAiActArticles ? 
+      (typeof assessment.euAiActArticles === 'string' ? 
+        JSON.parse(assessment.euAiActArticles).map((article: string) => {
+          const parts = article.split(':');
+          return {
+            id: parts[0].trim(),
+            name: parts.slice(1).join(':').trim() || "EU AI Act Article",
+            description: "Requirements related to this AI system category"
+          };
+        }) : 
+        assessment.euAiActArticles.map((article: string) => {
+          const parts = article.split(':');
+          return {
+            id: parts[0].trim(),
+            name: parts.slice(1).join(':').trim() || "EU AI Act Article",
+            description: "Requirements related to this AI system category"
+          };
+        })) : [],
+    // Process compliance gaps if they exist
+    complianceGaps: assessment.complianceGaps ? 
+      (typeof assessment.complianceGaps === 'string' ? 
+        JSON.parse(assessment.complianceGaps).map((gap: any) => 
+          typeof gap === 'string' ? gap : gap.description || gap
+        ) : 
+        assessment.complianceGaps.map((gap: any) => 
+          typeof gap === 'string' ? gap : gap.description || gap
+        )) : [],
+    // Process remediation actions if they exist
+    mitigationMeasures: assessment.remediationActions ? 
+      (typeof assessment.remediationActions === 'string' ? 
+        JSON.parse(assessment.remediationActions) : 
+        assessment.remediationActions) : []
   };
+  
+  console.log("Processed assessment data:", assessmentData);
   
   return (
     <div className="container mx-auto py-8 max-w-4xl">

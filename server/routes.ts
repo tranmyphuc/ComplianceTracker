@@ -1130,6 +1130,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Risk assessment not found" });
       }
 
+      // Process data fields that might be stored as strings but should be objects
+      try {
+        if (assessment.prohibitedUseChecks && typeof assessment.prohibitedUseChecks === 'string') {
+          assessment.prohibitedUseChecks = JSON.parse(assessment.prohibitedUseChecks);
+        }
+        if (assessment.euAiActArticles && typeof assessment.euAiActArticles === 'string') {
+          assessment.euAiActArticles = JSON.parse(assessment.euAiActArticles);
+        }
+        if (assessment.complianceGaps && typeof assessment.complianceGaps === 'string') {
+          assessment.complianceGaps = JSON.parse(assessment.complianceGaps);
+        }
+        if (assessment.remediationActions && typeof assessment.remediationActions === 'string') {
+          assessment.remediationActions = JSON.parse(assessment.remediationActions);
+        }
+        if (assessment.evidenceDocuments && typeof assessment.evidenceDocuments === 'string') {
+          assessment.evidenceDocuments = JSON.parse(assessment.evidenceDocuments);
+        }
+        if (assessment.riskParameters && typeof assessment.riskParameters === 'string') {
+          assessment.riskParameters = JSON.parse(assessment.riskParameters);
+        }
+      } catch (parseError) {
+        console.error("Error parsing assessment JSON fields:", parseError);
+        // Continue with the original data if parsing fails
+      }
+
       res.json(assessment);
     } catch (err) {
       handleError(res, err as Error);
