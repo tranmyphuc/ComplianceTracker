@@ -49,6 +49,7 @@ const initialFormData = {
   version: '',
   department: '',
   vendor: '',
+  internalOwner: '',  // Added for ReviewSubmitStep
   riskLevel: 'Limited',
   systemId: '',
   aiCapabilities: '',
@@ -65,8 +66,20 @@ const initialFormData = {
   deploymentScope: '',
   integrations: [],
   changeHistory: [],
-  dataSources: [],
-  trainingDataDescription: ''
+  dataSources: '', // Changed from array to string to match expected type
+  trainingDataDescription: '',
+  // Added missing fields required by the review step
+  humansInLoop: false,
+  dataProtection: '',
+  usesPersonalData: false,
+  usesSensitiveData: false,
+  vulnerabilities: '',
+  impactsAutonomous: false,
+  impactsVulnerableGroups: false,
+  usesDeepLearning: false,
+  isTransparent: false,
+  confirmAccuracy: false,
+  confirmCompliance: false
 };
 
 const departments = [

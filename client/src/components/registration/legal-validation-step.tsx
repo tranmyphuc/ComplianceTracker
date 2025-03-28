@@ -86,36 +86,64 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
       // Process the response
       const result = await response.json();
       
-      // Simulate result if API isn't implemented yet
-      if (!result || Object.keys(result).length === 0) {
-        const simulatedResult: ValidatorResult = {
-          issues: formData.riskLevel === 'high' ? [
-            { 
-              description: "This high-risk system requires an explicit conformity assessment according to Article 43.", 
-              severity: 'warning',
-              articleRef: 'Art. 43'
-            },
-            { 
-              description: "The system description should explicitly address transparency requirements.", 
-              severity: 'info',
-              articleRef: 'Art. 13'
-            }
-          ] : [
-            { 
-              description: "Consider adding more details about data sources to comply with documentation requirements.", 
-              severity: 'info',
-              articleRef: 'Art. 11'
-            }
-          ],
-          confidenceScore: formData.riskLevel === 'high' ? 87 : 92,
-          status: formData.riskLevel === 'high' ? 'valid_with_warnings' : 'valid',
-          validatedTimestamp: new Date().toISOString(),
+      // Transform the API response to match our expected format
+      const transformedResult: ValidatorResult = {
+        issues: [],
+        confidenceScore: 0,
+        status: 'valid',
+        validatedTimestamp: new Date().toISOString()
+      };
+      
+      // Map API response to our format
+      if (result) {
+        // Map confidence level to score
+        const confidenceMap: Record<string, number> = {
+          'high': 90,
+          'medium': 75,
+          'low': 60,
+          'uncertain': 50
         };
         
-        setValidationResult(simulatedResult);
-      } else {
-        setValidationResult(result);
+        transformedResult.confidenceScore = result.confidenceLevel 
+          ? confidenceMap[result.confidenceLevel] || 70
+          : 70;
+        
+        // Map validity status
+        transformedResult.status = result.isValid 
+          ? (result.warnings && result.warnings.length > 0 ? 'valid_with_warnings' : 'valid')
+          : 'invalid';
+        
+        // Combine issues and warnings with appropriate severity levels
+        const issues = Array.isArray(result.issues) ? result.issues : [];
+        const warnings = Array.isArray(result.warnings) ? result.warnings : [];
+        
+        // Add critical issues
+        transformedResult.issues = [
+          ...issues.map((issue: string) => ({
+            description: issue,
+            severity: 'critical' as const
+          })),
+          
+          // Add warnings with warning severity
+          ...warnings.map((warning: string) => ({
+            description: warning,
+            severity: 'warning' as const
+          }))
+        ];
+        
+        // Include recommendations as info-level issues if available
+        if (result.recommendations && Array.isArray(result.recommendations)) {
+          const recommendations = result.recommendations.map((rec: string) => ({
+            description: rec,
+            severity: 'info' as const,
+            articleRef: undefined
+          }));
+          
+          transformedResult.issues = [...transformedResult.issues, ...recommendations];
+        }
       }
+      
+      setValidationResult(transformedResult);
       
       setValidationProgress(100);
       setTimeout(() => {
@@ -137,25 +165,10 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
         variant: "destructive"
       });
       
-      // Generate fallback validation result with a legal warning
-      const fallbackResult: ValidatorResult = {
-        issues: [
-          { 
-            description: "Unable to perform a complete legal validation. Manual legal review is strongly recommended.", 
-            severity: 'warning' 
-          }
-        ],
-        confidenceScore: 60,
-        status: 'valid_with_warnings',
-        validatedTimestamp: new Date().toISOString(),
-      };
-      
-      setValidationResult(fallbackResult);
-      setValidationProgress(100);
-      setTimeout(() => {
-        setValidationComplete(true);
-        setValidationInProgress(false);
-      }, 500);
+      // Handle validation error - just reset the validation state
+      setValidationProgress(0);
+      setValidationComplete(false);
+      setValidationInProgress(false);
     }
   };
   
