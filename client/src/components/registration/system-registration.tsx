@@ -833,12 +833,30 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     // Close the guidance modal
     setShowGuidanceModal(false);
     
-    // Start the actual AI suggestion process
-    getAiSuggestions(template);
+    // Show the AI modal with process tab for visualization
+    setAiModalOpen(true);
+    setAiTab('process');
+    
+    // Initialize the steps for visualization
+    const initialSteps = [...defaultAutoFillSteps].map(step => ({
+      ...step,
+      status: step.id === 'input' ? 'complete' as const : 
+              step.id === 'web_research' ? 'processing' as const : 
+              'pending' as const
+    }));
+    setAutoFillSteps(initialSteps);
+    setCurrentAutoFillStep('web_research');
+    
+    // Start progress visualization
+    setExtractionInProgress(true);
+    setExtractionProgress(10);
+    
+    // Start the actual AI suggestion process with visualization updates
+    getAiSuggestions(template, true);
   };
   
   // AI-powered suggestions from name or description
-  const getAiSuggestions = async (templateText?: string) => {
+  const getAiSuggestions = async (templateText?: string, visualizeSteps: boolean = false) => {
     const systemDescription = templateText || formData.name || formData.description || aiTextInput;
     if (!systemDescription || systemDescription.trim().length < 5) {
       toast({
