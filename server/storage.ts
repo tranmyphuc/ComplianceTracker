@@ -14,6 +14,7 @@ import {
   approvalSettings, type ApprovalSettings, type InsertApprovalSettings,
   expertReviews, type ExpertReview, type InsertExpertReview
 } from "@shared/schema";
+import { documentFiles, type DocumentFile, type InsertDocumentFile } from "@shared/schemas/document";
 import { eq, desc, or, like, sql } from "drizzle-orm";
 import { db } from "./db";
 
@@ -57,6 +58,13 @@ export interface IStorage {
   getDocumentsForSystem(systemId: string): Promise<Document[]>;
   createDocument(document: InsertDocument): Promise<Document>;
   updateDocument(id: number, document: Partial<Document>): Promise<Document | undefined>;
+  
+  // Document File operations
+  createDocumentFile(document: InsertDocumentFile): Promise<DocumentFile>;
+  getDocumentFileById(documentId: string): Promise<DocumentFile | null>;
+  getDocumentFilesByAssessment(assessmentId: string): Promise<DocumentFile[]>;
+  getDocumentFilesBySystem(systemId: string): Promise<DocumentFile[]>;
+  deleteDocumentFile(documentId: string): Promise<boolean>;
 
   // Risk Assessment operations
   getRiskAssessment(id: number): Promise<RiskAssessment | undefined>;
@@ -320,6 +328,7 @@ export class MemStorage implements IStorage {
   }
   private deadlines: Map<number, Deadline>;
   private documents: Map<number, Document>;
+  private documentFiles: Map<string, DocumentFile>;
   private riskAssessments: Map<number, RiskAssessment>;
   private expertReviews: Map<number, ExpertReview>;
 
@@ -341,6 +350,7 @@ export class MemStorage implements IStorage {
     this.alerts = new Map();
     this.deadlines = new Map();
     this.documents = new Map();
+    this.documentFiles = new Map();
     this.riskAssessments = new Map();
     this.expertReviews = new Map();
 
@@ -562,6 +572,40 @@ export class MemStorage implements IStorage {
     };
     this.documents.set(id, updatedDocument);
     return updatedDocument;
+  }
+  
+  // Document File operations
+  async createDocumentFile(document: InsertDocumentFile): Promise<DocumentFile> {
+    const newDocumentFile: DocumentFile = {
+      ...document,
+      uploadedAt: new Date()
+    };
+    this.documentFiles.set(document.documentId, newDocumentFile);
+    return newDocumentFile;
+  }
+  
+  async getDocumentFileById(documentId: string): Promise<DocumentFile | null> {
+    const documentFile = this.documentFiles.get(documentId);
+    return documentFile || null;
+  }
+  
+  async getDocumentFilesByAssessment(assessmentId: string): Promise<DocumentFile[]> {
+    return Array.from(this.documentFiles.values())
+      .filter(doc => doc.assessmentId === assessmentId);
+  }
+  
+  async getDocumentFilesBySystem(systemId: string): Promise<DocumentFile[]> {
+    return Array.from(this.documentFiles.values())
+      .filter(doc => doc.systemId === systemId);
+  }
+  
+  async deleteDocumentFile(documentId: string): Promise<boolean> {
+    const exists = this.documentFiles.has(documentId);
+    if (exists) {
+      this.documentFiles.delete(documentId);
+      return true;
+    }
+    return false;
   }
 
   // Risk Assessment methods
@@ -933,6 +977,47 @@ export class DatabaseStorage implements IStorage {
       .where(eq(documents.id, id))
       .returning();
     return result[0];
+  }
+  
+  // Document File operations
+  async createDocumentFile(document: InsertDocumentFile): Promise<DocumentFile> {
+    const newDocumentFile = {
+      ...document,
+      uploadedAt: new Date()
+    };
+    const result = await db.insert(documentFiles).values(newDocumentFile).returning();
+    return result[0];
+  }
+  
+  async getDocumentFileById(documentId: string): Promise<DocumentFile | null> {
+    const result = await db
+      .select()
+      .from(documentFiles)
+      .where(eq(documentFiles.documentId, documentId))
+      .limit(1);
+    return result[0] || null;
+  }
+  
+  async getDocumentFilesByAssessment(assessmentId: string): Promise<DocumentFile[]> {
+    return await db
+      .select()
+      .from(documentFiles)
+      .where(eq(documentFiles.assessmentId, assessmentId));
+  }
+  
+  async getDocumentFilesBySystem(systemId: string): Promise<DocumentFile[]> {
+    return await db
+      .select()
+      .from(documentFiles)
+      .where(eq(documentFiles.systemId, systemId));
+  }
+  
+  async deleteDocumentFile(documentId: string): Promise<boolean> {
+    const result = await db
+      .delete(documentFiles)
+      .where(eq(documentFiles.documentId, documentId))
+      .returning();
+    return result.length > 0;
   }
 
   // Risk Assessment operations
@@ -1890,6 +1975,57 @@ export class HybridStorage implements IStorage {
 
   async updateDocument(id: number, document: Partial<Document>): Promise<Document | undefined> {
     return this.storage.updateDocument(id, document);
+  }
+  
+  // Document File operations
+  async createDocumentFile(document: InsertDocumentFile): Promise<DocumentFile> {
+    try {
+      return await this.storage.createDocumentFile(document);
+    } catch (error) {
+      console.error("Error in createDocumentFile, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.createDocumentFile(document);
+    }
+  }
+  
+  async getDocumentFileById(documentId: string): Promise<DocumentFile | null> {
+    try {
+      return await this.storage.getDocumentFileById(documentId);
+    } catch (error) {
+      console.error("Error in getDocumentFileById, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getDocumentFileById(documentId);
+    }
+  }
+  
+  async getDocumentFilesByAssessment(assessmentId: string): Promise<DocumentFile[]> {
+    try {
+      return await this.storage.getDocumentFilesByAssessment(assessmentId);
+    } catch (error) {
+      console.error("Error in getDocumentFilesByAssessment, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getDocumentFilesByAssessment(assessmentId);
+    }
+  }
+  
+  async getDocumentFilesBySystem(systemId: string): Promise<DocumentFile[]> {
+    try {
+      return await this.storage.getDocumentFilesBySystem(systemId);
+    } catch (error) {
+      console.error("Error in getDocumentFilesBySystem, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getDocumentFilesBySystem(systemId);
+    }
+  }
+  
+  async deleteDocumentFile(documentId: string): Promise<boolean> {
+    try {
+      return await this.storage.deleteDocumentFile(documentId);
+    } catch (error) {
+      console.error("Error in deleteDocumentFile, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.deleteDocumentFile(documentId);
+    }
   }
 
   // Risk Assessment operations
