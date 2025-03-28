@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'wouter';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, useLocation, useNavigate } from 'wouter';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
@@ -15,22 +16,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  AlertTriangle, CheckCircle, FileDown, FileText,
+import { 
+  AlertTriangle, CheckCircle, FileDown, FileText, 
   Printer, ArrowRight, ChevronDown, ChevronUp, ArrowLeft,
-  ShieldCheck, Gavel, Loader2, Trash2, ShieldIcon, AlertCircleIcon, BotIcon, UserIcon, DownloadIcon, Progress
+  ShieldCheck, Gavel, Loader2, Trash2
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/language-switcher";
-import { LegalDisclaimerSection, LegalValidationPanel } from "@/components/legal";
+import { LegalDisclaimerSection, LegalValidationPanel } from "@/components/risk-assessment";
 import { ConfidenceLevel } from "@/components/legal";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, CheckCircle2, FileText, List } from "lucide-react";
-
 
 // Component to display risk assessment results
 const RiskAssessmentResults: React.FC = () => {
@@ -42,24 +41,24 @@ const RiskAssessmentResults: React.FC = () => {
   const [activeTab, setActiveTab] = useState('assessment');
   const [validationLoaded, setValidationLoaded] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
+  
   // Extract parameters from URL query string using window.location instead of wouter location
   const getParamsFromUrl = (): { systemId?: string; assessmentId?: string } => {
     // Use window.location.search to get query parameters
     const params = new URLSearchParams(window.location.search);
     const systemId = params.get('systemId') || undefined;
     const assessmentId = params.get('assessmentId') || undefined;
-
+    
     console.log("Extracted query parameters:", { systemId, assessmentId });
     return { systemId, assessmentId };
   };
-
+  
   // For debugging
   console.log("Current location:", location);
   console.log("Window location search:", window.location.search);
-
+  
   const { systemId, assessmentId } = getParamsFromUrl();
-
+  
   // Toggle section visibility
   const toggleSection = (section: string) => {
     if (openSections.includes(section)) {
@@ -68,17 +67,17 @@ const RiskAssessmentResults: React.FC = () => {
       setOpenSections([...openSections, section]);
     }
   };
-
+  
   // Check if a section is open
   const isSectionOpen = (section: string) => openSections.includes(section);
-
+  
   // Fetch the system data
   const { data: system, isLoading: systemLoading } = useQuery({
     queryKey: ['/api/systems', systemId],
     queryFn: () => systemId ? apiRequest(`/api/systems/${systemId}`) : null,
     enabled: !!systemId
   });
-
+  
   // Use the full assessment ID now that the API supports string IDs
   // Fetch the assessment data
   const { data: assessment, isLoading: assessmentLoading } = useQuery({
@@ -86,7 +85,7 @@ const RiskAssessmentResults: React.FC = () => {
     queryFn: () => assessmentId ? apiRequest(`/api/risk-assessments/${assessmentId}`) : null,
     enabled: !!assessmentId
   });
-
+  
   // Delete assessment mutation
   const deleteAssessmentMutation = useMutation({
     mutationFn: () => {
@@ -115,16 +114,16 @@ const RiskAssessmentResults: React.FC = () => {
       });
     }
   });
-
+  
   // Simulate validation loading
   useEffect(() => {
     const timer = setTimeout(() => {
       setValidationLoaded(true);
     }, 1000);
-
+    
     return () => clearTimeout(timer);
   }, []);
-
+  
   useEffect(() => {
     if (!systemId || !assessmentId) {
       toast({
@@ -134,7 +133,7 @@ const RiskAssessmentResults: React.FC = () => {
       });
     }
   }, [systemId, assessmentId, toast]);
-
+  
   // If we're still loading data, show a loading indicator
   if (systemLoading || assessmentLoading) {
     return (
@@ -146,7 +145,7 @@ const RiskAssessmentResults: React.FC = () => {
       </div>
     );
   }
-
+  
   // If data is missing, show an error
   if (!system || !assessment) {
     return (
@@ -168,7 +167,7 @@ const RiskAssessmentResults: React.FC = () => {
       </div>
     );
   }
-
+  
   // Process the data for display - use only data from the API
   const assessmentData = {
     systemName: system.name,
@@ -177,13 +176,13 @@ const RiskAssessmentResults: React.FC = () => {
     assessmentId: assessment.assessmentId,
     riskScore: assessment.riskScore || 0,
     // Process risk parameters if they exist
-    riskFactors: assessment.riskParameters ?
-      (typeof assessment.riskParameters === 'string' ?
-        JSON.parse(assessment.riskParameters) :
+    riskFactors: assessment.riskParameters ? 
+      (typeof assessment.riskParameters === 'string' ? 
+        JSON.parse(assessment.riskParameters) : 
         assessment.riskParameters) || [] : [],
     // Process relevant articles if they exist
-    relevantArticles: assessment.euAiActArticles ?
-      (typeof assessment.euAiActArticles === 'string' ?
+    relevantArticles: assessment.euAiActArticles ? 
+      (typeof assessment.euAiActArticles === 'string' ? 
         JSON.parse(assessment.euAiActArticles).map((article: string) => {
           const parts = article.split(':');
           return {
@@ -191,7 +190,7 @@ const RiskAssessmentResults: React.FC = () => {
             name: parts.slice(1).join(':').trim() || "EU AI Act Article",
             description: "Requirements related to this AI system category"
           };
-        }) :
+        }) : 
         assessment.euAiActArticles.map((article: string) => {
           const parts = article.split(':');
           return {
@@ -201,100 +200,29 @@ const RiskAssessmentResults: React.FC = () => {
           };
         })) : [],
     // Process compliance gaps if they exist
-    complianceGaps: assessment.complianceGaps ?
-      (typeof assessment.complianceGaps === 'string' ?
-        JSON.parse(assessment.complianceGaps).map((gap: any) =>
+    complianceGaps: assessment.complianceGaps ? 
+      (typeof assessment.complianceGaps === 'string' ? 
+        JSON.parse(assessment.complianceGaps).map((gap: any) => 
           typeof gap === 'string' ? gap : gap.description || gap
-        ) :
-        assessment.complianceGaps.map((gap: any) =>
+        ) : 
+        assessment.complianceGaps.map((gap: any) => 
           typeof gap === 'string' ? gap : gap.description || gap
         )) : [],
     // Process remediation actions if they exist
-    mitigationMeasures: assessment.remediationActions ?
-      (typeof assessment.remediationActions === 'string' ?
-        JSON.parse(assessment.remediationActions) :
+    mitigationMeasures: assessment.remediationActions ? 
+      (typeof assessment.remediationActions === 'string' ? 
+        JSON.parse(assessment.remediationActions) : 
         assessment.remediationActions) : []
   };
-
+  
   console.log("Processed assessment data:", assessmentData);
-
-  // Helper functions for visual enhancements
-  const getRiskLevel = (score: number): string => {
-    if (score >= 80) return "bg-green-500";
-    if (score >= 60) return "bg-amber-500";
-    return "bg-red-500";
-  };
-
-  const getProgressColor = (score: number): string => {
-    if (score >= 80) return "bg-green-500";
-    if (score >= 60) return "bg-amber-500";
-    return "bg-red-500";
-  };
-
-  const getRiskBgColor = (riskLevel?: string): string => {
-    if (!riskLevel) return 'bg-gray-100';
-
-    const level = riskLevel.toLowerCase();
-    if (level.includes('high')) return 'bg-red-100';
-    if (level.includes('limited')) return 'bg-amber-100';
-    if (level.includes('minimal')) return 'bg-green-100';
-
-    return 'bg-gray-100';
-  };
-
-  const getRiskDescription = (riskLevel?: string): string => {
-    if (!riskLevel) return 'require standard documentation.';
-
-    const level = riskLevel.toLowerCase();
-    if (level.includes('high'))
-      return 'require comprehensive risk management, technical documentation, and conformity assessment.';
-    if (level.includes('limited'))
-      return 'must meet transparency obligations and maintain appropriate documentation.';
-    if (level.includes('minimal'))
-      return 'have minimal regulatory requirements but voluntary compliance is encouraged.';
-
-    return 'require standard documentation.';
-  };
-
-  const getRiskColor = (riskLevel?: string) => {
-    if (!riskLevel) return 'bg-gray-100 text-gray-800';
-
-    const level = riskLevel.toLowerCase();
-    if (level.includes('high')) return 'bg-red-100 text-red-800';
-    if (level.includes('limited')) return 'bg-amber-100 text-amber-800';
-    if (level.includes('minimal')) return 'bg-green-100 text-green-800';
-
-    return 'bg-gray-100 text-gray-800';
-  };
-
-  // Get score color
-  const getScoreColor = (score?: number) => {
-    if (score === undefined) return 'text-gray-500';
-
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-amber-600';
-    return 'text-red-600';
-  };
-
-  // Get icon based on risk level
-  const getRiskIcon = (riskLevel?: string) => {
-    if (!riskLevel) return <AlertCircleIcon className="h-5 w-5 text-gray-500" />;
-
-    const level = riskLevel.toLowerCase();
-    if (level.includes('high')) return <AlertCircleIcon className="h-5 w-5 text-red-600" />;
-    if (level.includes('limited')) return <AlertTriangleIcon className="h-5 w-5 text-amber-600" />;
-    if (level.includes('minimal')) return <CheckCircleIcon className="h-5 w-5 text-green-600" />;
-
-    return <AlertCircleIcon className="h-5 w-5 text-gray-500" />;
-  };
-
-
+  
   return (
     <div className="container mx-auto py-8 max-w-4xl">
       <div className="flex justify-end mb-4">
         <LanguageSwitcher />
       </div>
-
+      
       <div className="mb-6">
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
@@ -308,9 +236,9 @@ const RiskAssessmentResults: React.FC = () => {
                 <Printer className="h-4 w-4 mr-2" />
                 Print
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
+              <Button 
+                variant="outline" 
+                size="sm" 
                 className="text-destructive hover:bg-destructive/10"
                 onClick={() => setDeleteDialogOpen(true)}
               >
@@ -324,42 +252,7 @@ const RiskAssessmentResults: React.FC = () => {
           </p>
         </div>
       </div>
-
-      <Card className="mb-6 overflow-hidden border-2">
-        <div className={`h-2 w-full ${getRiskLevel(assessmentData.riskScore || 0)}`}></div>
-        <CardHeader className="pb-3">
-          <div className="flex justify-between items-start">
-            <div className="flex items-start gap-3">
-              <div className={`p-2 rounded-full ${getRiskBgColor(assessmentData.riskLevel)}`}>
-                {getRiskIcon(assessmentData.riskLevel)}
-              </div>
-              <div>
-                <CardTitle className="text-xl">{assessmentData.systemName || 'System'}</CardTitle>
-                <CardDescription>Assessed on {assessmentData.date}</CardDescription>
-              </div>
-            </div>
-            <div className="flex flex-col items-end">
-              <Badge className={`mb-2 ${getRiskColor(assessmentData.riskLevel)}`}>
-                {assessmentData.riskLevel} Risk
-              </Badge>
-              <div className="flex flex-col items-end">
-                <span className="text-sm text-muted-foreground">Compliance Score:</span>
-                <div className="w-full flex items-center gap-2">
-                  <Progress
-                    value={assessmentData.riskScore}
-                    className="h-2 w-[100px]"
-                    indicatorClassName={getProgressColor(assessmentData.riskScore || 0)}
-                  />
-                  <span className={`font-medium ${getScoreColor(assessmentData.riskScore)}`}>
-                    {assessmentData.riskScore}%
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-
+      
       {/* Tabs for Assessment and Legal Validation */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
         <TabsList className="grid w-full grid-cols-2 mb-6">
@@ -372,12 +265,12 @@ const RiskAssessmentResults: React.FC = () => {
             <span>Legal Validation</span>
           </TabsTrigger>
         </TabsList>
-
+        
         <TabsContent value="assessment" className="mt-0">
           {/* Overview Section */}
           <Collapsible open={isSectionOpen('overview')} className="mb-6">
-            <Card className="border-2 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="bg-muted/30">
+            <Card>
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle>System Overview</CardTitle>
                   <CollapsibleTrigger onClick={() => toggleSection('overview')} className="hover:bg-muted p-1 rounded">
@@ -397,7 +290,7 @@ const RiskAssessmentResults: React.FC = () => {
                       {assessmentData.riskLevel}
                     </Badge>
                   </div>
-
+                  
                   <Alert variant="destructive" className="bg-red-50 border-red-200">
                     <AlertTriangle className="h-4 w-4" />
                     <AlertTitle>High-Risk AI System</AlertTitle>
@@ -409,11 +302,11 @@ const RiskAssessmentResults: React.FC = () => {
               </CollapsibleContent>
             </Card>
           </Collapsible>
-
+          
           {/* Classification Section */}
           <Collapsible open={isSectionOpen('classification')} className="mb-6">
-            <Card className="border-2 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="bg-muted/30">
+            <Card>
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle>Classification Factors</CardTitle>
                   <CollapsibleTrigger onClick={() => toggleSection('classification')} className="hover:bg-muted p-1 rounded">
@@ -447,11 +340,11 @@ const RiskAssessmentResults: React.FC = () => {
               </CollapsibleContent>
             </Card>
           </Collapsible>
-
+          
           {/* Relevant Articles Section */}
           <Collapsible open={isSectionOpen('articles')} className="mb-6">
-            <Card className="border-2 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="bg-muted/30">
+            <Card>
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle>Relevant EU AI Act Articles</CardTitle>
                   <CollapsibleTrigger onClick={() => toggleSection('articles')} className="hover:bg-muted p-1 rounded">
@@ -483,11 +376,11 @@ const RiskAssessmentResults: React.FC = () => {
               </CollapsibleContent>
             </Card>
           </Collapsible>
-
+          
           {/* Compliance Gaps Section */}
           <Collapsible open={isSectionOpen('gaps')} className="mb-6">
-            <Card className="border-2 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="bg-muted/30">
+            <Card>
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle>Compliance Gaps</CardTitle>
                   <CollapsibleTrigger onClick={() => toggleSection('gaps')} className="hover:bg-muted p-1 rounded">
@@ -515,11 +408,11 @@ const RiskAssessmentResults: React.FC = () => {
               </CollapsibleContent>
             </Card>
           </Collapsible>
-
+          
           {/* Mitigation Measures Section */}
           <Collapsible open={isSectionOpen('mitigation')} className="mb-6">
-            <Card className="border-2 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="bg-muted/30">
+            <Card>
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle>Recommended Mitigation Measures</CardTitle>
                   <CollapsibleTrigger onClick={() => toggleSection('mitigation')} className="hover:bg-muted p-1 rounded">
@@ -550,7 +443,7 @@ const RiskAssessmentResults: React.FC = () => {
               </CollapsibleContent>
             </Card>
           </Collapsible>
-
+          
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row justify-between gap-4 pt-4">
             <Button variant="outline" asChild>
@@ -558,7 +451,7 @@ const RiskAssessmentResults: React.FC = () => {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back to Wizard
               </Link>
             </Button>
-
+            
             <div className="flex gap-3">
               <Button variant="outline" asChild>
                 <Link to="/documentation/risk-assessment">
@@ -573,13 +466,13 @@ const RiskAssessmentResults: React.FC = () => {
             </div>
           </div>
         </TabsContent>
-
+        
         <TabsContent value="legal" className="mt-0">
           <div className="space-y-8">
             {/* Legal Validation Panel */}
-            <LegalValidationPanel
+            <LegalValidationPanel 
               assessmentText={`Risk Assessment for ${assessmentData.systemName}
-
+              
 Risk Level: ${assessmentData.riskLevel}
 Assessment ID: ${assessmentData.assessmentId}
 Date: ${assessmentData.date}
@@ -600,16 +493,16 @@ Mitigation Measures:
               systemId="sys-123"
               className="mb-4"
             />
-
+            
             {/* Legal Disclaimer */}
-            <LegalDisclaimerSection
+            <LegalDisclaimerSection 
               riskLevel={assessmentData.riskLevel.split(' ')[0].toLowerCase()}
               confidenceLevel={ConfidenceLevel.MEDIUM}
             />
           </div>
         </TabsContent>
       </Tabs>
-
+      
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
@@ -622,7 +515,7 @@ Mitigation Measures:
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogAction 
               onClick={() => deleteAssessmentMutation.mutate()}
               disabled={deleteAssessmentMutation.isPending}
               className="bg-destructive hover:bg-destructive/90"
