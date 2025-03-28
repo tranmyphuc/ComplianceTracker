@@ -1263,14 +1263,16 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
           </Tabs>
 
           {extractionInProgress && (
-            <div className="space-y-3 py-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">
+            <div className="py-2">
+              <div className="flex items-center gap-3">
+                <Progress value={extractionProgress} className="h-2 flex-1" />
+                <span className="text-xs font-medium text-neutral-500 whitespace-nowrap w-10 text-right">
+                  {Math.round(extractionProgress)}%
+                </span>
+                <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
                   {aiExtractionStatus === 'extracting' ? 'Processing...' : 'Completed'}
                 </span>
-                <span className="text-sm text-neutral-500">{Math.round(extractionProgress)}%</span>
               </div>
-              <Progress value={extractionProgress} />
             </div>
           )}
 
