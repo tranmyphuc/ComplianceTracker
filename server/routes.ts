@@ -2610,66 +2610,53 @@ if (isDemoMode) {
     try {
       const { text, type, context } = req.body;
       
-      // Create prompt for the AI-based legal validation
-      const prompt = `
-As a legal expert specializing in AI regulation and the EU AI Act, your task is to validate the following ${type || 'assessment'} text for legal compliance.
-
-Context: ${context || 'EU AI Act compliance assessment'}
-
-TEXT TO VALIDATE:
-${text}
-
-Analyze the text and provide a comprehensive legal validation report in JSON format with the following structure:
-{
-  "isValid": boolean,
-  "confidenceLevel": "high" | "medium" | "low",
-  "reviewStatus": "validated" | "needs_review" | "rejected",
-  "issues": [list of specific compliance issues found],
-  "warnings": [list of potential concerns that should be addressed],
-  "strengths": [list of strong compliance elements in the text],
-  "recommendations": [specific actions to improve compliance],
-  "reviewRequired": boolean,
-  "validationNotes": "Overall assessment summary"
-}
-
-Be specific and reference EU AI Act articles where relevant. Focus on legal compliance, data governance, technical documentation, risk assessment methodology, and human oversight measures.
-`;
-
-      let aiResponse;
-      try {
-        // Try DeepSeek AI first
-        aiResponse = await fetchDeepSeekAI(prompt, 0.5);
-      } catch (error) {
-        console.log("DeepSeek AI failed, falling back to OpenAI:", error);
-        // Fallback to OpenAI
-        aiResponse = await fetchOpenAI(prompt, 0.5);
+      // Extract system information if available for more accurate validation
+      const systemType = context?.systemType || '';
+      const systemRiskLevel = context?.riskLevel || '';
+      const systemName = context?.name || '';
+      
+      // Extract system data for analysis if passed in the text
+      let name = systemName;
+      let riskLevel = systemRiskLevel;
+      let department = '';
+      let purpose = '';
+      let aiCapabilities = '';
+      
+      // Parse system data from text if available
+      if (text) {
+        const preprocessedData = JSON.parse(JSON.stringify(preprocessSystemData(text)));
+        console.log('Preprocessed data:', preprocessedData);
+        
+        if (!name && preprocessedData.name) name = preprocessedData.name;
+        if (!riskLevel && preprocessedData.riskLevel) riskLevel = preprocessedData.riskLevel;
+        if (!department && preprocessedData.department) department = preprocessedData.department;
+        if (!purpose && preprocessedData.purpose) purpose = preprocessedData.purpose;
+        if (!aiCapabilities && preprocessedData.aiCapabilities) aiCapabilities = preprocessedData.aiCapabilities;
       }
       
-      // Parse the response to get structured validation results
-      let validationResult;
-      try {
-        // Try to extract JSON from the response
-        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          validationResult = JSON.parse(jsonMatch[0]);
-        } else {
-          throw new Error("No JSON found in response");
-        }
-      } catch (parseError) {
-        console.error("Failed to parse AI response as JSON:", parseError);
-        // Fallback to a basic structure with the full text as notes
-        validationResult = {
-          isValid: false,
-          confidenceLevel: 'medium',
-          reviewStatus: 'needs_review',
-          issues: ["AI validation response could not be properly processed"],
-          warnings: ["Manual review strongly recommended"],
-          strengths: [],
-          recommendations: ["Submit for expert legal review"],
-          reviewRequired: true,
-          validationNotes: aiResponse.substring(0, 500) + "..."
-        };
-      }
+      // 1. Determine if this is a true AI system or simply advanced software
+      const isAiSystem = determineIfAiSystem(aiCapabilities, purpose, text);
+      
+      // 2. Validate against EU AI Act requirements based on risk level
+      const validationDetails = validateBasedOnRiskLevel(riskLevel, department, purpose, aiCapabilities);
+      
+      // 3. Generate more realistic confidence score based on completeness of information
+      const confidenceScore = calculateConfidenceScore(name, riskLevel, department, purpose, aiCapabilities, text);
+      
+      // 4. Generate appropriate validation results
+      const validationResult = {
+        isValid: validationDetails.issues.length === 0,
+        confidenceLevel: determineConfidenceLevel(confidenceScore),
+        confidenceScore: confidenceScore, // Numerical score from 0-100
+        reviewStatus: validationDetails.issues.length > 0 ? 'needs_review' : 'validated',
+        issues: validationDetails.issues,
+        warnings: validationDetails.warnings,
+        strengths: validationDetails.strengths,
+        recommendations: validationDetails.recommendations,
+        reviewRequired: validationDetails.issues.length > 0 || confidenceScore < 70,
+        validationNotes: validationDetails.validationNotes,
+        applicableArticles: validationDetails.applicableArticles || []
+      };
       
       // Create the final validation result
       const result = {
@@ -2677,7 +2664,7 @@ Be specific and reference EU AI Act articles where relevant. Focus on legal comp
         result: {
           ...validationResult,
           timestamp: new Date(),
-          validator: 'ai'
+          validator: 'system'
         }
       };
       
@@ -2690,6 +2677,231 @@ Be specific and reference EU AI Act articles where relevant. Focus on legal comp
       });
     }
   });
+  
+  /**
+   * Helper function to preprocess system data from text
+   */
+  function preprocessSystemData(text: string): any {
+    try {
+      // If text is JSON, parse it
+      if (text.trim().startsWith('{') && text.trim().endsWith('}')) {
+        return JSON.parse(text);
+      }
+      
+      // Otherwise extract information based on patterns
+      const data: any = {
+        implementationDate: null,
+        lastAssessmentDate: null
+      };
+      
+      // Extract name
+      const nameMatch = text.match(/name[:\s]+([^\n]+)/i);
+      if (nameMatch) data.name = nameMatch[1].trim();
+      
+      // Extract risk level
+      const riskMatch = text.match(/risk\s*level[:\s]+([^\n]+)/i);
+      if (riskMatch) data.riskLevel = riskMatch[1].trim();
+      
+      // Extract department
+      const deptMatch = text.match(/department[:\s]+([^\n]+)/i);
+      if (deptMatch) data.department = deptMatch[1].trim();
+      
+      // Extract purpose
+      const purposeMatch = text.match(/purpose[:\s]+([^\n]+)/i);
+      if (purposeMatch) data.purpose = purposeMatch[1].trim();
+      
+      // Extract AI capabilities
+      const capabilitiesMatch = text.match(/capabilities[:\s]+([^\n]+)/i);
+      if (capabilitiesMatch) data.aiCapabilities = capabilitiesMatch[1].trim();
+      
+      // Extract training datasets
+      const datasetsMatch = text.match(/data\s*sources[:\s]+([^\n]+)/i);
+      if (datasetsMatch) data.trainingDatasets = datasetsMatch[1].trim();
+      
+      // Extract usage context
+      const usageMatch = text.match(/usage\s*context[:\s]+([^\n]+)/i);
+      if (usageMatch) data.usageContext = usageMatch[1].trim();
+      
+      // Extract potential impact
+      const impactMatch = text.match(/potential\s*impact[:\s]+([^\n]+)/i);
+      if (impactMatch) data.potentialImpact = impactMatch[1].trim();
+      
+      return data;
+    } catch (error) {
+      console.error('Error preprocessing system data:', error);
+      return {};
+    }
+  }
+  
+  /**
+   * Determine if a system is truly an AI system based on its description
+   */
+  function determineIfAiSystem(capabilities: string, purpose: string, text: string): boolean {
+    if (!capabilities && !purpose && !text) return false;
+    
+    const aiIndicators = [
+      'machine learning', 'neural network', 'deep learning', 
+      'natural language processing', 'nlp', 'computer vision',
+      'ai', 'artificial intelligence', 'predictive model',
+      'pattern recognition', 'anomaly detection', 'decision making',
+      'algorithm', 'automated', 'autonomous'
+    ];
+    
+    const combinedText = `${capabilities} ${purpose} ${text}`.toLowerCase();
+    
+    return aiIndicators.some(indicator => combinedText.includes(indicator));
+  }
+  
+  /**
+   * Calculate confidence score based on completeness of information
+   * Returns a score from 0-100
+   */
+  function calculateConfidenceScore(
+    name: string, 
+    riskLevel: string, 
+    department: string, 
+    purpose: string, 
+    capabilities: string,
+    text: string
+  ): number {
+    let score = 60; // Base score
+    
+    // Add points for each field that has information
+    if (name && name.length > 3) score += 5;
+    if (riskLevel) score += 10;
+    if (department) score += 5;
+    if (purpose && purpose.length > 10) score += 10;
+    if (capabilities && capabilities.length > 5) score += 10;
+    
+    // Bonus points for comprehensive description
+    if (text && text.length > 200) score += 10;
+    
+    // Cap at 100
+    return Math.min(score, 100);
+  }
+  
+  /**
+   * Determine confidence level from numerical score
+   */
+  function determineConfidenceLevel(score: number): string {
+    if (score >= 80) return 'high';
+    if (score >= 60) return 'medium';
+    return 'low';
+  }
+  
+  /**
+   * Validate system based on its risk level
+   */
+  function validateBasedOnRiskLevel(
+    riskLevel: string, 
+    department: string, 
+    purpose: string,
+    capabilities: string
+  ): any {
+    const result = {
+      issues: [],
+      warnings: [],
+      strengths: [],
+      recommendations: [],
+      validationNotes: '',
+      applicableArticles: []
+    };
+    
+    // Default validation notes
+    result.validationNotes = 'System information validated against EU AI Act requirements. Please ensure all documentation is complete and accurate.';
+    
+    // Normalize risk level for comparison
+    const normalizedRiskLevel = riskLevel?.toLowerCase() || '';
+    
+    // Determine risk category
+    let riskCategory = 'unknown';
+    if (normalizedRiskLevel.includes('high')) {
+      riskCategory = 'high';
+      result.applicableArticles = ['Article 6', 'Article 9', 'Article 10', 'Article 13', 'Article 14'];
+    } else if (normalizedRiskLevel.includes('limited')) {
+      riskCategory = 'limited';
+      result.applicableArticles = ['Article 5', 'Article 52'];
+    } else if (normalizedRiskLevel.includes('minimal')) {
+      riskCategory = 'minimal';
+      result.applicableArticles = ['Article 5'];
+    } else if (normalizedRiskLevel.includes('unacceptable')) {
+      riskCategory = 'unacceptable';
+      result.applicableArticles = ['Article 5'];
+    }
+    
+    // Set specific validation based on risk category
+    if (riskCategory === 'high') {
+      // High-risk systems have the most stringent requirements
+      result.validationNotes = 'This system appears to be classified as high-risk under the EU AI Act, requiring comprehensive compliance measures.';
+      
+      // Add validation checks specific to high-risk systems
+      if (!department) {
+        result.issues.push('Missing department information for high-risk system');
+        result.recommendations.push('Specify the department responsible for the system');
+      }
+      
+      if (!purpose || purpose.length < 15) {
+        result.issues.push('Insufficient purpose description for high-risk system');
+        result.recommendations.push('Provide detailed purpose description including intended use cases');
+      }
+      
+      // Check for medical or healthcare related terms
+      const medicalTerms = ['medical', 'health', 'patient', 'clinical', 'hospital', 'diagnostic'];
+      const isMedicalRelated = purpose && medicalTerms.some(term => purpose.toLowerCase().includes(term));
+      
+      if (isMedicalRelated) {
+        result.warnings.push('System appears to be used in healthcare context, requiring special attention to safety provisions');
+        result.recommendations.push('Ensure compliance with medical device regulations in addition to AI Act requirements');
+        result.applicableArticles.push('Article 16 (high-risk design requirements)');
+      }
+      
+      // Add generic recommendations for high-risk systems
+      result.recommendations.push('Implement comprehensive risk management system');
+      result.recommendations.push('Ensure proper data governance and management');
+      result.recommendations.push('Document system architecture and decision-making logic');
+      result.recommendations.push('Establish human oversight measures');
+      
+      // Add strengths if applicable
+      if (capabilities && capabilities.length > 20) {
+        result.strengths.push('System capabilities are well-documented');
+      }
+      
+    } else if (riskCategory === 'limited') {
+      result.validationNotes = 'This system appears to be classified as limited-risk under the EU AI Act, requiring transparency obligations.';
+      
+      // Add validation checks specific to limited-risk systems
+      if (!purpose) {
+        result.warnings.push('Missing purpose description for limited-risk system');
+        result.recommendations.push('Add purpose description for transparency compliance');
+      }
+      
+      // Add generic recommendations for limited-risk systems
+      result.recommendations.push('Ensure transparency to users that they are interacting with AI');
+      result.recommendations.push('Document system limitations and intended purpose');
+      
+    } else if (riskCategory === 'minimal') {
+      result.validationNotes = 'This system appears to be classified as minimal-risk under the EU AI Act, with limited compliance requirements.';
+      
+      // Minimal risk systems have very few requirements
+      result.strengths.push('System is classified as minimal-risk with limited regulatory burden');
+      result.recommendations.push('Consider voluntary compliance with AI Act codes of practice');
+      
+    } else if (riskCategory === 'unacceptable') {
+      result.validationNotes = 'This system appears to be classified as unacceptable risk under the EU AI Act, which means it is prohibited.';
+      
+      // Unacceptable risk systems are prohibited
+      result.issues.push('System classified as unacceptable risk is prohibited under EU AI Act');
+      result.recommendations.push('Redesign system to remove prohibited functionalities');
+      result.recommendations.push('Consult legal expert immediately');
+      
+    } else {
+      // Unknown risk level
+      result.warnings.push('Risk level not clearly specified');
+      result.recommendations.push('Perform a detailed risk assessment to determine the appropriate risk classification');
+    }
+    
+    return result;
+  }
   
   // Expert review management routes
   app.get("/api/legal/expert-reviews", getExpertReviewRequests);
