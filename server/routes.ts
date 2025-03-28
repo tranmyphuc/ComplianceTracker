@@ -1410,37 +1410,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Update expert review (restricted to expert users in a real app)
-  app.patch("/api/legal/expert-reviews/:reviewId", async (req: Request, res: Response) => {
-    try {
-      const { reviewId } = req.params;
-      const { status, expertFeedback, assignedTo } = req.body;
-      
-      // Direct storage update instead of using middleware function
-      const updated = await storage.updateExpertReview(reviewId, {
-        status: status as any,
-        expertFeedback,
-        assignedTo,
-        ...(status === 'completed' ? { completedAt: new Date() } : {})
-      });
-      
-      if (!updated) {
-        return res.status(404).json({
-          success: false,
-          message: "Review not found or could not be updated"
-        });
-      }
-      
-      return res.json({
-        success: true,
-        message: "Review updated successfully",
-        review: updated
-      });
-    } catch (err) {
-      console.error("Error updating expert review:", err);
-      handleError(res, err as Error, "Error updating expert review");
-    }
-  });
+  // Update expert review is now handled by the dedicated updateExpertReviewRequest function 
+  // which is registered near the end of this file
 
   app.get("/api/risk-assessment/:systemId/report", async (req: Request, res: Response) => {
     try {

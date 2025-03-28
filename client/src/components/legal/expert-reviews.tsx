@@ -33,6 +33,7 @@ interface ExpertReview {
   status: 'pending' | 'in_progress' | 'completed';
   validationResult: any;
   requestedAt: Date;
+  updatedAt?: Date;
   assignedTo?: string;
   completedAt?: Date;
   expertFeedback?: string;
@@ -252,7 +253,7 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
 
         <div>
           <h3 className="text-sm font-semibold mb-2">Text for Review</h3>
-          <div className="bg-muted/30 p-4 rounded-md whitespace-pre-wrap max-h-64 overflow-y-auto">
+          <div className="bg-card border shadow-sm p-5 rounded-md whitespace-pre-wrap max-h-64 overflow-y-auto font-medium text-base">
             {review.text}
           </div>
         </div>
@@ -260,7 +261,7 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
         {review.validationResult && (
           <div>
             <h3 className="text-sm font-semibold mb-2">Automated Validation Result</h3>
-            <div className="bg-muted/30 p-4 rounded-md whitespace-pre-wrap max-h-64 overflow-y-auto">
+            <div className="bg-card border shadow-sm p-5 rounded-md max-h-64 overflow-y-auto">
               {(() => {
               try {
                 // Handle different formats of validationResult
@@ -273,23 +274,23 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
                   return Object.entries(review.validationResult).map(([key, value]) => {
                     if (Array.isArray(value)) {
                       return (
-                        <div key={key} className="mb-2">
-                          <strong>{key}:</strong>
-                          <ul className="list-disc pl-5 mt-1">
-                            {value.map((item, i) => <li key={i}>{item}</li>)}
+                        <div key={key} className="mb-3">
+                          <div className="font-semibold text-primary mb-1">{key}:</div>
+                          <ul className="list-disc pl-5 space-y-1">
+                            {value.map((item, i) => <li key={i} className="text-sm">{item}</li>)}
                           </ul>
                         </div>
                       );
                     } else if (typeof value === 'boolean') {
                       return (
-                        <div key={key} className="mb-2">
-                          <strong>{key}:</strong> {value ? "true" : "false"}
+                        <div key={key} className="mb-3">
+                          <span className="font-semibold text-primary">{key}:</span> {value ? "Yes" : "No"}
                         </div>
                       );
                     } else if (value !== null && value !== undefined) {
                       return (
-                        <div key={key} className="mb-2">
-                          <strong>{key}:</strong> {value.toString()}
+                        <div key={key} className="mb-3">
+                          <span className="font-semibold text-primary">{key}:</span> {value.toString()}
                         </div>
                       );
                     }
@@ -304,23 +305,23 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
                     return Object.entries(parsed).map(([key, value]) => {
                       if (Array.isArray(value)) {
                         return (
-                          <div key={key} className="mb-2">
-                            <strong>{key}:</strong>
-                            <ul className="list-disc pl-5 mt-1">
-                              {(value as any[]).map((item, i) => <li key={i}>{item}</li>)}
+                          <div key={key} className="mb-3">
+                            <div className="font-semibold text-primary mb-1">{key}:</div>
+                            <ul className="list-disc pl-5 space-y-1">
+                              {(value as any[]).map((item, i) => <li key={i} className="text-sm">{item}</li>)}
                             </ul>
                           </div>
                         );
                       } else if (typeof value === 'boolean') {
                         return (
-                          <div key={key} className="mb-2">
-                            <strong>{key}:</strong> {value ? "true" : "false"}
+                          <div key={key} className="mb-3">
+                            <span className="font-semibold text-primary">{key}:</span> {value ? "Yes" : "No"}
                           </div>
                         );
                       } else if (value !== null && value !== undefined) {
                         return (
-                          <div key={key} className="mb-2">
-                            <strong>{key}:</strong> {value.toString()}
+                          <div key={key} className="mb-3">
+                            <span className="font-semibold text-primary">{key}:</span> {value.toString()}
                           </div>
                         );
                       }
@@ -344,57 +345,100 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
         )}
 
         <div>
-          <h3 className="text-sm font-semibold mb-2">Expert Feedback</h3>
-          <Textarea
-            placeholder="Enter expert legal feedback here..."
-            value={feedbackText}
-            onChange={(e) => setFeedbackText(e.target.value)}
-            rows={5}
-            className="w-full"
-          />
+          <h3 className="text-sm font-semibold mb-2">Expert Legal Feedback</h3>
+          <div className="bg-card border shadow-sm rounded-md p-2">
+            <Textarea
+              placeholder="Enter your expert legal feedback and compliance recommendations here..."
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              rows={6}
+              className="w-full resize-y min-h-[120px] p-3 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 font-medium"
+            />
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Provide detailed legal analysis and specific compliance recommendations for EU AI Act adherence.
+          </p>
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold mb-2">Update Status</h3>
-          <div className="flex space-x-2">
-            <Button
-              variant={newStatus === 'pending' ? 'default' : 'outline'}
-              onClick={() => setNewStatus('pending')}
-              size="sm"
-            >
-              <Clock className="h-4 w-4 mr-2" />
-              Pending
-            </Button>
-            <Button
-              variant={newStatus === 'in_progress' ? 'default' : 'outline'}
-              onClick={() => setNewStatus('in_progress')}
-              size="sm"
-            >
-              <AlertCircle className="h-4 w-4 mr-2" />
-              In Progress
-            </Button>
-            <Button
-              variant={newStatus === 'completed' ? 'default' : 'outline'}
-              onClick={() => setNewStatus('completed')}
-              size="sm"
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Completed
-            </Button>
+          <h3 className="text-sm font-semibold mb-2">Update Review Status</h3>
+          <div className="bg-card border shadow-sm rounded-md p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div 
+                className={`flex flex-col items-center justify-center p-3 rounded-md cursor-pointer border-2 transition-all ${
+                  newStatus === 'pending' 
+                    ? 'bg-yellow-50 border-yellow-300 shadow-sm' 
+                    : 'border-muted bg-muted/10 hover:border-yellow-200 hover:bg-yellow-50/50'
+                }`}
+                onClick={() => setNewStatus('pending')}
+              >
+                <Clock className={`h-6 w-6 mb-1 ${newStatus === 'pending' ? 'text-yellow-600' : 'text-muted-foreground'}`} />
+                <span className={`font-medium ${newStatus === 'pending' ? 'text-yellow-800' : 'text-muted-foreground'}`}>Pending</span>
+                <span className="text-xs text-center mt-1 text-muted-foreground">Awaiting expert review</span>
+              </div>
+              
+              <div 
+                className={`flex flex-col items-center justify-center p-3 rounded-md cursor-pointer border-2 transition-all ${
+                  newStatus === 'in_progress' 
+                    ? 'bg-blue-50 border-blue-300 shadow-sm' 
+                    : 'border-muted bg-muted/10 hover:border-blue-200 hover:bg-blue-50/50'
+                }`}
+                onClick={() => setNewStatus('in_progress')}
+              >
+                <AlertCircle className={`h-6 w-6 mb-1 ${newStatus === 'in_progress' ? 'text-blue-600' : 'text-muted-foreground'}`} />
+                <span className={`font-medium ${newStatus === 'in_progress' ? 'text-blue-800' : 'text-muted-foreground'}`}>In Progress</span>
+                <span className="text-xs text-center mt-1 text-muted-foreground">Currently reviewing</span>
+              </div>
+              
+              <div 
+                className={`flex flex-col items-center justify-center p-3 rounded-md cursor-pointer border-2 transition-all ${
+                  newStatus === 'completed' 
+                    ? 'bg-green-50 border-green-300 shadow-sm' 
+                    : 'border-muted bg-muted/10 hover:border-green-200 hover:bg-green-50/50'
+                }`}
+                onClick={() => setNewStatus('completed')}
+              >
+                <CheckCircle className={`h-6 w-6 mb-1 ${newStatus === 'completed' ? 'text-green-600' : 'text-muted-foreground'}`} />
+                <span className={`font-medium ${newStatus === 'completed' ? 'text-green-800' : 'text-muted-foreground'}`}>Completed</span>
+                <span className="text-xs text-center mt-1 text-muted-foreground">Review finalized</span>
+              </div>
+            </div>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-end space-x-2">
-        <Button variant="outline" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button 
-          onClick={handleUpdate}
-          disabled={updateMutation.isPending}
-        >
-          {updateMutation.isPending && <Spinner size="sm" className="mr-2" />}
-          Save Changes
-        </Button>
+      <CardFooter className="flex flex-col sm:flex-row justify-between space-y-4 sm:space-y-0 border-t pt-6">
+        <div className="text-sm text-muted-foreground">
+          <p>Last updated: {formatDate(review.updatedAt || review.requestedAt)}</p>
+          {review.status === 'completed' && review.completedAt && (
+            <p className="mt-1">Completed on: {formatDate(review.completedAt)}</p>
+          )}
+        </div>
+        <div className="flex space-x-3">
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="px-5"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleUpdate}
+            disabled={updateMutation.isPending}
+            className="px-5 min-w-[140px]"
+          >
+            {updateMutation.isPending ? (
+              <>
+                <Spinner size="sm" className="mr-2" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Save Changes
+              </>
+            )}
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );
