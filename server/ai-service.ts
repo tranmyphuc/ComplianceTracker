@@ -368,18 +368,23 @@ export function safeJsonParse(jsonString: string): any {
 }
 
 // Export utility functions for specific AI tasks
-export async function generateSystemSuggestion(name: string, description?: string): Promise<any> {
+export async function generateSystemSuggestion(name: string, description?: string, documentType?: string): Promise<any> {
+  // Enhanced prompt with document type awareness and better field mapping
   const prompt = `
     You are an EU AI Act compliance expert. Based on the following information about an AI system,
     generate comprehensive suggestions for all registration fields.
 
     ${name ? `System Name: ${name}` : ''}
     ${description ? `Description: ${description}` : ''}
+    ${documentType ? `Document Type: ${documentType}` : ''}
 
     IMPORTANT: Accurately identify the system based on the keywords in the name and description.
+    Analyze the content deeply to extract as much relevant information as possible.
 
     Identify the specific AI system that best matches the provided name/description. 
     Do not default to generic systems unless absolutely necessary.
+
+    For each field, provide a confidence level (LOW, MEDIUM, HIGH) indicating how certain you are about the extracted information.
 
     Provide suggestions for the following fields:
     - name (keep the original name if provided, otherwise suggest an appropriate name)
@@ -389,12 +394,25 @@ export async function generateSystemSuggestion(name: string, description?: strin
     - purpose (detailed purpose of the system)
     - aiCapabilities (technical capabilities like NLP, Computer Vision, etc.)
     - trainingDatasets (types of data used to train this system)
+    - implementationDate (when this system was or will be implemented)
     - outputTypes (what outputs this system produces)
     - usageContext (where and how this system is used)
     - potentialImpact (potential impacts on individuals and society)
     - riskLevel (according to EU AI Act: Unacceptable, High, Limited, Minimal)
+    - specificRisks (list of specific risks identified)
+    - euAiActArticles (relevant EU AI Act articles that apply to this system)
+    - dataPrivacyMeasures (measures in place for data privacy)
+    - humanOversightMeasures (measures for human oversight)
 
-    Output your answer in JSON format with all these fields and a 'confidenceScore' value from 0-100.
+    For each field, give a confidence score from 0-100 and justify your assessment.
+    
+    Output your answer in JSON format with these fields:
+    {
+      "name": { "value": "string", "confidence": number, "justification": "string" },
+      "vendor": { "value": "string", "confidence": number, "justification": "string" },
+      ... (same format for all fields)
+      "overallConfidenceScore": number
+    }
   `;
 
   const response = await callAI({
@@ -405,6 +423,8 @@ export async function generateSystemSuggestion(name: string, description?: strin
 
   return safeJsonParse(response.text);
 }
+
+// The processDocumentWithOCR function is implemented later in this file
 
 export async function analyzeRiskParameters(system: any): Promise<any> {
   const prompt = `
@@ -476,4 +496,137 @@ export async function analyzeRiskParameters(system: any): Promise<any> {
   });
 
   return safeJsonParse(response.text);
+}
+
+/**
+ * Process document text with enhanced OCR capabilities
+ * This function extracts structured information from documents using AI
+ */
+export async function processDocumentWithOCR(fileContent: string, fileName: string, fileType: string): Promise<any> {
+  console.log(`Processing document: ${fileName} (${fileType}) with enhanced OCR capabilities`);
+  
+  // Create a more specialized prompt based on document type
+  let documentTypePrompt = '';
+  if (fileType === 'pdf') {
+    documentTypePrompt = 'This appears to be a PDF document, likely containing formatted text, tables and potentially images.';
+  } else if (['docx', 'doc'].includes(fileType)) {
+    documentTypePrompt = 'This appears to be a Word document, likely containing formatted text and potentially tables or diagrams.';
+  } else if (fileType === 'txt') {
+    documentTypePrompt = 'This appears to be a plain text document with unformatted content.';
+  } else {
+    documentTypePrompt = 'This appears to be a document with unknown format.';
+  }
+  
+  // Enhanced OCR prompt with confidence scoring
+  const prompt = `
+    You are an advanced document analysis system with OCR capabilities specialized in extracting AI system information.
+    
+    ${documentTypePrompt}
+    
+    Analyze the following document content and extract all possible information about the AI system described:
+    
+    DOCUMENT CONTENT:
+    ${fileContent.substring(0, 8000)} 
+    
+    DOCUMENT NAME: ${fileName}
+    
+    For each extracted field, provide:
+    1. The extracted value
+    2. A confidence score (0-100)
+    3. A short justification for your extraction
+    
+    Focus on extracting the following information about the AI system:
+    - name (the name of the AI system)
+    - vendor (the company that developed the system)
+    - version (version number of the system)
+    - department (where the system is used)
+    - purpose (detailed description of what the system does)
+    - capabilities (technical capabilities like NLP, Computer Vision, etc.)
+    - trainingDatasets (types of data used for training)
+    - riskLevel (according to EU AI Act: Unacceptable, High, Limited, Minimal)
+    
+    Also assess:
+    - Document quality (how well the document describes the AI system)
+    - Any unstructured insights that may be relevant
+    
+    Format your response as JSON with nested objects for each field:
+    {
+      "systemDetails": {
+        "name": { "value": "string", "confidence": number, "justification": "string" },
+        "vendor": { "value": "string", "confidence": number, "justification": "string" },
+        ... other fields with same structure
+      },
+      "documentQuality": { "score": number, "assessment": "string" },
+      "overallConfidenceScore": number,
+      "unstructuredInsights": ["string"]
+    }
+  `;
+
+  // Prioritize OpenAI for document processing as it typically has better OCR capabilities
+  try {
+    const aiResponse = await callAI({
+      prompt,
+      model: AIModel.OPENAI,
+      temperature: 0.3,
+      maxTokens: 2000
+    });
+    const parsedResponse = safeJsonParse(aiResponse.text);
+    
+    if (parsedResponse) {
+      return parsedResponse;
+    }
+    
+    // If parsing fails, log and try to extract structured data
+    console.log("Could not parse OCR response as JSON, attempting to extract structured data");
+    
+    // Helper function to extract value from text
+    const extractFromText = (text: string, key: string): string | null => {
+      if (!text) return null;
+      // Look for patterns like "key": "value" or key: value
+      const patterns = [
+        new RegExp(`["']?${key}["']?\\s*:\\s*["']([^"']+)["']`, 'i'),
+        new RegExp(`["']?${key}["']?\\s*:\\s*([^,"'{}\\[\\]\\n]+)`, 'i'),
+        new RegExp(`${key}\\s+is\\s+["']?([^,"'{}\\[\\]\\n]+)["']?`, 'i')
+      ];
+      for (const pattern of patterns) {
+        const match = text.match(pattern);
+        if (match && match[1]) return match[1].trim();
+      }
+      return null;
+    };
+    
+    return {
+      systemDetails: {
+        name: { value: extractFromText(aiResponse.text, "name") || fileName.replace(/\.[^/.]+$/, ""), confidence: 60 },
+        vendor: { value: extractFromText(aiResponse.text, "vendor") || "Unknown", confidence: 50 },
+        version: { value: extractFromText(aiResponse.text, "version") || "1.0", confidence: 50 },
+        department: { value: extractFromText(aiResponse.text, "department") || "IT", confidence: 50 },
+        purpose: { value: extractFromText(aiResponse.text, "purpose") || "Unknown purpose", confidence: 50 },
+        capabilities: { value: extractFromText(aiResponse.text, "capabilities") || "Unknown capabilities", confidence: 50 },
+        trainingDatasets: { value: extractFromText(aiResponse.text, "trainingDatasets") || "Unknown datasets", confidence: 50 },
+        riskLevel: { value: extractFromText(aiResponse.text, "riskLevel") || "Limited", confidence: 50 }
+      },
+      documentQuality: { score: 60, assessment: "Document processed with limited information extraction" },
+      overallConfidenceScore: 60,
+      unstructuredInsights: ["Document processed but structured extraction failed"]
+    };
+  } catch (error) {
+    console.error("Error processing document with OCR:", error);
+    // Return a basic structure even on error to prevent UI breaks
+    return {
+      systemDetails: {
+        name: { value: fileName.replace(/\.[^/.]+$/, ""), confidence: 50 },
+        vendor: { value: "Unknown", confidence: 40 },
+        version: { value: "1.0", confidence: 40 },
+        department: { value: "Unknown", confidence: 40 },
+        purpose: { value: "Could not extract from document", confidence: 40 },
+        capabilities: { value: "Unknown capabilities", confidence: 40 },
+        trainingDatasets: { value: "Unknown datasets", confidence: 40 },
+        riskLevel: { value: "Limited", confidence: 40 }
+      },
+      documentQuality: { score: 40, assessment: "Document processing failed" },
+      overallConfidenceScore: 40,
+      unstructuredInsights: ["Error occurred during document processing"]
+    };
+  }
 }

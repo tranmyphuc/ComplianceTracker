@@ -541,7 +541,26 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
-      // Use the suggest/system endpoint with the extracted text
+      // Detect document type based on filename and content
+      let documentType = 'unspecified';
+      if (uploadedFile.name.toLowerCase().includes('technical') || 
+          fileContent.toLowerCase().includes('technical specification')) {
+        documentType = 'technical_specification';
+      } else if (uploadedFile.name.toLowerCase().includes('datasheet') || 
+                 fileContent.toLowerCase().includes('datasheet')) {
+        documentType = 'datasheet';
+      } else if (uploadedFile.name.toLowerCase().includes('manual') || 
+                 uploadedFile.name.toLowerCase().includes('guide') || 
+                 fileContent.toLowerCase().includes('user manual') ||
+                 fileContent.toLowerCase().includes('user guide')) {
+        documentType = 'user_manual';
+      } else if (uploadedFile.name.toLowerCase().includes('compliance') || 
+                fileContent.toLowerCase().includes('compliance') ||
+                fileContent.toLowerCase().includes('regulation')) {
+        documentType = 'compliance_document';
+      }
+      
+      // Use the enhanced suggest/system endpoint with document processing capabilities
       const response = await fetch('/api/suggest/system', {
         method: 'POST',
         headers: {
@@ -549,7 +568,10 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         },
         body: JSON.stringify({
           name: uploadedFile.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "),
-          description: fileContent.substring(0, 5000) // Limit to first 5000 chars
+          description: fileContent.substring(0, 5000), // Limit to first 5000 chars
+          documentType: documentType,
+          fileContent: fileContent.substring(0, 10000), // Limit to first 10000 chars for OCR processing
+          fileName: uploadedFile.name
         }),
         signal: controller.signal
       });
@@ -691,6 +713,23 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         abortController.abort();
       }, 35000); // 35 second timeout (increased to prevent premature aborts)
 
+      // Detect if the input appears to be a document type based on keywords
+      let documentType = 'unspecified';
+      const textInput = formData.description || aiTextInput || '';
+      
+      if (textInput.toLowerCase().includes('technical specification') || 
+          textInput.toLowerCase().includes('specification document')) {
+        documentType = 'technical_specification';
+      } else if (textInput.toLowerCase().includes('datasheet')) {
+        documentType = 'datasheet';
+      } else if (textInput.toLowerCase().includes('user manual') || 
+                textInput.toLowerCase().includes('user guide')) {
+        documentType = 'user_manual';
+      } else if (textInput.toLowerCase().includes('compliance document') || 
+                textInput.toLowerCase().includes('regulation requirements')) {
+        documentType = 'compliance_document';
+      }
+      
       const response = await fetch('/api/suggest/system', {
         method: 'POST',
         headers: {
@@ -698,7 +737,8 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         },
         body: JSON.stringify({
           name: formData.name || aiTextInput,
-          description: formData.description || aiTextInput
+          description: formData.description || aiTextInput,
+          documentType: documentType
         }),
         signal: abortController.signal
       });

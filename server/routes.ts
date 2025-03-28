@@ -97,6 +97,7 @@ import { performComplianceAssessment } from './advanced-compliance-assessment';
 import { initializeMonitoring, performMonitoringCheck, configureMonitoring } from './continuous-monitoring';
 import { createAuditRecord, getAuditRecords, generateReport, exportReport, ReportType } from './audit-reporting';
 import { getAllArticles, getArticlesByCategory, getArticleById, searchKnowledgeBase, askComplianceAI } from './knowledge-base';
+import { processDocumentWithOCR } from './ai-service';
 import { 
   generateDocument, 
   generateDocumentTemplate, 
@@ -652,14 +653,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI-powered system suggestion from name or description
   app.post("/api/suggest/system", async (req: Request, res: Response) => {
     try {
-      const { name, description } = req.body;
+      const { name, description, documentType, fileContent, fileName } = req.body;
 
-      if (!name && !description) {
-        return res.status(400).json({ message: "Either name or description is required" });
+      if (!name && !description && !fileContent) {
+        return res.status(400).json({ message: "Either name, description, or file content is required" });
       }
 
       // Log the input for debugging
-      console.log("AI suggestion request:", { name, description });
+      console.log("AI suggestion request:", { 
+        name, 
+        description, 
+        documentType,
+        fileUploaded: !!fileContent,
+        fileName 
+      });
 
       // Check for specific AI systems first - this will prioritize certain keywords
       // to ensure correct identification even when the AI API fails
@@ -700,17 +707,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("Pre-detected system type:", systemType);
 
+      // If file content is provided, use enhanced OCR processing
+      if (fileContent) {
+        try {
+          console.log("Processing document with OCR capabilities");
+          const fileType = fileName ? fileName.split('.').pop() : 'unknown';
+          const ocrResults = await processDocumentWithOCR(fileContent, fileName || 'document', fileType);
+          
+          // Extract system details and convert to suggestion format
+          const systemDetails = ocrResults.systemDetails || {};
+          const suggestions = {
+            name: systemDetails.name?.value || name || "AI System from Document",
+            vendor: systemDetails.vendor?.value || "Unknown Vendor",
+            version: systemDetails.version?.value || "1.0",
+            department: systemDetails.department?.value || "IT Department",
+            purpose: systemDetails.purpose?.value || description || "Purpose extracted from document",
+            aiCapabilities: systemDetails.capabilities?.value || "AI capabilities extracted from document",
+            trainingDatasets: systemDetails.trainingDatasets?.value || "Training data extracted from document",
+            outputTypes: systemDetails.outputTypes?.value || "Outputs extracted from document",
+            usageContext: systemDetails.usageContext?.value || "Usage context extracted from document",
+            potentialImpact: systemDetails.impact?.value || "Impact extracted from document",
+            riskLevel: systemDetails.riskLevel?.value || "Limited",
+            fieldConfidence: {
+              name: systemDetails.name?.confidence || 60,
+              vendor: systemDetails.vendor?.confidence || 60,
+              version: systemDetails.version?.confidence || 60,
+              department: systemDetails.department?.confidence || 60,
+              purpose: systemDetails.purpose?.confidence || 60,
+              aiCapabilities: systemDetails.capabilities?.confidence || 60,
+              trainingDatasets: systemDetails.trainingDatasets?.confidence || 60,
+              riskLevel: systemDetails.riskLevel?.confidence || 60
+            },
+            documentQuality: ocrResults.documentQuality || { score: 65, assessment: "Document processed with limited information" },
+            confidenceScore: ocrResults.overallConfidenceScore || 65,
+            unstructuredInsights: ocrResults.unstructuredInsights || []
+          };
+          
+          // Also analyze risk level and articles
+          const [riskClassification, euAiActArticles] = await Promise.all([
+            determineRiskLevel(suggestions),
+            determineRelevantArticles(suggestions)
+          ]);
+          
+          // Add to suggestions with type assertion to avoid TypeScript errors
+          const enhancedSuggestions = suggestions as any;
+          enhancedSuggestions.riskClassification = riskClassification;
+          enhancedSuggestions.euAiActArticles = euAiActArticles;
+          
+          return res.json(suggestions);
+        } catch (ocrError) {
+          console.error("Error processing document with OCR:", ocrError);
+          // Fall back to standard suggestion if OCR fails
+        }
+      }
+      
+      // Enhanced prompt for better AI extraction
       const prompt = `
         You are an EU AI Act compliance expert. Based on the following information about an AI system,
         generate comprehensive suggestions for all registration fields.
 
         ${name ? `System Name: ${name}` : ''}
         ${description ? `Description: ${description}` : ''}
+        ${documentType ? `Document Type: ${documentType}` : ''}
 
         IMPORTANT: Accurately identify the system based on the keywords in the name and description.
+        Analyze the content deeply to extract as much relevant information as possible.
 
         Identify the specific AI system that best matches the provided name/description. 
         Do not default to generic systems unless absolutely necessary.
+
+        For each field, provide a confidence level (LOW, MEDIUM, HIGH) indicating how certain you are about the extracted information.
 
         Provide suggestions for the following fields:
         - name (keep the original name if provided, otherwise suggest an appropriate name)
@@ -724,8 +790,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         - usageContext (where and how this system is used)
         - potentialImpact (potential impacts on individuals and society)
         - riskLevel (according to EU AI Act: Unacceptable, High, Limited, Minimal)
+        - specificRisks (list of specific risks identified)
+        - euAiActArticles (relevant EU AI Act articles that apply to this system)
+        - dataPrivacyMeasures (measures in place for data privacy)
+        - humanOversightMeasures (measures for human oversight)
 
-        Output your answer in JSON format with all these fields and a 'confidenceScore' value from 0-100.
+        For each field, give a confidence score from 0-100 and justify your assessment.
+        
+        Output your answer in JSON format with these fields:
+        {
+          "name": { "value": "string", "confidence": number, "justification": "string" },
+          "vendor": { "value": "string", "confidence": number, "justification": "string" },
+          ... (same format for all fields)
+          "overallConfidenceScore": number
+        }
       `;
 
       // Pass the pre-detected system type to the API call for fallback purposes
@@ -795,9 +873,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         determineRelevantArticles(suggestions)
       ]);
 
-      // Add to suggestions
-      suggestions.riskClassification = riskClassification;
-      suggestions.euAiActArticles = euAiActArticles;
+      // Add to suggestions with type assertion to avoid TypeScript errors
+      const enhancedSuggestions = suggestions as any;
+      enhancedSuggestions.riskClassification = riskClassification;
+      enhancedSuggestions.euAiActArticles = euAiActArticles;
 
       res.json(suggestions);
     } catch (err) {
@@ -813,6 +892,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(aiAnalysis);
     } catch (err) {
       handleError(res, err as Error);
+    }
+  });
+  
+  // New endpoint for document OCR analysis with enhanced capabilities
+  app.post("/api/analyze/document-ocr", async (req: Request, res: Response) => {
+    try {
+      const { fileContent, fileName, fileType } = req.body;
+      
+      if (!fileContent || !fileName || !fileType) {
+        return res.status(400).json({ message: "Missing required document information" });
+      }
+      
+      console.log(`Processing OCR request for ${fileName} (${fileType})`);
+      const ocrAnalysis = await processDocumentWithOCR(fileContent, fileName, fileType);
+      res.json(ocrAnalysis);
+    } catch (err) {
+      console.error("Error in document OCR analysis:", err);
+      handleError(res, err as Error, "Document OCR analysis failed");
     }
   });
 
