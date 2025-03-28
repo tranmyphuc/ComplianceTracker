@@ -36,7 +36,7 @@ interface Message {
   timestamp: Date;
 }
 
-interface AssistantAction {
+export interface AssistantAction {
   type: string;
   data: any;
 }

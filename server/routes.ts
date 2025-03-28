@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { db, sql } from "./db";
 import { eq } from "drizzle-orm";
+import { fetchDeepSeekAI, fetchOpenAI } from "./ai-services";
 import {
   insertUserSchema,
   insertAiSystemSchema,
@@ -2582,45 +2583,78 @@ if (isDemoMode) {
     try {
       const { text, type, context } = req.body;
       
-      // Create a mock validation result to simulate the validation
-      const mockResult = {
+      // Create prompt for the AI-based legal validation
+      const prompt = `
+As a legal expert specializing in AI regulation and the EU AI Act, your task is to validate the following ${type || 'assessment'} text for legal compliance.
+
+Context: ${context || 'EU AI Act compliance assessment'}
+
+TEXT TO VALIDATE:
+${text}
+
+Analyze the text and provide a comprehensive legal validation report in JSON format with the following structure:
+{
+  "isValid": boolean,
+  "confidenceLevel": "high" | "medium" | "low",
+  "reviewStatus": "validated" | "needs_review" | "rejected",
+  "issues": [list of specific compliance issues found],
+  "warnings": [list of potential concerns that should be addressed],
+  "strengths": [list of strong compliance elements in the text],
+  "recommendations": [specific actions to improve compliance],
+  "reviewRequired": boolean,
+  "validationNotes": "Overall assessment summary"
+}
+
+Be specific and reference EU AI Act articles where relevant. Focus on legal compliance, data governance, technical documentation, risk assessment methodology, and human oversight measures.
+`;
+
+      let aiResponse;
+      try {
+        // Try DeepSeek AI first
+        aiResponse = await fetchDeepSeekAI(prompt, 0.5);
+      } catch (error) {
+        console.log("DeepSeek AI failed, falling back to OpenAI:", error);
+        // Fallback to OpenAI
+        aiResponse = await fetchOpenAI(prompt, 0.5);
+      }
+      
+      // Parse the response to get structured validation results
+      let validationResult;
+      try {
+        // Try to extract JSON from the response
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          validationResult = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error("No JSON found in response");
+        }
+      } catch (parseError) {
+        console.error("Failed to parse AI response as JSON:", parseError);
+        // Fallback to a basic structure with the full text as notes
+        validationResult = {
+          isValid: false,
+          confidenceLevel: 'medium',
+          reviewStatus: 'needs_review',
+          issues: ["AI validation response could not be properly processed"],
+          warnings: ["Manual review strongly recommended"],
+          strengths: [],
+          recommendations: ["Submit for expert legal review"],
+          reviewRequired: true,
+          validationNotes: aiResponse.substring(0, 500) + "..."
+        };
+      }
+      
+      // Create the final validation result
+      const result = {
         success: true,
         result: {
-          isValid: Math.random() > 0.3, // 70% chance of being valid
-          confidenceLevel: 'high',
-          reviewStatus: 'validated',
-          issues: [
-            "Incomplete human oversight measures detailed in section 3.2",
-            "Data governance procedures need more clarity on data minimization",
-            "Missing technical documentation for robustness testing"
-          ],
-          warnings: [
-            "Consider periodic review of risk assessment methodology",
-            "User feedback mechanisms could be strengthened"
-          ],
-          strengths: [
-            "Clear risk classification methodology",
-            "Well-defined purpose and use case boundaries",
-            "Strong security measures for data handling",
-            "Good transparency measures for AI system users"
-          ],
-          recommendations: [
-            "Enhance documentation of human oversight measures in section 3.2",
-            "Clarify data governance procedures regarding data minimization",
-            "Add technical documentation for robustness testing",
-            "Implement a regularly scheduled review process for risk assessment"
-          ],
-          reviewRequired: false,
+          ...validationResult,
           timestamp: new Date(),
-          validator: 'ai',
-          validationNotes: "This assessment demonstrates good compliance with EU AI Act requirements but needs improvements in several key areas."
+          validator: 'ai'
         }
       };
       
-      // Add artificial delay to simulate processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      res.json(mockResult);
+      res.json(result);
     } catch (err) {
       console.error("Legal validation error:", err);
       res.status(500).json({ 

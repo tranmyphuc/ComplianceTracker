@@ -34,6 +34,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import RiskAssessmentAssistant from './risk-assessment-assistant';
+import type { AssistantAction } from './risk-assessment-assistant';
 
 // Types
 interface Question {
@@ -414,7 +415,7 @@ const STEPS = [
 ];
 
 export function EnhancedRiskWizard() {
-  const { t, language } = useLanguage();
+  const { t, currentLanguage } = useLanguage();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
@@ -497,8 +498,8 @@ export function EnhancedRiskWizard() {
 
       // Show success toast
       toast({
-        title: t('riskAssessment.wizard.submitSuccess', 'Assessment Submitted'),
-        description: t('riskAssessment.wizard.submitDescription', 'Your risk assessment has been successfully submitted.'),
+        title: t('riskAssessment.wizard.submitSuccess') || 'Assessment Submitted',
+        description: t('riskAssessment.wizard.submitDescription') || 'Your risk assessment has been successfully submitted.',
         variant: 'default',
       });
 
@@ -507,8 +508,8 @@ export function EnhancedRiskWizard() {
     } catch (error) {
       console.error('Error submitting assessment:', error);
       toast({
-        title: t('riskAssessment.wizard.submitError', 'Submission Error'),
-        description: t('riskAssessment.wizard.submitErrorDescription', 'There was an error submitting your assessment. Please try again.'),
+        title: t('riskAssessment.wizard.submitError') || 'Submission Error',
+        description: t('riskAssessment.wizard.submitErrorDescription') || 'There was an error submitting your assessment. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -623,7 +624,7 @@ export function EnhancedRiskWizard() {
               id={question.id}
               value={answers[question.id] || ''}
               onChange={(e) => handleInputChange(question.id, e.target.value)}
-              placeholder={t('riskAssessment.wizard.typeHere', 'Type your answer here...')}
+              placeholder={t('riskAssessment.wizard.typeHere') || 'Type your answer here...'}
               rows={5}
               className="w-full"
             />
@@ -639,10 +640,10 @@ export function EnhancedRiskWizard() {
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
           <div className="text-sm font-medium">
-            {t('riskAssessment.wizard.step', 'Step')} {currentStep + 1} {t('riskAssessment.wizard.of', 'of')} {STEPS.length}
+            {t('riskAssessment.wizard.step') || 'Step'} {currentStep + 1} {t('riskAssessment.wizard.of') || 'of'} {STEPS.length}
           </div>
           <div className="text-sm font-medium">
-            {progressPercentage}% {t('riskAssessment.wizard.complete', 'complete')}
+            {progressPercentage}% {t('riskAssessment.wizard.complete') || 'complete'}
           </div>
         </div>
         <Progress value={progressPercentage} className="h-2" />
@@ -688,7 +689,7 @@ export function EnhancedRiskWizard() {
             {currentStepData.longDescription && (
               <Alert className="mb-6">
                 <InfoIcon className="h-4 w-4" />
-                <AlertTitle>{t('riskAssessment.wizard.aboutThisStep', 'About this step')}</AlertTitle>
+                <AlertTitle>{t('riskAssessment.wizard.aboutThisStep') || 'About this step'}</AlertTitle>
                 <AlertDescription>
                   {currentStepData.longDescription}
                 </AlertDescription>
@@ -697,7 +698,7 @@ export function EnhancedRiskWizard() {
             
             {currentStepData.legislation && (
               <div className="text-sm text-muted-foreground mb-6 p-3 bg-muted/50 rounded-lg border border-border">
-                <div className="font-medium mb-1">{t('riskAssessment.wizard.legalRequirement', 'Legal Requirement')}:</div>
+                <div className="font-medium mb-1">{t('riskAssessment.wizard.legalRequirement') || 'Legal Requirement'}:</div>
                 {currentStepData.legislation}
               </div>
             )}
@@ -715,7 +716,7 @@ export function EnhancedRiskWizard() {
               disabled={currentStep === 0}
             >
               <ChevronLeftIcon className="h-4 w-4 mr-2" />
-              {t('riskAssessment.wizard.previous', 'Previous')}
+              {t('riskAssessment.wizard.previous') || 'Previous'}
             </Button>
             
             <Button
@@ -728,13 +729,13 @@ export function EnhancedRiskWizard() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  {t('riskAssessment.wizard.submitting', 'Submitting...')}
+                  {t('riskAssessment.wizard.submitting') || 'Submitting...'}
                 </>
               ) : (
                 <>
                   {isLastStep 
-                    ? t('riskAssessment.wizard.submit', 'Submit Assessment')
-                    : t('riskAssessment.wizard.next', 'Next')}
+                    ? t('riskAssessment.wizard.submit') || 'Submit Assessment'
+                    : t('riskAssessment.wizard.next') || 'Next'}
                   <ChevronRightIcon className="h-4 w-4 ml-2" />
                 </>
               )}
@@ -767,9 +768,9 @@ export function EnhancedRiskWizard() {
         <Sheet open={showAssistant} onOpenChange={setShowAssistant}>
           <SheetContent side="bottom" className="h-[80vh] p-0">
             <SheetHeader className="px-4 py-2 border-b">
-              <SheetTitle>{t('riskAssessment.assistant.title', 'Risk Assessment Assistant')}</SheetTitle>
+              <SheetTitle>{t('riskAssessment.assistant.title') || 'Risk Assessment Assistant'}</SheetTitle>
               <SheetDescription>
-                {t('riskAssessment.assistant.description', 'Get help with your risk assessment')}
+                {t('riskAssessment.assistant.description') || 'Get help with your risk assessment'}
               </SheetDescription>
             </SheetHeader>
             <div className="p-0">
