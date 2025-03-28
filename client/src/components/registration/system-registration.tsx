@@ -201,11 +201,15 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     if (name === 'name' || name === 'description' || name === 'purpose') {
       // Only trigger smart completion if the value is substantial enough
       if (value && value.length > 15) {
+        console.log(`Detected substantial content in ${name}, length: ${value.length}`);
         // Debounce the smart completion to avoid multiple calls
         if (window.smartCompletionTimer) {
           clearTimeout(window.smartCompletionTimer);
         }
+        // Set smart completion active flag immediately for visual feedback
+        setSmartCompletionActive(true);
         window.smartCompletionTimer = setTimeout(() => {
+          console.log("Triggering smart completion check");
           checkForSmartCompletion();
         }, 1000);
       }
