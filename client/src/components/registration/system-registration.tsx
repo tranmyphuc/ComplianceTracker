@@ -875,10 +875,12 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     // Reset and update steps for the process visualization
     const updatedSteps = [...autoFillSteps].map(step => ({
       ...step,
-      status: step.id === 'validation' ? 'processing' as const : 'pending' as const
+      status: step.id === 'input' ? 'complete' as const : 
+              step.id === 'ai_analysis' ? 'processing' as const : 
+              'pending' as const
     }));
     setAutoFillSteps(updatedSteps);
-    setCurrentAutoFillStep('validation');
+    setCurrentAutoFillStep('ai_analysis');
     
     // Show the auto-fill modal with the process visualization
     setAiModalOpen(true);
@@ -887,12 +889,29 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     // Simulate progress for better UX
     const progressInterval = setInterval(() => {
       setExtractionProgress(prev => {
-        const newProgress = prev + (Math.random() * 15);
+        const newProgress = prev + (Math.random() * 12);
         return newProgress >= 95 ? 95 : newProgress;
       });
     }, 500);
 
     try {
+      // Update process steps to show progress
+      if (visualizeSteps) {
+        // After a delay, update to show next step (web research)
+        setTimeout(() => {
+          const updatedSteps = [...autoFillSteps].map(step => ({
+            ...step,
+            status: step.id === 'input' ? 'complete' as const : 
+                    step.id === 'web_research' ? 'complete' as const :
+                    step.id === 'ai_analysis' ? 'complete' as const :
+                    step.id === 'classification' ? 'processing' as const : 
+                    'pending' as const
+          }));
+          setAutoFillSteps(updatedSteps);
+          setCurrentAutoFillStep('classification');
+        }, 3000);
+      }
+
       // Set a timeout to ensure the request doesn't hang indefinitely
       const abortController = new AbortController();
       const timeoutId = setTimeout(() => {
@@ -901,7 +920,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
       // Detect if the input appears to be a document type based on keywords
       let documentType = 'unspecified';
-      const textInput = formData.description || aiTextInput || '';
+      const textInput = systemDescription || formData.description || aiTextInput || '';
       
       if (textInput.toLowerCase().includes('technical specification') || 
           textInput.toLowerCase().includes('specification document')) {
@@ -923,7 +942,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         },
         body: JSON.stringify({
           name: formData.name || aiTextInput,
-          description: formData.description || aiTextInput,
+          description: systemDescription || formData.description || aiTextInput,
           documentType: documentType
         }),
         signal: abortController.signal
@@ -942,6 +961,29 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
       // Verify that we have valid results
       if (!results || typeof results !== 'object') {
         throw new Error('Invalid response format');
+      }
+
+      // Update to the final step (validation) and mark it complete
+      if (visualizeSteps) {
+        const finalSteps = [...autoFillSteps].map(step => ({
+          ...step,
+          status: step.id === 'validation' ? 'processing' as const : 
+                  step.id === 'classification' || step.id === 'web_research' || 
+                  step.id === 'ai_analysis' || step.id === 'input' ? 
+                  'complete' as const : 'pending' as const
+        }));
+        setAutoFillSteps(finalSteps);
+        setCurrentAutoFillStep('validation');
+        
+        // After a short delay, mark as complete
+        setTimeout(() => {
+          const completedSteps = [...finalSteps].map(step => ({
+            ...step,
+            status: step.id === 'validation' ? 'complete' as const : 
+                    step.status
+          }));
+          setAutoFillSteps(completedSteps);
+        }, 1500);
       }
 
       setAiResults(results);
@@ -978,21 +1020,8 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         variant: "destructive"
       });
 
-      // Generate empty results to avoid breaking the UI
-      setAiResults({
-        name: formData.name || aiTextInput || "AI System",
-        vendor: "Unknown",
-        version: "1.0",
-        department: "Information Technology",
-        purpose: formData.description || aiTextInput || "AI system for business operations",
-        aiCapabilities: "Natural Language Processing",
-        trainingDatasets: "Proprietary data",
-        outputTypes: "Text, Recommendations",
-        usageContext: "Business operations",
-        potentialImpact: "Improved efficiency",
-        riskLevel: "Limited",
-        confidenceScore: 60
-      });
+      // Clear results to show error state properly
+      setAiResults(null);
     }
   };
 
