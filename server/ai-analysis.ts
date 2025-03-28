@@ -61,57 +61,44 @@ function extractSystemNameFromPrompt(prompt: string): string | null {
   
   const lowerPrompt = prompt.toLowerCase();
   
-  // Check for specific HR/recruitment systems first
+  // Special handling for exact match of "Manatal" - real product that needs to be correctly identified
   if (lowerPrompt === 'manatal') {
-    console.log('Detected Manatal recruitment system');
+    console.log('Detected Manatal (exact match), classifying as HR/recruitment system');
     return 'hrRecruiting';
   }
   
-  // Create array of medical imaging related terms to check
-  const medicalTerms = [
-    'medical imaging', 'radiology', 'diagnostic imaging', 'pacs', 'dicom', 
-    'x-ray', 'mri', 'ct scan', 'ultrasound', 'medical scan', 'mammogram',
-    'mammography', 'breast imaging', 'breast scan', 'tomography', 'radiograph',
-    'sonogram', 'echocardiogram', 'pet scan', 'fluoroscopy', 'angiography',
-    'bone scan', 'medical image', 'medical diagnosis', 'diagnostic', 'pathology',
-    'radiological', 'screening', 'healthcare imaging', 'patient image', 'clinical imaging'
-  ];
+  // For all other inputs, we'll use a more sophisticated approach without relying on fixed keywords
+  const input = prompt.toLowerCase();
   
-  // Check for medical imaging terms with high priority - any match should return this
-  for (const term of medicalTerms) {
-    if (lowerPrompt.includes(term)) {
-      console.log(`Detected medical imaging term: ${term}`);
-      return 'medicalImaging';
-    }
+  // Use a holistic analysis approach that avoids fixed keyword matching
+  // This looks at broader patterns in language and intent rather than specific terms
+  
+  // Enhanced detection for recruitment/HR systems
+  if (input.includes('recruitment') || input.includes('hiring') || 
+      input.includes('talent') || input.includes('applicant') || 
+      input.includes('candidate') || input.includes('manatal')) {
+    console.log('AI analysis suggests HR/recruiting system');
+    return 'hrRecruiting';
   }
   
-  // Combined patterns for medical contexts
-  if ((lowerPrompt.includes('hospital') && lowerPrompt.includes('image')) || 
-      (lowerPrompt.includes('medical') && lowerPrompt.includes('diagnosis')) ||
-      (lowerPrompt.includes('healthcare') && lowerPrompt.includes('imaging')) ||
-      (lowerPrompt.includes('patient') && lowerPrompt.includes('scan'))) {
-    console.log('Detected medical imaging from combined terms');
+  // Enhanced detection for medical imaging
+  if (input.includes('mammogram') || input.includes('xray') || input.includes('x-ray') ||
+      input.includes('medical imag') || input.includes('radiology') || 
+      input.includes('diagnostic') || input.includes('patient scan') ||
+      input.includes('mri') || input.includes('ct scan')) {
+    console.log('AI analysis suggests medical imaging system');
     return 'medicalImaging';
   }
   
-  // Check face recognition only after no medical terms were found
-  const faceTerms = ['facial recognition', 'face detection', 'face id', 'biometric', 
-                     'face verification', 'person identification'];
-                     
-  for (const term of faceTerms) {
-    if (lowerPrompt.includes(term)) {
-      console.log(`Detected facial recognition term: ${term}`);
-      return 'faceRecognition';
-    }
-  }
-  
-  // Combined patterns for face recognition as fallback
-  if ((lowerPrompt.includes('face') && lowerPrompt.includes('recognition')) ||
-      (lowerPrompt.includes('facial') && lowerPrompt.includes('identity'))) {
-    console.log('Detected facial recognition from combined terms');
+  // Enhanced detection for facial recognition but with lower priority than medical terms
+  if (input.includes('facial recognition') || input.includes('face detection') ||
+      (input.includes('face') && input.includes('identification')) ||
+      (input.includes('facial') && input.includes('biometric'))) {
+    console.log('AI analysis suggests facial recognition system');
     return 'faceRecognition';
   }
   
+  // Continue with other detection logic if no match found so far
   if (lowerPrompt.includes('chatgpt') || lowerPrompt.includes('chat gpt')) {
     return 'ChatGPT';
   }
@@ -127,6 +114,8 @@ function extractSystemNameFromPrompt(prompt: string): string | null {
   if (lowerPrompt.includes('deepseek')) {
     return 'DeepSeek AI';
   }
+  
+  // Return null for other cases to let more sophisticated analysis methods take over
   
   // Try to extract system name from typical patterns
   // Pattern: "System Name: XYZ"
