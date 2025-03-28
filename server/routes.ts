@@ -1462,53 +1462,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get expert reviews by status (restricted to admin users in a real app)
-  app.get("/api/legal/expert-reviews", async (req: Request, res: Response) => {
-    try {
-      const status = req.query.status as string;
-      const type = req.query.type as string;
-      
-      // Direct database access instead of going through the middleware function
-      const reviews = await storage.getExpertReviews({
-        status: status,
-        type: type
-      });
-      
-      return res.json({
-        success: true,
-        reviews
-      });
-    } catch (err) {
-      console.error("Error retrieving expert reviews:", err);
-      handleError(res, err as Error, "Error retrieving expert reviews");
-    }
-  });
-  
-  // Get expert review by ID
-  app.get("/api/legal/expert-reviews/:reviewId", async (req: Request, res: Response) => {
-    try {
-      const { reviewId } = req.params;
-      const review = await storage.getExpertReviewById(reviewId);
-      
-      if (!review) {
-        return res.status(404).json({
-          success: false,
-          message: "Review not found"
-        });
-      }
-      
-      return res.json({
-        success: true,
-        review
-      });
-    } catch (err) {
-      console.error("Error retrieving expert review:", err);
-      handleError(res, err as Error, "Error retrieving expert review");
-    }
-  });
-  
-  // Update expert review is now handled by the dedicated updateExpertReviewRequest function 
-  // which is registered near the end of this file
+  // Expert review routes are now defined at the end of this file
+  // using the imported functions from legal-validation.ts
 
   app.get("/api/risk-assessment/:systemId/report", async (req: Request, res: Response) => {
     try {

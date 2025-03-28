@@ -153,6 +153,11 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
 
   const updateMutation = useMutation({
     mutationFn: async (data: { reviewId: string; status: string; expertFeedback?: string }) => {
+      if (!data.reviewId) {
+        console.error('Missing reviewId in update request');
+        throw new Error('Review ID is required for updates');
+      }
+      
       // Fix for double-JSON string issue
       const requestData = {
         status: data.status,
@@ -160,12 +165,29 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
         assignedTo: 'Legal Expert' // Default assignee
       };
       
-      console.log('Sending update request with data:', requestData);
-      
-      return apiRequest(`/api/legal/expert-reviews/${data.reviewId}`, {
-        method: 'PATCH',
-        body: requestData
+      console.log('Sending update request with data:', {
+        reviewId: data.reviewId,
+        status: data.status,
+        feedbackLength: data.expertFeedback?.length || 0
       });
+      
+      try {
+        const response = await apiRequest(`/api/legal/expert-reviews/${data.reviewId}`, {
+          method: 'PATCH',
+          body: requestData
+        });
+        
+        // Check for API error response
+        if (response && !response.success) {
+          console.error('API returned error:', response);
+          throw new Error(response.error || 'Server returned an error response');
+        }
+        
+        return response;
+      } catch (error) {
+        console.error('API request failed:', error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       console.log('Successfully updated review:', data);
@@ -178,11 +200,39 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
         onUpdateStatus(review.reviewId, newStatus);
       }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error updating review:', error);
+      let errorMessage = 'Unknown error';
+      
+      // Handle different error types
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'object' && error !== null) {
+        // Try to extract API error message if it exists
+        if (error.data && error.data.error) {
+          errorMessage = error.data.error;
+        } else if (error.message) {
+          errorMessage = error.message;
+        } else {
+          try {
+            errorMessage = JSON.stringify(error);
+          } catch (e) {
+            console.error('Failed to stringify error object:', e);
+            errorMessage = 'Complex error object (see console)';
+          }
+        }
+      }
+      
+      // Clean up common error messages
+      if (errorMessage.includes('not found')) {
+        errorMessage = 'Review not found. It may have been deleted.';
+      } else if (errorMessage.includes('network')) {
+        errorMessage = 'Network error. Please check your connection.';
+      }
+      
       toast({
         title: 'Error Updating Review',
-        description: `Failed to update review: ${(error as Error).message || 'Unknown error'}`,
+        description: `Failed to update review: ${errorMessage}`,
         variant: 'destructive',
       });
     }

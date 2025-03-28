@@ -479,6 +479,11 @@ export async function updateExpertReview(
   }
 ): Promise<boolean> {
   try {
+    if (!reviewId) {
+      console.error('reviewId is required for updating expert review');
+      return false;
+    }
+    
     // Import storage here to avoid undefined error
     const { storage } = await import('./storage');
     
@@ -502,14 +507,23 @@ export async function updateExpertReview(
       updateObj.expertFeedback = updates.expertFeedback;
     }
     
+    // Set updated_at timestamp
+    updateObj.updatedAt = new Date();
+    
     if (Object.keys(updateObj).length === 0) {
+      console.log('No updates provided for expert review');
       return false; // Nothing to update
     }
     
-    // Update using storage
-    await storage.updateExpertReview(reviewId, updateObj);
-    
-    return true;
+    try {
+      // Update using storage
+      const updatedReview = await storage.updateExpertReview(reviewId, updateObj);
+      console.log('Expert review updated successfully');
+      return true;
+    } catch (storageError) {
+      console.error('Storage error updating expert review:', storageError);
+      return false;
+    }
   } catch (error) {
     console.error('Error updating expert review:', error);
     return false;
@@ -899,38 +913,50 @@ export const updateExpertReviewRequest = async (req: Request, res: Response) => 
       throw new ValidationError('Review ID is required');
     }
     
-    // Verify the review exists
-    const existingReview = await getExpertReview(reviewId);
+    console.log('Updating expert review request:', { reviewId, status, assignedTo, feedbackLength: expertFeedback?.length });
     
-    if (!existingReview) {
-      return res.status(404).json({
+    try {
+      // Verify the review exists
+      const existingReview = await getExpertReview(reviewId);
+      
+      if (!existingReview) {
+        return res.status(404).json({
+          success: false,
+          error: 'Expert review not found'
+        });
+      }
+      
+      // Update the review
+      const updated = await updateExpertReview(reviewId, {
+        status,
+        assignedTo,
+        expertFeedback
+      });
+      
+      if (!updated) {
+        return res.status(400).json({
+          success: false,
+          error: 'Failed to update expert review'
+        });
+      }
+      
+      // Get the updated review to return
+      const updatedReview = await getExpertReview(reviewId);
+      
+      res.json({
+        success: true,
+        review: updatedReview,
+        message: 'Expert review updated successfully'
+      });
+    } catch (innerError) {
+      console.error('Inner error updating expert review:', innerError);
+      return res.status(500).json({
         success: false,
-        error: 'Expert review not found'
+        error: innerError instanceof Error ? 
+          `Error processing review update: ${innerError.message}` : 
+          'Unknown error processing review update'
       });
     }
-    
-    // Update the review
-    const updated = await updateExpertReview(reviewId, {
-      status,
-      assignedTo,
-      expertFeedback
-    });
-    
-    if (!updated) {
-      return res.status(400).json({
-        success: false,
-        error: 'Failed to update expert review'
-      });
-    }
-    
-    // Get the updated review to return
-    const updatedReview = await getExpertReview(reviewId);
-    
-    res.json({
-      success: true,
-      review: updatedReview,
-      message: 'Expert review updated successfully'
-    });
   } catch (error) {
     console.error('Error updating expert review:', error);
     res.status(error instanceof ValidationError ? 400 : 500).json({
