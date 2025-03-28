@@ -162,7 +162,8 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
       const requestData = {
         status: data.status,
         expertFeedback: data.expertFeedback,
-        assignedTo: 'Legal Expert' // Default assignee
+        // Use a valid admin user uid from the users table to satisfy foreign key constraint
+        assignedTo: 'admin-01' // Valid user ID from the database
       };
       
       console.log('Sending update request with data:', {
