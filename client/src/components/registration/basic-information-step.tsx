@@ -3,13 +3,19 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ZapIcon } from "lucide-react";
 
 interface BasicInformationStepProps {
   formData: {
@@ -25,13 +31,15 @@ interface BasicInformationStepProps {
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   departments?: { id: number; name: string }[];
   errors?: Record<string, string>;
+  smartCompletionActive?: boolean;
 }
 
 export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
   formData,
   setFormData,
   departments = [],
-  errors = {}
+  errors = {},
+  smartCompletionActive = false
 }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -179,14 +187,30 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="vendor">Vendor/Provider</Label>
-            <Input
-              id="vendor"
-              name="vendor"
-              placeholder="Who developed this system?"
-              value={formData.vendor}
-              onChange={handleInputChange}
-              className={errors.vendor ? "border-red-500" : ""}
-            />
+            <div className="relative">
+              <Input
+                id="vendor"
+                name="vendor"
+                placeholder="Who developed this system?"
+                value={formData.vendor}
+                onChange={handleInputChange}
+                className={`${errors.vendor ? "border-red-500" : ""} ${smartCompletionActive && !formData.vendor ? "border-blue-300 bg-blue-50/30" : ""}`}
+              />
+              {smartCompletionActive && !formData.vendor && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <ZapIcon className="h-4 w-4 text-blue-500 animate-pulse" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>AI is analyzing your input to suggest a value for this field</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
             {errors.vendor ? (
               <p className="text-sm text-red-500 flex items-center mt-1">
                 <AlertCircle className="h-4 w-4 mr-1" />

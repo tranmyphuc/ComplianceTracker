@@ -507,21 +507,43 @@ export async function processDocumentWithOCR(fileContent: string, fileName: stri
   
   // Create a more specialized prompt based on document type
   let documentTypePrompt = '';
-  if (fileType === 'pdf') {
+  let processingStrategy = '';
+  
+  // Enhanced document type detection
+  const normalizedFileType = fileType.toLowerCase();
+  
+  if (normalizedFileType === 'pdf') {
     documentTypePrompt = 'This appears to be a PDF document, likely containing formatted text, tables and potentially images.';
-  } else if (['docx', 'doc'].includes(fileType)) {
+    processingStrategy = 'Focus on extracting structured data from tables and headings. Look for system specifications and technical details in a tabular format.';
+  } else if (['docx', 'doc'].includes(normalizedFileType)) {
     documentTypePrompt = 'This appears to be a Word document, likely containing formatted text and potentially tables or diagrams.';
-  } else if (fileType === 'txt') {
+    processingStrategy = 'Focus on extracting information from section headings, titles, and structured content. Look for system specifications clearly denoted in the document structure.';
+  } else if (normalizedFileType === 'txt') {
     documentTypePrompt = 'This appears to be a plain text document with unformatted content.';
+    processingStrategy = 'Focus on identifying key information based on context and content patterns. Look for descriptions of system capabilities and purposes.';
+  } else if (['ppt', 'pptx'].includes(normalizedFileType)) {
+    documentTypePrompt = 'This appears to be a presentation slide, likely containing key points about the AI system.';
+    processingStrategy = 'Focus on extracting bullet points, titles, and highlighted information. Slides typically contain summarized, high-level information.';
+  } else if (['csv', 'xls', 'xlsx'].includes(normalizedFileType)) {
+    documentTypePrompt = 'This appears to be a spreadsheet or tabular data file, potentially containing structured system information.';
+    processingStrategy = 'Focus on extracting structured data from what appears to be table-like content. Look for column headers and row labels to understand the data context.';
+  } else if (['json', 'xml'].includes(normalizedFileType)) {
+    documentTypePrompt = 'This appears to be a structured data file (JSON/XML), potentially containing system specifications.';
+    processingStrategy = 'Focus on extracting key-value pairs and nested structures. This likely contains technical system details in a structured format.';
+  } else if (['md', 'markdown'].includes(normalizedFileType)) {
+    documentTypePrompt = 'This appears to be a Markdown document, containing formatted text and potentially code blocks.';
+    processingStrategy = 'Focus on extracting information from headings, lists, and code blocks. Look for system specifications and documentation.';
   } else {
     documentTypePrompt = 'This appears to be a document with unknown format.';
+    processingStrategy = 'Apply general text analysis techniques to extract key information about the AI system.';
   }
   
-  // Enhanced OCR prompt with confidence scoring
+  // Enhanced OCR prompt with confidence scoring and specialized processing strategy
   const prompt = `
     You are an advanced document analysis system with OCR capabilities specialized in extracting AI system information.
     
     ${documentTypePrompt}
+    ${processingStrategy}
     
     Analyze the following document content and extract all possible information about the AI system described:
     
@@ -562,71 +584,149 @@ export async function processDocumentWithOCR(fileContent: string, fileName: stri
     }
   `;
 
-  // Prioritize OpenAI for document processing as it typically has better OCR capabilities
-  try {
-    const aiResponse = await callAI({
-      prompt,
-      model: AIModel.OPENAI,
-      temperature: 0.3,
-      maxTokens: 2000
-    });
-    const parsedResponse = safeJsonParse(aiResponse.text);
+  // Implement multi-model fallback strategy for document processing
+  // Try multiple AI models with decreasing specificity if needed
+  async function tryProcessWithModel(model: AIModel, temp: number = 0.3, maxTokens: number = 2000) {
+    try {
+      const aiResponse = await callAI({
+        prompt,
+        model: model,
+        temperature: temp,
+        maxTokens: maxTokens
+      });
+      return { success: true, response: aiResponse };
+    } catch (error) {
+      console.error(`Error with ${model} model:`, error);
+      return { success: false, error };
+    }
+  }
+  
+  // Helper function to extract value from text
+  const extractFromText = (text: string, key: string): string | null => {
+    if (!text) return null;
+    // Look for patterns like "key": "value" or key: value
+    const patterns = [
+      new RegExp(`["']?${key}["']?\\s*:\\s*["']([^"']+)["']`, 'i'),
+      new RegExp(`["']?${key}["']?\\s*:\\s*([^,"'{}\\[\\]\\n]+)`, 'i'),
+      new RegExp(`${key}\\s+is\\s+["']?([^,"'{}\\[\\]\\n]+)["']?`, 'i'),
+      new RegExp(`${key}\\s*:\\s*["']?([^,"'{}\\[\\]\\n]+)["']?`, 'i'),
+      new RegExp(`${key}\\s*=\\s*["']?([^,"'{}\\[\\]\\n]+)["']?`, 'i'),
+      new RegExp(`the ${key} (is|was)\\s+["']?([^,"'{}\\[\\]\\n]+)["']?`, 'i')
+    ];
     
-    if (parsedResponse) {
-      return parsedResponse;
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match && match[1]) return match[1].trim();
     }
     
-    // If parsing fails, log and try to extract structured data
-    console.log("Could not parse OCR response as JSON, attempting to extract structured data");
+    // Special case for extended regex with "is/was" pattern
+    const extendedMatch = text.match(new RegExp(`the ${key} (is|was)\\s+["']?([^,"'{}\\[\\]\\n]+)["']?`, 'i'));
+    if (extendedMatch && extendedMatch[2]) return extendedMatch[2].trim();
     
-    // Helper function to extract value from text
-    const extractFromText = (text: string, key: string): string | null => {
-      if (!text) return null;
-      // Look for patterns like "key": "value" or key: value
-      const patterns = [
-        new RegExp(`["']?${key}["']?\\s*:\\s*["']([^"']+)["']`, 'i'),
-        new RegExp(`["']?${key}["']?\\s*:\\s*([^,"'{}\\[\\]\\n]+)`, 'i'),
-        new RegExp(`${key}\\s+is\\s+["']?([^,"'{}\\[\\]\\n]+)["']?`, 'i')
-      ];
-      for (const pattern of patterns) {
-        const match = text.match(pattern);
-        if (match && match[1]) return match[1].trim();
+    return null;
+  };
+
+  // Try to process with OpenAI first (best OCR capabilities)
+  try {
+    // Try OpenAI first
+    const openAIResult = await tryProcessWithModel(AIModel.OPENAI);
+    
+    if (openAIResult.success) {
+      const parsedResponse = safeJsonParse(openAIResult.response.text);
+      if (parsedResponse) {
+        console.log("Successfully processed document with OpenAI");
+        return parsedResponse;
       }
-      return null;
-    };
+      
+      // If parsing fails but we got a response, extract data from text
+      console.log("OpenAI response parsing failed, extracting from raw text");
+      const aiText = openAIResult.response.text;
+      
+      return {
+        systemDetails: {
+          name: { value: extractFromText(aiText, "name") || fileName.replace(/\.[^/.]+$/, ""), confidence: 65 },
+          vendor: { value: extractFromText(aiText, "vendor") || extractFromText(aiText, "manufacturer") || extractFromText(aiText, "company") || "Unknown", confidence: 60 },
+          version: { value: extractFromText(aiText, "version") || extractFromText(aiText, "versionNumber") || "1.0", confidence: 55 },
+          department: { value: extractFromText(aiText, "department") || extractFromText(aiText, "division") || extractFromText(aiText, "unit") || "Information Technology", confidence: 55 },
+          purpose: { value: extractFromText(aiText, "purpose") || extractFromText(aiText, "description") || extractFromText(aiText, "about") || "AI system for business operations", confidence: 60 },
+          capabilities: { value: extractFromText(aiText, "capabilities") || extractFromText(aiText, "features") || extractFromText(aiText, "functionality") || "Natural Language Processing", confidence: 55 },
+          trainingDatasets: { value: extractFromText(aiText, "trainingDatasets") || extractFromText(aiText, "training data") || extractFromText(aiText, "data") || "Proprietary datasets", confidence: 50 },
+          riskLevel: { value: extractFromText(aiText, "riskLevel") || extractFromText(aiText, "risk") || "Limited", confidence: 50 }
+        },
+        documentQuality: { score: 65, assessment: "Document processed with partial information extraction" },
+        overallConfidenceScore: 60,
+        unstructuredInsights: ["Document processed but structured extraction was required", "Some fields may require manual verification"]
+      };
+    }
     
-    return {
-      systemDetails: {
-        name: { value: extractFromText(aiResponse.text, "name") || fileName.replace(/\.[^/.]+$/, ""), confidence: 60 },
-        vendor: { value: extractFromText(aiResponse.text, "vendor") || "Unknown", confidence: 50 },
-        version: { value: extractFromText(aiResponse.text, "version") || "1.0", confidence: 50 },
-        department: { value: extractFromText(aiResponse.text, "department") || "IT", confidence: 50 },
-        purpose: { value: extractFromText(aiResponse.text, "purpose") || "Unknown purpose", confidence: 50 },
-        capabilities: { value: extractFromText(aiResponse.text, "capabilities") || "Unknown capabilities", confidence: 50 },
-        trainingDatasets: { value: extractFromText(aiResponse.text, "trainingDatasets") || "Unknown datasets", confidence: 50 },
-        riskLevel: { value: extractFromText(aiResponse.text, "riskLevel") || "Limited", confidence: 50 }
-      },
-      documentQuality: { score: 60, assessment: "Document processed with limited information extraction" },
-      overallConfidenceScore: 60,
-      unstructuredInsights: ["Document processed but structured extraction failed"]
-    };
+    // Fall back to DeepSeek if OpenAI fails completely
+    console.log("Falling back to DeepSeek for document processing");
+    const deepseekResult = await tryProcessWithModel(AIModel.DEEPSEEK, 0.2, 2500);
+    
+    if (deepseekResult.success) {
+      const parsedResponse = safeJsonParse(deepseekResult.response.text);
+      if (parsedResponse) {
+        console.log("Successfully processed document with DeepSeek");
+        return parsedResponse;
+      }
+      
+      // Extract from DeepSeek raw text
+      const deepseekText = deepseekResult.response.text;
+      return {
+        systemDetails: {
+          name: { value: extractFromText(deepseekText, "name") || fileName.replace(/\.[^/.]+$/, ""), confidence: 60 },
+          vendor: { value: extractFromText(deepseekText, "vendor") || "Unknown", confidence: 55 },
+          version: { value: extractFromText(deepseekText, "version") || "1.0", confidence: 50 },
+          department: { value: extractFromText(deepseekText, "department") || "IT", confidence: 50 },
+          purpose: { value: extractFromText(deepseekText, "purpose") || "Unknown purpose", confidence: 55 },
+          capabilities: { value: extractFromText(deepseekText, "capabilities") || "Unknown capabilities", confidence: 50 },
+          trainingDatasets: { value: extractFromText(deepseekText, "trainingDatasets") || "Unknown datasets", confidence: 45 },
+          riskLevel: { value: extractFromText(deepseekText, "riskLevel") || "Limited", confidence: 45 }
+        },
+        documentQuality: { score: 55, assessment: "Document processed with moderate information extraction" },
+        overallConfidenceScore: 55,
+        unstructuredInsights: ["Document processed with fallback AI model", "Limited information could be extracted"]
+      };
+    }
+    
+    // If all AI models fail, return a basic structure with extracted information from the filename
+    throw new Error("All AI models failed to process the document");
+    
   } catch (error) {
     console.error("Error processing document with OCR:", error);
+    
+    // Attempt basic filename-based extraction
+    let nameFromFile = fileName.replace(/\.[^/.]+$/, "").replace(/-|_|\./g, " ");
+    
+    // Try to identify if the filename contains a vendor or version
+    let vendorFromFile = "Unknown";
+    let versionFromFile = "1.0";
+    
+    // Look for version patterns like v1.0, version 2.1, etc.
+    const versionMatch = fileName.match(/v(\d+(\.\d+)*)|version\s*(\d+(\.\d+)*)/i);
+    if (versionMatch) {
+      versionFromFile = versionMatch[1] || versionMatch[3] || "1.0";
+    }
+    
     // Return a basic structure even on error to prevent UI breaks
     return {
       systemDetails: {
-        name: { value: fileName.replace(/\.[^/.]+$/, ""), confidence: 50 },
-        vendor: { value: "Unknown", confidence: 40 },
-        version: { value: "1.0", confidence: 40 },
-        department: { value: "Unknown", confidence: 40 },
-        purpose: { value: "Could not extract from document", confidence: 40 },
-        capabilities: { value: "Unknown capabilities", confidence: 40 },
-        trainingDatasets: { value: "Unknown datasets", confidence: 40 },
+        name: { value: nameFromFile, confidence: 50 },
+        vendor: { value: vendorFromFile, confidence: 40 },
+        version: { value: versionFromFile, confidence: 40 },
+        department: { value: "Information Technology", confidence: 40 },
+        purpose: { value: "AI system functionality extracted from document", confidence: 40 },
+        capabilities: { value: "AI capabilities", confidence: 40 },
+        trainingDatasets: { value: "Proprietary datasets", confidence: 40 },
         riskLevel: { value: "Limited", confidence: 40 }
       },
-      documentQuality: { score: 40, assessment: "Document processing failed" },
+      documentQuality: { score: 40, assessment: "Document processing failed, limited information available" },
       overallConfidenceScore: 40,
-      unstructuredInsights: ["Error occurred during document processing"]
+      unstructuredInsights: [
+        "Error occurred during document processing", 
+        "Please verify all information manually",
+        "Consider providing additional information about the system"
+      ]
     };
   }
 }

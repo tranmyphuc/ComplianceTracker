@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { FileTextIcon, SparklesIcon, BrainIcon, UploadIcon, BotIcon, SearchIcon, CheckIcon, FileIcon, ShieldAlertIcon, AlertCircleIcon, AlertTriangleIcon, Globe, LinkIcon, PenIcon, X as XIcon } from "lucide-react";
+import { FileTextIcon, SparklesIcon, BrainIcon, UploadIcon, BotIcon, SearchIcon, CheckIcon, FileIcon, ShieldAlertIcon, AlertCircleIcon, AlertTriangleIcon, Globe, LinkIcon, PenIcon, X as XIcon, ZapIcon } from "lucide-react";
+
+// Extend the Window interface to add our smart completion timer
+declare global {
+  interface Window {
+    smartCompletionTimer: ReturnType<typeof setTimeout> | undefined;
+  }
+}
 import {
   Card,
   CardContent,
@@ -13,6 +20,12 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 import {
   Select,
   SelectContent,
@@ -165,8 +178,9 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
   const [showProgressSteps, setShowProgressSteps] = useState(true);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [showSystemRecommendations, setShowSystemRecommendations] = useState(false);
+  const [smartCompletionActive, setSmartCompletionActive] = useState(false);
 
-  // Handle input changes
+  // Handle input changes with smart completion
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -181,6 +195,20 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
       // Also update missingFields to remove this field
       setMissingFields(prev => prev.filter(field => field !== name));
+    }
+    
+    // Check if field has significant changes and trigger smart completion
+    if (name === 'name' || name === 'description' || name === 'purpose') {
+      // Only trigger smart completion if the value is substantial enough
+      if (value && value.length > 15) {
+        // Debounce the smart completion to avoid multiple calls
+        if (window.smartCompletionTimer) {
+          clearTimeout(window.smartCompletionTimer);
+        }
+        window.smartCompletionTimer = setTimeout(() => {
+          checkForSmartCompletion();
+        }, 1000);
+      }
     }
     
     // Trigger the onFormChange callback if provided
@@ -438,6 +466,90 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     setAiResults(null);
     setConfidenceScore(0);
     setShowSystemRecommendations(false);
+  };
+  
+  // Smart completion function to auto-complete partially filled forms
+  const checkForSmartCompletion = async () => {
+    // Determine if we have enough information to trigger smart completion
+    // We need at least one substantial field filled out to make good suggestions
+    const hasSubstantialContent = (
+      (formData.name && formData.name.length > 15) ||
+      (formData.description && formData.description.length > 20) ||
+      (formData.purpose && formData.purpose.length > 20)
+    );
+    
+    // Check if there are missing fields that could benefit from smart completion
+    const importantMissingFields = [
+      'name', 'description', 'purpose', 'vendor', 'department', 
+      'aiCapabilities', 'trainingDatasets', 'riskLevel'
+    ].filter(field => {
+      const value = formData[field as keyof typeof formData];
+      return !value || (typeof value === 'string' && value.trim() === '');
+    });
+    
+    // Only proceed if we have substantial content and missing fields that need completion
+    if (hasSubstantialContent && importantMissingFields.length > 0) {
+      // Indicate that smart completion is active
+      setSmartCompletionActive(true);
+      
+      try {
+        // Show a notification that smart completion is running
+        toast({
+          title: "Smart Completion",
+          description: "Analyzing your input to suggest missing fields...",
+          duration: 3000,
+        });
+        
+        // Create a payload with the fields we have
+        const payload = {
+          name: formData.name || "",
+          description: formData.description || "",
+          purpose: formData.purpose || "",
+          partialData: true,
+          missingFields: importantMissingFields
+        };
+        
+        // Call the API to get suggestions
+        const response = await fetch('/api/suggest/system', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        
+        const suggestions = await response.json();
+        
+        // If we got valid suggestions
+        if (suggestions && typeof suggestions === 'object') {
+          // Show dialog to prompt user to apply smart completion suggestions
+          setAiResults(suggestions);
+          setConfidenceScore(suggestions.confidenceScore || 65);
+          setAiModalOpen(true);
+          
+          // Auto-select the Text tab
+          setAiTab('text');
+          
+          toast({
+            title: "Smart Completion Ready",
+            description: "AI has suggested completions for your form. Review and apply them as needed.",
+          });
+        }
+      } catch (error) {
+        console.error("Smart completion error:", error);
+        // Don't show an error to avoid disturbing the user
+        // This is a background enhancement feature
+      } finally {
+        // After completion (whether successful or not), reset the flag
+        setTimeout(() => {
+          setSmartCompletionActive(false);
+        }, 3000);
+      }
+    }
   };
 
   // Render content based on current step
@@ -722,7 +834,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     try {
       // Set a timeout to ensure the request doesn't hang indefinitely
       const abortController = new AbortController();
-      let timeoutId: number | null = window.setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         abortController.abort();
       }, 35000); // 35 second timeout (increased to prevent premature aborts)
 
@@ -841,7 +953,8 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
     fields.forEach(field => {
       if (aiResults[field]) {
-        newFormData[field as keyof typeof newFormData] = aiResults[field];
+        // Use type assertion to handle the dynamic property access
+        (newFormData as any)[field] = aiResults[field];
 
         // If this is a required field, add it to our tracking array
         if (['name', 'description', 'purpose', 'vendor', 'department', 'riskLevel'].includes(field)) {
@@ -1104,19 +1217,45 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Register AI System</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle>Register AI System</CardTitle>
+                {smartCompletionActive && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700 flex items-center gap-1 cursor-help">
+                          <ZapIcon className="h-3 w-3 animate-pulse" />
+                          Smart Completion
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p>AI is analyzing your input to suggest completions for missing fields in real-time.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
               <CardDescription>
                 Add an AI system to your inventory to track EU AI Act compliance
               </CardDescription>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAiModalOpen(true)}
-            >
-              <SparklesIcon className="h-4 w-4 mr-2" />
-              AI Auto-fill
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAiModalOpen(true)}
+                  >
+                    <SparklesIcon className="h-4 w-4 mr-2" />
+                    AI Auto-fill
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p>Upload documents or enter text to automatically extract AI system information and fill the form.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {missingFields.length > 0 && (
@@ -1159,6 +1298,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
                 formData={formData} 
                 setFormData={setFormData}
                 errors={validationErrors}
+                smartCompletionActive={smartCompletionActive}
               />
             )}
 
