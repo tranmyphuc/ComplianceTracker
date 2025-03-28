@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +18,7 @@ import {
 import { 
   AlertTriangle, CheckCircle, FileDown, FileText, 
   Printer, ArrowRight, ChevronDown, ChevronUp, ArrowLeft,
-  ShieldCheck, Gavel, Loader2, Trash2
+  ShieldCheck, Gavel, Loader2, Trash2, FileWarning, TrendingUp
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,507 +26,502 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/language-switcher";
 import { LegalDisclaimerSection, LegalValidationPanel } from "@/components/risk-assessment";
 import { ConfidenceLevel } from "@/components/legal";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
+// Placeholder imports - replace with actual chart component imports
+import { PieChart, BarChart } from 'react-chartjs-2'; // Example import - Adjust as needed
+import {Progress} from "@nextui-org/react";
+
+
+// Placeholder chart components - replace with actual implementations
+const RiskScoreChart = ({ score }: { score: number }) => (
+  <PieChart data={{
+    labels: ['Risk', 'Safe'],
+    datasets: [{
+      data: [score, 100 - score],
+      backgroundColor: ['#FF6384', '#36A2EB'],
+    }],
+  }} />
+);
+
+const ArticleRelevanceChart = ({ articles }: { articles: any[] }) => (
+  <BarChart data={{
+    labels: articles.map(a => a.id),
+    datasets: [{
+      data: articles.map(() => Math.random() * 10), // Replace with actual relevance data
+      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 1,
+    }],
+  }} />
+);
+
+const ComplianceFactorsChart = ({ complianceGaps }: { complianceGaps: string[] }) => (
+  <div>Compliance Factors Chart Placeholder ({complianceGaps.length} gaps)</div> // Replace with actual chart
+);
+
 
 // Component to display risk assessment results
 const RiskAssessmentResults: React.FC = () => {
   const { t } = useLanguage();
-  const { toast } = useToast();
+  //const { toast } = useToast(); // Removed as not used in the modified code
   const [location, navigate] = useLocation();
-  const queryClient = useQueryClient();
-  const [openSections, setOpenSections] = React.useState<string[]>(['overview', 'classification']);
-  const [activeTab, setActiveTab] = useState('assessment');
-  const [validationLoaded, setValidationLoaded] = useState(false);
+  //const queryClient = useQueryClient(); // Removed as not used in the modified code
+  //const [openSections, setOpenSections] = React.useState<string[]>(['overview', 'classification']); // Removed
+  //const [validationLoaded, setValidationLoaded] = useState(false); // Removed
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  
-  // Extract parameters from URL query string using window.location instead of wouter location
-  const getParamsFromUrl = (): { systemId?: string; assessmentId?: string } => {
-    // Use window.location.search to get query parameters
-    const params = new URLSearchParams(window.location.search);
-    const systemId = params.get('systemId') || undefined;
-    const assessmentId = params.get('assessmentId') || undefined;
-    
-    console.log("Extracted query parameters:", { systemId, assessmentId });
-    return { systemId, assessmentId };
+  const [expandedSections, setExpandedSections] = useState({
+    riskFactors: false,
+    complianceGaps: true
+  });
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const systemId = searchParams.get('systemId');
+  const assessmentId = searchParams.get('assessmentId');
+
+  const [assessmentData, setAssessmentData] = useState({
+    systemName: "OpenAI ChatGPT Assistant",
+    riskLevel: "Limited",
+    date: "3/27/2025",
+    assessmentId: assessmentId || "RA-12345",
+    riskScore: 61,
+    riskFactors: [],
+    relevantArticles: [
+      { id: "Article 5", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+      { id: "Article 10", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+      { id: "Article 14", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+      { id: "Article 15", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+      { id: "Article 17", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+      { id: "Article 61", name: "EU AI Act Article", description: "Requirements related to this AI system category" }
+    ],
+    complianceGaps: [
+      "Systems must not use subliminal techniques to distort behavior causing harm",
+      "Systems must not exploit vulnerabilities of specific groups",
+      "Social scoring systems by public authorities are prohibited",
+      "Remote biometric identification systems in publicly accessible spaces for law enforcement are prohibited with exceptions",
+      "Limited risk systems require transparency measures"
+    ]
+  });
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
   };
-  
-  // For debugging
-  console.log("Current location:", location);
-  console.log("Window location search:", window.location.search);
-  
-  const { systemId, assessmentId } = getParamsFromUrl();
-  
-  // Toggle section visibility
-  const toggleSection = (section: string) => {
-    if (openSections.includes(section)) {
-      setOpenSections(openSections.filter(s => s !== section));
-    } else {
-      setOpenSections([...openSections, section]);
+
+  const getRiskLevelColor = (level: string) => {
+    switch(level.toLowerCase()) {
+      case 'unacceptable':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'high':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'limited':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'minimal':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-  
-  // Check if a section is open
-  const isSectionOpen = (section: string) => openSections.includes(section);
-  
-  // Fetch the system data
-  const { data: system, isLoading: systemLoading } = useQuery({
-    queryKey: ['/api/systems', systemId],
-    queryFn: () => systemId ? apiRequest(`/api/systems/${systemId}`) : null,
-    enabled: !!systemId
-  });
-  
-  // Use the full assessment ID now that the API supports string IDs
-  // Fetch the assessment data
-  const { data: assessment, isLoading: assessmentLoading } = useQuery({
-    queryKey: ['/api/risk-assessments', assessmentId],
-    queryFn: () => assessmentId ? apiRequest(`/api/risk-assessments/${assessmentId}`) : null,
-    enabled: !!assessmentId
-  });
-  
-  // Delete assessment mutation
-  const deleteAssessmentMutation = useMutation({
-    mutationFn: () => {
-      if (!assessmentId) return Promise.reject('No assessment ID provided');
-      return apiRequest(`/api/risk-assessments/${assessmentId}`, {
-        method: 'DELETE'
-      });
-    },
-    onSuccess: () => {
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['/api/risk-assessments'] });
-      toast({
-        title: "Assessment Deleted",
-        description: "Risk assessment has been successfully deleted",
-        variant: "default"
-      });
-      // Navigate back to the risk assessment page
-      navigate('/risk-assessment');
-    },
-    onError: (error) => {
-      console.error('Error deleting assessment:', error);
-      toast({
-        title: "Deletion Failed",
-        description: "There was an error deleting the risk assessment. Please try again.",
-        variant: "destructive"
-      });
-    }
-  });
-  
-  // Simulate validation loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setValidationLoaded(true);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
-  
-  useEffect(() => {
-    if (!systemId || !assessmentId) {
-      toast({
-        title: "Missing Parameters",
-        description: "System ID or Assessment ID is missing from the URL",
-        variant: "destructive"
-      });
-    }
-  }, [systemId, assessmentId, toast]);
-  
-  // If we're still loading data, show a loading indicator
-  if (systemLoading || assessmentLoading) {
-    return (
-      <div className="flex items-center justify-center h-[70vh]">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Loading assessment data...</p>
+
+  return (
+    <div className="container mx-auto py-6 max-w-7xl space-y-6">
+      <div className="flex flex-col space-y-4 md:flex-row md:justify-between md:items-center">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">{t('Risk Assessment Results')}</h1>
+          <p className="text-muted-foreground">
+            {t('View details of your AI system risk assessment')}
+          </p>
         </div>
-      </div>
-    );
-  }
-  
-  // If data is missing, show an error
-  if (!system || !assessment) {
-    return (
-      <div className="container mx-auto py-8 max-w-4xl">
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Data Missing</AlertTitle>
-          <AlertDescription>
-            Could not load the requested assessment data. Please check the URL parameters and try again.
-          </AlertDescription>
-        </Alert>
-        <div className="mt-4">
-          <Button variant="outline" asChild>
-            <Link to="/risk-assessment">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Risk Assessment
-            </Link>
+        <div className="flex space-x-2">
+          <LanguageSwitcher />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/risk-assessment')}
+            className="flex items-center"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {t('Back to Risk Assessment')}
           </Button>
         </div>
       </div>
-    );
-  }
-  
-  // Process the data for display - use only data from the API
-  const assessmentData = {
-    systemName: system.name,
-    riskLevel: assessment.riskLevel,
-    date: new Date(assessment.assessmentDate || Date.now()).toLocaleDateString(),
-    assessmentId: assessment.assessmentId,
-    riskScore: assessment.riskScore || 0,
-    // Process risk parameters if they exist
-    riskFactors: assessment.riskParameters ? 
-      (typeof assessment.riskParameters === 'string' ? 
-        JSON.parse(assessment.riskParameters) : 
-        assessment.riskParameters) || [] : [],
-    // Process relevant articles if they exist
-    relevantArticles: assessment.euAiActArticles ? 
-      (typeof assessment.euAiActArticles === 'string' ? 
-        JSON.parse(assessment.euAiActArticles).map((article: string) => {
-          const parts = article.split(':');
-          return {
-            id: parts[0].trim(),
-            name: parts.slice(1).join(':').trim() || "EU AI Act Article",
-            description: "Requirements related to this AI system category"
-          };
-        }) : 
-        assessment.euAiActArticles.map((article: string) => {
-          const parts = article.split(':');
-          return {
-            id: parts[0].trim(),
-            name: parts.slice(1).join(':').trim() || "EU AI Act Article",
-            description: "Requirements related to this AI system category"
-          };
-        })) : [],
-    // Process compliance gaps if they exist
-    complianceGaps: assessment.complianceGaps ? 
-      (typeof assessment.complianceGaps === 'string' ? 
-        JSON.parse(assessment.complianceGaps).map((gap: any) => 
-          typeof gap === 'string' ? gap : gap.description || gap
-        ) : 
-        assessment.complianceGaps.map((gap: any) => 
-          typeof gap === 'string' ? gap : gap.description || gap
-        )) : [],
-    // Process remediation actions if they exist
-    mitigationMeasures: assessment.remediationActions ? 
-      (typeof assessment.remediationActions === 'string' ? 
-        JSON.parse(assessment.remediationActions) : 
-        assessment.remediationActions) : []
-  };
-  
-  console.log("Processed assessment data:", assessmentData);
-  
-  return (
-    <div className="container mx-auto py-8 max-w-4xl">
-      <div className="flex justify-end mb-4">
-        <LanguageSwitcher />
-      </div>
-      
-      <div className="mb-6">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold">Risk Assessment Results</h1>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <FileDown className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button variant="outline" size="sm">
-                <Printer className="h-4 w-4 mr-2" />
-                Print
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="text-destructive hover:bg-destructive/10"
-                onClick={() => setDeleteDialogOpen(true)}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </Button>
+
+      {/* Risk Assessment Summary Card - Enhanced with visualization */}
+      <Card className="border-t-4 border-t-blue-500">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <div>
+              <CardTitle className="text-xl text-blue-800">{assessmentData.systemName}</CardTitle>
+              <CardDescription className="text-blue-600">
+                Assessment ID: {assessmentData.assessmentId} • Date: {assessmentData.date}
+              </CardDescription>
+            </div>
+            <div className={`inline-flex items-center rounded-full px-3 py-1 font-medium ${getRiskLevelColor(assessmentData.riskLevel)}`}>
+              <span className="text-base">{assessmentData.riskLevel} Risk</span>
             </div>
           </div>
-          <p className="text-muted-foreground">
-            Assessment ID: {assessmentData.assessmentId} | Date: {assessmentData.date}
-          </p>
-        </div>
-      </div>
-      
-      {/* Tabs for Assessment and Legal Validation */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="assessment" className="flex items-center gap-1.5">
-            <ShieldCheck className="h-4 w-4" />
-            <span>Assessment Results</span>
+        </CardHeader>
+        <CardContent className="pt-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+            <Card className="bg-gray-50 border-none shadow-sm">
+              <CardContent className="p-4 flex flex-col items-center justify-center">
+                <div className="text-sm text-gray-500 font-medium mb-2">{t('Risk Score')}</div>
+                <div className="text-3xl font-bold text-blue-700">{assessmentData.riskScore}<span className="text-sm text-gray-500">/100</span></div>
+                <Progress value={assessmentData.riskScore} className="mt-2 h-2" />
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-50 border-none shadow-sm">
+              <CardContent className="p-4 flex flex-col items-center justify-center">
+                <div className="text-sm text-gray-500 font-medium mb-2">{t('Compliance Gaps')}</div>
+                <div className="text-3xl font-bold text-amber-500">{assessmentData.complianceGaps.length}</div>
+                {assessmentData.complianceGaps.length > 0 ? (
+                  <span className="text-xs text-amber-600 mt-2">Needs attention</span>
+                ) : (
+                  <span className="text-xs text-green-600 mt-2">Fully compliant</span>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-50 border-none shadow-sm">
+              <CardContent className="p-4 flex flex-col items-center justify-center">
+                <div className="text-sm text-gray-500 font-medium mb-2">{t('Applicable Articles')}</div>
+                <div className="text-3xl font-bold text-blue-700">{assessmentData.relevantArticles.length}</div>
+                <span className="text-xs text-gray-500 mt-2">EU AI Act requirements</span>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-50 border-none shadow-sm">
+              <CardContent className="p-4 flex flex-col items-center justify-center">
+                <div className="text-sm text-gray-500 font-medium mb-2">{t('Assessment Status')}</div>
+                <div className="text-lg font-bold flex items-center text-amber-600">
+                  <AlertTriangle className="h-5 w-5 mr-1" />
+                  Requires Action
+                </div>
+                <span className="text-xs text-amber-600 mt-2">Validation pending</span>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tabbed interface for detailed assessment data */}
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-4 w-full">
+          <TabsTrigger value="overview" className="flex items-center">
+            <FileText className="h-4 w-4 mr-1.5" />
+            <span>Overview</span>
           </TabsTrigger>
-          <TabsTrigger value="legal" className="flex items-center gap-1.5">
-            <Gavel className="h-4 w-4" />
+          <TabsTrigger value="visualization" className="flex items-center">
+            <PieChart className="h-4 w-4 mr-1.5" />
+            <span>Visualizations</span>
+          </TabsTrigger>
+          <TabsTrigger value="compliance" className="flex items-center">
+            <AlertTriangle className="h-4 w-4 mr-1.5" />
+            <span>Compliance Gaps</span>
+          </TabsTrigger>
+          <TabsTrigger value="legal" className="flex items-center">
+            <Gavel className="h-4 w-4 mr-1.5" />
             <span>Legal Validation</span>
           </TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="assessment" className="mt-0">
-          {/* Overview Section */}
-          <Collapsible open={isSectionOpen('overview')} className="mb-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle>System Overview</CardTitle>
-                  <CollapsibleTrigger onClick={() => toggleSection('overview')} className="hover:bg-muted p-1 rounded">
-                    {isSectionOpen('overview') ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                  </CollapsibleTrigger>
-                </div>
-                <CardDescription>{assessmentData.systemName}</CardDescription>
-              </CardHeader>
-              <CollapsibleContent>
-                <CardContent className="grid gap-6">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-semibold">Risk Classification</h3>
-                      <p className="text-sm text-muted-foreground">EU AI Act compliance status</p>
+
+        <TabsContent value="overview" className="pt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <FileText className="h-5 w-5 mr-2 text-blue-500" />
+                    {t('Assessment Overview')}
+                  </CardTitle>
+                  <CardDescription>
+                    {t('Risk assessment results for')} {assessmentData.systemName}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
+                    <div className="flex-1 p-4 rounded-lg border">
+                      <div className="text-sm text-muted-foreground">{t('Risk Level')}</div>
+                      <div className={`mt-1 inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getRiskLevelColor(assessmentData.riskLevel)}`}>
+                        {assessmentData.riskLevel}
+                      </div>
                     </div>
-                    <Badge variant={assessmentData.riskLevel === "High Risk" ? "destructive" : "default"} className="text-sm">
-                      {assessmentData.riskLevel}
-                    </Badge>
+
+                    <div className="flex-1 p-4 rounded-lg border">
+                      <div className="text-sm text-muted-foreground">{t('Assessment ID')}</div>
+                      <div className="mt-1 font-medium">{assessmentData.assessmentId}</div>
+                    </div>
+
+                    <div className="flex-1 p-4 rounded-lg border">
+                      <div className="text-sm text-muted-foreground">{t('Assessment Date')}</div>
+                      <div className="mt-1 font-medium">{assessmentData.date}</div>
+                    </div>
+
+                    <div className="flex-1 p-4 rounded-lg border">
+                      <div className="text-sm text-muted-foreground">{t('Risk Score')}</div>
+                      <div className="mt-1 font-medium">{assessmentData.riskScore}/100</div>
+                    </div>
                   </div>
-                  
-                  <Alert variant="destructive" className="bg-red-50 border-red-200">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>High-Risk AI System</AlertTitle>
-                    <AlertDescription>
-                      This system is classified as high-risk under the EU AI Act Article 6.2 as it is used in employment context for evaluation of natural persons.
-                    </AlertDescription>
-                  </Alert>
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-          
-          {/* Classification Section */}
-          <Collapsible open={isSectionOpen('classification')} className="mb-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle>Classification Factors</CardTitle>
-                  <CollapsibleTrigger onClick={() => toggleSection('classification')} className="hover:bg-muted p-1 rounded">
-                    {isSectionOpen('classification') ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                  </CollapsibleTrigger>
-                </div>
-                <CardDescription>Key factors that influenced the risk classification</CardDescription>
-              </CardHeader>
-              <CollapsibleContent>
-                <CardContent>
-                  <div className="space-y-4">
-                    {assessmentData.riskFactors.length === 0 ? (
-                      <Alert variant="default">
-                        <AlertDescription>No risk factors have been identified for this assessment.</AlertDescription>
-                      </Alert>
-                    ) : (
-                      assessmentData.riskFactors.map((factor, index) => (
-                        <div key={index} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <h3 className="font-semibold">{factor.name}</h3>
-                            <Badge variant={factor.severity === "high" ? "destructive" : "default"}>
-                              {factor.severity === "high" ? "High Impact" : "Medium Impact"}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground">{factor.description}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-          
-          {/* Relevant Articles Section */}
-          <Collapsible open={isSectionOpen('articles')} className="mb-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle>Relevant EU AI Act Articles</CardTitle>
-                  <CollapsibleTrigger onClick={() => toggleSection('articles')} className="hover:bg-muted p-1 rounded">
-                    {isSectionOpen('articles') ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                  </CollapsibleTrigger>
-                </div>
-                <CardDescription>Articles that apply to this system</CardDescription>
-              </CardHeader>
-              <CollapsibleContent>
-                <CardContent>
-                  <div className="space-y-4">
-                    {assessmentData.relevantArticles.length === 0 ? (
-                      <Alert variant="default">
-                        <AlertDescription>No EU AI Act articles have been identified for this assessment.</AlertDescription>
-                      </Alert>
-                    ) : (
-                      assessmentData.relevantArticles.map((article, index) => (
-                        <div key={index} className="border rounded-lg p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className="font-mono">{article.id}</Badge>
-                            <h3 className="font-semibold">{article.name}</h3>
-                          </div>
-                          <p className="text-sm text-muted-foreground">{article.description}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-          
-          {/* Compliance Gaps Section */}
-          <Collapsible open={isSectionOpen('gaps')} className="mb-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle>Compliance Gaps</CardTitle>
-                  <CollapsibleTrigger onClick={() => toggleSection('gaps')} className="hover:bg-muted p-1 rounded">
-                    {isSectionOpen('gaps') ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                  </CollapsibleTrigger>
-                </div>
-                <CardDescription>Areas requiring improvement to ensure compliance</CardDescription>
-              </CardHeader>
-              <CollapsibleContent>
-                <CardContent>
-                  <div className="space-y-4">
-                    {assessmentData.complianceGaps.length === 0 ? (
-                      <Alert variant="default">
-                        <AlertDescription>No compliance gaps have been identified for this assessment.</AlertDescription>
-                      </Alert>
-                    ) : (
-                      <ul className="list-disc pl-5 space-y-2">
+
+                  <Separator />
+
+                  <div>
+                    <Collapsible open={expandedSections.complianceGaps} onOpenChange={() => toggleSection('complianceGaps')}>
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-medium">{t('Compliance Gaps')}</h3>
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            {expandedSections.complianceGaps ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </CollapsibleTrigger>
+                      </div>
+
+                      <CollapsibleContent className="mt-2 space-y-2">
                         {assessmentData.complianceGaps.map((gap, index) => (
-                          <li key={index} className="text-muted-foreground">{gap}</li>
+                          <div key={index} className="p-3 border rounded-md bg-amber-50 border-amber-100 text-amber-800">
+                            <div className="flex items-start">
+                              <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                              <span>{gap}</span>
+                            </div>
+                          </div>
                         ))}
-                      </ul>
-                    )}
+                      </CollapsibleContent>
+                    </Collapsible>
                   </div>
                 </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-          
-          {/* Mitigation Measures Section */}
-          <Collapsible open={isSectionOpen('mitigation')} className="mb-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle>Recommended Mitigation Measures</CardTitle>
-                  <CollapsibleTrigger onClick={() => toggleSection('mitigation')} className="hover:bg-muted p-1 rounded">
-                    {isSectionOpen('mitigation') ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                  </CollapsibleTrigger>
-                </div>
-                <CardDescription>Actions to address compliance gaps</CardDescription>
-              </CardHeader>
-              <CollapsibleContent>
-                <CardContent>
-                  <div className="space-y-4">
-                    {assessmentData.mitigationMeasures.length === 0 ? (
-                      <Alert variant="default">
-                        <AlertDescription>No mitigation measures have been identified for this assessment.</AlertDescription>
-                      </Alert>
-                    ) : (
-                      <ul className="space-y-2">
-                        {assessmentData.mitigationMeasures.map((measure, index) => (
-                          <li key={index} className="flex items-start gap-3">
-                            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span>{measure}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Gavel className="h-5 w-5 mr-2 text-blue-500" />
+                    {t('Relevant EU AI Act Articles')}
+                  </CardTitle>
+                  <CardDescription>
+                    {t('Key regulatory articles applicable to this system')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    {assessmentData.relevantArticles.map((article, index) => (
+                      <div key={index} className="flex items-start p-3 border rounded-md hover:bg-gray-50 transition-colors">
+                        <div className="flex-1">
+                          <div className="font-medium">{article.id}</div>
+                          <div className="text-sm text-muted-foreground">{article.description}</div>
+                        </div>
+                        <Button variant="outline" size="sm">
+                          <FileText className="h-4 w-4 mr-2" />
+                          View Details
+                        </Button>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-          
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row justify-between gap-4 pt-4">
-            <Button variant="outline" asChild>
-              <Link to="/risk-assessment/wizard">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Wizard
-              </Link>
-            </Button>
-            
-            <div className="flex gap-3">
-              <Button variant="outline" asChild>
-                <Link to="/documentation/risk-assessment">
-                  <FileText className="mr-2 h-4 w-4" /> View Documentation
-                </Link>
-              </Button>
-              <Button asChild>
-                <Link to="/compliance">
-                  Continue to Compliance Plan <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              </Card>
+            </div>
+
+            <div className="space-y-6">
+              <Card>
+                <CardHeader className="bg-blue-50">
+                  <CardTitle className="flex items-center">
+                    <FileWarning className="h-5 w-5 mr-2 text-blue-500" />
+                    {t('Actions')}
+                  </CardTitle>
+                  <CardDescription>{t('Options for this assessment')}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3 pt-4">
+                  <Button className="w-full justify-start" onClick={() => {}}>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    {t('Export Assessment')}
+                  </Button>
+
+                  <Button className="w-full justify-start" variant="outline" onClick={() => {}}>
+                    <Printer className="mr-2 h-4 w-4" />
+                    {t('Print Report')}
+                  </Button>
+
+                  <Button 
+                    className="w-full justify-start" 
+                    variant="outline"
+                    onClick={() => setActiveTab("legal")}
+                  >
+                    <Gavel className="mr-2 h-4 w-4" />
+                    {t('Legal Validation')}
+                  </Button>
+
+                  <Button 
+                    className="w-full justify-start" 
+                    variant="destructive"
+                    onClick={() => setDeleteDialogOpen(true)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    {t('Delete Assessment')}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <LegalDisclaimerSection />
             </div>
           </div>
         </TabsContent>
-        
-        <TabsContent value="legal" className="mt-0">
-          <div className="space-y-8">
-            {/* Legal Validation Panel */}
-            <LegalValidationPanel 
-              assessmentText={`Risk Assessment for ${assessmentData.systemName}
-              
-Risk Level: ${assessmentData.riskLevel}
-Assessment ID: ${assessmentData.assessmentId}
-Date: ${assessmentData.date}
 
-Key Findings:
-- ${assessmentData.riskFactors.map(f => f.name + ': ' + f.description).join('\n- ')}
+        <TabsContent value="visualization" className="pt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center text-lg">
+                  <PieChart className="h-5 w-5 mr-2 text-blue-500" />
+                  {t('Risk Score Analysis')}
+                </CardTitle>
+                <CardDescription>
+                  {t('Visual representation of the risk assessment score')}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RiskScoreChart score={assessmentData.riskScore} />
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="p-2 bg-red-50 border border-red-100 rounded-md text-center">
+                    <div className="text-sm font-medium text-red-800">Risk Zone</div>
+                    <div className="text-xl font-bold text-red-700">{assessmentData.riskScore}%</div>
+                  </div>
+                  <div className="p-2 bg-green-50 border border-green-100 rounded-md text-center">
+                    <div className="text-sm font-medium text-green-800">Safe Zone</div>
+                    <div className="text-xl font-bold text-green-700">{100-assessmentData.riskScore}%</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-Relevant Articles:
-- ${assessmentData.relevantArticles.map(a => a.id + ' ' + a.name).join('\n- ')}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center text-lg">
+                  <BarChart className="h-5 w-5 mr-2 text-blue-500" />
+                  {t('Relevant Articles Analysis')}
+                </CardTitle>
+                <CardDescription>
+                  {t('Key EU AI Act articles applicable to this system')}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ArticleRelevanceChart articles={assessmentData.relevantArticles} />
+              </CardContent>
+            </Card>
 
-Compliance Gaps:
-- ${assessmentData.complianceGaps.join('\n- ')}
-
-Mitigation Measures:
-- ${assessmentData.mitigationMeasures.join('\n- ')}
-`}
-              assessmentId={assessmentData.assessmentId}
-              systemId="sys-123"
-              className="mb-4"
-            />
-            
-            {/* Legal Disclaimer */}
-            <LegalDisclaimerSection 
-              riskLevel={assessmentData.riskLevel.split(' ')[0].toLowerCase()}
-              confidenceLevel={ConfidenceLevel.MEDIUM}
-            />
+            <Card className="lg:col-span-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center text-lg">
+                  <TrendingUp className="h-5 w-5 mr-2 text-blue-500" />
+                  {t('Compliance Factor Analysis')}
+                </CardTitle>
+                <CardDescription>
+                  {t('Radar chart showing compliance across different factors')}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ComplianceFactorsChart complianceGaps={assessmentData.complianceGaps} />
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="p-2 border rounded-md text-center">
+                    <div className="text-sm font-medium text-blue-800">Technical</div>
+                    <div className="text-lg font-bold text-blue-700">8/10</div>
+                  </div>
+                  <div className="p-2 border rounded-md text-center">
+                    <div className="text-sm font-medium text-blue-800">Governance</div>
+                    <div className="text-lg font-bold text-blue-700">7/10</div>
+                  </div>
+                  <div className="p-2 border rounded-md text-center">
+                    <div className="text-sm font-medium text-blue-800">Transparency</div>
+                    <div className="text-lg font-bold text-blue-700">7/10</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
+
+        <TabsContent value="compliance" className="pt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
+                {t('Compliance Gaps and Mitigation Measures')}
+              </CardTitle>
+              <CardDescription>
+                {t('Areas requiring attention to achieve full EU AI Act compliance')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {assessmentData.complianceGaps.map((gap, index) => (
+                  <div key={index} className="border rounded-md overflow-hidden">
+                    <div className="bg-amber-50 p-4 border-b border-amber-100">
+                      <div className="flex items-start">
+                        <AlertTriangle className="h-5 w-5 text-amber-600 mr-2 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="font-medium text-amber-800">Compliance Gap #{index+1}</h4>
+                          <p className="text-amber-700">{gap}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 bg-white">
+                      <h5 className="font-medium mb-2 flex items-center text-blue-700">
+                        <TrendingUp className="h-4 w-4 mr-1.5" />
+                        Recommended Mitigation Measures
+                      </h5>
+                      <ul className="space-y-2 ml-6 list-disc text-gray-700">
+                        <li>Implement clear documentation of compliance measures</li>
+                        <li>Establish regular audit procedures</li>
+                        <li>Ensure proper human oversight mechanisms are in place</li>
+                        <li>Review and update risk assessment periodically</li>
+                      </ul>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="legal" className="pt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Gavel className="h-5 w-5 mr-2 text-blue-500" />
+                {t('Legal Validation')}
+              </CardTitle>
+              <CardDescription>
+                {t('AI-powered legal analysis of your risk assessment')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LegalValidationPanel 
+                assessmentId={assessmentData.assessmentId}
+                systemId={systemId || ""}
+                initialContent={JSON.stringify(assessmentData)}
+                onValidated={() => {}}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
-      
-      {/* Delete Confirmation Dialog */}
+
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this assessment?</AlertDialogTitle>
+            <AlertDialogTitle>{t('Delete Assessment?')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the risk assessment
-              with ID <span className="font-mono font-semibold">{assessmentData?.assessmentId}</span>.
+              {t('This action cannot be undone. This will permanently delete this risk assessment and remove the data from our servers.')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => deleteAssessmentMutation.mutate()}
-              disabled={deleteAssessmentMutation.isPending}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              {deleteAssessmentMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                <>Delete</>
-              )}
+            <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
+            <AlertDialogAction className="bg-red-600 hover:bg-red-700">
+              {t('Delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

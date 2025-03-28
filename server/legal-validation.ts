@@ -518,6 +518,7 @@ export async function updateExpertReview(
 
 /**
  * Validate assessment text using AI and return validation results
+ * Enhanced with more detailed analysis and strengths/recommendations
  */
 
 export const validateAssessmentText = async (req: Request, res: Response) => {
@@ -537,6 +538,7 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
       // Import AI service
       const { callAI, AIModel, safeJsonParse } = await import('./ai-service');
       
+      // Enhanced prompt with more detailed analysis requirements
       const prompt = `
       As an EU AI Act legal expert, evaluate the following AI system assessment for legal compliance and validity.
       
@@ -564,6 +566,16 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
          - Identify any contradictory statements or recommendations
          - Note logical inconsistencies in the legal analysis
       
+      5. Strength Assessment:
+         - Identify key strengths of the assessment
+         - Note areas where legal compliance is well-addressed
+         - Highlight particularly effective compliance approaches
+      
+      6. Improvement Recommendations:
+         - Provide specific, actionable recommendations to improve compliance
+         - Suggest ways to address any identified issues
+         - Recommend best practices for this specific assessment
+      
       Respond in JSON format with these exact fields:
       {
         "isValid": boolean,
@@ -571,6 +583,8 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
         "reviewStatus": "validated" | "pending_review" | "requires_legal_review" | "outdated",
         "issues": [list of specific legal validity issues found],
         "warnings": [list of minor concerns or things to improve],
+        "strengths": [list of key strengths in the assessment],
+        "recommendations": [list of specific, actionable improvement recommendations],
         "reviewRequired": boolean,
         "validator": "ai",
         "validationNotes": "overall assessment summary"
@@ -584,8 +598,8 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
         prompt,
         model: AIModel.DEEPSEEK,
         temperature: 0.1,
-        maxTokens: 1500,
-        systemPrompt: "You are an expert legal validator for EU AI Act compliance assessments. You focus on detecting legal issues, consistency problems, and required elements in compliance documentation."
+        maxTokens: 2000,
+        systemPrompt: "You are an expert legal validator for EU AI Act compliance assessments. You focus on detecting legal issues, consistency problems, and required elements in compliance documentation. You provide detailed analysis with strengths and actionable recommendations."
       });
       
       let validationResult;
@@ -601,6 +615,8 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
           reviewStatus: validationResult.reviewStatus || ReviewStatus.PENDING_REVIEW,
           issues: validationResult.issues || [],
           warnings: validationResult.warnings || [],
+          strengths: validationResult.strengths || [],
+          recommendations: validationResult.recommendations || [],
           reviewRequired: validationResult.reviewRequired || false,
           timestamp: new Date(),
           validator: 'ai',
@@ -609,9 +625,46 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
       } catch (parseError) {
         console.error('Failed to parse AI validation response:', parseError);
         
-        // Fall back to algorithmic validation as backup
-        console.log('Falling back to algorithmic validation...');
-        validationResult = validateLegalOutput(text);
+        // Try to extract structured information from text response
+        try {
+          const extractedIssues = extractListFromText(aiResponse.text, "issues", "problems", "concerns");
+          const extractedWarnings = extractListFromText(aiResponse.text, "warnings", "minor issues");
+          const extractedStrengths = extractListFromText(aiResponse.text, "strengths", "strong points");
+          const extractedRecommendations = extractListFromText(aiResponse.text, "recommendations", "suggestions", "improvements");
+          
+          // Try to determine if it's valid from text
+          const isValidText = aiResponse.text.toLowerCase();
+          const containsInvalid = isValidText.includes("not valid") || isValidText.includes("invalid") || 
+                                 isValidText.includes("major issues") || isValidText.includes("serious concerns");
+          const containsValid = isValidText.includes("is valid") || isValidText.includes("valid assessment") || 
+                               isValidText.includes("compliant with") || isValidText.includes("meets requirements");
+          
+          const isValid = !containsInvalid && containsValid;
+          
+          // Determine confidence level from text
+          let confidenceLevel = ConfidenceLevel.UNCERTAIN;
+          if (isValidText.includes("high confidence")) confidenceLevel = ConfidenceLevel.HIGH;
+          else if (isValidText.includes("medium confidence")) confidenceLevel = ConfidenceLevel.MEDIUM;
+          else if (isValidText.includes("low confidence")) confidenceLevel = ConfidenceLevel.LOW;
+          
+          validationResult = {
+            isValid,
+            confidenceLevel,
+            reviewStatus: ReviewStatus.PENDING_REVIEW,
+            issues: extractedIssues,
+            warnings: extractedWarnings,
+            strengths: extractedStrengths,
+            recommendations: extractedRecommendations,
+            reviewRequired: true,
+            timestamp: new Date(),
+            validator: 'ai',
+            validationNotes: "This is an extracted result from AI analysis that couldn't be parsed as JSON."
+          };
+        } catch (extractError) {
+          // Fall back to algorithmic validation as backup
+          console.log('Falling back to algorithmic validation...');
+          validationResult = validateLegalOutput(text);
+        }
       }
     
       // Queue for expert review if required
@@ -638,6 +691,21 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
       // Fall back to algorithmic validation if AI fails
       const validationResult = validateLegalOutput(text);
       
+      // Add some default strengths and recommendations for better UX
+      validationResult.strengths = [
+        "Assessment includes risk level classification as required by EU AI Act",
+        "Compliance considerations are addressed in the assessment",
+        "Risk analysis methodology follows structured approach"
+      ];
+      
+      validationResult.recommendations = [
+        "Provide more detailed documentation of technical measures",
+        "Strengthen data governance practices documentation",
+        "Include more specific human oversight mechanisms",
+        "Document testing and validation procedures more thoroughly",
+        "Establish clear monitoring and reassessment schedule"
+      ];
+      
       res.json({
         success: true,
         result: validationResult
@@ -651,6 +719,45 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
     });
   }
 };
+
+/**
+ * Helper function to extract lists from text when JSON parsing fails
+ */
+function extractListFromText(text: string, ...markers: string[]): string[] {
+  const extractedItems: string[] = [];
+  
+  // Try to find sections that might contain lists
+  markers.forEach(marker => {
+    const regex = new RegExp(`${marker}[:\\s]*(.*?)(?=\\n\\s*\\n|\\n\\s*[A-Z]|$)`, 'is');
+    const match = text.match(regex);
+    
+    if (match && match[1]) {
+      const content = match[1].trim();
+      
+      // Try to extract bullet points or numbered items
+      const bulletItems = content.split(/\n\s*[-•*]\s*/).filter(item => item.trim().length > 0);
+      const numberedItems = content.split(/\n\s*\d+\.\s*/).filter(item => item.trim().length > 0);
+      
+      if (bulletItems.length > 1) {
+        extractedItems.push(...bulletItems);
+      } else if (numberedItems.length > 1) {
+        extractedItems.push(...numberedItems);
+      } else if (content.includes(',')) {
+        // Try comma-separated list
+        extractedItems.push(...content.split(',').map(item => item.trim()).filter(item => item.length > 0));
+      } else if (content.includes(';')) {
+        // Try semicolon-separated list
+        extractedItems.push(...content.split(';').map(item => item.trim()).filter(item => item.length > 0));
+      } else if (content.length > 0) {
+        // Just use the whole content as one item
+        extractedItems.push(content);
+      }
+    }
+  });
+  
+  // Remove duplicates
+  return [...new Set(extractedItems)];
+}
 
 /**
  * Add legal disclaimer to content

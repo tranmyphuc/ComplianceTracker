@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, FileLineChart, AlertTriangle, ShieldCheck } from "lucide-react";
+import { HelpCircle, FileLineChart, AlertTriangle, ShieldCheck, Gavel, FileCheck, TrendingUp, ShieldAlert } from "lucide-react";
 import ComprehensiveRiskAssessment from './comprehensive-assessment';
 import RiskAssessmentGuide from './visual-guide';
 import RiskAssessmentDashboard from './dashboard';
+import LegalValidationPanel from './legal-validation';
+export { LegalValidationPanel } from './legal-validation';
 
 interface AssessmentResult {
   categoryScores: Record<string, number>;
