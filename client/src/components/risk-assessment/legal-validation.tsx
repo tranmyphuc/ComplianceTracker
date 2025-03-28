@@ -26,8 +26,7 @@ import {
   List, 
   ArrowRight,
   AlertCircle,
-  BarChart4,
-  Circle
+  BarChart4
 } from 'lucide-react';
 
 export interface ValidationResult {
@@ -172,7 +171,7 @@ const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({
                   ) : index === aiProcessingStep ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
-                    <Circle className="h-5 w-5" />
+                    <div className="h-5 w-5 rounded-full border-2 border-gray-300" />
                   )}
                 </div>
                 <div>
@@ -435,8 +434,8 @@ const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({
   );
 };
 
-// Missing Circle component
-const Circle: React.FC<{ className?: string }> = ({ className }) => (
+// Custom circle indicator component to avoid conflicting with Lucide's Circle
+const CircleIndicator: React.FC<{ className?: string }> = ({ className }) => (
   <div className={`rounded-full border-2 ${className}`} style={{ width: '20px', height: '20px' }} />
 );
 
