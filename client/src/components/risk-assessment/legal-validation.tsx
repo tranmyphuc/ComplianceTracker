@@ -1,252 +1,46 @@
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, CheckCircle2, AlertTriangle, RefreshCw } from "lucide-react";
-import { LegalDisclaimer, ValidationResult } from '@/components/legal';
-import { ConfidenceLevel, ReviewStatus } from '@/components/legal/legal-disclaimer';
-import { Badge } from '@/components/ui/badge';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
-interface LegalValidationPanelProps {
-  assessmentText: string;
-  assessmentId?: string;
-  systemId?: string;
-  onAfterValidation?: (isValid: boolean) => void;
-  className?: string;
-}
-
-const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({
-  assessmentText,
-  assessmentId,
-  systemId,
-  onAfterValidation,
-  className = ''
-}) => {
-  const [isValidating, setIsValidating] = useState(false);
-  const [validationResult, setValidationResult] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState('assessment');
-  
-  // Function to validate the assessment
-  const validateAssessment = async () => {
-    if (!assessmentText) return;
-    
-    setIsValidating(true);
-    
-    try {
-      const response = await axios.post('/api/legal/validate', {
-        text: assessmentText,
-        type: 'assessment',
-        context: {
-          assessmentId,
-          systemId
-        }
-      });
-      
-      if (response.data && response.data.success) {
-        setValidationResult(response.data.result);
-        setActiveTab('validation');
-        
-        // Notify parent component if provided
-        if (onAfterValidation) {
-          onAfterValidation(response.data.result.isValid);
-        }
-      } else {
-        console.error('Validation failed:', response.data);
-      }
-    } catch (error) {
-      console.error('Error validating assessment:', error);
-    } finally {
-      setIsValidating(false);
-    }
-  };
-  
-  const requestExpertReview = async () => {
-    if (!assessmentText) return;
-    
-    try {
-      // Show loading state
-      setIsValidating(true);
-      
-      // Send the request to the new expert review API endpoint
-      const response = await axios.post('/api/legal/reviews', {
-        text: assessmentText,
-        type: 'assessment',
-        context: {
-          assessmentId,
-          systemId
-        },
-        validationResult
-      });
-      
-      if (response.data && response.data.success) {
-        // Update the validation result with expert review info
-        setValidationResult({
-          ...validationResult,
-          reviewStatus: 'pending_review',
-          reviewRequired: true,
-          validationNotes: `${validationResult.validationNotes || ''} Expert review requested. Review ID: ${response.data.reviewId}`
-        });
-        
-        // Show success message
-        alert(`Expert review requested successfully. Review ID: ${response.data.reviewId}`);
-      } else {
-        console.error('Expert review request failed:', response.data);
-        alert('Failed to request expert review. Please try again later.');
-      }
-    } catch (error) {
-      console.error('Error requesting expert review:', error);
-      alert('Error requesting expert review. Please try again later.');
-    } finally {
-      setIsValidating(false);
-    }
-  };
-  
-  return (
-    <Card className={`shadow-sm ${className}`}>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle>Legal Validation</CardTitle>
-            <CardDescription>
-              Ensure your assessment meets EU AI Act requirements
-            </CardDescription>
-          </div>
-          {validationResult && (
-            <Badge 
-              variant={validationResult.isValid ? "default" : "destructive"}
-              className="ml-auto"
-            >
-              {validationResult.isValid ? 'Validated' : 'Requires Review'}
-            </Badge>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="assessment">Assessment</TabsTrigger>
-            <TabsTrigger value="validation" disabled={!validationResult}>
-              Validation Results
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="assessment" className="mt-4">
-            <div className="mb-4">
-              <LegalDisclaimer 
-                isAssessment={true}
-                confidenceLevel={ConfidenceLevel.MEDIUM}
-                reviewStatus={ReviewStatus.PENDING_REVIEW}
-              />
-            </div>
-            
-            <div className="whitespace-pre-wrap p-4 border rounded-md bg-slate-50 max-h-60 overflow-y-auto">
-              {assessmentText || <span className="text-muted-foreground">No assessment content available</span>}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="validation" className="mt-4">
-            {validationResult ? (
-              <ValidationResult
-                isValid={validationResult.isValid}
-                confidenceLevel={validationResult.confidenceLevel}
-                reviewStatus={validationResult.reviewStatus}
-                issues={validationResult.issues || []}
-                warnings={validationResult.warnings || []}
-                reviewRequired={validationResult.reviewRequired}
-                timestamp={new Date(validationResult.timestamp)}
-                validator={validationResult.validator}
-                validationNotes={validationResult.validationNotes}
-                onRequestReview={requestExpertReview}
-              />
-            ) : (
-              <div className="p-6 text-center text-muted-foreground">
-                <AlertCircle className="mx-auto h-10 w-10 mb-2 text-yellow-400" />
-                <p>No validation results available. Validate the assessment first.</p>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button 
-          variant="outline"
-          onClick={() => setActiveTab('assessment')}
-          disabled={activeTab === 'assessment' || isValidating}
-        >
-          View Assessment
-        </Button>
-        
-        <Button
-          onClick={validateAssessment}
-          disabled={isValidating || !assessmentText}
-          className="ml-auto"
-        >
-          {isValidating ? (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-              Validating...
-            </>
-          ) : validationResult ? (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Re-Validate
-            </>
-          ) : (
-            <>
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              Validate
-            </>
-          )}
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-};
-
-export default LegalValidationPanel;
-import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { 
-  AlertTriangle, CheckCircle, FileCheck, Gavel, 
-  Loader2, ChevronDown, ChevronUp, Brain, 
-  ShieldAlert, ShieldCheck, TrendingUp, X, List 
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription, 
+  CardContent, 
+  CardFooter 
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useToast } from '@/components/ui/use-toast';
+import { 
+  AlertTriangle, 
+  CheckCircle, 
+  XCircle, 
+  Gavel, 
+  Loader2, 
+  FileText, 
+  Brain, 
+  List, 
+  ArrowRight,
+  AlertCircle,
+  BarChart4
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
-
-export enum ConfidenceLevel {
-  HIGH = 'high',
-  MEDIUM = 'medium',
-  LOW = 'low',
-  UNCERTAIN = 'uncertain'
-}
-
-export enum ReviewStatus {
-  VALIDATED = 'validated',
-  PENDING_REVIEW = 'pending_review',
-  REQUIRES_LEGAL_REVIEW = 'requires_legal_review',
-  OUTDATED = 'outdated'
-}
 
 export interface ValidationResult {
   isValid: boolean;
-  confidenceLevel: ConfidenceLevel;
-  reviewStatus: ReviewStatus;
+  confidenceLevel: 'high' | 'medium' | 'low' | 'uncertain';
+  reviewStatus: 'validated' | 'pending_review' | 'requires_legal_review' | 'outdated';
   issues: string[];
   warnings: string[];
+  strengths: string[];
+  recommendations: string[];
   reviewRequired: boolean;
+  timestamp: Date;
+  validator: 'ai' | 'expert' | 'system';
   validationNotes?: string;
-  strengths?: string[];
-  recommendations?: string[];
 }
 
 export interface LegalValidationPanelProps {
@@ -268,7 +62,7 @@ export const LegalDisclaimerSection: React.FC = () => (
   </Alert>
 );
 
-export const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({ 
+const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({ 
   assessmentId, 
   systemId, 
   initialContent = "", 
@@ -278,178 +72,118 @@ export const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [showAiProcessing, setShowAiProcessing] = useState(false);
   const [aiProcessingStep, setAiProcessingStep] = useState(0);
+  const [currentTab, setCurrentTab] = useState('analysis');
   const { toast } = useToast();
 
-  // Mutation for validating assessment text with AI
-  const validateMutation = useMutation({
-    mutationFn: async (text: string) => {
-      // Simulate AI processing steps for better UX
-      setShowAiProcessing(true);
-      setAiProcessingStep(1);
-      
-      // Artificial delay to show processing
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setAiProcessingStep(2);
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setAiProcessingStep(3);
-      
-      // Actual API call
-      const response = await apiRequest({
-        endpoint: '/api/legal-validation/validate',
-        method: 'POST',
-        data: {
+  // Validate using backend API
+  const validateMutation = {
+    isPending: false,
+    mutate: async (text: string) => {
+      try {
+        setShowAiProcessing(true);
+        setAiProcessingStep(1);
+
+        // Simulate first step of AI processing
+        await new Promise(resolve => setTimeout(resolve, 800));
+        setAiProcessingStep(2);
+
+        // Simulate second step
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        setAiProcessingStep(3);
+
+        // Make actual API call
+        const response = await axios.post('/api/legal-validation/validate', {
           text,
           type: 'assessment',
           context: {
-            assessmentId,
-            systemId
+            systemId,
+            assessmentId
           }
-        }
-      });
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setAiProcessingStep(4);
-      
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setShowAiProcessing(false);
-      
-      return response;
-    },
-    onSuccess: (data) => {
-      if (data.success && data.result) {
-        setValidationResult(data.result);
-        if (onValidated) {
-          onValidated(data.result);
-        }
-        toast({
-          title: "Legal validation complete",
-          description: data.result.isValid 
-            ? "Assessment passed validation checks." 
-            : "Assessment has some issues that need attention.",
-          variant: data.result.isValid ? "default" : "destructive",
         });
-      } else {
+
+        if (response.data && response.data.success) {
+          const result = response.data.result;
+          setValidationResult(result);
+
+          if (onValidated) {
+            onValidated(result);
+          }
+
+          // Show success toast
+          toast({
+            title: result.isValid ? "Validation Successful" : "Validation Complete",
+            description: result.isValid 
+              ? "Assessment is valid according to EU AI Act requirements" 
+              : "Assessment requires some improvements",
+            variant: result.isValid ? "default" : "destructive",
+          });
+        } else {
+          toast({
+            title: "Validation failed",
+            description: "Could not validate the assessment. Please try again.",
+            variant: "destructive",
+          });
+        }
+
+        setShowAiProcessing(false);
+      } catch (error) {
+        setShowAiProcessing(false);
         toast({
-          title: "Validation failed",
-          description: "Could not validate the assessment. Please try again.",
+          title: "Error",
+          description: "Failed to validate assessment. Please try again.",
           variant: "destructive",
         });
       }
-    },
-    onError: (error) => {
-      setShowAiProcessing(false);
-      toast({
-        title: "Error",
-        description: "Failed to validate assessment. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const getConfidenceBadge = (level: ConfidenceLevel) => {
-    switch(level) {
-      case ConfidenceLevel.HIGH:
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">High Confidence</Badge>;
-      case ConfidenceLevel.MEDIUM:
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200">Medium Confidence</Badge>;
-      case ConfidenceLevel.LOW:
-        return <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-200">Low Confidence</Badge>;
-      case ConfidenceLevel.UNCERTAIN:
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Uncertain</Badge>;
-      default:
-        return <Badge>Unknown</Badge>;
-    }
-  };
-
-  const getStatusBadge = (status: ReviewStatus) => {
-    switch(status) {
-      case ReviewStatus.VALIDATED:
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Validated</Badge>;
-      case ReviewStatus.PENDING_REVIEW:
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200">Pending Review</Badge>;
-      case ReviewStatus.REQUIRES_LEGAL_REVIEW:
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Requires Legal Review</Badge>;
-      case ReviewStatus.OUTDATED:
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Outdated</Badge>;
-      default:
-        return <Badge>Unknown</Badge>;
     }
   };
 
   const renderAiProcessingSteps = () => {
+    const steps = [
+      { title: "Initializing AI models", description: "Preparing DeepSeek and OpenAI models for legal analysis" },
+      { title: "Analyzing compliance", description: "Evaluating assessment against EU AI Act requirements" },
+      { title: "Generating validation report", description: "Preparing detailed analysis with recommendations" }
+    ];
+
     return (
-      <Card className="mt-4 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-2">
-          <div className="flex items-center">
-            <Brain className="h-5 w-5 text-blue-600 mr-2" />
-            <CardTitle className="text-lg text-blue-700">AI Legal Analysis</CardTitle>
-          </div>
+      <Card className="mb-4">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center">
+            <Brain className="h-5 w-5 mr-2 text-purple-600" />
+            AI Legal Validation in Progress
+          </CardTitle>
           <CardDescription>
-            Analyzing your assessment with advanced AI models
+            Our advanced AI models are analyzing your assessment for legal compliance
           </CardDescription>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="space-y-6">
-            <Progress value={aiProcessingStep * 25} className="h-2" />
-            
-            <div className="space-y-4">
-              <div className="flex items-center">
-                {aiProcessingStep >= 1 ? (
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                ) : (
-                  <Loader2 className="h-5 w-5 text-gray-400 mr-2 animate-spin" />
-                )}
-                <span className={aiProcessingStep >= 1 ? "text-gray-900" : "text-gray-400"}>
-                  Initializing AI models (DeepSeek & OpenAI)
-                </span>
-              </div>
-              
-              <div className="flex items-center">
-                {aiProcessingStep >= 2 ? (
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                ) : (
-                  aiProcessingStep >= 1 ? (
-                    <Loader2 className="h-5 w-5 text-gray-400 mr-2 animate-spin" />
+        <CardContent className="py-2">
+          <Progress value={(aiProcessingStep / steps.length) * 100} className="mb-4" />
+
+          <div className="space-y-3">
+            {steps.map((step, index) => (
+              <div key={index} className="flex items-start">
+                <div className={`mr-3 mt-0.5 ${
+                  index < aiProcessingStep ? 'text-green-500' : 
+                  index === aiProcessingStep ? 'text-blue-500 animate-pulse' : 
+                  'text-gray-300'
+                }`}>
+                  {index < aiProcessingStep ? (
+                    <CheckCircle className="h-5 w-5" />
+                  ) : index === aiProcessingStep ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
-                    <div className="h-5 w-5 mr-2" />
-                  )
-                )}
-                <span className={aiProcessingStep >= 2 ? "text-gray-900" : "text-gray-400"}>
-                  Analyzing legal compliance and regulatory alignment
-                </span>
+                    <Circle className="h-5 w-5" />
+                  )}
+                </div>
+                <div>
+                  <p className={`font-medium ${
+                    index < aiProcessingStep ? 'text-green-700' : 
+                    index === aiProcessingStep ? 'text-blue-700' : 
+                    'text-gray-400'
+                  }`}>{step.title}</p>
+                  <p className="text-sm text-gray-500">{step.description}</p>
+                </div>
               </div>
-              
-              <div className="flex items-center">
-                {aiProcessingStep >= 3 ? (
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                ) : (
-                  aiProcessingStep >= 2 ? (
-                    <Loader2 className="h-5 w-5 text-gray-400 mr-2 animate-spin" />
-                  ) : (
-                    <div className="h-5 w-5 mr-2" />
-                  )
-                )}
-                <span className={aiProcessingStep >= 3 ? "text-gray-900" : "text-gray-400"}>
-                  Evaluating legal risks and identifying strengths/weaknesses
-                </span>
-              </div>
-              
-              <div className="flex items-center">
-                {aiProcessingStep >= 4 ? (
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                ) : (
-                  aiProcessingStep >= 3 ? (
-                    <Loader2 className="h-5 w-5 text-gray-400 mr-2 animate-spin" />
-                  ) : (
-                    <div className="h-5 w-5 mr-2" />
-                  )
-                )}
-                <span className={aiProcessingStep >= 4 ? "text-gray-900" : "text-gray-400"}>
-                  Generating compliance recommendations and improvement plan
-                </span>
-              </div>
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -458,259 +192,197 @@ export const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({
 
   const renderValidationResults = () => {
     if (!validationResult) return null;
-    
+
+    const getConfidenceBadge = (level: string) => {
+      switch(level) {
+        case 'high':
+          return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">High Confidence</Badge>;
+        case 'medium':
+          return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200">Medium Confidence</Badge>;
+        case 'low':
+          return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Low Confidence</Badge>;
+        default:
+          return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Uncertain</Badge>;
+      }
+    };
+
+    const getStatusBadge = (status: string) => {
+      switch(status) {
+        case 'validated':
+          return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Validated</Badge>;
+        case 'pending_review':
+          return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">Pending Review</Badge>;
+        case 'requires_legal_review':
+          return <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-200">Requires Legal Review</Badge>;
+        case 'outdated':
+          return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Outdated</Badge>;
+        default:
+          return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Unknown Status</Badge>;
+      }
+    };
+
+    const strengthPercentage = validationResult.isValid ? 
+      Math.min(80 + validationResult.strengths.length * 5, 100) : 
+      Math.max(30, 100 - validationResult.issues.length * 15);
+
     return (
-      <Card className="mt-4 overflow-hidden border-t-4 border-t-blue-600">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-2">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <Gavel className="h-5 w-5 text-blue-600 mr-2" />
-              <CardTitle className="text-lg text-blue-700">Legal Validation Results</CardTitle>
-            </div>
+      <Card className="mb-4">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center">
+              <Gavel className="h-5 w-5 mr-2 text-blue-600" />
+              Legal Validation Results
+            </CardTitle>
             <div className="flex space-x-2">
               {getConfidenceBadge(validationResult.confidenceLevel)}
               {getStatusBadge(validationResult.reviewStatus)}
             </div>
           </div>
+          <CardDescription>
+            AI-powered analysis of assessment compliance with EU AI Act requirements
+          </CardDescription>
         </CardHeader>
+
         <CardContent className="pt-4">
-          <Tabs defaultValue="issues" className="w-full">
-            <TabsList className="grid grid-cols-4 w-full">
-              <TabsTrigger value="issues" className="flex items-center">
-                <AlertTriangle className="h-4 w-4 mr-1" />
-                <span>Issues</span>
-                {validationResult.issues.length > 0 && (
-                  <Badge variant="destructive" className="ml-1">
-                    {validationResult.issues.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="strengths" className="flex items-center">
-                <ShieldCheck className="h-4 w-4 mr-1" />
-                <span>Strengths</span>
-              </TabsTrigger>
-              <TabsTrigger value="improvements" className="flex items-center">
-                <TrendingUp className="h-4 w-4 mr-1" />
-                <span>Improvements</span>
-              </TabsTrigger>
-              <TabsTrigger value="summary" className="flex items-center">
-                <FileCheck className="h-4 w-4 mr-1" />
-                <span>Summary</span>
-              </TabsTrigger>
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium">Overall Compliance Strength</span>
+              <span className="text-sm font-medium">{strengthPercentage}%</span>
+            </div>
+            <Progress value={strengthPercentage} className="h-2.5" 
+              style={{
+                background: `linear-gradient(to right, 
+                  ${strengthPercentage < 40 ? 'rgb(239, 68, 68)' : 
+                    strengthPercentage < 70 ? 'rgb(234, 179, 8)' : 
+                    'rgb(34, 197, 94)'
+                  }, 
+                  ${strengthPercentage < 40 ? 'rgb(248, 113, 113)' : 
+                    strengthPercentage < 70 ? 'rgb(250, 204, 21)' : 
+                    'rgb(74, 222, 128)'
+                  })`
+              }}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="flex flex-col items-center justify-center p-4 bg-green-50 rounded-lg">
+              <CheckCircle className="h-6 w-6 text-green-600 mb-2" />
+              <span className="text-xl font-bold text-green-800">{validationResult.strengths.length}</span>
+              <span className="text-sm text-green-600">Key Strengths</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-4 bg-red-50 rounded-lg">
+              <AlertCircle className="h-6 w-6 text-red-600 mb-2" />
+              <span className="text-xl font-bold text-red-800">{validationResult.issues.length}</span>
+              <span className="text-sm text-red-600">Issues Found</span>
+            </div>
+          </div>
+
+          <Tabs defaultValue="analysis" className="w-full" value={currentTab} onValueChange={setCurrentTab}>
+            <TabsList className="grid grid-cols-4 mb-4">
+              <TabsTrigger value="analysis" className="text-xs">Analysis</TabsTrigger>
+              <TabsTrigger value="strengths" className="text-xs">Strengths</TabsTrigger>
+              <TabsTrigger value="issues" className="text-xs">Issues</TabsTrigger>
+              <TabsTrigger value="recommendations" className="text-xs">Recommendations</TabsTrigger>
             </TabsList>
-            
-            <TabsContent value="issues" className="pt-4">
-              {validationResult.issues.length === 0 ? (
-                <Alert className="bg-green-50 border-green-200 text-green-800">
-                  <CheckCircle className="h-4 w-4" />
-                  <AlertTitle>No Issues Found</AlertTitle>
-                  <AlertDescription>
-                    Your assessment passed all validation checks. No issues were identified.
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <div className="space-y-4">
-                  <Alert className="bg-amber-50 border-amber-200 text-amber-800">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Issues Requiring Attention</AlertTitle>
-                    <AlertDescription>
-                      Please address the following issues to improve your assessment's legal validity.
-                    </AlertDescription>
-                  </Alert>
-                  
-                  <div className="space-y-2">
-                    {validationResult.issues.map((issue, index) => (
-                      <div key={index} className="flex p-3 bg-red-50 rounded-md border border-red-100">
-                        <ShieldAlert className="h-5 w-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-red-800">{issue}</span>
-                      </div>
-                    ))}
+
+            <TabsContent value="analysis" className="space-y-4">
+              <div className="rounded-md bg-amber-50 p-4 mb-4">
+                <div className="flex items-start">
+                  <FileText className="h-5 w-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-medium text-amber-800">Validation Summary</h4>
+                    <p className="text-sm text-amber-700 mt-1">
+                      {validationResult.validationNotes || 
+                        (validationResult.isValid ? 
+                          "This assessment appears compliant with EU AI Act requirements, with some recommendations for improvement." : 
+                          "This assessment requires improvements to fully comply with EU AI Act requirements."
+                        )
+                      }
+                    </p>
                   </div>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-gray-700">AI Validation Insights</h4>
+                <p className="text-sm text-gray-600">
+                  {validationResult.isValid ? 
+                    "The assessment meets the core requirements of the EU AI Act, with strengths in risk identification and mitigation strategies." : 
+                    "The assessment needs improvement in several areas to fully comply with EU AI Act requirements. Review the issues and recommendations tabs for detailed guidance."
+                  }
+                </p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="strengths" className="space-y-3">
+              {validationResult.strengths.length > 0 ? (
+                validationResult.strengths.map((strength, index) => (
+                  <div key={index} className="flex items-start p-3 rounded-md border border-green-100 bg-green-50">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                    <p className="text-sm text-green-800">{strength}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500 italic">No specific strengths identified.</p>
               )}
-              
+            </TabsContent>
+
+            <TabsContent value="issues" className="space-y-3">
+              {validationResult.issues.length > 0 ? (
+                validationResult.issues.map((issue, index) => (
+                  <div key={index} className="flex items-start p-3 rounded-md border border-red-100 bg-red-50">
+                    <XCircle className="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+                    <p className="text-sm text-red-800">{issue}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500 italic">No significant issues identified.</p>
+              )}
+
               {validationResult.warnings.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <h4 className="font-medium text-amber-800">Warnings</h4>
+                <>
+                  <h4 className="font-medium text-gray-700 mt-4">Warnings</h4>
                   {validationResult.warnings.map((warning, index) => (
-                    <div key={index} className="flex p-3 bg-amber-50 rounded-md border border-amber-100">
-                      <AlertTriangle className="h-5 w-5 text-amber-600 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-amber-800">{warning}</span>
+                    <div key={index} className="flex items-start p-3 rounded-md border border-yellow-100 bg-yellow-50">
+                      <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
+                      <p className="text-sm text-yellow-800">{warning}</p>
                     </div>
                   ))}
-                </div>
+                </>
               )}
             </TabsContent>
-            
-            <TabsContent value="strengths" className="pt-4">
-              <div className="space-y-4">
-                <Alert className="bg-green-50 border-green-200 text-green-800">
-                  <CheckCircle className="h-4 w-4" />
-                  <AlertTitle>Assessment Strengths</AlertTitle>
-                  <AlertDescription>
-                    These are the strong aspects of your EU AI Act compliance assessment.
-                  </AlertDescription>
-                </Alert>
-                
-                <div className="space-y-2">
-                  {validationResult.strengths && validationResult.strengths.length > 0 ? (
-                    validationResult.strengths.map((strength, index) => (
-                      <div key={index} className="flex p-3 bg-green-50 rounded-md border border-green-100">
-                        <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-green-800">{strength}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <>
-                      <div className="flex p-3 bg-green-50 rounded-md border border-green-100">
-                        <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-green-800">Assessment covers essential regulatory requirements</span>
-                      </div>
-                      <div className="flex p-3 bg-green-50 rounded-md border border-green-100">
-                        <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-green-800">Risk evaluation methodology aligns with EU AI Act framework</span>
-                      </div>
-                      <div className="flex p-3 bg-green-50 rounded-md border border-green-100">
-                        <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-green-800">Governance structure follows required oversight principles</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="improvements" className="pt-4">
-              <div className="space-y-4">
-                <Alert className="bg-blue-50 border-blue-200 text-blue-800">
-                  <TrendingUp className="h-4 w-4" />
-                  <AlertTitle>Recommended Improvements</AlertTitle>
-                  <AlertDescription>
-                    Consider these improvements to enhance legal compliance of your assessment.
-                  </AlertDescription>
-                </Alert>
-                
-                <div className="space-y-2">
-                  {validationResult.recommendations && validationResult.recommendations.length > 0 ? (
-                    validationResult.recommendations.map((rec, index) => (
-                      <div key={index} className="flex p-3 bg-blue-50 rounded-md border border-blue-100">
-                        <TrendingUp className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-blue-800">{rec}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <>
-                      <div className="flex p-3 bg-blue-50 rounded-md border border-blue-100">
-                        <TrendingUp className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-blue-800">Enhance documentation of technical robustness measures</span>
-                      </div>
-                      <div className="flex p-3 bg-blue-50 rounded-md border border-blue-100">
-                        <TrendingUp className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-blue-800">Strengthen data governance procedures and documentation</span>
-                      </div>
-                      <div className="flex p-3 bg-blue-50 rounded-md border border-blue-100">
-                        <TrendingUp className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-blue-800">Implement more detailed human oversight mechanisms</span>
-                      </div>
-                      <div className="flex p-3 bg-blue-50 rounded-md border border-blue-100">
-                        <TrendingUp className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-blue-800">Include continuous monitoring and reassessment plans</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="summary" className="pt-4">
-              <div className="space-y-4">
-                <div className="p-4 bg-gray-50 rounded-md border">
-                  <h4 className="font-medium mb-2">Validation Summary</h4>
-                  <p className="text-gray-700">
-                    {validationResult.validationNotes || 
-                    "This assessment has been analyzed using AI-powered legal validation. The results indicate areas of strength and potential improvement to ensure full compliance with EU AI Act requirements."}
-                  </p>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-gray-50 rounded-md border">
-                    <h4 className="font-medium mb-2">Assessment Status</h4>
-                    <div className="flex items-center">
-                      {validationResult.isValid ? (
-                        <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                      ) : (
-                        <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />
-                      )}
-                      <span>{validationResult.isValid ? "Valid" : "Needs Improvement"}</span>
-                    </div>
+
+            <TabsContent value="recommendations" className="space-y-3">
+              {validationResult.recommendations.length > 0 ? (
+                validationResult.recommendations.map((recommendation, index) => (
+                  <div key={index} className="flex items-start p-3 rounded-md border border-blue-100 bg-blue-50">
+                    <ArrowRight className="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
+                    <p className="text-sm text-blue-800">{recommendation}</p>
                   </div>
-                  
-                  <div className="p-4 bg-gray-50 rounded-md border">
-                    <h4 className="font-medium mb-2">Review Recommendation</h4>
-                    <div className="flex items-center">
-                      {validationResult.reviewRequired ? (
-                        <Gavel className="h-5 w-5 text-amber-500 mr-2" />
-                      ) : (
-                        <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                      )}
-                      <span>{validationResult.reviewRequired ? "Expert review recommended" : "No expert review required"}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <Collapsible className="border rounded-md">
-                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-left">
-                    <span className="font-medium">Best Practices</span>
-                    <ChevronDown className="h-5 w-5" />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="p-4 pt-0 border-t">
-                    <div className="space-y-2">
-                      <div className="flex items-start">
-                        <List className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">Maintain comprehensive documentation of all risk assessment findings</span>
-                      </div>
-                      <div className="flex items-start">
-                        <List className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">Conduct regular reassessments as system functionality evolves</span>
-                      </div>
-                      <div className="flex items-start">
-                        <List className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">Ensure technical and organizational measures align with identified risks</span>
-                      </div>
-                      <div className="flex items-start">
-                        <List className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">Implement clear governance structures for system oversight</span>
-                      </div>
-                      <div className="flex items-start">
-                        <List className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">Document testing methodologies and validation procedures</span>
-                      </div>
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500 italic">No specific recommendations available.</p>
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>
-        <CardFooter className="bg-gray-50 border-t">
-          <div className="w-full flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => setValidationResult(null)}
-              className="flex items-center"
-            >
-              <X className="h-4 w-4 mr-2" />
-              Reset
-            </Button>
-            <Button 
-              variant="default"
-              onClick={() => validateMutation.mutate(content)}
-              className="flex items-center"
-            >
-              <Gavel className="h-4 w-4 mr-2" />
-              Re-Validate
-            </Button>
-          </div>
+
+        <CardFooter className="pt-0 flex justify-between">
+          <Button 
+            variant="outline" 
+            onClick={() => setValidationResult(null)}
+            size="sm"
+          >
+            Reset
+          </Button>
+          <Button 
+            variant="default" 
+            onClick={() => validateMutation.mutate(content)}
+            size="sm"
+            disabled={validateMutation.isPending}
+          >
+            Re-validate
+          </Button>
         </CardFooter>
       </Card>
     );
@@ -754,14 +426,17 @@ export const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({
           </CardContent>
         </Card>
       )}
-      
+
       {showAiProcessing && renderAiProcessingSteps()}
-      
+
       {renderValidationResults()}
-      
-      <LegalDisclaimerSection />
     </div>
   );
 };
+
+// Missing Circle component
+const Circle: React.FC<{ className?: string }> = ({ className }) => (
+  <div className={`rounded-full border-2 ${className}`} style={{ width: '20px', height: '20px' }} />
+);
 
 export default LegalValidationPanel;

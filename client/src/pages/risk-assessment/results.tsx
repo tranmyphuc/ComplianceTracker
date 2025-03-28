@@ -531,3 +531,494 @@ const RiskAssessmentResults: React.FC = () => {
 };
 
 export default RiskAssessmentResults;
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { 
+  AlertTriangle, 
+  Printer, 
+  Download, 
+  Share2, 
+  FileText, 
+  Gavel,
+  BarChart4,
+  CheckCircle2,
+  Shield
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/toast/use-toast';
+import { Badge } from '@/components/ui/badge';
+import LegalValidationPanel from '@/components/risk-assessment/legal-validation';
+import AssessmentResultsCharts from '@/components/risk-assessment/assessment-results-charts';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+export interface RiskAssessmentResult {
+  assessmentId: string;
+  systemId: string;
+  systemName: string;
+  riskLevel: string;
+  date: string;
+  riskScore: number;
+  riskFactors: any[];
+  relevantArticles: any[];
+  complianceGaps: string[];
+  remediationActions?: any[];
+}
+
+export function RiskAssessmentResults() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [assessmentData, setAssessmentData] = useState<RiskAssessmentResult | null>(null);
+  const [activeTab, setActiveTab] = useState('summary');
+  const [legalValidationContent, setLegalValidationContent] = useState('');
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+
+  // Extract query parameters from URL
+  useEffect(() => {
+    console.log('Current location:', location.pathname);
+    console.log('Window location search:', location.search);
+    
+    const queryParams = new URLSearchParams(location.search);
+    const systemId = queryParams.get('systemId');
+    const assessmentId = queryParams.get('assessmentId');
+    
+    console.log('Extracted query parameters:', { systemId, assessmentId });
+    
+    if (systemId && assessmentId) {
+      // Fetch assessment data
+      fetchAssessmentData(systemId, assessmentId);
+    }
+  }, [location]);
+
+  // Function to fetch assessment data from API
+  const fetchAssessmentData = async (systemId: string, assessmentId: string) => {
+    try {
+      // For demo purposes, simulate API call with mock data
+      // In a real implementation, uncomment the axios call
+      
+      /*
+      const response = await axios.get(`/api/risk-assessments/${assessmentId}`, {
+        params: { systemId }
+      });
+      const data = response.data;
+      */
+      
+      // Mock data for demonstration
+      const mockData: RiskAssessmentResult = {
+        assessmentId,
+        systemId,
+        systemName: "OpenAI ChatGPT Assistant",
+        riskLevel: "Limited",
+        date: "3/27/2025",
+        riskScore: 61,
+        riskFactors: [],
+        relevantArticles: [
+          { id: "Article 5", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+          { id: "Article 10", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+          { id: "Article 14", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+          { id: "Article 15", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+          { id: "Article 17", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+          { id: "Article 61", name: "EU AI Act Article", description: "Requirements related to this AI system category" },
+        ],
+        complianceGaps: [
+          "Systems must not use subliminal techniques to distort behavior causing harm",
+          "Systems must not exploit vulnerabilities of specific groups resulting in physical/psychological harm",
+          "Technical documentation lacks detail on data governance procedures",
+          "Human oversight measures not fully documented",
+          "Risk management system needs more detailed monitoring procedures",
+          "Transparency requirements for users need enhancement",
+        ]
+      };
+      
+      setAssessmentData(mockData);
+      console.log('Processed assessment data:', mockData);
+      
+      // Generate content for legal validation
+      const legalContent = generateLegalValidationContent(mockData);
+      setLegalValidationContent(legalContent);
+      
+    } catch (error) {
+      console.error('Error fetching assessment data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load assessment data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Generate legal validation content
+  const generateLegalValidationContent = (data: RiskAssessmentResult): string => {
+    return `
+      # Risk Assessment for ${data.systemName}
+      
+      ## Risk Classification
+      Risk Level: ${data.riskLevel}
+      Risk Score: ${data.riskScore}/100
+      
+      ## Applicable EU AI Act Articles
+      ${data.relevantArticles.map(article => `- ${article.id}`).join('\n')}
+      
+      ## Compliance Gaps Identified
+      ${data.complianceGaps.map(gap => `- ${gap}`).join('\n')}
+      
+      ## Assessment Conclusion
+      Based on the comprehensive risk assessment conducted, this AI system is classified as a ${data.riskLevel.toLowerCase()} risk system under the EU AI Act. The system has a risk score of ${data.riskScore} out of 100, indicating moderate compliance requirements.
+      
+      The assessment has identified ${data.complianceGaps.length} compliance gaps that need to be addressed according to the EU AI Act requirements. Key focus areas include technical documentation, human oversight, and transparency measures.
+    `;
+  };
+
+  // Generate and download PDF report
+  const generatePdfReport = async () => {
+    setIsGeneratingReport(true);
+    
+    try {
+      // Simulate report generation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast({
+        title: "Report Generated",
+        description: "Your assessment report has been downloaded.",
+      });
+    } catch (error) {
+      console.error('Error generating report:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate report. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
+  if (!assessmentData) {
+    return (
+      <div className="p-8 text-center">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+        <p className="text-gray-500">Loading assessment data...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto py-6 max-w-7xl">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight mb-1">{assessmentData.systemName} - Risk Assessment</h1>
+          <p className="text-gray-500 text-sm">Assessed on {assessmentData.date} • ID: {assessmentData.assessmentId}</p>
+        </div>
+        <div className="flex space-x-2">
+          <Button variant="outline" size="sm" onClick={generatePdfReport} disabled={isGeneratingReport}>
+            {isGeneratingReport ? (
+              <>
+                <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"></div>
+                Generating...
+              </>
+            ) : (
+              <>
+                <Download className="mr-2 h-4 w-4" />
+                Export Report
+              </>
+            )}
+          </Button>
+          <Button variant="outline" size="sm">
+            <Share2 className="mr-2 h-4 w-4" />
+            Share
+          </Button>
+          <Button variant="outline" size="sm">
+            <Printer className="mr-2 h-4 w-4" />
+            Print
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-4 gap-6 mb-6">
+        <Card className="col-span-4 md:col-span-1">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Risk Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Risk Level</p>
+                <div className="flex items-center mt-1">
+                  <Badge 
+                    className={`text-sm py-1 px-3 ${
+                      assessmentData.riskLevel === 'Unacceptable' ? 'bg-red-100 text-red-800 hover:bg-red-200' :
+                      assessmentData.riskLevel === 'High' ? 'bg-orange-100 text-orange-800 hover:bg-orange-200' :
+                      assessmentData.riskLevel === 'Limited' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' :
+                      'bg-green-100 text-green-800 hover:bg-green-200'
+                    }`}
+                  >
+                    {assessmentData.riskLevel}
+                  </Badge>
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium text-gray-500">Risk Score</p>
+                <p className="text-2xl font-bold mt-1">{assessmentData.riskScore}/100</p>
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                  <div 
+                    className={`h-2.5 rounded-full ${
+                      assessmentData.riskScore < 30 ? 'bg-red-600' :
+                      assessmentData.riskScore < 60 ? 'bg-yellow-500' :
+                      'bg-green-500'
+                    }`} 
+                    style={{ width: `${assessmentData.riskScore}%` }}
+                  ></div>
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium text-gray-500">Key Metrics</p>
+                <div className="flex justify-between mt-2">
+                  <div className="text-center">
+                    <p className="text-xl font-bold">{assessmentData.relevantArticles.length}</p>
+                    <p className="text-xs text-gray-500">Articles</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xl font-bold">{assessmentData.complianceGaps.length}</p>
+                    <p className="text-xs text-gray-500">Gaps</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xl font-bold">
+                      {assessmentData.riskLevel === 'Unacceptable' ? 'X' : 
+                       assessmentData.riskLevel === 'High' ? '!' : '✓'}
+                    </p>
+                    <p className="text-xs text-gray-500">Status</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium text-gray-500">Assessment ID</p>
+                <p className="text-sm mt-1 font-mono">{assessmentData.assessmentId}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium text-gray-500">Actions</p>
+                <div className="grid grid-cols-1 gap-2 mt-2">
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <FileText className="mr-2 h-4 w-4" />
+                    View Documentation
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <Shield className="mr-2 h-4 w-4" />
+                    Create Mitigation Plan
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <div className="col-span-4 md:col-span-3">
+          <Tabs defaultValue="summary" value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="w-full grid grid-cols-3 mb-6">
+              <TabsTrigger value="summary">
+                <BarChart4 className="mr-2 h-4 w-4" />
+                Assessment Summary
+              </TabsTrigger>
+              <TabsTrigger value="validation">
+                <Gavel className="mr-2 h-4 w-4" />
+                Legal Validation
+              </TabsTrigger>
+              <TabsTrigger value="compliance">
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                Compliance Plan
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="summary" className="space-y-6">
+              <Alert variant="default" className="bg-blue-50 border-blue-200">
+                <AlertTriangle className="h-4 w-4 text-blue-600" />
+                <AlertTitle className="text-blue-800">Assessment Overview</AlertTitle>
+                <AlertDescription className="text-blue-700">
+                  This is a comprehensive risk assessment for {assessmentData.systemName}, classified as a {assessmentData.riskLevel.toLowerCase()} risk AI system under the EU AI Act.
+                </AlertDescription>
+              </Alert>
+              
+              <AssessmentResultsCharts assessmentData={assessmentData} />
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">EU AI Act Articles</CardTitle>
+                  <CardDescription>Applicable regulations for this AI system</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    {assessmentData.relevantArticles.map((article, index) => (
+                      <div key={index} className="flex items-start border p-3 rounded bg-slate-50">
+                        <div className="h-6 w-6 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-xs font-medium flex-shrink-0 mr-3">
+                          {article.id.replace('Article ', '')}
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{article.id}</p>
+                          <p className="text-xs text-gray-500 mt-1">{article.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Compliance Gaps</CardTitle>
+                  <CardDescription>Identified areas requiring remediation</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {assessmentData.complianceGaps.map((gap, index) => (
+                      <div key={index} className="flex items-start">
+                        <div className="h-5 w-5 rounded-full bg-red-100 text-red-800 flex items-center justify-center text-xs font-medium flex-shrink-0 mr-3">
+                          {index + 1}
+                        </div>
+                        <p className="text-sm">{gap}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="validation">
+              <LegalValidationPanel 
+                assessmentId={assessmentData.assessmentId} 
+                systemId={assessmentData.systemId}
+                initialContent={legalValidationContent}
+              />
+            </TabsContent>
+            
+            <TabsContent value="compliance">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Compliance Action Plan</CardTitle>
+                  <CardDescription>
+                    Recommended actions to address identified compliance gaps
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="bg-green-50 border border-green-100 rounded-md p-4">
+                      <h3 className="text-md font-medium text-green-800 mb-2">Compliance Status</h3>
+                      <p className="text-sm text-green-700">
+                        This AI system has been assessed as a {assessmentData.riskLevel.toLowerCase()} risk system under the EU AI Act. 
+                        {assessmentData.complianceGaps.length > 0 
+                          ? ` ${assessmentData.complianceGaps.length} compliance gaps have been identified that require remediation.` 
+                          : ' No significant compliance gaps have been identified.'}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-md font-medium mb-3">Priority Actions</h3>
+                      <div className="space-y-3">
+                        {assessmentData.complianceGaps.map((gap, index) => (
+                          <div key={index} className="border rounded-md p-4 bg-slate-50">
+                            <div className="flex items-start">
+                              <div className="h-6 w-6 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-xs font-medium flex-shrink-0 mr-3">
+                                {index + 1}
+                              </div>
+                              <div>
+                                <p className="font-medium text-sm">{gap}</p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Recommendation: {
+                                    index === 0 ? "Review system design to ensure it does not use subliminal techniques" :
+                                    index === 1 ? "Implement additional safeguards for vulnerable user groups" :
+                                    index === 2 ? "Enhance technical documentation with data governance details" :
+                                    index === 3 ? "Document human oversight measures comprehensively" :
+                                    index === 4 ? "Develop detailed risk monitoring procedures" :
+                                    "Implement improved transparency measures for users"
+                                  }
+                                </p>
+                                <div className="flex mt-2">
+                                  <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 mr-2">
+                                    {index < 2 ? "High Priority" : index < 4 ? "Medium Priority" : "Low Priority"}
+                                  </Badge>
+                                  <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">
+                                    {index < 3 ? "Technical" : "Documentation"}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-md font-medium mb-3">Suggested Timeline</h3>
+                      <div className="relative">
+                        <div className="absolute left-4 h-full w-0.5 bg-gray-200"></div>
+                        <div className="space-y-6 relative">
+                          <div className="flex">
+                            <div className="h-8 w-8 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-xs font-medium flex-shrink-0 mr-4 z-10">
+                              1
+                            </div>
+                            <div className="bg-white p-3 border rounded-md flex-1">
+                              <p className="font-medium text-sm">Immediate (1-2 weeks)</p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Address critical gaps related to prohibited practices
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex">
+                            <div className="h-8 w-8 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-xs font-medium flex-shrink-0 mr-4 z-10">
+                              2
+                            </div>
+                            <div className="bg-white p-3 border rounded-md flex-1">
+                              <p className="font-medium text-sm">Short term (1-2 months)</p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Enhance technical documentation and human oversight procedures
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex">
+                            <div className="h-8 w-8 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-xs font-medium flex-shrink-0 mr-4 z-10">
+                              3
+                            </div>
+                            <div className="bg-white p-3 border rounded-md flex-1">
+                              <p className="font-medium text-sm">Medium term (3-6 months)</p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Implement risk monitoring and transparency improvements
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button className="w-full">Generate Detailed Compliance Plan</Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default RiskAssessmentResults;
