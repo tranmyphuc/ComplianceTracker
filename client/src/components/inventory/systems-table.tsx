@@ -41,189 +41,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { LegalValidationPanel } from "@/components/legal/legal-validation-panel";
 import axios from "axios";
 
-// Mock system data for development purposes
-const mockSystems = [
-  {
-    id: 1,
-    systemId: "AI-SYS-001",
-    name: "Customer Service AI Assistant",
-    description: "AI assistant for customer service representatives",
-    vendor: "TechAI Solutions",
-    department: "Customer Support",
-    riskLevel: "High",
-    riskScore: 78,
-    docCompleteness: 65,
-    trainingCompleteness: 80,
-    implementationDate: "2023-09-15",
-    lastAssessmentDate: "2024-02-20",
-    version: "2.1.3",
-    status: "Active",
-    hasCompliance: true,
-    hasCriticalIssues: true
-  },
-  {
-    id: 2,
-    systemId: "AI-SYS-002",
-    name: "Product Recommendation Engine",
-    description: "AI system for product recommendations based on user behavior",
-    vendor: "DataSense Inc.",
-    department: "Marketing",
-    riskLevel: "Limited",
-    riskScore: 42,
-    docCompleteness: 75,
-    trainingCompleteness: 90,
-    implementationDate: "2023-06-10",
-    lastAssessmentDate: "2024-01-15",
-    version: "1.8.2",
-    status: "Active",
-    hasCompliance: true,
-    hasCriticalIssues: false
-  },
-  {
-    id: 3,
-    systemId: "AI-SYS-003",
-    name: "Document Analysis System",
-    description: "AI for analyzing and extracting information from documents",
-    vendor: "DocuAI",
-    department: "Legal",
-    riskLevel: "High",
-    riskScore: 68,
-    docCompleteness: 50,
-    trainingCompleteness: 60,
-    implementationDate: "2023-11-20",
-    lastAssessmentDate: "2024-02-05",
-    version: "1.2.0",
-    status: "Active",
-    hasCompliance: false,
-    hasCriticalIssues: true
-  },
-  {
-    id: 4,
-    systemId: "AI-SYS-004",
-    name: "HR Resume Screening",
-    description: "AI system for initial resume screening and candidate ranking",
-    vendor: "TalentAI",
-    department: "Human Resources",
-    riskLevel: "High",
-    riskScore: 72,
-    docCompleteness: 40,
-    trainingCompleteness: 65,
-    implementationDate: "2023-08-05",
-    lastAssessmentDate: "2024-01-10",
-    version: "2.0.1",
-    status: "Under Review",
-    hasCompliance: false,
-    hasCriticalIssues: true
-  },
-  {
-    id: 5,
-    systemId: "AI-SYS-005",
-    name: "Content Moderation AI",
-    description: "AI system for moderating user-generated content",
-    vendor: "SafeContent Technologies",
-    department: "Community Management",
-    riskLevel: "Limited",
-    riskScore: 48,
-    docCompleteness: 80,
-    trainingCompleteness: 85,
-    implementationDate: "2023-07-15",
-    lastAssessmentDate: "2024-01-20",
-    version: "3.1.4",
-    status: "Active",
-    hasCompliance: true,
-    hasCriticalIssues: false
-  },
-  {
-    id: 6,
-    systemId: "AI-SYS-006",
-    name: "Financial Fraud Detection",
-    description: "AI for detecting fraudulent financial transactions",
-    vendor: "SecureFinance AI",
-    department: "Finance",
-    riskLevel: "High",
-    riskScore: 85,
-    docCompleteness: 90,
-    trainingCompleteness: 95,
-    implementationDate: "2023-05-10",
-    lastAssessmentDate: "2024-02-10",
-    version: "4.2.0",
-    status: "Active",
-    hasCompliance: true,
-    hasCriticalIssues: false
-  },
-  {
-    id: 7,
-    systemId: "AI-SYS-007",
-    name: "Inventory Forecasting",
-    description: "AI for predicting inventory needs based on historical data",
-    vendor: "SmartStock AI",
-    department: "Supply Chain",
-    riskLevel: "Minimal",
-    riskScore: 25,
-    docCompleteness: 60,
-    trainingCompleteness: 70,
-    implementationDate: "2023-10-05",
-    lastAssessmentDate: "2024-01-05",
-    version: "1.5.3",
-    status: "Active",
-    hasCompliance: true,
-    hasCriticalIssues: false
-  },
-  {
-    id: 8,
-    systemId: "AI-SYS-008",
-    name: "Customer Sentiment Analysis",
-    description: "AI for analyzing customer feedback and sentiment",
-    vendor: "InsightAI",
-    department: "Customer Support",
-    riskLevel: "Limited",
-    riskScore: 35,
-    docCompleteness: 85,
-    trainingCompleteness: 80,
-    implementationDate: "2023-09-25",
-    lastAssessmentDate: "2024-02-25",
-    version: "2.3.1",
-    status: "Active",
-    hasCompliance: true,
-    hasCriticalIssues: false
-  },
-  {
-    id: 9,
-    systemId: "AI-SYS-009",
-    name: "Automated Quality Control",
-    description: "AI for manufacturing quality control and defect detection",
-    vendor: "QualityAI",
-    department: "Manufacturing",
-    riskLevel: "Limited",
-    riskScore: 45,
-    docCompleteness: 70,
-    trainingCompleteness: 75,
-    implementationDate: "2023-04-15",
-    lastAssessmentDate: "2024-01-15",
-    version: "3.0.2",
-    status: "Maintenance",
-    hasCompliance: true,
-    hasCriticalIssues: false
-  },
-  {
-    id: 10,
-    systemId: "AI-SYS-010",
-    name: "Predictive Maintenance System",
-    description: "AI for predicting equipment failures and maintenance needs",
-    vendor: "MaintenanceAI",
-    department: "Operations",
-    riskLevel: "Minimal",
-    riskScore: 30,
-    docCompleteness: 80,
-    trainingCompleteness: 85,
-    implementationDate: "2023-08-20",
-    lastAssessmentDate: "2024-02-15",
-    version: "2.4.0",
-    status: "Active",
-    hasCompliance: true,
-    hasCriticalIssues: false
-  }
-];
+// Note: No mock data needed, we always fetch from the API
+// and handle loading/error states appropriately
 
 export function SystemsTable() {
   // State management
@@ -249,10 +68,10 @@ export function SystemsTable() {
     retryDelay: 1000
   });
   
-  // Use real data from API, only use mock as fallback when there's an error
+  // Use data from API, show empty state if there's an error or no data
   const systemsData = systems && Array.isArray(systems) && systems.length > 0 
     ? systems 
-    : isError ? mockSystems : [];
+    : [];
   
   // Filter systems based on search query and selected filters
   const filteredSystems = systemsData.filter((system: any) => {
@@ -877,12 +696,13 @@ export function SystemsTable() {
               ))
             ) : error ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
-                  <div className="flex flex-col items-center justify-center text-sm text-neutral-500">
-                    <AlertTriangleIcon className="h-5 w-5 text-red-500 mb-1" />
-                    <p className="font-medium mb-1">Using Demo Data</p>
-                    <p className="text-sm mb-2">Database connection is temporarily unavailable</p>
-                    <Button variant="outline" size="sm" className="mt-2" onClick={() => window.location.reload()}>
+                <TableCell colSpan={8} className="h-32 text-center">
+                  <div className="flex flex-col items-center justify-center">
+                    <AlertCircleIcon className="h-10 w-10 text-yellow-500 mb-2" />
+                    <p className="font-medium text-base mb-1">Connection Error</p>
+                    <p className="text-sm text-neutral-500 mb-3">We couldn't connect to the database. Please try again later.</p>
+                    <Button variant="default" size="sm" onClick={() => window.location.reload()}>
+                      <RefreshCwIcon className="h-4 w-4 mr-2" />
                       Retry Connection
                     </Button>
                   </div>
@@ -890,24 +710,40 @@ export function SystemsTable() {
               </TableRow>
             ) : filteredSystems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
-                  <div className="flex flex-col items-center justify-center text-sm text-neutral-500">
-                    <p>No systems found</p>
-                    {(searchQuery || riskFilter || complianceFilter || departmentFilter || statusFilter) && (
-                      <Button 
-                        variant="link" 
-                        size="sm" 
-                        onClick={() => {
-                          setSearchQuery("");
-                          setRiskFilter(null);
-                          setComplianceFilter(null);
-                          setDepartmentFilter(null);
-                          setStatusFilter(null);
-                        }}
-                        className="mt-1"
-                      >
-                        Clear all filters
-                      </Button>
+                <TableCell colSpan={8} className="h-32 text-center">
+                  <div className="flex flex-col items-center justify-center">
+                    {(searchQuery || riskFilter || complianceFilter || departmentFilter || statusFilter) ? (
+                      <>
+                        <SearchXIcon className="h-10 w-10 text-neutral-300 mb-2" />
+                        <p className="font-medium text-base mb-1">No matching systems found</p>
+                        <p className="text-sm text-neutral-500 mb-3">Try adjusting your search or filters</p>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setSearchQuery("");
+                            setRiskFilter(null);
+                            setComplianceFilter(null);
+                            setDepartmentFilter(null);
+                            setStatusFilter(null);
+                          }}
+                        >
+                          Clear all filters
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <FolderIcon className="h-10 w-10 text-neutral-300 mb-2" />
+                        <p className="font-medium text-base mb-1">No AI Systems Found</p>
+                        <p className="text-sm text-neutral-500 mb-3">Register your first AI system to start managing compliance</p>
+                        <Button 
+                          variant="default" 
+                          onClick={() => window.location.href = '/register-system'}
+                        >
+                          <PlusIcon className="h-4 w-4 mr-2" />
+                          Register New System
+                        </Button>
+                      </>
                     )}
                   </div>
                 </TableCell>
