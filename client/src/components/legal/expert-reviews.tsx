@@ -163,6 +163,9 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
       
       return apiRequest(`/api/legal/expert-reviews/${data.reviewId}`, {
         method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(requestData)
       });
     },
@@ -261,9 +264,84 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
           <div>
             <h3 className="text-sm font-semibold mb-2">Automated Validation Result</h3>
             <div className="bg-muted/30 p-4 rounded-md whitespace-pre-wrap max-h-64 overflow-y-auto">
-              {typeof review.validationResult === 'string' ? 
-                review.validationResult : 
-                JSON.stringify(review.validationResult, null, 2)}
+              {(() => {
+              try {
+                // Handle different formats of validationResult
+                if (!review.validationResult) {
+                  return "No validation result available";
+                }
+                
+                // If it's already an object, format it nicely
+                if (typeof review.validationResult === 'object') {
+                  return Object.entries(review.validationResult).map(([key, value]) => {
+                    if (Array.isArray(value)) {
+                      return (
+                        <div key={key} className="mb-2">
+                          <strong>{key}:</strong>
+                          <ul className="list-disc pl-5 mt-1">
+                            {value.map((item, i) => <li key={i}>{item}</li>)}
+                          </ul>
+                        </div>
+                      );
+                    } else if (typeof value === 'boolean') {
+                      return (
+                        <div key={key} className="mb-2">
+                          <strong>{key}:</strong> {value ? "true" : "false"}
+                        </div>
+                      );
+                    } else if (value !== null && value !== undefined) {
+                      return (
+                        <div key={key} className="mb-2">
+                          <strong>{key}:</strong> {value.toString()}
+                        </div>
+                      );
+                    }
+                    return null;
+                  });
+                }
+                
+                // Try to parse if it's a string
+                if (typeof review.validationResult === 'string') {
+                  try {
+                    const parsed = JSON.parse(review.validationResult);
+                    return Object.entries(parsed).map(([key, value]) => {
+                      if (Array.isArray(value)) {
+                        return (
+                          <div key={key} className="mb-2">
+                            <strong>{key}:</strong>
+                            <ul className="list-disc pl-5 mt-1">
+                              {(value as any[]).map((item, i) => <li key={i}>{item}</li>)}
+                            </ul>
+                          </div>
+                        );
+                      } else if (typeof value === 'boolean') {
+                        return (
+                          <div key={key} className="mb-2">
+                            <strong>{key}:</strong> {value ? "true" : "false"}
+                          </div>
+                        );
+                      } else if (value !== null && value !== undefined) {
+                        return (
+                          <div key={key} className="mb-2">
+                            <strong>{key}:</strong> {value.toString()}
+                          </div>
+                        );
+                      }
+                      return null;
+                    });
+                  } catch (e) {
+                    // If we can't parse it as JSON, just display as text
+                    return review.validationResult;
+                  }
+                }
+                
+                // Fallback
+                return JSON.stringify(review.validationResult, null, 2);
+              } catch (error) {
+                console.error("Error formatting validation result:", error);
+                return "Error displaying validation result";
+              }
+            })()}
             </div>
           </div>
         )}
