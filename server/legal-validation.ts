@@ -295,6 +295,17 @@ export function validateLegalOutput(outputText: string): LegalValidationResult {
     'Automated validation detected issues that should be addressed before proceeding.' : 
     'Automated validation complete. No significant issues detected.';
   
+  // Convert the confidence level to a numeric score to avoid the constant 70% issue
+  const confidenceScoreMap = {
+    [ConfidenceLevel.HIGH]: 95,
+    [ConfidenceLevel.MEDIUM]: 75,
+    [ConfidenceLevel.LOW]: 55,
+    [ConfidenceLevel.UNCERTAIN]: 35
+  };
+  
+  // Add confidenceScore to the result
+  (validationResult as any).confidenceScore = confidenceScoreMap[validationResult.confidenceLevel];
+  
   return validationResult;
 }
 
@@ -636,6 +647,18 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
           validator: 'ai',
           validationNotes: validationResult.validationNotes || ''
         };
+        
+        // Convert the confidence level to a numeric score
+        const confidenceScoreMap: {[key: string]: number} = {
+          'high': 95,
+          'medium': 75,
+          'low': 55,
+          'uncertain': 35
+        };
+        
+        // Add confidenceScore to the result
+        (validationResult as any).confidenceScore = 
+          confidenceScoreMap[validationResult.confidenceLevel.toLowerCase()] || 70;
       } catch (parseError) {
         console.error('Failed to parse AI validation response:', parseError);
         
@@ -674,6 +697,17 @@ export const validateAssessmentText = async (req: Request, res: Response) => {
             validator: 'ai',
             validationNotes: "This is an extracted result from AI analysis that couldn't be parsed as JSON."
           };
+          
+          // Add confidence score based on confidence level
+          const confidenceScoreMap: {[key: string]: number} = {
+            'high': 95,
+            'medium': 75,
+            'low': 55,
+            'uncertain': 35
+          };
+          
+          // Add confidenceScore to the result
+          (validationResult as any).confidenceScore = confidenceScoreMap[confidenceLevel.toLowerCase()] || 70;
         } catch (extractError) {
           // Fall back to algorithmic validation as backup
           console.log('Falling back to algorithmic validation...');

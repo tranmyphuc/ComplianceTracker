@@ -62,20 +62,28 @@ function extractSystemNameFromPrompt(prompt: string): string | null {
   const lowerPrompt = prompt.toLowerCase();
   
   // Check for specific keywords that might indicate medical imaging systems
+  // Give medical imaging systems higher priority over facial recognition
   if (lowerPrompt.includes('medical imaging') || 
       lowerPrompt.includes('radiology') || 
       lowerPrompt.includes('diagnostic imaging') || 
       lowerPrompt.includes('pacs') || 
-      lowerPrompt.includes('dicom') ||
-      (lowerPrompt.includes('hospital') && lowerPrompt.includes('image'))) {
-    return 'Medical Imaging AI System';
+      lowerPrompt.includes('dicom') || 
+      lowerPrompt.includes('x-ray') ||
+      lowerPrompt.includes('mri') ||
+      lowerPrompt.includes('ct scan') ||
+      lowerPrompt.includes('ultrasound') ||
+      lowerPrompt.includes('medical scan') ||
+      (lowerPrompt.includes('hospital') && lowerPrompt.includes('image')) ||
+      (lowerPrompt.includes('medical') && lowerPrompt.includes('diagnosis')) ||
+      (lowerPrompt.includes('healthcare') && lowerPrompt.includes('imaging'))) {
+    return 'medicalImaging';
   }
   
   // Look for more system types to avoid misclassification
   if (lowerPrompt.includes('facial recognition') || 
       lowerPrompt.includes('face detection') || 
       (lowerPrompt.includes('face') && lowerPrompt.includes('recognition'))) {
-    return 'Facial Recognition System';
+    return 'faceRecognition';
   }
   
   if (lowerPrompt.includes('chatgpt') || lowerPrompt.includes('chat gpt')) {
@@ -683,7 +691,46 @@ function simulateDeepSeekResponse(prompt: string, detectedSystemType?: string): 
 
     // If a specific system type was detected earlier and passed in, use it directly
     if (detectedSystemType) {
-      // Safely check if the system type exists
+      // For our new standardized system type format
+      if (detectedSystemType === 'medicalImaging' && systemTypes.medicalImaging) {
+        const matchedSystem = systemTypes.medicalImaging;
+        console.log(`Using pre-detected medical imaging system type`);
+        return JSON.stringify({
+          name: matchedSystem.name,
+          vendor: matchedSystem.vendor,
+          version: matchedSystem.version,
+          department: matchedSystem.department,
+          purpose: matchedSystem.purpose,
+          capabilities: matchedSystem.capabilities,
+          dataSources: matchedSystem.dataSources,
+          outputTypes: "Medical Reports, Diagnosis Visualizations, Anomaly Highlights, Clinical Advisories",
+          usageContext: "Healthcare, radiology, clinical diagnostics, medical assessment",
+          potentialImpact: "Improved diagnostic accuracy, earlier detection of conditions, enhanced patient outcomes",
+          riskLevel: matchedSystem.riskLevel,
+          confidenceScore: 95 // High confidence when using pre-detected type
+        });
+      }
+      
+      if (detectedSystemType === 'faceRecognition' && systemTypes.faceRecognition) {
+        const matchedSystem = systemTypes.faceRecognition;
+        console.log(`Using pre-detected facial recognition system type`);
+        return JSON.stringify({
+          name: matchedSystem.name,
+          vendor: matchedSystem.vendor,
+          version: matchedSystem.version,
+          department: matchedSystem.department,
+          purpose: matchedSystem.purpose,
+          capabilities: matchedSystem.capabilities,
+          dataSources: matchedSystem.dataSources,
+          outputTypes: "Identity Matches, Security Alerts, Access Logs, Verification Reports",
+          usageContext: "Security, identity verification, access control, law enforcement",
+          potentialImpact: "Enhanced security, access control, personal identification, surveillance capabilities",
+          riskLevel: matchedSystem.riskLevel,
+          confidenceScore: 95 // High confidence when using pre-detected type
+        });
+      }
+      
+      // Legacy fallback for older system type identifiers
       const systemTypeKey = Object.keys(systemTypes).find(key => key === detectedSystemType);
       if (systemTypeKey) {
         const matchedSystem = systemTypes[systemTypeKey as keyof typeof systemTypes];

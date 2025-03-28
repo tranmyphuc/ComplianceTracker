@@ -187,21 +187,38 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
     
     // Map API response to our format
     if (result) {
-      // Map confidence level to score
-      const confidenceMap: Record<string, number> = {
-        'high': 90,
-        'medium': 75,
-        'low': 60,
-        'uncertain': 50
-      };
-      
-      transformedResult.confidenceScore = result.confidenceLevel 
-        ? confidenceMap[result.confidenceLevel.toLowerCase()] || 70
-        : result.confidenceScore
-          ? typeof result.confidenceScore === 'number'
-            ? result.confidenceScore
-            : parseInt(result.confidenceScore, 10) || 70
-          : 70;
+      // Directly use confidenceScore if provided, otherwise map confidence level to score
+      if (result.result && typeof result.result === 'object') {
+        // Handle response format where data is nested under 'result'
+        if (typeof result.result.confidenceScore === 'number') {
+          transformedResult.confidenceScore = result.result.confidenceScore;
+        } else if (result.result.confidenceLevel) {
+          const confidenceMap: Record<string, number> = {
+            'high': 95,
+            'medium': 75,
+            'low': 55,
+            'uncertain': 35
+          };
+          transformedResult.confidenceScore = confidenceMap[result.result.confidenceLevel.toLowerCase()] || 70;
+        } else {
+          transformedResult.confidenceScore = 70; // Fallback
+        }
+      } else if (typeof result.confidenceScore === 'number') {
+        // Direct confidenceScore from API - prioritize this value when available
+        transformedResult.confidenceScore = result.confidenceScore;
+      } else if (result.confidenceLevel) {
+        // Map confidence level to score when no direct score is available
+        const confidenceMap: Record<string, number> = {
+          'high': 95,
+          'medium': 75,
+          'low': 55,
+          'uncertain': 35
+        };
+        transformedResult.confidenceScore = confidenceMap[result.confidenceLevel.toLowerCase()] || 70;
+      } else {
+        // Last fallback
+        transformedResult.confidenceScore = 70;
+      }
       
       // Map validity status (handle different API response formats)
       if (result.status && typeof result.status === 'string') {
