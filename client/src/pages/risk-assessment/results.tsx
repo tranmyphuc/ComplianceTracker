@@ -21,7 +21,7 @@ import {
   AlertTriangle, CheckCircle, FileDown, FileText, 
   Printer, ArrowRight, ChevronDown, ChevronUp, ArrowLeft,
   ShieldCheck, Gavel, Loader2, Trash2, FileWarning, TrendingUp,
-  BarChart4, PieChart as PieChartIcon
+  BarChart4, PieChart as PieChartIcon, RadioTower, Shield
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,6 +30,7 @@ import LanguageSwitcher from "@/components/language-switcher";
 import { LegalDisclaimerSection, LegalValidationPanel } from "@/components/risk-assessment";
 import { ConfidenceLevel } from "@/components/legal";
 import AssessmentResultsCharts from '@/components/risk-assessment/assessment-results-charts';
+import RiskControls from '@/components/risk-assessment/risk-controls';
 import { Progress } from "@nextui-org/react";
 
 // Chart.js imports
@@ -366,7 +367,7 @@ const RiskAssessmentResults: React.FC = () => {
 
       {/* Tabbed interface for detailed assessment data */}
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-4 w-full">
+        <TabsList className="grid grid-cols-5 w-full">
           <TabsTrigger value="overview" className="flex items-center">
             <FileText className="h-4 w-4 mr-1.5" />
             <span>Overview</span>
@@ -378,6 +379,10 @@ const RiskAssessmentResults: React.FC = () => {
           <TabsTrigger value="compliance" className="flex items-center">
             <AlertTriangle className="h-4 w-4 mr-1.5" />
             <span>Compliance Gaps</span>
+          </TabsTrigger>
+          <TabsTrigger value="controls" className="flex items-center">
+            <Shield className="h-4 w-4 mr-1.5" />
+            <span>Risk Controls</span>
           </TabsTrigger>
           <TabsTrigger value="legal" className="flex items-center">
             <Gavel className="h-4 w-4 mr-1.5" />
@@ -641,6 +646,50 @@ const RiskAssessmentResults: React.FC = () => {
                   </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="controls" className="pt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Shield className="h-5 w-5 mr-2 text-blue-500" />
+                {t('Risk Controls & Mitigation')}
+              </CardTitle>
+              <CardDescription>
+                {t('Manage controls to mitigate identified risks')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RiskControls 
+                assessmentId={assessmentData.assessmentId}
+                weakPoints={assessmentData.complianceGaps.map((gap, index) => ({
+                  id: `risk-${index + 1}`,
+                  description: gap,
+                  severity: index % 4 === 0 ? 'critical' : index % 3 === 0 ? 'high' : index % 2 === 0 ? 'medium' : 'low',
+                  type: index % 3 === 0 ? 'Transparency' : index % 2 === 0 ? 'Human Oversight' : 'Data Quality',
+                  category: `Article ${10 + index}`
+                }))}
+                onAddControl={(control) => {
+                  toast({
+                    title: "Risk Control Added",
+                    description: "Your new control has been added successfully."
+                  });
+                }}
+                onUpdateControl={(id, changes) => {
+                  toast({
+                    title: "Risk Control Updated",
+                    description: "The control has been updated successfully."
+                  });
+                }}
+                onDeleteControl={(id) => {
+                  toast({
+                    title: "Risk Control Deleted",
+                    description: "The control has been removed successfully."
+                  });
+                }}
+              />
             </CardContent>
           </Card>
         </TabsContent>
