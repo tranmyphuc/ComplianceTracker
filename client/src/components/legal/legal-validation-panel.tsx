@@ -1,240 +1,140 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClipboardCheckIcon, AlertTriangleIcon, FileTextIcon, UserIcon, BotIcon, ArrowRightIcon, ShieldIcon } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { ValidationResult } from './validation-result';
-import { ExpertReviewPanel } from './expert-review-panel';
-import { ConfidenceLevel, ReviewStatus } from '@/lib/types/legal-validation';
-import { validateText, requestExpertReview } from '@/lib/services/legal-validation-service';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Spinner } from "@/components/ui/spinner";
+import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 
 interface LegalValidationPanelProps {
-  textToValidate: string;
-  type: 'risk_assessment' | 'documentation' | 'conformity_declaration' | 'other';
-  context?: Record<string, string>;
+  assessmentText: string;
+  onValidationComplete?: (result: any) => void;
 }
 
-export function LegalValidationPanel({ textToValidate, type, context }: LegalValidationPanelProps) {
-  const [validationResult, setValidationResult] = useState<any>(null);
+export const LegalValidationPanel: React.FC<LegalValidationPanelProps> = ({ 
+  assessmentText,
+  onValidationComplete 
+}) => {
+  const [text, setText] = useState(assessmentText || '');
   const [isValidating, setIsValidating] = useState(false);
-  const [reviewRequested, setReviewRequested] = useState(false);
-  const [reviewId, setReviewId] = useState<string | null>(null);
+  const [validationResult, setValidationResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleValidate = async () => {
+    if (!text.trim()) {
+      setError('Please enter or load assessment text to validate');
+      return;
+    }
+
     setIsValidating(true);
+    setError(null);
+
     try {
-      const result = await validateText(textToValidate, type, context);
-      setValidationResult(result);
-    } catch (error) {
-      console.error('Validation error:', error);
+      const response = await fetch('/api/legal/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text,
+          type: 'assessment',
+          context: {
+            assessmentId: new URLSearchParams(window.location.search).get('assessmentId'),
+            systemId: new URLSearchParams(window.location.search).get('systemId')
+          }
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setValidationResult(data.result);
+        if (onValidationComplete) {
+          onValidationComplete(data.result);
+        }
+      } else {
+        setError(data.error || 'Validation failed');
+      }
+    } catch (err) {
+      console.error('Validation error:', err);
+      setError('Failed to complete validation. Please try again.');
     } finally {
       setIsValidating(false);
     }
   };
 
-  const handleRequestExpertReview = async () => {
-    try {
-      const response = await requestExpertReview(textToValidate, type, context);
-      if (response.success) {
-        setReviewRequested(true);
-        setReviewId(response.reviewId);
-      }
-    } catch (error) {
-      console.error('Error requesting expert review:', error);
-    }
-  };
-
   return (
-    <Tabs defaultValue="automated" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="automated" className="flex items-center gap-2">
-          <BotIcon className="h-4 w-4" />
-          <span>AI Validation</span>
-        </TabsTrigger>
-        <TabsTrigger value="expert" className="flex items-center gap-2">
-          <UserIcon className="h-4 w-4" />
-          <span>Expert Review</span>
-        </TabsTrigger>
-      </TabsList>
+    <Card className="w-full shadow-md border-slate-200">
+      <CardHeader className="bg-slate-50 border-b border-slate-200">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <AlertCircle className="h-5 w-5 text-blue-600" />
+          Legal Validation
+          {validationResult && (
+            <Badge 
+              variant={validationResult.isValid ? "success" : "destructive"}
+              className="ml-2"
+            >
+              {validationResult.isValid ? 'Valid' : 'Issues Found'}
+            </Badge>
+          )}
+        </CardTitle>
+      </CardHeader>
 
-      <TabsContent value="automated" className="space-y-4 pt-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex">
-            <div className="bg-blue-100 p-2 rounded-full mr-3">
-              <BotIcon className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium mb-1">AI Analysis</h3>
-              <p className="text-xs text-muted-foreground">
-                Automated validation using AI
-              </p>
-            </div>
-          </div>
+      <CardContent className="pt-4 pb-0">
+        <div className="space-y-4">
+          <Textarea
+            placeholder="Enter or load assessment text to validate..."
+            className="min-h-[200px] font-mono text-sm"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
 
-          <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex">
-            <div className="bg-blue-100 p-2 rounded-full mr-3">
-              <ShieldIcon className="h-5 w-5 text-blue-600" />
+          {error && (
+            <div className="text-red-500 text-sm mt-2 p-2 bg-red-50 rounded border border-red-200">
+              {error}
             </div>
-            <div>
-              <h3 className="text-sm font-medium mb-1">Legal Compliance</h3>
-              <p className="text-xs text-muted-foreground">
-                Checks against EU AI Act
-              </p>
-            </div>
-          </div>
+          )}
 
-          <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex">
-            <div className="bg-blue-100 p-2 rounded-full mr-3">
-              <AlertTriangleIcon className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium mb-1">Issue Detection</h3>
-              <p className="text-xs text-muted-foreground">
-                Identifies potential problems
-              </p>
-            </div>
-          </div>
+          {validationResult && (
+            <ValidationResult result={validationResult} />
+          )}
+        </div>
+      </CardContent>
+
+      <CardFooter className="flex justify-between items-center border-t border-slate-200 bg-slate-50 mt-4">
+        <div className="text-sm text-slate-500">
+          {validationResult ? (
+            <span className="flex items-center">
+              {validationResult.isValid ? (
+                <CheckCircle2 className="h-4 w-4 text-green-500 mr-1" />
+              ) : (
+                <Clock className="h-4 w-4 text-amber-500 mr-1" />
+              )}
+              {validationResult.reviewStatus === 'validated' 
+                ? 'Validation complete' 
+                : 'Review recommended'}
+            </span>
+          ) : (
+            'Validate compliance with EU AI Act requirements'
+          )}
         </div>
 
-        <Card className="border-2 shadow-sm">
-          <CardHeader className="bg-muted/30 pb-3">
-            <CardTitle className="flex items-center">
-              <BotIcon className="h-5 w-5 mr-2 text-primary" />
-              AI Validation
-            </CardTitle>
-            <CardDescription>
-              Analyze the legal validity of this document using artificial intelligence
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-4">
-            {validationResult ? (
-              <ValidationResult 
-                isValid={validationResult.isValid} 
-                confidenceLevel={validationResult.confidenceLevel as ConfidenceLevel}
-                reviewStatus={validationResult.reviewStatus as ReviewStatus}
-                issues={validationResult.issues || []}
-                warnings={validationResult.warnings || []}
-                reviewRequired={validationResult.reviewRequired || false}
-                timestamp={new Date(validationResult.timestamp) || new Date()}
-                validator="ai"
-                validationNotes={validationResult.validationNotes}
-                onRequestReview={handleRequestExpertReview}
-              />
-            ) : (
-              <div className="flex flex-col items-center py-6">
-                <div className="mb-4 text-center">
-                  <p className="text-muted-foreground mb-2">Click below to start AI-powered validation</p>
-                  <div className="flex justify-center">
-                    <ArrowRightIcon className="h-5 w-5 text-primary animate-bounce" />
-                  </div>
-                </div>
-
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        onClick={handleValidate} 
-                        disabled={isValidating}
-                        size="lg"
-                        className="gap-2 px-8 py-6 h-auto transition-all hover:scale-105"
-                      >
-                        {isValidating ? (
-                          <>
-                            <div className="animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full mr-2"></div>
-                            Validating...
-                          </>
-                        ) : (
-                          <>
-                            <BotIcon className="h-5 w-5 mr-1" />
-                            Start AI Validation
-                          </>
-                        )}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Uses AI to analyze legal compliance with EU AI Act</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            )}
-          </CardContent>
-          <CardFooter className="border-t pt-4 flex justify-between bg-muted/10">
-            <p className="text-xs text-muted-foreground">
-              <BotIcon className="h-3 w-3 inline mr-1" />
-              Validation results are based on current understanding of EU AI Act requirements
-            </p>
-
-            {validationResult && (
-              <Button variant="outline" size="sm" onClick={() => setValidationResult(null)}>
-                Reset Validation
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="expert" className="space-y-4 pt-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div className="bg-green-50 p-3 rounded-lg border border-green-100 flex">
-            <div className="bg-green-100 p-2 rounded-full mr-3">
-              <UserIcon className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium mb-1">Human Expert</h3>
-              <p className="text-xs text-muted-foreground">
-                Review by legal professionals
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-green-50 p-3 rounded-lg border border-green-100 flex">
-            <div className="bg-green-100 p-2 rounded-full mr-3">
-              <ClipboardCheckIcon className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium mb-1">Detailed Analysis</h3>
-              <p className="text-xs text-muted-foreground">
-                Thorough legal review
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-green-50 p-3 rounded-lg border border-green-100 flex">
-            <div className="bg-green-100 p-2 rounded-full mr-3">
-              <FileTextIcon className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium mb-1">Recommendations</h3>
-              <p className="text-xs text-muted-foreground">
-                Personalized guidance
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <Card className="border-2 shadow-sm">
-          <CardHeader className="bg-muted/30 pb-3">
-            <CardTitle className="flex items-center">
-              <UserIcon className="h-5 w-5 mr-2 text-primary" />
-              Expert Legal Review
-            </CardTitle>
-            <CardDescription>
-              Request a review from a legal compliance expert for thorough analysis
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <ExpertReviewPanel 
-              textToReview={textToValidate}
-              type={type}
-              context={context}
-              reviewRequested={reviewRequested}
-              reviewId={reviewId}
-            />
-          </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
+        <Button 
+          onClick={handleValidate}
+          disabled={isValidating || !text.trim()}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          {isValidating ? (
+            <>
+              <Spinner className="mr-2 h-4 w-4" />
+              Validating...
+            </>
+          ) : (
+            'Validate with AI'
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
   );
-}
+};
