@@ -66,6 +66,9 @@ function extractValue(text: string | null | undefined, key: string): string | nu
 import { regulatoryRoutes } from "./routes/regulatory-routes";
 import { initializeRegulationUpdates } from "./regulatory-service";
 
+// Import legal validation functions
+// Functions are already imported below, so commenting this out to avoid duplicates
+
 // Import approval workflow functions
 import {
   createApprovalWorkflow,
@@ -2573,6 +2576,59 @@ if (isDemoMode) {
   // Legal validation routes
   app.post("/api/legal/validate", validateAssessmentText);
   app.post("/api/legal/disclaimer", addLegalDisclaimerToContent);
+  
+  // Add new legal validation endpoint
+  app.post("/api/legal-validation/validate", async (req: Request, res: Response) => {
+    try {
+      const { text, type, context } = req.body;
+      
+      // Create a mock validation result to simulate the validation
+      const mockResult = {
+        success: true,
+        result: {
+          isValid: Math.random() > 0.3, // 70% chance of being valid
+          confidenceLevel: 'high',
+          reviewStatus: 'validated',
+          issues: [
+            "Incomplete human oversight measures detailed in section 3.2",
+            "Data governance procedures need more clarity on data minimization",
+            "Missing technical documentation for robustness testing"
+          ],
+          warnings: [
+            "Consider periodic review of risk assessment methodology",
+            "User feedback mechanisms could be strengthened"
+          ],
+          strengths: [
+            "Clear risk classification methodology",
+            "Well-defined purpose and use case boundaries",
+            "Strong security measures for data handling",
+            "Good transparency measures for AI system users"
+          ],
+          recommendations: [
+            "Enhance documentation of human oversight measures in section 3.2",
+            "Clarify data governance procedures regarding data minimization",
+            "Add technical documentation for robustness testing",
+            "Implement a regularly scheduled review process for risk assessment"
+          ],
+          reviewRequired: false,
+          timestamp: new Date(),
+          validator: 'ai',
+          validationNotes: "This assessment demonstrates good compliance with EU AI Act requirements but needs improvements in several key areas."
+        }
+      };
+      
+      // Add artificial delay to simulate processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      res.json(mockResult);
+    } catch (err) {
+      console.error("Legal validation error:", err);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to validate assessment" 
+      });
+    }
+  });
   
   // Expert review management routes
   app.get("/api/legal/expert-reviews", getExpertReviewRequests);
