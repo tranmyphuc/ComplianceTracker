@@ -77,23 +77,15 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
         `Mitigation Measures: ${formData.mitigationMeasures || 'Unknown'}`;
       
       // AI legality validation call with full system information
-      const response = await fetch('/api/legal/analyze-compliance', {
+      const response = await fetch('/api/legal/validate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           text: systemDescription,
-          analysisType: 'euaia_compliance',
-          name: formData.name,
-          description: formData.description,
-          purpose: formData.purpose,
-          riskLevel: formData.riskLevel,
-          systemCategory: formData.systemCategory || "Unknown",
-          aiCapabilities: formData.aiCapabilities,
-          trainingDatasets: formData.trainingDatasets,
-          potentialImpact: formData.potentialImpact,
-          vulnerabilities: formData.vulnerabilities
+          type: 'compliance_assessment',
+          context: `EU AI Act compliance assessment for ${formData.name} (${formData.riskLevel || 'unknown'} risk level system)`
         })
       });
       
@@ -156,7 +148,7 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
         `Mitigation Measures: ${formData.mitigationMeasures || 'Unknown'}`;
         
       // Send properly formatted data to validation endpoint
-      const response = await fetch('/api/validate/assessment', {
+      const response = await fetch('/api/legal-validation/validate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -164,9 +156,7 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
         body: JSON.stringify({
           text: systemDescription,
           type: 'assessment',
-          context: {
-            systemId: formData.systemId || undefined
-          }
+          context: `EU AI Act compliance assessment for ${formData.name} (${formData.riskLevel || 'unknown'} risk level system)`
         })
       });
       

@@ -2708,6 +2708,104 @@ Be specific and reference EU AI Act articles where relevant. Focus on legal comp
 
   // Development mode routes
   app.use(devModeRoutes);
+  
+  // Added endpoint for general text analysis used in risk assessment
+  app.post("/api/analyze/text", async (req: Request, res: Response) => {
+    try {
+      const { text, analysisType } = req.body;
+
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ error: 'Valid text input is required' });
+      }
+      
+      console.log(`Processing text analysis request of type: ${analysisType || 'general'}`);
+      
+      if (analysisType === 'risk_assessment') {
+        // If risk assessment type, use the risk analysis function for the risk-from-text endpoint
+        try {
+          // Create a structured system object from the text
+          const systemData: Partial<AiSystem> = {
+            description: text,
+            // Extract potential name if first line looks like a title
+            name: text.split('\n')[0].length < 80 ? text.split('\n')[0] : undefined
+          };
+
+          // Use existing AI analysis functions to determine risk level and other details
+          const riskLevel = await determineRiskLevel(systemData);
+          const category = await analyzeSystemCategory(systemData);
+          const articles = await determineRelevantArticles(systemData);
+          const improvements = await generateImprovements(systemData);
+          
+          return res.json({
+            riskLevel,
+            category,
+            relevantArticles: articles,
+            suggestedImprovements: improvements,
+            systemDescription: text
+          });
+        } catch (analysisError) {
+          console.error('Error in risk assessment text analysis:', analysisError);
+          return res.status(500).json({ error: 'Risk assessment analysis failed', details: analysisError.message });
+        }
+      } else {
+        // Default to general text analysis
+        try {
+          const prompt = `
+            Analyze the following text about an AI system and extract key information:
+            
+            ${text}
+            
+            Extract these key aspects:
+            - System name and purpose
+            - AI capabilities and functionalities
+            - Potential risks and concerns
+            - Relevant EU AI Act considerations
+            
+            Format your response as a JSON with these fields:
+            {
+              "systemName": "extracted name or 'Unknown'",
+              "purpose": "extracted purpose",
+              "capabilities": ["capability1", "capability2"],
+              "potentialRisks": ["risk1", "risk2"],
+              "euAiActConsiderations": ["consideration1", "consideration2"],
+              "suggestedRiskLevel": "high/limited/minimal/unacceptable"
+            }
+          `;
+          
+          let analysisResult;
+          try {
+            // Try DeepSeek AI first
+            analysisResult = await fetchDeepSeekAI(prompt, 0.7);
+          } catch (error) {
+            console.log("DeepSeek AI failed, falling back to OpenAI:", error);
+            // Fallback to OpenAI
+            analysisResult = await fetchOpenAI(prompt, 0.7);
+          }
+          
+          // Parse the response
+          try {
+            const parsedResult = safeJsonParse(analysisResult);
+            return res.json(parsedResult || { 
+              error: 'Failed to parse analysis result',
+              rawResponse: analysisResult?.substring(0, 500) + '...' 
+            });
+          } catch (parseError) {
+            console.error('Error parsing text analysis result:', parseError);
+            return res.json({ 
+              error: 'Failed to parse analysis result',
+              rawResponse: analysisResult?.substring(0, 500) + '...' 
+            });
+          }
+        } catch (error) {
+          console.error('Error in general text analysis:', error);
+          return res.status(500).json({ error: 'Text analysis failed', details: error.message });
+        }
+      }
+    } catch (err) {
+      console.error("Error in text analysis endpoint:", err);
+      handleError(res, err as Error);
+    }
+  });
 
   // Setup HTTP server
   const httpServer = createServer(app);

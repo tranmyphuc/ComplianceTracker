@@ -96,7 +96,7 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
         `Usage Context: ${formData.usageContext || 'Unknown'}`;
       
       // Call the AI analysis API with text input
-      const analysisResponse = await fetch('/api/analyze/ai-system-text', {
+      const analysisResponse = await fetch('/api/analyze/text', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
