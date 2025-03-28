@@ -139,21 +139,34 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
   // Fallback validation endpoint if the primary one fails
   const fallbackValidation = async () => {
     try {
+      // Convert system details to comprehensive text for validation
+      const systemDescription = 
+        `Name: ${formData.name}\n` +
+        `Vendor: ${formData.vendor || 'Unknown'}\n` + 
+        `Version: ${formData.version || 'Unknown'}\n` + 
+        `Department: ${formData.department || 'Unknown'}\n` + 
+        `Purpose: ${formData.purpose || 'Unknown'}\n` + 
+        `Description: ${formData.description || 'Unknown'}\n` + 
+        `AI Capabilities: ${formData.aiCapabilities || 'Unknown'}\n` + 
+        `Training Datasets: ${formData.trainingDatasets || 'Unknown'}\n` +
+        `Usage Context: ${formData.usageContext || 'Unknown'}\n` +
+        `Risk Level: ${formData.riskLevel || 'Unknown'}\n` +
+        `Potential Impact: ${formData.potentialImpact || 'Unknown'}\n` + 
+        `Vulnerabilities: ${formData.vulnerabilities || 'Unknown'}\n` +
+        `Mitigation Measures: ${formData.mitigationMeasures || 'Unknown'}`;
+        
+      // Send properly formatted data to validation endpoint
       const response = await fetch('/api/validate/assessment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name: formData.name,
-          description: formData.description,
-          purpose: formData.purpose,
-          riskLevel: formData.riskLevel,
-          systemCategory: formData.systemCategory || "Unknown",
-          aiCapabilities: formData.aiCapabilities,
-          trainingDatasets: formData.trainingDatasets,
-          potentialImpact: formData.potentialImpact,
-          vulnerabilities: formData.vulnerabilities
+          text: systemDescription,
+          type: 'assessment',
+          context: {
+            systemId: formData.systemId || undefined
+          }
         })
       });
       

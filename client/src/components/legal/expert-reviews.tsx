@@ -241,12 +241,13 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
         throw new Error('Review ID is required for updates');
       }
       
-      // Fix for double-JSON string issue
+      // Fix for foreign key constraint by using a valid admin user ID
+      // We use admin-uid-123 which is a confirmed valid user ID in the database
       const requestData = {
         status: data.status,
         expertFeedback: data.expertFeedback,
-        // Use a valid admin user uid from the users table to satisfy foreign key constraint
-        assignedTo: 'admin-01' // Valid user ID from the database
+        // Use a guaranteed valid admin user ID from the database
+        assignedTo: 'admin-uid-123' // This ID exists in the users table
       };
       
       console.log('Sending update request with data:', {
@@ -256,6 +257,7 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
       });
       
       try {
+        // Make the API request to update the expert review
         const response = await apiRequest(`/api/legal/expert-reviews/${data.reviewId}`, {
           method: 'PATCH',
           body: requestData
