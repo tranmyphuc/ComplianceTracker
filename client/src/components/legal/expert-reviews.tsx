@@ -163,10 +163,7 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
       
       return apiRequest(`/api/legal/expert-reviews/${data.reviewId}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestData)
+        body: requestData
       });
     },
     onSuccess: (data) => {

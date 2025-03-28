@@ -330,25 +330,18 @@ function Router() {
   );
 }
 
-// Wrap Router with providers
-function WrappedRouter() {
-  return (
-    <LanguageProvider>
-      <Router />
-    </LanguageProvider>
-  );
-}
-
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ToastProvider>
-          <ComplianceTipProvider jackStyle={true}>
-            <WrappedRouter />
-            <AiAssistantButton />
-            <Toaster />
-          </ComplianceTipProvider>
+          <LanguageProvider>
+            <ComplianceTipProvider jackStyle={true}>
+              <Router />
+              <AiAssistantButton />
+              <Toaster />
+            </ComplianceTipProvider>
+          </LanguageProvider>
         </ToastProvider>
       </AuthProvider>
     </QueryClientProvider>
