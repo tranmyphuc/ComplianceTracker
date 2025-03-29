@@ -62,6 +62,7 @@ import ComplianceChatbotPage from "./pages/compliance-chatbot";
 import AdminApiKeys from "@/pages/admin/api-keys";
 import AdminDashboard from "@/pages/admin/dashboard";
 import DevelopmentMode from "@/pages/development-mode";
+import EnhancedDocumentsPage from "@/pages/enhanced-documents";
 
 
 function Router() {
@@ -126,6 +127,7 @@ function Router() {
     "/compliance-chatbot",
     "/advanced-analytics",
     "/executive-dashboard",
+    "/enhanced-documents",
     "/admin/dashboard", // Added route
     "/development-mode" // Development mode page
   ];
@@ -316,6 +318,9 @@ function Router() {
       </Route>
       <Route path="/legal-reviews">
         {() => renderWithLayout(LegalReviewsPage)}
+      </Route>
+      <Route path="/enhanced-documents">
+        {() => renderWithLayout(EnhancedDocumentsPage)}
       </Route>
       <Route path="/admin/dashboard"> {/* Added route */}
         {() => renderWithLayout(AdminDashboard)} {/* Added route */}

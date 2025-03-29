@@ -13,6 +13,7 @@ import { knowledgeBaseRoutes } from './routes/knowledge-base-routes';
 import { trainingRoutes } from './routes/training-routes';
 import { complianceRoutes } from './routes/compliance-routes';
 import { auditRoutes } from './routes/audit-routes';
+import { enhancedDocumentRoutes } from './routes/enhanced-documents';
 import { requestTracker, errorHandler } from './error-handling';
 
 // API versions
@@ -40,6 +41,7 @@ export function createApiRouter(): Router {
   v1Router.use('/training', trainingRoutes);
   v1Router.use('/compliance', complianceRoutes);
   v1Router.use('/audit', auditRoutes);
+  v1Router.use('/enhanced-documents', enhancedDocumentRoutes);
   
   // Mount versioned router
   router.use(`/${ApiVersion.V1}`, v1Router);

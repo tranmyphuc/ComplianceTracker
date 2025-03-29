@@ -1,579 +1,690 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { 
-  Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue 
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, FileText, Download, Copy, ArrowLeft, Save, FileDown } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { DocumentType } from "@/shared/types";
-import { queryClient } from "@/lib/queryClient";
-import { DocumentVisualizations, DocumentReferences, DocumentMetadata } from './visualization-module';
-
-// Available document formats
-const documentFormats = [
-  { value: 'markdown', label: 'Markdown' },
-  { value: 'html', label: 'HTML' },
-  { value: 'pdf', label: 'PDF (Coming Soon)' },
-  { value: 'docx', label: 'DOCX (Coming Soon)' }
-];
-
-// Document type labels
-const documentTypeLabels: Record<DocumentType, string> = {
-  [DocumentType.TECHNICAL_DOCUMENTATION]: 'Technical Documentation',
-  [DocumentType.RISK_ASSESSMENT]: 'Risk Assessment Report',
-  [DocumentType.CONFORMITY_DECLARATION]: 'Declaration of Conformity',
-  [DocumentType.HUMAN_OVERSIGHT_PROTOCOL]: 'Human Oversight Protocol',
-  [DocumentType.DATA_GOVERNANCE_POLICY]: 'Data Governance Policy',
-  [DocumentType.INCIDENT_RESPONSE_PLAN]: 'Incident Response Plan'
-};
-
-// Document type descriptions
-const documentTypeDescriptions: Record<DocumentType, string> = {
-  [DocumentType.TECHNICAL_DOCUMENTATION]: 'Comprehensive technical documentation as required by Article 11 of the EU AI Act.',
-  [DocumentType.RISK_ASSESSMENT]: 'Detailed risk assessment report identifying and analyzing risks posed by the AI system.',
-  [DocumentType.CONFORMITY_DECLARATION]: 'Declaration of conformity with EU AI Act requirements and applicable standards.',
-  [DocumentType.HUMAN_OVERSIGHT_PROTOCOL]: 'Protocols for effective human oversight of AI system operation.',
-  [DocumentType.DATA_GOVERNANCE_POLICY]: 'Policies and procedures for data management throughout the AI lifecycle.',
-  [DocumentType.INCIDENT_RESPONSE_PLAN]: 'Structured approach to handling, reporting, and resolving incidents.'
-};
-
 /**
  * Enhanced Document Generator Component
  * A comprehensive UI for generating advanced EU AI Act compliant documents
  */
+
+import React, { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useToast } from '@/hooks/use-toast';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { marked } from 'marked';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { DocumentType, DocumentFormat, RiskLevel } from '@shared/types';
+import { VisualizationModule } from './visualization-module';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+import {
+  FileText,
+  CheckCircle2,
+  AlertCircle,
+  BarChart,
+  BookOpen,
+  RefreshCw,
+  FileDown,
+  Link2,
+  Image,
+  Loader2,
+  ChevronDown,
+  ChevronRight,
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+// Document templates
+const DOCUMENT_TEMPLATES = [
+  { 
+    type: DocumentType.TECHNICAL_DOCUMENTATION, 
+    title: 'Technical Documentation',
+    description: 'Comprehensive technical details of the AI system',
+    icon: <FileText className="h-5 w-5 mr-2" />,
+    riskLevel: RiskLevel.HIGH,
+    techTags: ['Detailed', 'Technical', 'Comprehensive']
+  },
+  { 
+    type: DocumentType.RISK_ASSESSMENT, 
+    title: 'Risk Assessment Report',
+    description: 'Analysis of potential risks and mitigation measures',
+    icon: <AlertCircle className="h-5 w-5 mr-2" />,
+    riskLevel: RiskLevel.HIGH,
+    techTags: ['Risk Analysis', 'Mitigation', 'Compliance']
+  },
+  { 
+    type: DocumentType.CONFORMITY_DECLARATION, 
+    title: 'Declaration of Conformity',
+    description: 'Official declaration of EU AI Act compliance',
+    icon: <CheckCircle2 className="h-5 w-5 mr-2" />,
+    riskLevel: RiskLevel.LIMITED,
+    techTags: ['Legal', 'Official', 'Certification']
+  },
+  { 
+    type: DocumentType.HUMAN_OVERSIGHT_PROTOCOL, 
+    title: 'Human Oversight Protocol',
+    description: 'Procedures for human supervision of AI systems',
+    icon: <BookOpen className="h-5 w-5 mr-2" />,
+    riskLevel: RiskLevel.HIGH,
+    techTags: ['Procedural', 'Supervision', 'Control']
+  },
+  { 
+    type: DocumentType.DATA_GOVERNANCE_POLICY, 
+    title: 'Data Governance Policy',
+    description: 'Guidelines for AI data collection and management',
+    icon: <BarChart className="h-5 w-5 mr-2" />,
+    riskLevel: RiskLevel.LIMITED,
+    techTags: ['Data Management', 'Privacy', 'Governance']
+  },
+  { 
+    type: DocumentType.INCIDENT_RESPONSE_PLAN, 
+    title: 'Incident Response Plan',
+    description: 'Procedures for handling AI system incidents',
+    icon: <RefreshCw className="h-5 w-5 mr-2" />,
+    riskLevel: RiskLevel.HIGH,
+    techTags: ['Emergency', 'Response', 'Mitigation']
+  },
+];
+
+// Risk level colors
+const RISK_COLORS = {
+  [RiskLevel.UNACCEPTABLE]: 'bg-destructive text-destructive-foreground',
+  [RiskLevel.HIGH]: 'bg-amber-500 text-white',
+  [RiskLevel.LIMITED]: 'bg-blue-500 text-white',
+  [RiskLevel.MINIMAL]: 'bg-green-500 text-white',
+};
+
+// Document schema
+const documentFormSchema = z.object({
+  title: z.string().min(5, { message: 'Title must be at least 5 characters' }),
+  documentType: z.nativeEnum(DocumentType),
+  systemId: z.string().optional(),
+  content: z.string().min(20, { message: 'Content must be at least 20 characters' }),
+  includeVisualization: z.boolean().default(true),
+  visualizationTypes: z.array(z.string()).optional(),
+  includeReferences: z.boolean().default(true),
+  format: z.nativeEnum(DocumentFormat).default(DocumentFormat.PDF),
+  additionalNotes: z.string().optional(),
+});
+
+type DocumentFormValues = z.infer<typeof documentFormSchema>;
+
 export function EnhancedDocumentGenerator() {
-  // State for document generation
-  const [selectedSystem, setSelectedSystem] = useState<string>('');
-  const [selectedDocType, setSelectedDocType] = useState<DocumentType>(DocumentType.TECHNICAL_DOCUMENTATION);
-  const [companyName, setCompanyName] = useState<string>('');
-  const [additionalDetails, setAdditionalDetails] = useState<string>('');
-  const [selectedFormat, setSelectedFormat] = useState<string>('markdown');
-  const [activeTab, setActiveTab] = useState<string>('generate');
-  const [showExportDialog, setShowExportDialog] = useState<boolean>(false);
-  const [exportFilename, setExportFilename] = useState<string>('');
-  const [exportFormat, setExportFormat] = useState<string>('markdown');
-  
-  // Generated document state
-  const [generatedDocument, setGeneratedDocument] = useState<any>(null);
-  
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [selectedTemplate, setSelectedTemplate] = useState<DocumentType | null>(null);
+  const [previewMarkdown, setPreviewMarkdown] = useState<string>('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [activeTab, setActiveTab] = useState('template');
+  const [generatedDocumentId, setGeneratedDocumentId] = useState<string | null>(null);
   
-  // Fetch AI systems
-  const { data: systems, isLoading: loadingSystems } = useQuery({
+  // Fetch AI systems for selection
+  const { data: systems } = useQuery({
     queryKey: ['/api/systems'],
-    staleTime: 60000, // 1 minute
   });
   
+  // Form initialization with default values
+  const form = useForm<DocumentFormValues>({
+    resolver: zodResolver(documentFormSchema),
+    defaultValues: {
+      title: '',
+      documentType: DocumentType.TECHNICAL_DOCUMENTATION,
+      content: '',
+      includeVisualization: true,
+      visualizationTypes: ['risk-heatmap', 'compliance-timeline'],
+      includeReferences: true,
+      format: DocumentFormat.PDF,
+      additionalNotes: '',
+    },
+  });
+  
+  // Update form when template is selected
+  useEffect(() => {
+    if (selectedTemplate) {
+      const template = DOCUMENT_TEMPLATES.find(t => t.type === selectedTemplate);
+      if (template) {
+        form.setValue('documentType', template.type);
+        form.setValue('title', `${template.title} - ${new Date().toISOString().split('T')[0]}`);
+      }
+    }
+  }, [selectedTemplate, form]);
+  
   // Document generation mutation
-  const { mutate: generateDocument, isPending: isGenerating } = useMutation({
-    mutationFn: async () => {
-      const system = systems?.find((s: any) => s.id.toString() === selectedSystem);
-      
-      if (!system) {
-        throw new Error("System not found");
+  const generateDocumentMutation = useMutation({
+    mutationFn: async (data: DocumentFormValues) => {
+      setIsGenerating(true);
+      try {
+        const response = await apiRequest('/api/enhanced-documents/generate', {
+          method: 'POST',
+          body: data,
+        });
+        return response;
+      } finally {
+        setIsGenerating(false);
       }
-      
-      const response = await fetch('/api/enhanced-documents/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          system,
-          documentType: selectedDocType,
-          companyName,
-          additionalDetails: additionalDetails ? { customNotes: additionalDetails } : undefined,
-          format: selectedFormat
-        }),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to generate document');
-      }
-      
-      return response.json();
     },
     onSuccess: (data) => {
-      setGeneratedDocument(data.document);
-      setActiveTab('preview');
       toast({
-        title: "Document Generated",
-        description: "Your document has been successfully generated.",
+        title: "Document Generated Successfully",
+        description: `Your ${data.documentType} has been created.`,
       });
+      setPreviewMarkdown(data.content);
+      setGeneratedDocumentId(data.id);
+      queryClient.invalidateQueries({ queryKey: ['/api/enhanced-documents'] });
+      setActiveTab('preview');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
-        title: "Error Generating Document",
-        description: error instanceof Error ? error.message : 'An unknown error occurred',
+        title: "Failed to generate document",
+        description: error.message || "Please try again",
         variant: "destructive",
       });
-    }
+    },
   });
   
   // Document export mutation
-  const { mutate: exportDocument, isPending: isExporting } = useMutation({
-    mutationFn: async () => {
-      const response = await fetch('/api/enhanced-documents/export', {
+  const exportDocumentMutation = useMutation({
+    mutationFn: async (data: { id: string; format: DocumentFormat }) => {
+      const response = await apiRequest('/api/enhanced-documents/export', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          document: generatedDocument,
-          format: exportFormat,
-          filename: exportFilename || `${selectedDocType}-${Date.now()}`
-        }),
+        body: data,
       });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to export document');
-      }
-      
-      return response.json();
+      return response;
     },
     onSuccess: (data) => {
-      setShowExportDialog(false);
-      
-      toast({
-        title: "Document Exported",
-        description: "Your document has been exported successfully.",
-      });
-      
       // Trigger download
-      window.location.href = `/api/enhanced-documents/download/${data.file.filename}`;
-    },
-    onError: (error) => {
+      window.open(`/api/enhanced-documents/download/${data.filename}`, '_blank');
       toast({
-        title: "Error Exporting Document",
-        description: error instanceof Error ? error.message : 'An unknown error occurred',
+        title: "Document Exported Successfully",
+        description: `Your document has been exported in ${data.format.toUpperCase()} format.`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to export document",
+        description: error.message || "Please try again",
         variant: "destructive",
       });
-    }
+    },
   });
   
-  // Handle document generation
-  const handleGenerateDocument = () => {
-    if (!selectedSystem || !selectedDocType) {
-      toast({
-        title: "Missing information",
-        description: "Please select both a system and document type.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    generateDocument();
-  };
+  // Handle form submission
+  function onSubmit(data: DocumentFormValues) {
+    generateDocumentMutation.mutate(data);
+  }
   
-  // Handle copy to clipboard
-  const handleCopyToClipboard = () => {
-    if (generatedDocument) {
-      navigator.clipboard.writeText(generatedDocument.text);
-      
-      toast({
-        title: "Copied to Clipboard",
-        description: "Document content copied to clipboard",
+  // Export the generated document
+  const handleExport = () => {
+    if (generatedDocumentId) {
+      exportDocumentMutation.mutate({
+        id: generatedDocumentId,
+        format: form.getValues('format'),
       });
     }
   };
   
-  // Handle export dialog
-  const handleOpenExportDialog = () => {
-    setExportFilename(`${selectedDocType}-${Date.now()}`);
-    setShowExportDialog(true);
-  };
+  // Risk level badge component
+  const RiskLevelBadge = ({ riskLevel }: { riskLevel: RiskLevel }) => (
+    <Badge className={RISK_COLORS[riskLevel]}>
+      {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)} Risk
+    </Badge>
+  );
   
-  // Handle export document
-  const handleExportDocument = () => {
-    exportDocument();
-  };
+  // Tech tag component
+  const TechTag = ({ tag }: { tag: string }) => (
+    <Badge variant="outline" className="mr-1 mb-1">
+      {tag}
+    </Badge>
+  );
   
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Enhanced Document Generator</CardTitle>
-          <CardDescription>
-            Generate comprehensive, legally sound documentation with visualizations and regulatory references
-          </CardDescription>
-        </CardHeader>
+    <div className="flex flex-col gap-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList>
+          <TabsTrigger value="template">
+            <ChevronRight className={`h-4 w-4 mr-1 ${activeTab === 'template' ? 'transform rotate-90' : ''}`} />
+            Select Template
+          </TabsTrigger>
+          <TabsTrigger value="details" disabled={!selectedTemplate && activeTab !== 'details'}>
+            <ChevronRight className={`h-4 w-4 mr-1 ${activeTab === 'details' ? 'transform rotate-90' : ''}`} />
+            Document Details
+          </TabsTrigger>
+          <TabsTrigger value="preview" disabled={!previewMarkdown && activeTab !== 'preview'}>
+            <ChevronRight className={`h-4 w-4 mr-1 ${activeTab === 'preview' ? 'transform rotate-90' : ''}`} />
+            Preview & Export
+          </TabsTrigger>
+        </TabsList>
         
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="generate">Generate</TabsTrigger>
-              <TabsTrigger value="preview" disabled={!generatedDocument}>Preview</TabsTrigger>
-              <TabsTrigger value="templates">Templates</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="generate" className="space-y-4 pt-4">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="system">AI System</Label>
-                  <Select
-                    value={selectedSystem}
-                    onValueChange={setSelectedSystem}
-                    disabled={loadingSystems || isGenerating}
+        <TabsContent value="template" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">Choose a Document Template</CardTitle>
+              <CardDescription>
+                Select the type of document you want to generate
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {DOCUMENT_TEMPLATES.map((template) => (
+                  <Card 
+                    key={template.type}
+                    className={`cursor-pointer transition-all hover:shadow-md ${selectedTemplate === template.type ? 'ring-2 ring-primary' : ''}`}
+                    onClick={() => setSelectedTemplate(template.type)}
                   >
-                    <SelectTrigger id="system">
-                      <SelectValue placeholder="Select an AI system" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>AI Systems</SelectLabel>
-                        {loadingSystems ? (
-                          <SelectItem value="loading" disabled>
-                            Loading systems...
-                          </SelectItem>
-                        ) : (
-                          systems?.map((system: any) => (
-                            <SelectItem key={system.id} value={system.id.toString()}>
-                              {system.name} ({system.riskLevel})
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="docType">Document Type</Label>
-                  <Select
-                    value={selectedDocType}
-                    onValueChange={(value) => setSelectedDocType(value as DocumentType)}
-                    disabled={isGenerating}
-                  >
-                    <SelectTrigger id="docType">
-                      <SelectValue placeholder="Select document type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Document Types</SelectLabel>
-                        {Object.entries(documentTypeLabels).map(([type, label]) => (
-                          <SelectItem key={type} value={type}>
-                            {label}
-                          </SelectItem>
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center">
+                          {template.icon}
+                          <CardTitle className="text-lg">{template.title}</CardTitle>
+                        </div>
+                        <RiskLevelBadge riskLevel={template.riskLevel} />
+                      </div>
+                      <CardDescription>{template.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex flex-wrap mt-2">
+                        {template.techTags.map((tag, index) => (
+                          <TechTag key={index} tag={tag} />
                         ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  
-                  <p className="text-xs text-neutral-500 mt-1">
-                    {documentTypeDescriptions[selectedDocType]}
-                  </p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="company">Company Name</Label>
-                  <Input
-                    id="company"
-                    placeholder="Your company name"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    disabled={isGenerating}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="format">Output Format</Label>
-                  <Select
-                    value={selectedFormat}
-                    onValueChange={setSelectedFormat}
-                    disabled={isGenerating}
-                  >
-                    <SelectTrigger id="format">
-                      <SelectValue placeholder="Select output format" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Available Formats</SelectLabel>
-                        {documentFormats.map((format) => (
-                          <SelectItem 
-                            key={format.value} 
-                            value={format.value}
-                            disabled={format.value === 'pdf' || format.value === 'docx'}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              <Button 
+                className="mt-6 w-full md:w-auto" 
+                disabled={!selectedTemplate}
+                onClick={() => setActiveTab('details')}
+              >
+                Continue with Selected Template
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="details" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Document Details</CardTitle>
+              <CardDescription>
+                Provide information about your document
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Document Title</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter document title" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="systemId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>AI System (Optional)</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
                           >
-                            {format.label}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="additionalDetails">Additional Notes (Optional)</Label>
-                  <Textarea
-                    id="additionalDetails"
-                    placeholder="Enter any additional information to include in the document..."
-                    value={additionalDetails}
-                    onChange={(e) => setAdditionalDetails(e.target.value)}
-                    rows={4}
-                    disabled={isGenerating}
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select an AI system" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="">None (Generic Document)</SelectItem>
+                              {systems && systems.map((system: any) => (
+                                <SelectItem key={system.id} value={system.systemId}>
+                                  {system.name} ({system.systemId})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            Link this document to a specific AI system for better context
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="content"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Document Content</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Enter or paste the content for your document" 
+                            className="min-h-32"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Provide details about your AI system. More detailed content will result in better document generation.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="includeVisualization"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-md">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel className="flex items-center">
+                              <Image className="h-4 w-4 mr-2" />
+                              Include Visualizations
+                            </FormLabel>
+                            <FormDescription>
+                              Add charts and graphics to enhance your document
+                            </FormDescription>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="includeReferences"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-md">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel className="flex items-center">
+                              <Link2 className="h-4 w-4 mr-2" />
+                              Include Legal References
+                            </FormLabel>
+                            <FormDescription>
+                              Add links to relevant EU AI Act articles and regulations
+                            </FormDescription>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="format"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Export Format</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select format" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.values(DocumentFormat).map((format) => (
+                              <SelectItem key={format} value={format}>
+                                {format.toUpperCase()}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Choose the format for exporting your document
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="flex justify-between">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setActiveTab('template')}
+                    >
+                      Back to Templates
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generating Document...
+                        </>
+                      ) : (
+                        'Generate Document'
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="preview" className="mt-6">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle>{form.getValues('title')}</CardTitle>
+                <div className="flex gap-2">
+                  <Badge variant="outline">
+                    {form.getValues('documentType').replace(/_/g, ' ')}
+                  </Badge>
+                  <Badge variant="outline">
+                    {form.getValues('format').toUpperCase()}
+                  </Badge>
                 </div>
+              </div>
+              <CardDescription>
+                Preview your generated document before exporting
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="border rounded-md p-6 bg-white">
+                <ScrollArea className="h-96">
+                  <div 
+                    className="prose max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: previewMarkdown ? marked.parse(previewMarkdown) : '<p>No preview available</p>'
+                    }}
+                  />
+                </ScrollArea>
+              </div>
+              
+              <Accordion type="single" collapsible className="mt-6">
+                <AccordionItem value="visualizations">
+                  <AccordionTrigger>
+                    <div className="flex items-center">
+                      <BarChart className="h-4 w-4 mr-2" />
+                      Document Visualizations
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    {form.getValues('includeVisualization') ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <VisualizationModule 
+                          type="risk-heatmap"
+                          title="AI System Risk Assessment"
+                          data={[
+                            { name: 'Fundamental Rights', value: 35, riskLevel: RiskLevel.LIMITED },
+                            { name: 'Data Privacy', value: 20, riskLevel: RiskLevel.MINIMAL },
+                            { name: 'Technical Robustness', value: 30, riskLevel: RiskLevel.HIGH },
+                            { name: 'Transparency', value: 15, riskLevel: RiskLevel.LIMITED }
+                          ]}
+                        />
+                        <VisualizationModule 
+                          type="compliance-timeline"
+                          title="Compliance Readiness Timeline"
+                          data={[
+                            { date: 'Jan 2024', complianceScore: 30, targetScore: 40 },
+                            { date: 'Apr 2024', complianceScore: 45, targetScore: 60 },
+                            { date: 'Jul 2024', complianceScore: 70, targetScore: 80 },
+                            { date: 'Oct 2024', complianceScore: 85, targetScore: 90 },
+                            { date: 'Jan 2025', complianceScore: 95, targetScore: 100 }
+                          ]}
+                        />
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground">No visualizations included in this document.</p>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
                 
+                <AccordionItem value="legalRefs">
+                  <AccordionTrigger>
+                    <div className="flex items-center">
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Legal References
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    {form.getValues('includeReferences') ? (
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <Link2 className="h-4 w-4 mt-1 text-blue-500" />
+                          <div>
+                            <p className="font-medium">Article 9 - Risk Management System</p>
+                            <p className="text-sm text-muted-foreground">
+                              Requirements for high-risk AI systems to implement risk management processes
+                            </p>
+                          </div>
+                        </div>
+                        <Separator />
+                        <div className="flex items-start gap-2">
+                          <Link2 className="h-4 w-4 mt-1 text-blue-500" />
+                          <div>
+                            <p className="font-medium">Article 11 - Technical Documentation</p>
+                            <p className="text-sm text-muted-foreground">
+                              Requirements for comprehensive documentation of high-risk AI systems
+                            </p>
+                          </div>
+                        </div>
+                        <Separator />
+                        <div className="flex items-start gap-2">
+                          <Link2 className="h-4 w-4 mt-1 text-blue-500" />
+                          <div>
+                            <p className="font-medium">Article 17 - Quality Management System</p>
+                            <p className="text-sm text-muted-foreground">
+                              Requirements for implementing quality standards in high-risk AI development
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground">No legal references included in this document.</p>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button 
+                variant="outline" 
+                onClick={() => setActiveTab('details')}
+              >
+                Back to Edit
+              </Button>
+              <div className="flex gap-2">
                 <Button 
-                  onClick={handleGenerateDocument} 
-                  disabled={!selectedSystem || !selectedDocType || isGenerating}
-                  className="w-full mt-2"
+                  variant="outline"
+                  onClick={() => {
+                    form.reset();
+                    setSelectedTemplate(null);
+                    setPreviewMarkdown('');
+                    setGeneratedDocumentId(null);
+                    setActiveTab('template');
+                  }}
                 >
-                  {isGenerating ? (
+                  Start Over
+                </Button>
+                <Button 
+                  onClick={handleExport}
+                  disabled={exportDocumentMutation.isPending}
+                >
+                  {exportDocumentMutation.isPending ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Generating Document...
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Exporting...
                     </>
                   ) : (
                     <>
-                      <FileText className="h-4 w-4 mr-2" />
-                      Generate Document
+                      <FileDown className="mr-2 h-4 w-4" />
+                      Export Document
                     </>
                   )}
                 </Button>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="preview" className="pt-4">
-              {generatedDocument ? (
-                <div className="lg:grid lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2 space-y-4">
-                    <div className="flex gap-2">
-                      <Button variant="outline" onClick={handleOpenExportDialog}>
-                        <Download className="h-4 w-4 mr-2" />
-                        Export
-                      </Button>
-                      <Button variant="outline" onClick={handleCopyToClipboard}>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy
-                      </Button>
-                      <Button variant="outline" onClick={() => setActiveTab('generate')}>
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back
-                      </Button>
-                    </div>
-                    
-                    <div className="border rounded-md p-4 bg-neutral-50 whitespace-pre-wrap font-mono text-sm h-[calc(100vh-24rem)] overflow-auto">
-                      {generatedDocument.text}
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6 lg:mt-0 space-y-6">
-                    <DocumentMetadata metadata={generatedDocument.metadata} />
-                    <DocumentReferences references={generatedDocument.references} />
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-10">
-                  <p className="text-gray-500">No document has been generated yet.</p>
-                  <Button 
-                    variant="outline" 
-                    className="mt-4"
-                    onClick={() => setActiveTab('generate')}
-                  >
-                    Go to Generator
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="templates" className="pt-4">
-              <div className="space-y-6">
-                <p className="text-sm text-gray-600">
-                  Select from predefined document templates required for EU AI Act compliance.
-                  Each template is tailored to specific risk levels and system types.
-                </p>
-                
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {Object.entries(documentTypeLabels).map(([type, label]) => (
-                    <Card 
-                      key={type} 
-                      className="cursor-pointer hover:bg-neutral-50 transition-colors"
-                      onClick={() => {
-                        setSelectedDocType(type as DocumentType);
-                        setActiveTab('generate');
-                      }}
-                    >
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-base">{label}</CardTitle>
-                        <CardDescription className="text-xs">
-                          {documentTypeDescriptions[type as DocumentType]}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="text-xs text-neutral-600">
-                          <p className="font-medium">Key Components:</p>
-                          <ul className="list-disc pl-4 mt-1 space-y-1">
-                            {type === DocumentType.TECHNICAL_DOCUMENTATION && (
-                              <>
-                                <li>System architecture details</li>
-                                <li>Data governance frameworks</li>
-                                <li>Quality assurance measures</li>
-                              </>
-                            )}
-                            
-                            {type === DocumentType.RISK_ASSESSMENT && (
-                              <>
-                                <li>Risk identification methodology</li>
-                                <li>Impact evaluation matrix</li>
-                                <li>Mitigation strategies</li>
-                              </>
-                            )}
-                            
-                            {type === DocumentType.CONFORMITY_DECLARATION && (
-                              <>
-                                <li>Legal attestations</li>
-                                <li>Standard compliance statements</li>
-                                <li>Verification procedures</li>
-                              </>
-                            )}
-                            
-                            {type === DocumentType.HUMAN_OVERSIGHT_PROTOCOL && (
-                              <>
-                                <li>Oversight roles and responsibilities</li>
-                                <li>Intervention procedures</li>
-                                <li>Training requirements</li>
-                              </>
-                            )}
-                            
-                            {type === DocumentType.DATA_GOVERNANCE_POLICY && (
-                              <>
-                                <li>Data quality safeguards</li>
-                                <li>Privacy protection measures</li>
-                                <li>Data lifecycle management</li>
-                              </>
-                            )}
-                            
-                            {type === DocumentType.INCIDENT_RESPONSE_PLAN && (
-                              <>
-                                <li>Incident classification framework</li>
-                                <li>Escalation procedures</li>
-                                <li>Regulatory reporting guidelines</li>
-                              </>
-                            )}
-                          </ul>
-                        </div>
-                      </CardContent>
-                      <CardFooter className="pt-0">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full text-xs"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedDocType(type as DocumentType);
-                            setActiveTab('generate');
-                          }}
-                        >
-                          Use Template
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-      
-      {/* Document visualizations section */}
-      {generatedDocument?.visualizations && activeTab === 'preview' && (
-        <DocumentVisualizations visualizations={generatedDocument.visualizations} />
-      )}
-      
-      {/* Export dialog */}
-      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Export Document</DialogTitle>
-            <DialogDescription>
-              Export your document in various formats for sharing and offline use.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="export-filename">Filename</Label>
-              <Input
-                id="export-filename"
-                placeholder="Enter filename"
-                value={exportFilename}
-                onChange={(e) => setExportFilename(e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="export-format">Format</Label>
-              <Select
-                value={exportFormat}
-                onValueChange={setExportFormat}
-              >
-                <SelectTrigger id="export-format">
-                  <SelectValue placeholder="Select format" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Available Formats</SelectLabel>
-                    {documentFormats.map((format) => (
-                      <SelectItem 
-                        key={format.value} 
-                        value={format.value}
-                        disabled={format.value === 'pdf' || format.value === 'docx'}
-                      >
-                        {format.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowExportDialog(false)}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleExportDocument}
-              disabled={isExporting || !exportFilename}
-            >
-              {isExporting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Exporting...
-                </>
-              ) : (
-                <>
-                  <FileDown className="h-4 w-4 mr-2" />
-                  Export
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
