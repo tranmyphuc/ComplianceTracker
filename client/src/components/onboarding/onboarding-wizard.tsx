@@ -28,7 +28,9 @@ import {
   Building2,
   Mail,
   Phone,
-  Globe
+  Globe,
+  Cpu,
+  CheckSquare
 } from "lucide-react";
 import {
   Select,
@@ -546,36 +548,21 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                     
                     {currentStepData.id === "personalization" && (
                       <div className="space-y-4">
-                        <h3 className="font-semibold text-lg">Healthcare AI Compliance Profile:</h3>
+                        <h3 className="font-semibold text-lg">Your Organization AI Compliance Profile:</h3>
                         
                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-4">
                           <p className="text-blue-800 text-sm">
-                            <span className="font-medium">Healthcare Industry Profile Selected:</span> We've tailored your compliance experience for healthcare AI systems, which typically fall under high-risk classification in the EU AI Act.
+                            <span className="font-medium">Industry-Specific Compliance:</span> The EU AI Act requirements vary by industry and use case. Please provide your organization details below for tailored compliance guidance.
                           </p>
                         </div>
                         
                         <div className="space-y-6 mt-4">
-                          {/* Organization Type - Changed to Dropdown */}
+                          {/* Organization Type - First based on industry selection */}
                           <div className="space-y-2">
-                            <Label htmlFor="org-type">Your Organization Type</Label>
-                            <Select
-                              value={userProfile.organizationType || ""}
-                              onValueChange={(value) => updateUserProfile('organizationType', value)}
-                            >
-                              <SelectTrigger id="org-type" className="w-full">
-                                <SelectValue placeholder="Select organization type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {["Large Enterprise", "Mid-size Organization", "Small Business", "Startup", "Government/Public Sector", "Non-profit/NGO"].map((type) => (
-                                  <SelectItem key={type} value={type}>{type}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          
-                          {/* Industry Selection - Changed to Dropdown */}
-                          <div className="space-y-2">
-                            <Label htmlFor="industry">Your Industry</Label>
+                            <Label htmlFor="industry" className="flex items-center">
+                              <Building2 className="h-4 w-4 mr-1.5 text-blue-600" />
+                              Your Industry <span className="text-red-500 ml-0.5">*</span>
+                            </Label>
                             <Select
                               value={userProfile.industry || ""}
                               onValueChange={(value) => updateUserProfile('industry', value)}
@@ -584,25 +571,69 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                                 <SelectValue placeholder="Select your industry" />
                               </SelectTrigger>
                               <SelectContent>
-                                {[
-                                  "Healthcare", 
-                                  "Financial Services",
-                                  "Manufacturing",
-                                  "Public Sector",
-                                  "Retail & E-commerce",
-                                  "Logistics & Transportation",
-                                  "Energy & Utilities",
-                                  "Professional Services",
-                                  "Insurance",
-                                  "Telecommunications",
-                                  "Education",
-                                  "Software & Technology"
-                                ].map((industry) => (
-                                  <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-                                ))}
+                                <SelectGroup>
+                                  <SelectLabel>High-Risk Industries (EU AI Act)</SelectLabel>
+                                  {["Healthcare", "Financial Services", "Education", "Public Safety", "Legal Services"].map((industry) => (
+                                    <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                                  ))}
+                                </SelectGroup>
+                                <SelectGroup>
+                                  <SelectLabel>Other Industries</SelectLabel>
+                                  {[
+                                    "Retail & E-commerce", 
+                                    "Manufacturing",
+                                    "Transportation & Logistics",
+                                    "Professional Services",
+                                    "Energy & Utilities",
+                                    "Telecommunications",
+                                    "Insurance",
+                                    "Technology",
+                                    "Media & Entertainment",
+                                    "Construction",
+                                    "Agriculture",
+                                    "Other"
+                                  ].map((industry) => (
+                                    <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                            <p className="text-xs text-muted-foreground">
+                              Your industry helps us tailor EU AI Act compliance guidance
+                            </p>
+                          </div>
+                          
+                          {/* Specific Organization Type */}
+                          <div className="space-y-2">
+                            <Label htmlFor="org-type">Organization Type</Label>
+                            <Select
+                              value={userProfile.organizationType || ""}
+                              onValueChange={(value) => updateUserProfile('organizationType', value)}
+                            >
+                              <SelectTrigger id="org-type" className="w-full">
+                                <SelectValue placeholder="Select organization type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectLabel>Organization Types</SelectLabel>
+                                  {[
+                                    "Private Business",
+                                    "Public Company",
+                                    "Government Entity",
+                                    "Educational Institution",
+                                    "Non-profit Organization",
+                                    "Research Institution",
+                                    "Public-Private Partnership",
+                                    "Individual/Self-employed"
+                                  ].map((type) => (
+                                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                                  ))}
+                                </SelectGroup>
                               </SelectContent>
                             </Select>
                           </div>
+                          
+
                           
                           {/* Organization Size - Changed to Dropdown */}
                           <div className="space-y-2">
@@ -627,23 +658,26 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </Select>
                           </div>
                           
-                          {/* Healthcare AI System Types - Specialized checkboxes */}
+                          {/* AI System Types - Broad categories */}
                           <div className="space-y-3">
-                            <Label>Healthcare AI Systems <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span></Label>
-                            <div className="grid grid-cols-2 gap-x-2 gap-y-2 border rounded-md p-3 bg-blue-50/30">
+                            <Label className="flex items-center">
+                              <Database className="h-4 w-4 mr-1.5 text-blue-600" />
+                              AI Systems <span className="text-xs text-muted-foreground ml-1.5">(select all that apply)</span>
+                            </Label>
+                            <div className="grid md:grid-cols-2 gap-x-2 gap-y-2 border rounded-md p-3 bg-blue-50/30">
                               {[
-                                "Medical Imaging AI",
-                                "Diagnostic Support",
-                                "Patient Risk Prediction",
-                                "Treatment Planning",
-                                "Clinical Decision Support",
-                                "Medical Robotics",
-                                "Smart Medical Devices",
-                                "Health Monitoring AI",
-                                "Drug Discovery AI",
-                                "Electronic Health Records AI",
-                                "Telemedicine Systems",
-                                "Patient Triage AI"
+                                "Machine Learning Models",
+                                "Natural Language Processing",
+                                "Computer Vision Systems",
+                                "Predictive Analytics",
+                                "Decision Support Systems",
+                                "Recommendation Engines",
+                                "Chatbots & Virtual Assistants",
+                                "Biometric Recognition",
+                                "Knowledge Representation",
+                                "Autonomous Systems",
+                                "Neural Networks",
+                                "Generative AI"
                               ].map((type) => (
                                 <div key={type} className="flex items-center space-x-1">
                                   <Checkbox 
@@ -668,17 +702,26 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </div>
                           </div>
                           
-                          {/* Primary Compliance Goals - Simplified with fewer options */}
+                          {/* Compliance Goals */}
                           <div className="space-y-3">
-                            <Label>Primary Goals <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span></Label>
-                            <div className="grid grid-cols-2 gap-x-2 gap-y-1 border rounded-md p-2">
+                            <Label className="flex items-center">
+                              <CheckCircle className="h-4 w-4 mr-1.5 text-blue-600" />
+                              Compliance Goals <span className="text-xs text-muted-foreground ml-1.5">(select all that apply)</span>
+                            </Label>
+                            <div className="grid md:grid-cols-2 gap-x-2 gap-y-2 border rounded-md p-3 bg-blue-50/30">
                               {[
-                                "Proactive compliance",
-                                "Risk assessment",
-                                "Documentation",
-                                "Staff training",
-                                "Monitoring",
-                                "Legal protection"
+                                "EU AI Act compliance",
+                                "Risk management framework",
+                                "Transparent AI documentation",
+                                "GDPR data protection compliance",
+                                "Human oversight implementation",
+                                "Staff AI awareness training",
+                                "Ethical AI governance",
+                                "Technical robustness verification",
+                                "Bias monitoring & mitigation",
+                                "Post-market monitoring system",
+                                "Regulatory notification readiness",
+                                "Conformity assessment preparation"
                               ].map((goal) => (
                                 <div key={goal} className="flex items-center space-x-1">
                                   <Checkbox 
@@ -703,9 +746,12 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </div>
                           </div>
                           
-                          {/* User Role - Changed to Dropdown */}
+                          {/* User Role */}
                           <div className="space-y-2">
-                            <Label htmlFor="user-role">Your Role</Label>
+                            <Label htmlFor="user-role" className="flex items-center">
+                              <User className="h-4 w-4 mr-1.5 text-blue-600" />
+                              Your Role <span className="text-red-500 ml-0.5">*</span>
+                            </Label>
                             <Select
                               value={userProfile.role || ""}
                               onValueChange={(value) => updateUserProfile('role', value)}
@@ -714,16 +760,45 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                                 <SelectValue placeholder="Select your role" />
                               </SelectTrigger>
                               <SelectContent>
-                                {[
-                                  "Decision Maker",
-                                  "Legal/Compliance",
-                                  "Technical Team",
-                                  "Project Manager",
-                                  "Data Scientist",
-                                  "Executive"
-                                ].map((role) => (
-                                  <SelectItem key={role} value={role}>{role}</SelectItem>
-                                ))}
+                                <SelectGroup>
+                                  <SelectLabel>Leadership</SelectLabel>
+                                  {[
+                                    "CEO/President",
+                                    "Chief Information Officer",
+                                    "Chief Technology Officer",
+                                    "Chief Data Officer",
+                                    "Chief Innovation Officer",
+                                    "VP of Technology"
+                                  ].map((role) => (
+                                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                                  ))}
+                                </SelectGroup>
+                                <SelectGroup>
+                                  <SelectLabel>Compliance & Legal</SelectLabel>
+                                  {[
+                                    "Compliance Officer",
+                                    "Legal Counsel",
+                                    "Risk Manager",
+                                    "Data Protection Officer",
+                                    "Ethics Officer"
+                                  ].map((role) => (
+                                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                                  ))}
+                                </SelectGroup>
+                                <SelectGroup>
+                                  <SelectLabel>Technical & Development</SelectLabel>
+                                  {[
+                                    "AI/ML Engineer",
+                                    "Data Scientist",
+                                    "Software Developer",
+                                    "IT Manager",
+                                    "Product Manager",
+                                    "Project Manager",
+                                    "Research Scientist"
+                                  ].map((role) => (
+                                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                                  ))}
+                                </SelectGroup>
                               </SelectContent>
                             </Select>
                           </div>
