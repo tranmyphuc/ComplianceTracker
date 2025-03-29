@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ComplianceBriefPDF } from '@/components/reports/compliance-brief-pdf';
 import { UserOnboardingProfile } from '@/components/onboarding/onboarding-wizard';
 import { PageHeader } from '@/components/ui/page-header';
@@ -6,9 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Download, Printer, Share2, Mail } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const ComplianceReportPage = () => {
   const [userProfile, setUserProfile] = useState<UserOnboardingProfile | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -23,22 +27,78 @@ const ComplianceReportPage = () => {
     }
   }, []);
 
-  const handleDownloadPDF = () => {
-    // In a real app, this would trigger PDF generation and download
+  const handleDownloadPDF = async () => {
+    if (!reportRef.current) return;
+    
+    setIsGenerating(true);
     toast({
-      title: "PDF Download Started",
-      description: "Your personalized compliance brief is being generated and will download shortly.",
+      title: "PDF Generation Started",
+      description: "Your personalized compliance brief is being generated and will download shortly...",
       variant: "default",
     });
     
-    // Simulate download delay
-    setTimeout(() => {
+    try {
+      // First pass the scale option to ensure good quality
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      
+      // PDF in A4 format
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 0;
+  
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      
+      // If the content is longer than one page, add more pages
+      const totalPages = Math.ceil(imgHeight * ratio / pdfHeight);
+      
+      if (totalPages > 1) {
+        for (let i = 1; i < totalPages; i++) {
+          pdf.addPage();
+          pdf.addImage(
+            imgData, 
+            'PNG', 
+            imgX, 
+            -(pdfHeight * i) + imgY,
+            imgWidth * ratio, 
+            imgHeight * ratio
+          );
+        }
+      }
+  
+      // Download the PDF
+      pdf.save(`SGH_ASIA_AI_Compliance_Brief_${new Date().toISOString().split('T')[0]}.pdf`);
+      
       toast({
         title: "Download Complete",
-        description: "Your compliance brief has been downloaded successfully.",
+        description: "Your compliance brief has been downloaded successfully!",
         variant: "default",
       });
-    }, 2000);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "Download Failed",
+        description: "There was an error generating your PDF. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handlePrint = () => {
@@ -130,10 +190,11 @@ const ComplianceReportPage = () => {
         </Button>
       </div>
       
-      <div className="print:p-0 p-4 bg-gray-50 rounded-lg shadow-sm">
+      <div ref={reportRef} className="print:p-0 p-4 bg-gray-50 rounded-lg shadow-sm">
         <ComplianceBriefPDF 
           userProfile={userProfile} 
           onDownload={handleDownloadPDF}
+          isGenerating={isGenerating}
         />
       </div>
     </div>

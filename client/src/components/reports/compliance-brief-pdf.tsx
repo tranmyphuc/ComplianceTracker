@@ -329,9 +329,10 @@ const calculateOverallScore = (profile: UserOnboardingProfile) => {
 interface ComplianceBriefPDFProps {
   userProfile: UserOnboardingProfile;
   onDownload?: () => void;
+  isGenerating?: boolean;
 }
 
-export const ComplianceBriefPDF: React.FC<ComplianceBriefPDFProps> = ({ userProfile, onDownload }) => {
+export const ComplianceBriefPDF: React.FC<ComplianceBriefPDFProps> = ({ userProfile, onDownload, isGenerating }) => {
   const riskScores = calculateRiskScores(userProfile);
   const timeline = generateTimeline(userProfile);
   const roleRecommendations = generateRoleRecommendations(userProfile);
@@ -370,7 +371,16 @@ export const ComplianceBriefPDF: React.FC<ComplianceBriefPDFProps> = ({ userProf
   ];
   
   return (
-    <div className="bg-white rounded-lg p-8 max-w-5xl mx-auto shadow-lg overflow-auto" style={{ minHeight: '1000px' }}>
+    <div className="bg-white rounded-lg p-8 max-w-5xl mx-auto shadow-lg overflow-auto relative" style={{ minHeight: '1000px' }}>
+      {isGenerating && (
+        <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-50">
+          <div className="flex flex-col items-center p-8 rounded-lg">
+            <div className="w-16 h-16 border-t-4 border-b-4 border-purple-600 rounded-full animate-spin mb-4"></div>
+            <h3 className="text-lg font-semibold text-gray-800">Generating PDF</h3>
+            <p className="text-gray-600">Please wait while SGH ASIA AI analyzes your data...</p>
+          </div>
+        </div>
+      )}
       {/* Header with Logo and Title */}
       <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
         <div className="flex items-center">
