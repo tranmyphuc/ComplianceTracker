@@ -48,6 +48,7 @@ import PlatformIntroduction from './pages/guides/platform-introduction';
 import PlatformGuide from './pages/guides/platform-guide'; 
 import DemoScenarios from '@/pages/demo-scenarios';
 import HealthcareScenario from '@/pages/demo-scenarios/healthcare-ai-diagnostics';
+import VisualizationDemoPage from './pages/visualization-demo';
 import FintechScenario from '@/pages/demo-scenarios/fintech-fraud-detection';
 import RetailScenario from '@/pages/demo-scenarios/retail-recommendation-engine';
 import PublicSectorScenario from '@/pages/demo-scenarios/public-sector-eligibility';
@@ -57,9 +58,7 @@ import ManufacturingScenario from '@/pages/demo-scenarios/manufacturing-predicti
 import ProfessionalServicesScenario from '@/pages/demo-scenarios/professional-services';
 import AutomotiveScenario from '@/pages/demo-scenarios/automotive-ai-systems';
 import LogisticsScenario from '@/pages/demo-scenarios/logistics-transportation';
-import VendorManagement from '@/pages/vendor-management';
 import ComplianceChatbotPage from "./pages/compliance-chatbot";
-import AdminApiKeys from "@/pages/admin/api-keys";
 import AdminDashboard from "@/pages/admin/dashboard";
 import DevelopmentMode from "@/pages/development-mode";
 import EnhancedDocumentsPage from "@/pages/enhanced-documents";
@@ -129,7 +128,8 @@ function Router() {
     "/executive-dashboard",
     "/enhanced-documents",
     "/admin/dashboard", // Added route
-    "/development-mode" // Development mode page
+    "/development-mode", // Development mode page
+    "/visualization-demo" // 3D visualization demo page
   ];
 
   useEffect(() => {
@@ -311,7 +311,7 @@ function Router() {
         {() => renderWithLayout(ComplianceChatbotPage)}
       </Route>
       <Route path="/advanced-analytics"> {/* Added route */}
-        {() => renderWithLayout(() => <div>Advanced Analytics Placeholder</div>)} {/* Placeholder component */}
+        {() => renderWithLayout(function AdvancedAnalyticsPlaceholder() { return <div>Advanced Analytics Placeholder</div>; })} {/* Placeholder component */}
       </Route>
       <Route path="/executive-dashboard">
         {() => renderWithLayout(ExecutiveDashboardPage)}
@@ -327,6 +327,9 @@ function Router() {
       </Route>
       <Route path="/development-mode">
         {() => renderWithLayout(DevelopmentMode)}
+      </Route>
+      <Route path="/visualization-demo">
+        {() => renderWithLayout(VisualizationDemoPage)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}
