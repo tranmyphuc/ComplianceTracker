@@ -52,9 +52,16 @@ export function AIJack({
     }
   };
   
-  // Reset animation state periodically if animation is enabled
+  // Initial animation on mount and periodic animations if enabled
   useEffect(() => {
-    if (!animate) return;
+    // First appearance animation
+    setIsAnimating(true);
+    const initialTimer = setTimeout(() => {
+      setIsAnimating(false);
+    }, 2500);
+    
+    // Regular animations if animate flag is set
+    if (!animate) return () => clearTimeout(initialTimer);
     
     const interval = setInterval(() => {
       setIsAnimating(true);
@@ -63,9 +70,12 @@ export function AIJack({
       }, 2000);
       
       return () => clearTimeout(timer);
-    }, 5000);
+    }, 7000); // Longer interval to not be too distracting
     
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(initialTimer);
+    };
   }, [animate]);
   
   // Determine size dimensions
@@ -107,17 +117,23 @@ export function AIJack({
         
         {/* AI Jack character */}
         <motion.div
-          animate={isAnimating ? { y: [0, -5, 0, -5, 0] } : { y: 0 }}
-          transition={{ duration: 1 }}
+          initial={{ y: 20, opacity: 0 }}
+          animate={isAnimating ? 
+            { y: [0, -5, 0, -5, 0], opacity: 1 } : 
+            { y: 0, opacity: 1 }}
+          transition={{ duration: 1, delay: 0.1 }}
           className={`${dimensions} relative`}
         >
-          <div className={`w-full h-full rounded-full overflow-hidden border-2 border-primary bg-primary/5 flex items-center justify-center relative`}>
+          <div className={`w-full h-full rounded-full overflow-hidden border-2 border-primary bg-primary/5 flex items-center justify-center relative shadow-md`}>
             <motion.img
               src="/assets/1000048340-modified.png"
               alt={`Jack with ${mood} expression`}
               className="w-full h-full object-cover"
-              animate={isAnimating ? { scale: [1, 1.03, 1, 1.03, 1] } : { scale: 1 }}
-              transition={{ duration: 1 }}
+              initial={{ scale: 0.95 }}
+              animate={isAnimating ? 
+                { scale: [1, 1.05, 1, 1.05, 1], rotate: [0, 2, 0, -2, 0] } : 
+                { scale: 1, rotate: 0 }}
+              transition={{ duration: 1.2 }}
             />
             
             {/* Animated expression overlays based on mood */}
@@ -205,13 +221,29 @@ export function AIJack({
         {/* Message speech bubble */}
         {(message || germanMessage) && (
           <motion.div 
-            initial={{ opacity: 0, y: -5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mt-4 bg-white/90 border border-primary/20 rounded-lg p-4 relative w-full max-w-md text-center text-sm md:text-base shadow-sm"
+            initial={{ opacity: 0, y: -15, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.3, type: "spring", stiffness: 500, damping: 30 }}
+            className="mt-4 bg-white/95 border border-primary/30 rounded-lg p-4 relative w-full max-w-md text-center text-sm md:text-base shadow-md"
           >
-            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-white border-t border-l border-primary/20"></div>
-            {currentLanguage === 'en' ? message : (germanMessage || message)}
+            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-white border-t border-l border-primary/30"></div>
+            
+            {/* Text with highlighting for important parts */}
+            <div className="relative">
+              {mood === 'happy' && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6, duration: 0.3 }}
+                  className="absolute -top-1 -right-1 transform -rotate-12"
+                >
+                  <div className="text-xs">✨</div>
+                </motion.div>
+              )}
+              {currentLanguage === 'en' 
+                ? message 
+                : (germanMessage || message)}
+            </div>
           </motion.div>
         )}
         

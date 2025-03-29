@@ -575,7 +575,6 @@ const ProfessionalServicesScenario: React.FC = () => {
                         "Our compliance journey with the EU AI Act could have been a major productivity drain for our consultants who rely on AI tools every day. Instead, this solution allowed us to achieve full compliance with minimal disruption, and even improved our workflows. We've transformed compliance from a potential business obstacle into a competitive advantage that our clients recognize and value."
                       </p>
                       <div className="flex items-center gap-3">
-                        <div className="font-medium">Dr. Miriam Hauser</div>
                         <div className="text-muted-foreground text-sm">Chief Digital Officer, SGH Service</div>
                       </div>
                     </div>

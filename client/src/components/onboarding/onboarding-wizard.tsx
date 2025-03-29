@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { AIJack } from "./ai-jack";
 // Journey tracker import removed since we're using a simpler progress bar
 import { RegulatoryEmojiReaction } from "./regulatory-emoji-reaction";
@@ -19,7 +20,8 @@ import {
   Award, 
   Settings,
   BookOpen,
-  Lightbulb
+  Lightbulb,
+  CheckCheck
 } from "lucide-react";
 import {
   Select,
@@ -521,15 +523,17 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                       <div className="space-y-4">
                         <h3 className="font-semibold text-lg">Customize Your Experience:</h3>
                         
-                        <div className="space-y-4 mt-4">
+                        <div className="space-y-6 mt-4">
+                          {/* Organization Type */}
                           <div className="space-y-2">
                             <div className="font-medium mb-1">Your Organization Type</div>
                             <div className="grid grid-cols-2 gap-2">
-                              {["Large Enterprise", "Mid-size Organization", "Small Business", "Startup", "Government/Public Sector", "Non-profit/NGO"].map((type, i) => (
+                              {["Large Enterprise", "Mid-size Organization", "Small Business", "Startup", "Government/Public Sector", "Non-profit/NGO"].map((type) => (
                                 <Button 
-                                  key={i} 
+                                  key={type} 
                                   variant="outline" 
-                                  className={`justify-start ${i === 0 ? 'bg-primary/10' : ''}`}
+                                  className={`justify-start ${userProfile.organizationType === type ? 'bg-primary/20 border-primary' : ''}`}
+                                  onClick={() => updateUserProfile('organizationType', type)}
                                 >
                                   {type}
                                 </Button>
@@ -537,8 +541,65 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </div>
                           </div>
                           
+                          {/* Industry Selection - appears after org type is selected */}
+                          {userProfile.organizationType && (
+                            <div className="space-y-2">
+                              <div className="font-medium mb-1">Your Industry</div>
+                              <div className="grid grid-cols-2 gap-2">
+                                {[
+                                  "Healthcare", 
+                                  "Financial Services",
+                                  "Manufacturing",
+                                  "Public Sector",
+                                  "Retail & E-commerce",
+                                  "Logistics & Transportation",
+                                  "Energy & Utilities",
+                                  "Professional Services",
+                                  "Insurance",
+                                  "Telecommunications",
+                                  "Education",
+                                  "Software & Technology"
+                                ].map((industry) => (
+                                  <Button 
+                                    key={industry} 
+                                    variant="outline" 
+                                    className={`justify-start ${userProfile.industry === industry ? 'bg-primary/20 border-primary' : ''}`}
+                                    onClick={() => updateUserProfile('industry', industry)}
+                                  >
+                                    {industry}
+                                  </Button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Organization Size - appears after industry is selected */}
+                          {userProfile.industry && (
+                            <div className="space-y-2">
+                              <div className="font-medium mb-1">Organization Size</div>
+                              <div className="grid grid-cols-1 gap-2">
+                                {[
+                                  "Small (<50 employees)",
+                                  "Medium (50-249 employees)",
+                                  "Large (250-999 employees)",
+                                  "Enterprise (1,000+ employees)"
+                                ].map((size) => (
+                                  <Button 
+                                    key={size} 
+                                    variant="outline" 
+                                    className={`justify-start ${userProfile.organizationSize === size ? 'bg-primary/20 border-primary' : ''}`}
+                                    onClick={() => updateUserProfile('organizationSize', size)}
+                                  >
+                                    {size}
+                                  </Button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* AI System Types */}
                           <div className="space-y-2">
-                            <div className="font-medium mb-1">AI System Types of Interest</div>
+                            <div className="font-medium mb-1">AI System Types of Interest <span className="text-xs text-muted-foreground">(select multiple)</span></div>
                             <div className="grid grid-cols-2 gap-2">
                               {[
                                 "Computer Vision",
@@ -548,12 +609,17 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                                 "Autonomous Systems",
                                 "Biometric Identification",
                                 "Healthcare Diagnostics",
-                                "Risk Scoring"
-                              ].map((type, i) => (
+                                "Risk Scoring",
+                                "Generative AI",
+                                "Recommendation Systems",
+                                "Facial Recognition",
+                                "Emotion Analysis"
+                              ].map((type) => (
                                 <Button 
-                                  key={i} 
+                                  key={type} 
                                   variant="outline" 
-                                  className={`justify-start ${[0, 3].includes(i) ? 'bg-primary/10' : ''}`}
+                                  className={`justify-start ${userProfile.aiSystemTypes?.includes(type) ? 'bg-primary/20 border-primary' : ''}`}
+                                  onClick={() => toggleArraySelection('aiSystemTypes', type)}
                                 >
                                   {type}
                                 </Button>
@@ -561,40 +627,279 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </div>
                           </div>
                           
+                          {/* Primary Compliance Goals */}
                           <div className="space-y-2">
-                            <div className="font-medium mb-1">Primary Compliance Goal</div>
+                            <div className="font-medium mb-1">Primary Compliance Goals <span className="text-xs text-muted-foreground">(select multiple)</span></div>
                             <div className="grid grid-cols-1 gap-2">
                               {[
                                 "Proactive compliance before enforcement",
                                 "Risk assessment and mitigation",
                                 "Documentation and record-keeping",
                                 "Staff training and awareness",
-                                "Continuous monitoring and updating"
-                              ].map((goal, i) => (
+                                "Continuous monitoring and updating",
+                                "Legal liability reduction",
+                                "Conformity assessment preparation",
+                                "Integration with existing governance"
+                              ].map((goal) => (
                                 <Button 
-                                  key={i} 
+                                  key={goal} 
                                   variant="outline" 
-                                  className={`justify-start ${i === 0 ? 'bg-primary/10' : ''}`}
+                                  className={`justify-start ${userProfile.complianceGoals?.includes(goal) ? 'bg-primary/20 border-primary' : ''}`}
+                                  onClick={() => toggleArraySelection('complianceGoals', goal)}
                                 >
                                   {goal}
                                 </Button>
                               ))}
                             </div>
                           </div>
+                          
+                          {/* User Role */}
+                          <div className="space-y-2">
+                            <div className="font-medium mb-1">Your Role</div>
+                            <div className="grid grid-cols-2 gap-2">
+                              {[
+                                "Decision Maker",
+                                "Legal/Compliance",
+                                "Technical Team",
+                                "Project Manager",
+                                "Data Scientist",
+                                "Executive"
+                              ].map((role) => (
+                                <Button 
+                                  key={role} 
+                                  variant="outline" 
+                                  className={`justify-start ${userProfile.role === role ? 'bg-primary/20 border-primary' : ''}`}
+                                  onClick={() => updateUserProfile('role', role)}
+                                >
+                                  {role}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
                         </div>
+                        
+                        {/* Industry-specific recommendations */}
+                        {userProfile.industry && (
+                          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                            <h4 className="font-medium text-blue-700 mb-2">
+                              <span className="mr-2">✨</span>
+                              Recommended for {userProfile.industry}
+                            </h4>
+                            <p className="text-sm text-blue-600 mb-3">
+                              {userProfile.industry === "Healthcare" && "We'll focus on patient safety, data privacy, and diagnostic system compliance for healthcare organizations."}
+                              {userProfile.industry === "Financial Services" && "We'll emphasize fraud detection, credit scoring, and financial risk assessment compliance requirements."}
+                              {userProfile.industry === "Manufacturing" && "We'll highlight quality control, predictive maintenance, and production optimization compliance needs."}
+                              {userProfile.industry === "Public Sector" && "We'll address citizen service eligibility, resource allocation, and transparent algorithmic decision-making requirements."}
+                              {userProfile.industry === "Retail & E-commerce" && "We'll focus on recommendation systems, customer analytics, and pricing algorithm transparency requirements."}
+                              {userProfile.industry === "Professional Services" && "We'll emphasize client management, document analysis, and business process optimization compliance needs."}
+                              {userProfile.industry === "Insurance" && "We'll address risk scoring, claims processing, and customer profiling compliance requirements."}
+                              {userProfile.industry === "Energy & Utilities" && "We'll focus on grid management, consumption prediction, and infrastructure maintenance compliance."}
+                              {userProfile.industry === "Logistics & Transportation" && "We'll highlight route optimization, supply chain management, and autonomous systems safety requirements."}
+                              {!["Healthcare", "Financial Services", "Manufacturing", "Public Sector", "Retail & E-commerce", "Professional Services", "Insurance", "Energy & Utilities", "Logistics & Transportation"].includes(userProfile.industry || "") && "We'll tailor compliance requirements to your specific industry needs and use cases."}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
                     
                     {currentStepData.id === "complete" && (
                       <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Your Personalized Compliance Journey:</h3>
+                        
+                        {/* Show personalized details based on collected data */}
+                        <div className="p-4 bg-purple-50 rounded-lg border border-purple-100 mb-6">
+                          <h4 className="font-medium text-purple-800 mb-2 flex items-center">
+                            <CheckCheck className="w-5 h-5 mr-2 text-purple-600" />
+                            Your Profile
+                          </h4>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            {userProfile.organizationType && (
+                              <div>
+                                <span className="text-purple-700 font-medium">Organization:</span> {userProfile.organizationType}
+                              </div>
+                            )}
+                            {userProfile.industry && (
+                              <div>
+                                <span className="text-purple-700 font-medium">Industry:</span> {userProfile.industry}
+                              </div>
+                            )}
+                            {userProfile.organizationSize && (
+                              <div>
+                                <span className="text-purple-700 font-medium">Size:</span> {userProfile.organizationSize}
+                              </div>
+                            )}
+                            {userProfile.role && (
+                              <div>
+                                <span className="text-purple-700 font-medium">Role:</span> {userProfile.role}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {userProfile.aiSystemTypes && userProfile.aiSystemTypes.length > 0 && (
+                            <div className="mt-3">
+                              <span className="text-purple-700 font-medium text-sm">AI Systems:</span>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {userProfile.aiSystemTypes.map(type => (
+                                  <Badge key={type} variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+                                    {type}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {userProfile.complianceGoals && userProfile.complianceGoals.length > 0 && (
+                            <div className="mt-3">
+                              <span className="text-purple-700 font-medium text-sm">Compliance Goals:</span>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {userProfile.complianceGoals.map(goal => (
+                                  <Badge key={goal} variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+                                    {goal}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
                         <h3 className="font-semibold text-lg">Your Next Steps:</h3>
-                        <ol className="space-y-3 list-decimal list-inside">
-                          <li>Register your first AI system in the inventory</li>
-                          <li>Complete a risk assessment for your system</li>
-                          <li>Generate required documentation based on risk level</li>
-                          <li>Set up continuous monitoring and compliance checks</li>
-                          <li>Explore the knowledge center to deepen your understanding</li>
-                        </ol>
+                        
+                        {/* Industry-specific next steps */}
+                        {userProfile.industry ? (
+                          <div>
+                            <ol className="space-y-3 list-decimal list-inside mb-4">
+                              {/* Default steps for all industries */}
+                              <li className="font-medium">Register your first AI system in the inventory</li>
+                              
+                              {/* Industry-specific steps */}
+                              {userProfile.industry === "Healthcare" && (
+                                <>
+                                  <li>Complete a risk assessment for your diagnostic systems</li>
+                                  <li>Generate conformity declarations for high-risk medical AI</li>
+                                  <li>Review patient data governance requirements</li>
+                                  <li>Establish human oversight protocols for clinical decision support</li>
+                                </>
+                              )}
+                              
+                              {userProfile.industry === "Financial Services" && (
+                                <>
+                                  <li>Complete a risk assessment for your credit scoring systems</li>
+                                  <li>Develop explainability documentation for decision systems</li>
+                                  <li>Review algorithmic fairness requirements</li>
+                                  <li>Establish continuous monitoring for fraud detection systems</li>
+                                </>
+                              )}
+                              
+                              {userProfile.industry === "Manufacturing" && (
+                                <>
+                                  <li>Complete risk assessments for production optimization systems</li>
+                                  <li>Develop technical documentation for predictive maintenance</li>
+                                  <li>Review safety requirements for automated systems</li>
+                                  <li>Establish quality control verification procedures</li>
+                                </>
+                              )}
+                              
+                              {userProfile.industry === "Public Sector" && (
+                                <>
+                                  <li>Complete risk assessments for citizen service systems</li>
+                                  <li>Implement transparency documentation for eligibility decisions</li>
+                                  <li>Develop human oversight protocols for resource allocation</li>
+                                  <li>Establish audit procedures for algorithmic decisions</li>
+                                </>
+                              )}
+                              
+                              {userProfile.industry === "Professional Services" && (
+                                <>
+                                  <li>Complete risk assessments for client management systems</li>
+                                  <li>Implement data governance for document analysis</li>
+                                  <li>Review compliance requirements for generative AI tools</li>
+                                  <li>Establish best practices for secure AI integration</li>
+                                </>
+                              )}
+                              
+                              {/* Default ending steps for all industries */}
+                              <li>Explore the knowledge center for {userProfile.industry} compliance guides</li>
+                            </ol>
+                          </div>
+                        ) : (
+                          <ol className="space-y-3 list-decimal list-inside">
+                            <li>Register your first AI system in the inventory</li>
+                            <li>Complete a risk assessment for your system</li>
+                            <li>Generate required documentation based on risk level</li>
+                            <li>Set up continuous monitoring and compliance checks</li>
+                            <li>Explore the knowledge center to deepen your understanding</li>
+                          </ol>
+                        )}
+                        
+                        {/* Recommended learning resources based on role */}
+                        {userProfile.role && (
+                          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                            <h4 className="font-medium text-blue-700 mb-2 flex items-center">
+                              <BookOpen className="w-5 h-5 mr-2 text-blue-600" />
+                              Recommended for {userProfile.role}s
+                            </h4>
+                            <ul className="space-y-2 text-sm list-disc list-inside text-blue-800">
+                              {userProfile.role === "Decision Maker" && (
+                                <>
+                                  <li>Strategic Planning for EU AI Act Compliance</li>
+                                  <li>Cost-Benefit Analysis of Compliance Investments</li>
+                                  <li>Governance Framework Implementation</li>
+                                </>
+                              )}
+                              
+                              {userProfile.role === "Legal/Compliance" && (
+                                <>
+                                  <li>Legal Requirements Analysis for AI Systems</li>
+                                  <li>Detailed Article Interpretation Guides</li>
+                                  <li>Conformity Assessment Procedures</li>
+                                </>
+                              )}
+                              
+                              {userProfile.role === "Technical Team" && (
+                                <>
+                                  <li>Technical Documentation Requirements</li>
+                                  <li>Implementation of Testing and Validation</li>
+                                  <li>Monitoring and Post-Market Surveillance</li>
+                                </>
+                              )}
+                              
+                              {userProfile.role === "Data Scientist" && (
+                                <>
+                                  <li>Bias and Fairness Evaluation Methods</li>
+                                  <li>Data Quality and Documentation Requirements</li>
+                                  <li>Model Explainability Techniques</li>
+                                </>
+                              )}
+                              
+                              {userProfile.role === "Project Manager" && (
+                                <>
+                                  <li>AI Compliance Project Planning</li>
+                                  <li>Risk Management Methodologies</li>
+                                  <li>Stakeholder Communication Guidelines</li>
+                                </>
+                              )}
+                              
+                              {userProfile.role === "Executive" && (
+                                <>
+                                  <li>Executive Briefing on EU AI Act Responsibilities</li>
+                                  <li>Strategic Compliance Planning and Budgeting</li>
+                                  <li>Market Implications of the EU AI Act</li>
+                                </>
+                              )}
+                            </ul>
+                            <div className="mt-3">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="flex items-center gap-2 text-blue-700 border-blue-300"
+                                onClick={() => handleNavigateTo("/training")}
+                              >
+                                Browse Training Resources <BookOpen size={14} />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        
                         <div className="mt-6 flex justify-center">
                           <Button 
                             onClick={() => handleNavigateTo("/dashboard")}
