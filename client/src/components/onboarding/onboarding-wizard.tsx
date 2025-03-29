@@ -22,15 +22,20 @@ import {
   BookOpen,
   Lightbulb,
   CheckCheck,
-  Download
+  Download,
+  User,
+  ShieldAlert
 } from "lucide-react";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
@@ -94,6 +99,14 @@ const onboardingSteps = [
     icon: Settings
   },
   {
+    id: "contact-information",
+    title: "Your Contact Information",
+    description: "Let us know how to reach you and your organization for personalized compliance support.",
+    mascotMood: "happy" as const,
+    mascotMessage: "This information helps us provide you with tailored communication and support for your compliance journey!",
+    icon: User
+  },
+  {
     id: "complete",
     title: "You're Ready to Start!",
     description: "Congratulations! You're now ready to begin your EU AI Act compliance journey.",
@@ -112,6 +125,12 @@ export interface UserOnboardingProfile {
   complianceGoals?: string[];
   preferredLanguage?: 'en' | 'de';
   role?: string;
+  // Contact Information
+  companyName?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  country?: string;
 }
 
 interface OnboardingWizardProps {
@@ -715,6 +734,117 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </div>
                           </div>
                         )}
+                      </div>
+                    )}
+                    
+                    {currentStepData.id === "contact-information" && (
+                      <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Your Contact Details:</h3>
+                        
+                        <div className="space-y-6 mt-4">
+                          {/* Company Name */}
+                          <div className="grid gap-2">
+                            <Label htmlFor="companyName">Company Name</Label>
+                            <Input 
+                              id="companyName"
+                              placeholder="Enter your company name"
+                              value={userProfile.companyName || ''}
+                              onChange={(e) => updateUserProfile('companyName', e.target.value)}
+                            />
+                          </div>
+                          
+                          {/* Contact Name */}
+                          <div className="grid gap-2">
+                            <Label htmlFor="contactName">Contact Person</Label>
+                            <Input 
+                              id="contactName"
+                              placeholder="Your full name"
+                              value={userProfile.contactName || ''}
+                              onChange={(e) => updateUserProfile('contactName', e.target.value)}
+                            />
+                          </div>
+                          
+                          {/* Contact Email */}
+                          <div className="grid gap-2">
+                            <Label htmlFor="contactEmail">Email Address</Label>
+                            <Input 
+                              id="contactEmail"
+                              type="email"
+                              placeholder="your.email@company.com"
+                              value={userProfile.contactEmail || ''}
+                              onChange={(e) => updateUserProfile('contactEmail', e.target.value)}
+                            />
+                          </div>
+                          
+                          {/* Contact Phone */}
+                          <div className="grid gap-2">
+                            <Label htmlFor="contactPhone">Phone Number</Label>
+                            <Input 
+                              id="contactPhone"
+                              placeholder="+123 456 7890"
+                              value={userProfile.contactPhone || ''}
+                              onChange={(e) => updateUserProfile('contactPhone', e.target.value)}
+                            />
+                          </div>
+                          
+                          {/* Country */}
+                          <div className="grid gap-2">
+                            <Label htmlFor="country">Country</Label>
+                            <Select 
+                              value={userProfile.country || ''} 
+                              onValueChange={(value) => updateUserProfile('country', value)}
+                            >
+                              <SelectTrigger id="country">
+                                <SelectValue placeholder="Select your country" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectLabel>European Union</SelectLabel>
+                                  {[
+                                    "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", 
+                                    "Czech Republic", "Denmark", "Estonia", "Finland", "France", 
+                                    "Germany", "Greece", "Hungary", "Ireland", "Italy", 
+                                    "Latvia", "Lithuania", "Luxembourg", "Malta", "Netherlands", 
+                                    "Poland", "Portugal", "Romania", "Slovakia", "Slovenia", 
+                                    "Spain", "Sweden"
+                                  ].map(country => (
+                                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                                  ))}
+                                </SelectGroup>
+                                <SelectGroup>
+                                  <SelectLabel>Other European Countries</SelectLabel>
+                                  {[
+                                    "United Kingdom", "Switzerland", "Norway", "Iceland", 
+                                    "Liechtenstein", "Monaco", "Ukraine", "Serbia", 
+                                    "North Macedonia", "Albania", "Montenegro", "Bosnia and Herzegovina"
+                                  ].map(country => (
+                                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                                  ))}
+                                </SelectGroup>
+                                <SelectGroup>
+                                  <SelectLabel>Rest of World</SelectLabel>
+                                  {[
+                                    "United States", "Canada", "China", "Japan", "South Korea", 
+                                    "Australia", "New Zealand", "Brazil", "India", "Singapore", 
+                                    "United Arab Emirates", "South Africa"
+                                  ].map(country => (
+                                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        
+                        <div className="p-3 mt-4 bg-amber-50 rounded-lg border border-amber-100">
+                          <div className="flex items-start">
+                            <ShieldAlert className="h-5 w-5 text-amber-500 mt-0.5 mr-2" />
+                            <p className="text-sm text-amber-700">
+                              Your information is securely stored and will only be used to provide 
+                              personalized compliance guidance. We never share your data with third parties.
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     )}
                     
