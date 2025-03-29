@@ -149,7 +149,8 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
   const [userProfile, setUserProfile] = useState<UserOnboardingProfile>({
     aiSystemTypes: [],
     complianceGoals: [],
-    preferredLanguage: 'en'
+    preferredLanguage: 'en',
+    industry: 'Healthcare'
   });
   
   // Get the current step data
@@ -545,7 +546,13 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                     
                     {currentStepData.id === "personalization" && (
                       <div className="space-y-4">
-                        <h3 className="font-semibold text-lg">Customize Your Experience:</h3>
+                        <h3 className="font-semibold text-lg">Healthcare AI Compliance Profile:</h3>
+                        
+                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-4">
+                          <p className="text-blue-800 text-sm">
+                            <span className="font-medium">Healthcare Industry Profile Selected:</span> We've tailored your compliance experience for healthcare AI systems, which typically fall under high-risk classification in the EU AI Act.
+                          </p>
+                        </div>
                         
                         <div className="space-y-6 mt-4">
                           {/* Organization Type - Changed to Dropdown */}
