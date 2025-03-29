@@ -35,182 +35,36 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 
 // Define the onboarding steps
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "wouter";
-import { useUser } from "@/contexts/user-context";
-import { Shield, Database, AlertTriangle, FileText, Graduation, BarChart2, ChevronRight, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { OnboardingStep, useOnboarding } from "@/services/onboarding-service";
-
-// Define onboarding steps with detailed information
 const onboardingSteps = [
   {
-    id: OnboardingStep.WELCOME,
+    id: "welcome",
     title: "Welcome to the EU AI Act Compliance Platform",
     description: "Let's take a quick tour of the platform and learn how to become compliant with the EU AI Act regulations.",
     mascotMood: "happy" as const,
     mascotMessage: "Hi there! I'm your AI compliance guide. I'll help you navigate through the EU AI Act requirements!",
-    icon: Shield,
-    path: "/onboarding",
-    actionLabel: "Start Tour"
+    icon: Shield
   },
   {
-    id: OnboardingStep.SYSTEMS_INVENTORY,
+    id: "systems-inventory",
     title: "Register Your AI Systems",
     description: "Register your AI systems for comprehensive risk assessment and continuous compliance monitoring.",
     mascotMood: "explaining" as const,
     mascotMessage: "Start by registering your AI systems in the inventory. This is the foundation of your compliance journey.",
-    icon: Database,
-    path: "/inventory",
-    actionLabel: "View AI Inventory"
+    icon: Database
   },
   {
-    id: OnboardingStep.RISK_ASSESSMENT,
+    id: "risk-assessment",
     title: "Assess Your AI System Risks",
     description: "Our advanced risk assessment tool evaluates your AI systems against EU AI Act requirements and identifies compliance gaps.",
     mascotMood: "thinking" as const,
     mascotMessage: "Risk assessment helps you understand your compliance obligations based on your AI system's risk level.",
-    icon: AlertTriangle,
-    path: "/risk-assessment",
-    actionLabel: "Explore Risk Assessment"
+    icon: AlertTriangle
   },
   {
-    id: OnboardingStep.DOCUMENTATION,
+    id: "documentation",
     title: "Generate Required Documentation",
     description: "Generate essential documentation tailored to your AI systems' risk level and compliance requirements.",
     mascotMood: "explaining" as const,
-    mascotMessage: "Having proper documentation is critical for EU AI Act compliance. Let's learn how to generate it automatically.",
-    icon: FileText,
-    path: "/documentation",
-    actionLabel: "View Documentation Tools"
-  },
-  {
-    id: OnboardingStep.TRAINING,
-    title: "Train Your Team",
-    description: "Access role-specific training modules to ensure your team understands EU AI Act compliance requirements.",
-    mascotMood: "teaching" as const,
-    mascotMessage: "Training is essential for long-term compliance success. We have modules for all roles in your organization.",
-    icon: Graduation,
-    path: "/training",
-    actionLabel: "Explore Training Modules"
-  },
-  {
-    id: OnboardingStep.COMPLIANCE_MONITORING,
-    title: "Monitor Compliance",
-    description: "Track your compliance progress and stay up to date with changes to the EU AI Act.",
-    mascotMood: "focused" as const,
-    mascotMessage: "Compliance is an ongoing process. Our monitoring tools help you stay on top of requirements.",
-    icon: BarChart2,
-    path: "/compliance",
-    actionLabel: "Set Up Monitoring"
-  }
-];
-
-export function OnboardingWizard() {
-  const { user } = useUser();
-  const [location, navigate] = useLocation();
-  const { onboardingState, completeStep, skipOnboarding } = useOnboarding(user?.uid);
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  
-  // Find the current step index based on the onboarding state
-  useEffect(() => {
-    const index = onboardingSteps.findIndex(step => step.id === onboardingState.currentStep);
-    if (index !== -1) {
-      setCurrentStepIndex(index);
-    }
-  }, [onboardingState.currentStep]);
-  
-  // Get the current step data
-  const currentStep = onboardingSteps[currentStepIndex];
-  
-  // Handle next step action
-  const handleNextStep = () => {
-    completeStep(currentStep.id as OnboardingStep);
-    
-    // Navigate to the path for the next step
-    const nextStepIndex = (currentStepIndex + 1) % onboardingSteps.length;
-    const nextStep = onboardingSteps[nextStepIndex];
-    navigate(nextStep.path);
-  };
-  
-  // Handle skip onboarding
-  const handleSkipOnboarding = () => {
-    skipOnboarding();
-    navigate("/");
-  };
-  
-  // If onboarding is not active, don't render the wizard
-  if (!onboardingState.isActive) {
-    return null;
-  }
-  
-  return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2"
-            onClick={handleSkipOnboarding}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-          <div className="flex items-center gap-2">
-            {currentStep.icon && <currentStep.icon className="h-6 w-6 text-primary" />}
-            <CardTitle>{currentStep.title}</CardTitle>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="pb-2">
-          <div className="mb-6">
-            <p className="text-muted-foreground">{currentStep.description}</p>
-          </div>
-          
-          <div className="bg-muted p-4 rounded-lg mb-4 flex items-start gap-4">
-            <div className="bg-primary/10 p-2 rounded-full">
-              <Shield className="h-8 w-8 text-primary" />
-            </div>
-            <div>
-              <p className="font-medium mb-1">AI Compliance Assistant</p>
-              <p className="text-sm text-muted-foreground">{currentStep.mascotMessage}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-between mt-6">
-            <div className="flex items-center gap-2">
-              {onboardingSteps.map((step, index) => (
-                <div
-                  key={step.id}
-                  className={`h-2 w-10 rounded-full ${
-                    index === currentStepIndex
-                      ? "bg-primary"
-                      : index < currentStepIndex
-                      ? "bg-primary/50"
-                      : "bg-muted"
-                  }`}
-                />
-              ))}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Step {currentStepIndex + 1} of {onboardingSteps.length}
-            </p>
-          </div>
-        </CardContent>
-        
-        <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={handleSkipOnboarding}>
-            Skip Tour
-          </Button>
-          <Button onClick={handleNextStep} className="gap-2">
-            {currentStep.actionLabel}
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
-  );
     mascotMessage: "Proper documentation is crucial for EU AI Act compliance. I'll help you generate all required documents.",
     icon: FileText
   },

@@ -63,7 +63,6 @@ import AdminApiKeys from "@/pages/admin/api-keys";
 import AdminDashboard from "@/pages/admin/dashboard";
 import DevelopmentMode from "@/pages/development-mode";
 import EnhancedDocumentsPage from "@/pages/enhanced-documents";
-import { AutoOnboarding } from "./components/onboarding/auto-onboarding";
 
 
 function Router() {
@@ -343,7 +342,6 @@ function App() {
         <ToastProvider>
           <LanguageProvider>
             <ComplianceTipProvider jackStyle={true}>
-              <AutoOnboarding />
               <Router />
               <AiAssistantButton />
               <Toaster />
