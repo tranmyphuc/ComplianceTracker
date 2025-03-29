@@ -86,8 +86,14 @@ export function AutoFillGuidanceModal({ isOpen, onClose, onStartAutoFill }: Auto
   }, [selectedTemplate]);
 
   const handleStartAutoFill = () => {
-    // Use the customized template if available, otherwise use the selected template
-    onStartAutoFill(customizedTemplate || selectedTemplate);
+    // Check if it's a custom input (direct entry)
+    if (selectedTemplate === 'custom') {
+      // For custom input, pass the customized template directly
+      onStartAutoFill(customizedTemplate);
+    } else {
+      // For templates, use the customized version if available, otherwise use the original template
+      onStartAutoFill(customizedTemplate || selectedTemplate);
+    }
   };
   
   const handleCustomizeTemplate = () => {
@@ -265,11 +271,46 @@ export function AutoFillGuidanceModal({ isOpen, onClose, onStartAutoFill }: Auto
                     )}
                   </div>
                   
-                  <div className="grid gap-4 grid-cols-1">
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                    {/* First add custom input option */}
+                    <Card 
+                      className={`cursor-pointer border-2 transition-colors hover:bg-neutral-50 ${selectedTemplate === 'custom' ? 'border-primary bg-blue-50' : 'border-neutral-200'}`}
+                      onClick={() => {
+                        setSelectedTemplate('custom');
+                        setCustomizedTemplate('');
+                        handleCustomizeTemplate();
+                      }}
+                    >
+                      <CardHeader className="pb-2 flex flex-row items-start justify-between">
+                        <div>
+                          <CardTitle className="text-md flex items-center">
+                            <span className="mr-2 text-xl" aria-hidden="true">✍️</span>
+                            {selectedTemplate === 'custom' && (
+                              <SparklesIcon className="h-4 w-4 mr-2 text-primary" />
+                            )}
+                            Custom Input
+                          </CardTitle>
+                          <div className="flex items-center mt-1">
+                            <span className="text-xs px-2 py-1 rounded-full font-medium bg-blue-100 text-blue-800">
+                              Direct Entry
+                            </span>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm mb-3">Enter your own detailed description directly without using a template</p>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          <span className="bg-neutral-100 text-neutral-800 text-xs px-2 py-1 rounded-md">Custom Text</span>
+                          <span className="bg-neutral-100 text-neutral-800 text-xs px-2 py-1 rounded-md">Any AI System</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    {/* Then add all the template options */}
                     {Object.entries(categoryTemplates).map(([key, { title, example, icon, riskLevel, badgeColor, technologies }]) => (
                       <Card 
                         key={key}
-                        className={`cursor-pointer border-2 transition-colors hover:bg-neutral-50 ${selectedTemplate === example ? 'border-primary' : 'border-neutral-200'}`}
+                        className={`cursor-pointer border-2 transition-colors hover:bg-neutral-50 ${selectedTemplate === example ? 'border-primary bg-neutral-50' : 'border-neutral-200'}`}
                         onClick={() => setSelectedTemplate(example)}
                       >
                         <CardHeader className="pb-2 flex flex-row items-start justify-between">
@@ -308,7 +349,7 @@ export function AutoFillGuidanceModal({ isOpen, onClose, onStartAutoFill }: Auto
                           )}
                         </CardHeader>
                         <CardContent>
-                          <p className="text-sm mb-3">{example}</p>
+                          <p className="text-sm mb-3 line-clamp-3">{example}</p>
                           {technologies && (
                             <div className="flex flex-wrap gap-1 mt-2">
                               {technologies.map((tech, idx) => (
@@ -329,7 +370,9 @@ export function AutoFillGuidanceModal({ isOpen, onClose, onStartAutoFill }: Auto
               ) : (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-medium">Customize Template</h3>
+                    <h3 className="text-lg font-medium">
+                      {selectedTemplate === 'custom' ? 'Enter Your AI System Description' : 'Customize Template'}
+                    </h3>
                     <div className="flex gap-2">
                       <Button 
                         variant="outline" 
@@ -354,7 +397,9 @@ export function AutoFillGuidanceModal({ isOpen, onClose, onStartAutoFill }: Auto
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="md:col-span-2">
                         <Label htmlFor="customTemplateInput" className="mb-2 block">
-                          Edit the template below to include your specific AI system details:
+                          {selectedTemplate === 'custom' 
+                            ? 'Enter a detailed description of your AI system:' 
+                            : 'Edit the template below to include your specific AI system details:'}
                         </Label>
                         <Textarea
                           id="customTemplateInput"
@@ -434,7 +479,9 @@ export function AutoFillGuidanceModal({ isOpen, onClose, onStartAutoFill }: Auto
             className="relative"
           >
             <SparklesIcon className="h-4 w-4 mr-2" />
-            {isCustomizing ? 'Apply Customized Template' : 
+            {isCustomizing && selectedTemplate === 'custom' ? 'Start with Custom Input' :
+              isCustomizing ? 'Apply Customized Template' : 
+              selectedTemplate === 'custom' ? 'Start with Direct Input' :
               currentTab === 'templates' && selectedTemplate && customizedTemplate !== selectedTemplate ? 
               'Start Auto-fill with Custom Template' : 
               currentTab === 'templates' && selectedTemplate ? 
