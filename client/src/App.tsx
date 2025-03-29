@@ -1,4 +1,3 @@
-// @ts-ignore - Suppressing TypeScript errors for wouter until we can properly fix them
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -49,7 +48,6 @@ import PlatformIntroduction from './pages/guides/platform-introduction';
 import PlatformGuide from './pages/guides/platform-guide'; 
 import DemoScenarios from '@/pages/demo-scenarios';
 import HealthcareScenario from '@/pages/demo-scenarios/healthcare-ai-diagnostics';
-import VisualizationDemoPage from './pages/visualization-demo';
 import FintechScenario from '@/pages/demo-scenarios/fintech-fraud-detection';
 import RetailScenario from '@/pages/demo-scenarios/retail-recommendation-engine';
 import PublicSectorScenario from '@/pages/demo-scenarios/public-sector-eligibility';
@@ -59,7 +57,9 @@ import ManufacturingScenario from '@/pages/demo-scenarios/manufacturing-predicti
 import ProfessionalServicesScenario from '@/pages/demo-scenarios/professional-services';
 import AutomotiveScenario from '@/pages/demo-scenarios/automotive-ai-systems';
 import LogisticsScenario from '@/pages/demo-scenarios/logistics-transportation';
+import VendorManagement from '@/pages/vendor-management';
 import ComplianceChatbotPage from "./pages/compliance-chatbot";
+import AdminApiKeys from "@/pages/admin/api-keys";
 import AdminDashboard from "@/pages/admin/dashboard";
 import DevelopmentMode from "@/pages/development-mode";
 import EnhancedDocumentsPage from "@/pages/enhanced-documents";
@@ -129,8 +129,7 @@ function Router() {
     "/executive-dashboard",
     "/enhanced-documents",
     "/admin/dashboard", // Added route
-    "/development-mode", // Development mode page
-    "/visualization-demo" // 3D visualization demo page
+    "/development-mode" // Development mode page
   ];
 
   useEffect(() => {
@@ -139,8 +138,7 @@ function Router() {
     });
   }, []);
 
-  // Properly typed render function
-  const renderWithLayout = (Component: React.ComponentType<any>, props?: any) => {
+  const renderWithLayout = (Component: any, props?: any) => {
     return (
       <AppLayout>
         <Component {...props} />
@@ -148,7 +146,7 @@ function Router() {
     );
   };
 
-  const renderSuspense = (Component: React.ComponentType<any>, props?: any) => {
+  const renderSuspense = (Component: any, props?: any) => {
     return (
       <AppLayout>
         <React.Suspense fallback={<div className="p-8 text-center">Loading content...</div>}>
@@ -313,10 +311,7 @@ function Router() {
         {() => renderWithLayout(ComplianceChatbotPage)}
       </Route>
       <Route path="/advanced-analytics"> {/* Added route */}
-        {() => {
-          const AdvancedAnalyticsPlaceholder: React.FC = () => <div>Advanced Analytics Placeholder</div>;
-          return renderWithLayout(AdvancedAnalyticsPlaceholder);
-        }}
+        {() => renderWithLayout(() => <div>Advanced Analytics Placeholder</div>)} {/* Placeholder component */}
       </Route>
       <Route path="/executive-dashboard">
         {() => renderWithLayout(ExecutiveDashboardPage)}
@@ -327,16 +322,11 @@ function Router() {
       <Route path="/enhanced-documents">
         {() => renderWithLayout(EnhancedDocumentsPage)}
       </Route>
-      <Route path="/admin/dashboard">
-        {() => {
-          return renderWithLayout(AdminDashboard);
-        }}
+      <Route path="/admin/dashboard"> {/* Added route */}
+        {() => renderWithLayout(AdminDashboard)} {/* Added route */}
       </Route>
       <Route path="/development-mode">
         {() => renderWithLayout(DevelopmentMode)}
-      </Route>
-      <Route path="/visualization-demo">
-        {() => renderWithLayout(VisualizationDemoPage)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}
