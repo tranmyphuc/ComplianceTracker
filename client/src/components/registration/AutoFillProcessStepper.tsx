@@ -17,12 +17,13 @@ interface AutoFillProcessStepperProps {
 
 export function AutoFillProcessStepper({ steps, currentStepId }: AutoFillProcessStepperProps) {
   return (
-    <div className="space-y-4">
-      <div className="space-y-6">
+    <div className="w-full">
+      {/* Horizontal Stepper */}
+      <div className="flex items-center justify-between mb-4">
         {steps.map((step, index) => (
-          <div key={step.id} className="flex">
+          <React.Fragment key={step.id}>
             {/* Step indicator with status icon */}
-            <div className="flex flex-col items-center mr-4">
+            <div className="flex flex-col items-center">
               <div className={`h-8 w-8 rounded-full flex items-center justify-center border-2 
                 ${step.status === 'complete' ? 'bg-green-50 border-green-500' : 
                   step.status === 'processing' ? 'bg-blue-50 border-blue-500' : 
@@ -34,28 +35,38 @@ export function AutoFillProcessStepper({ steps, currentStepId }: AutoFillProcess
                 {step.status === 'pending' && <ClockIcon className="h-4 w-4 text-neutral-400" />}
               </div>
               
-              {/* Connector line between steps */}
-              {index < steps.length - 1 && (
-                <div className={`h-10 w-0.5 
-                  ${step.status === 'complete' ? 'bg-green-500' : 
-                    step.status === 'processing' ? 'bg-blue-500' : 
-                    'bg-neutral-200'}`} />
-              )}
+              {/* Step name below the icon - only visible for current or completed steps */}
+              <span className={`text-[10px] mt-1 text-center font-medium px-1
+                ${step.status === 'complete' ? 'text-green-700' : 
+                  step.status === 'processing' ? 'text-blue-700' : 
+                  step.status === 'error' ? 'text-red-700' : 
+                  'text-neutral-500'}`}>
+                {step.title.split(' ').slice(0, 2).join(' ')}
+              </span>
             </div>
             
-            {/* Step content */}
-            <div className={`pb-6 ${currentStepId === step.id ? 'bg-blue-50 rounded-md p-3 -m-3' : ''}`}>
-              <h4 className={`text-sm font-medium ${
-                step.status === 'complete' ? 'text-green-700' : 
-                step.status === 'processing' ? 'text-blue-700' : 
-                step.status === 'error' ? 'text-red-700' : 
-                'text-neutral-700'
-              }`}>{step.title}</h4>
-              <p className="text-xs text-neutral-500 mt-1">{step.description}</p>
-            </div>
-          </div>
+            {/* Connector line between steps */}
+            {index < steps.length - 1 && (
+              <div className={`h-0.5 flex-grow mx-1
+                ${step.status === 'complete' ? 'bg-green-500' : 
+                  step.status === 'processing' ? 'bg-blue-500' : 
+                  'bg-neutral-200'}`} />
+            )}
+          </React.Fragment>
         ))}
       </div>
+      
+      {/* Current step description */}
+      {currentStepId && (
+        <div className="bg-blue-50 rounded-md p-3 mt-2 text-center">
+          <h4 className="text-sm font-medium text-blue-700">
+            {steps.find(s => s.id === currentStepId)?.title}
+          </h4>
+          <p className="text-xs text-blue-600 mt-1">
+            {steps.find(s => s.id === currentStepId)?.description}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
