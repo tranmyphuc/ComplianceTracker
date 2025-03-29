@@ -156,21 +156,37 @@ function extractSystemNameFromPrompt(prompt: string): string | null {
  * Search using Google Custom Search API
  * This provides real data from the internet
  */
-async function searchGoogleApi(query: string, siteUrl?: string): Promise<string> {
-  const googleSearchApiKey = getApiKey('google_search');
+export async function searchGoogleApi(query: string, siteUrl?: string): Promise<string> {
+  const googleSearchApiKey = await getApiKey('google_search');
   if (!googleSearchApiKey) {
     throw new Error('No Google Search API key available');
   }
 
   try {
-    // Build the query URL
-    let searchUrl = `${GOOGLE_SEARCH_URL}?key=${googleSearchApiKey}&cx=${GOOGLE_SEARCH_ENGINE_ID}&q=${encodeURIComponent(query)}`;
+    // Log key details for debugging (masked for security)
+    const maskedKey = googleSearchApiKey.substring(0, 4) + '...' + googleSearchApiKey.substring(googleSearchApiKey.length - 4);
+    console.log(`Using Google Search API key: ${maskedKey}, Engine ID: ${GOOGLE_SEARCH_ENGINE_ID}`);
+    
+    // Validate required parameters
+    if (!GOOGLE_SEARCH_ENGINE_ID) {
+      throw new Error('Google Search Engine ID is missing');
+    }
+    
+    // Clean up and format the query
+    const formattedQuery = encodeURIComponent(query.trim());
+    
+    // Build the query URL with proper parameters
+    let searchUrl = `${GOOGLE_SEARCH_URL}?key=${googleSearchApiKey}&cx=${GOOGLE_SEARCH_ENGINE_ID}&q=${formattedQuery}`;
+    
+    // Add additional parameters for better results
+    searchUrl += '&num=5'; // Number of results
+    searchUrl += '&safe=active'; // Safe search
     
     // If a specific site URL is provided, restrict the search to that site
     if (siteUrl) {
-      // Extract the domain from the URL
-      let domain = siteUrl;
       try {
+        // Extract the domain from the URL
+        let domain = siteUrl;
         // Remove protocol prefix and path
         if (domain.includes('://')) {
           domain = domain.split('://')[1];
@@ -178,25 +194,33 @@ async function searchGoogleApi(query: string, siteUrl?: string): Promise<string>
         // Get just the domain part
         domain = domain.split('/')[0];
         
-        // Add site: operator to the query
+        // Add site restriction to the query
         searchUrl += `&siteSearch=${encodeURIComponent(domain)}`;
       } catch (e) {
         console.error('Error parsing site URL:', e);
         // Continue without site restriction if URL parsing fails
       }
     }
+    
+    console.log(`Making Google Search API request with URL: ${searchUrl.replace(googleSearchApiKey, '[API_KEY]')}`);
 
     const response = await fetch(
       searchUrl,
       {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
       }
     );
 
+    // Log response status for debugging
+    console.log(`Google Search API response status: ${response.status} ${response.statusText}`);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Google Search API error response: ${errorText}`);
       throw new Error(`Google Search API error: ${response.status} ${response.statusText}`);
     }
 

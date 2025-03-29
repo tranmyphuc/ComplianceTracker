@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { getApiKey } from './ai-key-management';
-import { callDeepSeekApi } from './ai-analysis';
+import { callDeepSeekApi, searchGoogleApi } from './ai-analysis';
 
 /**
  * Regulatory Updates Service
@@ -88,11 +88,44 @@ export async function fetchRegulatoryUpdates(): Promise<RegulatoryUpdate[]> {
 
 /**
  * Search for recent updates using Google Search API
+ * This function retrieves real-time information about EU AI Act updates from official sources
  */
 async function searchForUpdates(query: string): Promise<string> {
-  // Implementation would use the Google Search API
-  // For now, we'll return a simple result
-  return `EU AI Act Search Results`;
+  try {
+    // Using the imported searchGoogleApi function
+    
+    // Define specific sites to search for official EU AI Act information
+    const officialSites = [
+      'https://digital-strategy.ec.europa.eu/',
+      'https://ec.europa.eu/',
+      'https://eur-lex.europa.eu/'
+    ];
+    
+    let results = '';
+    
+    // Query official EU websites for the most reliable information
+    for (const site of officialSites) {
+      try {
+        console.log(`Searching for regulatory updates on: ${site}`);
+        const siteResult = await searchGoogleApi(`${query} site:${site.replace('https://', '')}`, site);
+        results += siteResult + "\n\n";
+      } catch (error) {
+        console.error(`Error searching ${site}:`, error);
+        // Continue with other sites if one fails
+      }
+    }
+    
+    // If we got no results from official sites, try a general search
+    if (!results.trim()) {
+      console.log('No results from official sites, trying general search');
+      results = await searchGoogleApi(query);
+    }
+    
+    return results || 'No recent regulatory updates found.';
+  } catch (error) {
+    console.error('Error in searchForUpdates:', error);
+    return 'Unable to retrieve regulatory updates at this time.';
+  }
 }
 
 /**
