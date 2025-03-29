@@ -15,6 +15,8 @@ import {
   DollarSign,
   HelpCircle,
   Check,
+  Phone,
+  Mail
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -30,6 +32,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { FeatureComparison } from '@/components/pricing/feature-comparison';
 
 export default function PricingPage() {
   const { toast } = useToast();
@@ -391,6 +394,47 @@ export default function PricingPage() {
         </CardContent>
       </Card>
 
+      {/* Limited-Time Offer */}
+      <div className="mb-8">
+        <Card className="bg-gradient-to-r from-amber-50 to-yellow-100 border-yellow-200 overflow-hidden">
+          <div className="absolute top-0 right-0">
+            <div className="bg-yellow-500 text-white text-xs font-bold py-1 px-3 rotate-12 translate-x-8 translate-y-2 shadow-md">
+              LIMITED TIME
+            </div>
+          </div>
+          <CardContent className="p-6 flex flex-col md:flex-row gap-6 items-center">
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-yellow-800 flex items-center gap-2">
+                <Clock className="h-5 w-5 text-yellow-600" />
+                Early Adopter Discount: Save 15% Extra
+              </h3>
+              <p className="text-yellow-800/80 mt-1 mb-3">
+                Get an additional 15% discount on any plan when you sign up before the EU AI Act enforcement deadline.
+              </p>
+              <div className="flex gap-4 flex-wrap">
+                <div className="bg-white/50 rounded-md p-3 flex flex-col items-center">
+                  <span className="text-2xl font-bold text-yellow-800">15%</span>
+                  <span className="text-xs text-yellow-700">Extra Savings</span>
+                </div>
+                <div className="bg-white/50 rounded-md p-3 flex flex-col items-center">
+                  <span className="text-2xl font-bold text-yellow-800">30</span>
+                  <span className="text-xs text-yellow-700">Days Left</span>
+                </div>
+                <div className="bg-white/50 rounded-md p-3 flex flex-col items-center">
+                  <span className="text-2xl font-bold text-yellow-800">€675+</span>
+                  <span className="text-xs text-yellow-700">Additional Savings</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex-shrink-0">
+              <Button className="bg-yellow-600 hover:bg-yellow-700 text-white">
+                Apply Discount Code: EARLYAI15
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
       {/* Pricing Tabs */}
       <Tabs 
         defaultValue="annual" 
@@ -861,6 +905,12 @@ export default function PricingPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Detailed Feature Comparison */}
+      <FeatureComparison 
+        title="Complete Feature Comparison" 
+        description="Compare all features available across our pricing plans"
+      />
 
       {/* Customer Testimonials Section */}
       <Card className="mb-8 overflow-hidden">
