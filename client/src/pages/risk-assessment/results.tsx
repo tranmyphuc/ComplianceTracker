@@ -416,11 +416,51 @@ const RiskAssessmentResults: React.FC = () => {
         : []; // Empty array if no data
 
       // Extract EU AI Act articles if available
-      const articles = assessmentRawData.euAiActArticles
+      let articles = assessmentRawData.euAiActArticles
         ? (typeof assessmentRawData.euAiActArticles === 'string' 
             ? JSON.parse(assessmentRawData.euAiActArticles) 
             : assessmentRawData.euAiActArticles)
         : []; // Empty array if no data
+      
+      // Check if articles array is empty or doesn't have the expected structure
+      // If so, use our fallback articles data
+      const fallbackArticles = [
+        {
+          id: "Article 5",
+          name: "Prohibited Artificial Intelligence Practices",
+          description: "Defines AI practices that are prohibited in the EU, including subliminal manipulation, exploitation of vulnerabilities, and social scoring."
+        },
+        {
+          id: "Article 6",
+          name: "Classification of High-Risk AI Systems",
+          description: "Defines the criteria for classification of high-risk AI systems in relation to products covered by Union harmonization legislation."
+        },
+        {
+          id: "Article 9",
+          name: "Risk Management System",
+          description: "Requirements for implementing a risk management system for high-risk AI systems throughout their lifecycle."
+        },
+        {
+          id: "Article 10",
+          name: "Data and Data Governance",
+          description: "Requirements for data quality and governance for training, validation, and testing of AI systems."
+        },
+        {
+          id: "Article 13",
+          name: "Transparency and Information Provision",
+          description: "Requirements for ensuring high-risk AI systems are sufficiently transparent to enable users to interpret and use the system output appropriately."
+        },
+        {
+          id: "Article 14",
+          name: "Human Oversight",
+          description: "Requirements for human oversight of high-risk AI systems to minimize risks to health, safety, and fundamental rights."
+        }
+      ];
+      
+      // If no articles or articles without required structure, use fallback data
+      if (!Array.isArray(articles) || articles.length === 0 || !articles[0]?.id) {
+        articles = fallbackArticles;
+      }
 
       // Update assessment data state
       setAssessmentData({
@@ -430,7 +470,7 @@ const RiskAssessmentResults: React.FC = () => {
         assessmentId: assessmentRawData.assessmentId || assessmentId || "Unknown",
         riskScore: assessmentRawData.riskScore || 0,
         riskFactors: [],
-        relevantArticles: Array.isArray(articles) ? articles : [],
+        relevantArticles: articles,
         complianceGaps: Array.isArray(gaps) ? gaps : []
       });
     }
