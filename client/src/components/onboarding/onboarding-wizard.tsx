@@ -100,8 +100,19 @@ const onboardingSteps = [
   }
 ];
 
+// Define user profile type for onboarding
+export interface UserOnboardingProfile {
+  organizationType?: string;
+  industry?: string;
+  organizationSize?: string;
+  aiSystemTypes?: string[];
+  complianceGoals?: string[];
+  preferredLanguage?: 'en' | 'de';
+  role?: string;
+}
+
 interface OnboardingWizardProps {
-  onComplete?: () => void;
+  onComplete?: (profile?: UserOnboardingProfile) => void;
   initialStep?: number;
 }
 
@@ -109,6 +120,11 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [, setLocation] = useLocation();
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserOnboardingProfile>({
+    aiSystemTypes: [],
+    complianceGoals: [],
+    preferredLanguage: 'en'
+  });
   
   // Get the current step data
   const currentStepData = onboardingSteps[currentStep];
@@ -119,6 +135,16 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
     if (onboardingCompleted === "true") {
       setIsOnboardingComplete(true);
     }
+    
+    // Try to load saved profile data
+    const savedProfile = localStorage.getItem("userOnboardingProfile");
+    if (savedProfile) {
+      try {
+        setUserProfile(JSON.parse(savedProfile));
+      } catch (e) {
+        console.error("Error parsing saved profile:", e);
+      }
+    }
   }, []);
 
   // Navigate to next step
@@ -126,13 +152,16 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
     if (currentStep < onboardingSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
+      // Save user profile data
+      localStorage.setItem("userOnboardingProfile", JSON.stringify(userProfile));
+      
       // Mark onboarding as complete
       localStorage.setItem("onboardingCompleted", "true");
       setIsOnboardingComplete(true);
       
       // Call the onComplete callback if provided
       if (onComplete) {
-        onComplete();
+        onComplete(userProfile);
       }
     }
   };
@@ -146,13 +175,38 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
 
   // Handle skip onboarding
   const handleSkipOnboarding = () => {
+    // Still save any partial data collected
+    localStorage.setItem("userOnboardingProfile", JSON.stringify(userProfile));
     localStorage.setItem("onboardingCompleted", "true");
     setIsOnboardingComplete(true);
     
     // Call the onComplete callback if provided
     if (onComplete) {
-      onComplete();
+      onComplete(userProfile);
     }
+  };
+
+  // Update user profile data
+  const updateUserProfile = (key: keyof UserOnboardingProfile, value: any) => {
+    setUserProfile(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  // Toggle selection in arrays (for multi-select options)
+  const toggleArraySelection = (key: 'aiSystemTypes' | 'complianceGoals', value: string) => {
+    setUserProfile(prev => {
+      const currentArray = prev[key] || [];
+      const newArray = currentArray.includes(value)
+        ? currentArray.filter(item => item !== value)
+        : [...currentArray, value];
+      
+      return {
+        ...prev,
+        [key]: newArray
+      };
+    });
   };
 
   // Navigate to specific pages based on step
