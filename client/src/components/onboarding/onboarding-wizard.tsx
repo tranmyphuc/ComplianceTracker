@@ -596,25 +596,25 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </Select>
                           </div>
                           
-                          {/* AI System Types - Now a Multi-select CheckboxGroup */}
+                          {/* AI System Types - Simplified grid of checkboxes */}
                           <div className="space-y-3">
-                            <Label>AI System Types of Interest <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span></Label>
-                            <div className="grid grid-cols-2 gap-2 border rounded-md p-3">
+                            <Label>AI System Types <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span></Label>
+                            <div className="grid grid-cols-3 gap-x-2 gap-y-1 border rounded-md p-2">
                               {[
                                 "Computer Vision",
-                                "Natural Language Processing",
-                                "Decision Support Systems",
-                                "Predictive Analytics",
+                                "NLP",
+                                "Decision Support",
+                                "Analytics",
                                 "Autonomous Systems",
-                                "Biometric Identification",
-                                "Healthcare Diagnostics",
+                                "Biometrics",
+                                "Healthcare AI",
                                 "Risk Scoring",
                                 "Generative AI",
-                                "Recommendation Systems",
+                                "Recommendation",
                                 "Facial Recognition",
-                                "Emotion Analysis"
+                                "Voice Analysis"
                               ].map((type) => (
-                                <div key={type} className="flex items-center space-x-2">
+                                <div key={type} className="flex items-center space-x-1">
                                   <Checkbox 
                                     id={`ai-type-${type}`}
                                     checked={userProfile.aiSystemTypes?.includes(type) || false}
@@ -628,7 +628,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                                   />
                                   <Label 
                                     htmlFor={`ai-type-${type}`}
-                                    className="text-sm font-normal cursor-pointer"
+                                    className="text-xs font-normal cursor-pointer"
                                   >
                                     {type}
                                   </Label>
@@ -637,21 +637,19 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </div>
                           </div>
                           
-                          {/* Primary Compliance Goals - Now a Multi-select Checkbox group */}
+                          {/* Primary Compliance Goals - Simplified with fewer options */}
                           <div className="space-y-3">
-                            <Label>Primary Compliance Goals <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span></Label>
-                            <div className="border rounded-md p-3">
+                            <Label>Primary Goals <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span></Label>
+                            <div className="grid grid-cols-2 gap-x-2 gap-y-1 border rounded-md p-2">
                               {[
-                                "Proactive compliance before enforcement",
-                                "Risk assessment and mitigation",
-                                "Documentation and record-keeping",
-                                "Staff training and awareness",
-                                "Continuous monitoring and updating",
-                                "Legal liability reduction",
-                                "Conformity assessment preparation",
-                                "Integration with existing governance"
+                                "Proactive compliance",
+                                "Risk assessment",
+                                "Documentation",
+                                "Staff training",
+                                "Monitoring",
+                                "Legal protection"
                               ].map((goal) => (
-                                <div key={goal} className="flex items-center space-x-2 py-1">
+                                <div key={goal} className="flex items-center space-x-1">
                                   <Checkbox 
                                     id={`goal-${goal}`}
                                     checked={userProfile.complianceGoals?.includes(goal) || false}
@@ -665,7 +663,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                                   />
                                   <Label 
                                     htmlFor={`goal-${goal}`}
-                                    className="text-sm font-normal cursor-pointer"
+                                    className="text-xs font-normal cursor-pointer"
                                   >
                                     {goal}
                                   </Label>
@@ -700,25 +698,20 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                           </div>
                         </div>
                         
-                        {/* Industry-specific recommendations */}
+                        {/* Industry-specific recommendations - Simplified */}
                         {userProfile.industry && (
-                          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                            <h4 className="font-medium text-blue-700 mb-2">
-                              <span className="mr-2">✨</span>
-                              Recommended for {userProfile.industry}
-                            </h4>
-                            <p className="text-sm text-blue-600 mb-3">
-                              {userProfile.industry === "Healthcare" && "We'll focus on patient safety, data privacy, and diagnostic system compliance for healthcare organizations."}
-                              {userProfile.industry === "Financial Services" && "We'll emphasize fraud detection, credit scoring, and financial risk assessment compliance requirements."}
-                              {userProfile.industry === "Manufacturing" && "We'll highlight quality control, predictive maintenance, and production optimization compliance needs."}
-                              {userProfile.industry === "Public Sector" && "We'll address citizen service eligibility, resource allocation, and transparent algorithmic decision-making requirements."}
-                              {userProfile.industry === "Retail & E-commerce" && "We'll focus on recommendation systems, customer analytics, and pricing algorithm transparency requirements."}
-                              {userProfile.industry === "Professional Services" && "We'll emphasize client management, document analysis, and business process optimization compliance needs."}
-                              {userProfile.industry === "Insurance" && "We'll address risk scoring, claims processing, and customer profiling compliance requirements."}
-                              {userProfile.industry === "Energy & Utilities" && "We'll focus on grid management, consumption prediction, and infrastructure maintenance compliance."}
-                              {userProfile.industry === "Logistics & Transportation" && "We'll highlight route optimization, supply chain management, and autonomous systems safety requirements."}
-                              {!["Healthcare", "Financial Services", "Manufacturing", "Public Sector", "Retail & E-commerce", "Professional Services", "Insurance", "Energy & Utilities", "Logistics & Transportation"].includes(userProfile.industry || "") && "We'll tailor compliance requirements to your specific industry needs and use cases."}
-                            </p>
+                          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-center">
+                            <div className="bg-white rounded-full p-2 mr-3 text-blue-600">
+                              <Lightbulb className="h-5 w-5" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-blue-700 text-sm">
+                                {userProfile.industry} Focus
+                              </h4>
+                              <p className="text-xs text-blue-600">
+                                Your dashboard will be tailored for {userProfile.industry.toLowerCase()} compliance needs.
+                              </p>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -728,196 +721,215 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                       <div className="space-y-4">
                         <h3 className="font-semibold text-lg">Your Personalized Compliance Journey:</h3>
                         
-                        {/* Show personalized details based on collected data */}
-                        <div className="p-4 bg-purple-50 rounded-lg border border-purple-100 mb-6">
-                          <h4 className="font-medium text-purple-800 mb-2 flex items-center">
-                            <CheckCheck className="w-5 h-5 mr-2 text-purple-600" />
-                            Your Profile
-                          </h4>
-                          <div className="grid grid-cols-2 gap-3 text-sm">
-                            {userProfile.organizationType && (
-                              <div>
-                                <span className="text-purple-700 font-medium">Organization:</span> {userProfile.organizationType}
-                              </div>
-                            )}
-                            {userProfile.industry && (
-                              <div>
-                                <span className="text-purple-700 font-medium">Industry:</span> {userProfile.industry}
-                              </div>
-                            )}
-                            {userProfile.organizationSize && (
-                              <div>
-                                <span className="text-purple-700 font-medium">Size:</span> {userProfile.organizationSize}
-                              </div>
-                            )}
-                            {userProfile.role && (
-                              <div>
-                                <span className="text-purple-700 font-medium">Role:</span> {userProfile.role}
-                              </div>
-                            )}
+                        {/* Simplified profile card */}
+                        <div className="bg-purple-50 rounded-lg border border-purple-200 overflow-hidden mb-4">
+                          <div className="bg-purple-100 px-3 py-2 border-b border-purple-200">
+                            <h4 className="font-medium text-purple-800 flex items-center text-sm">
+                              <CheckCheck className="w-4 h-4 mr-1 text-purple-600" />
+                              Your Personalized Profile
+                            </h4>
                           </div>
                           
-                          {userProfile.aiSystemTypes && userProfile.aiSystemTypes.length > 0 && (
-                            <div className="mt-3">
-                              <span className="text-purple-700 font-medium text-sm">AI Systems:</span>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {userProfile.aiSystemTypes.map(type => (
-                                  <Badge key={type} variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+                          <div className="p-3 grid grid-cols-2 gap-x-2 gap-y-1">
+                            {userProfile.industry && (
+                              <div className="flex items-center gap-1 text-xs">
+                                <span className="bg-purple-200 rounded-full p-1">
+                                  <Settings className="h-3 w-3 text-purple-700" />
+                                </span>
+                                <span className="text-purple-800">{userProfile.industry}</span>
+                              </div>
+                            )}
+                            
+                            {userProfile.organizationType && (
+                              <div className="flex items-center gap-1 text-xs">
+                                <span className="bg-purple-200 rounded-full p-1">
+                                  <Award className="h-3 w-3 text-purple-700" />
+                                </span>
+                                <span className="text-purple-800">{userProfile.organizationType}</span>
+                              </div>
+                            )}
+                            
+                            {userProfile.role && (
+                              <div className="flex items-center gap-1 text-xs">
+                                <span className="bg-purple-200 rounded-full p-1">
+                                  <CheckCircle className="h-3 w-3 text-purple-700" />
+                                </span>
+                                <span className="text-purple-800">{userProfile.role}</span>
+                              </div>
+                            )}
+                            
+                            {/* Show 2 selected AI types as badges */}
+                            {userProfile.aiSystemTypes && userProfile.aiSystemTypes.length > 0 && (
+                              <div className="col-span-2 flex flex-wrap gap-1 mt-1">
+                                {userProfile.aiSystemTypes.slice(0, 3).map(type => (
+                                  <Badge key={type} variant="outline" className="text-xs py-0 bg-purple-100 text-purple-700 border-purple-200">
                                     {type}
                                   </Badge>
                                 ))}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {userProfile.complianceGoals && userProfile.complianceGoals.length > 0 && (
-                            <div className="mt-3">
-                              <span className="text-purple-700 font-medium text-sm">Compliance Goals:</span>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {userProfile.complianceGoals.map(goal => (
-                                  <Badge key={goal} variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
-                                    {goal}
+                                {userProfile.aiSystemTypes.length > 3 && (
+                                  <Badge variant="outline" className="text-xs py-0 bg-purple-100 text-purple-700 border-purple-200">
+                                    +{userProfile.aiSystemTypes.length - 3} more
                                   </Badge>
-                                ))}
+                                )}
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                         
-                        <h3 className="font-semibold text-lg">Your Next Steps:</h3>
-                        
-                        {/* Industry-specific next steps */}
-                        {userProfile.industry ? (
-                          <div>
-                            <ol className="space-y-3 list-decimal list-inside mb-4">
-                              {/* Default steps for all industries */}
-                              <li className="font-medium">Register your first AI system in the inventory</li>
-                              
-                              {/* Industry-specific steps */}
-                              {userProfile.industry === "Healthcare" && (
-                                <>
-                                  <li>Complete a risk assessment for your diagnostic systems</li>
-                                  <li>Generate conformity declarations for high-risk medical AI</li>
-                                  <li>Review patient data governance requirements</li>
-                                  <li>Establish human oversight protocols for clinical decision support</li>
-                                </>
-                              )}
-                              
-                              {userProfile.industry === "Financial Services" && (
-                                <>
-                                  <li>Complete a risk assessment for your credit scoring systems</li>
-                                  <li>Develop explainability documentation for decision systems</li>
-                                  <li>Review algorithmic fairness requirements</li>
-                                  <li>Establish continuous monitoring for fraud detection systems</li>
-                                </>
-                              )}
-                              
-                              {userProfile.industry === "Manufacturing" && (
-                                <>
-                                  <li>Complete risk assessments for production optimization systems</li>
-                                  <li>Develop technical documentation for predictive maintenance</li>
-                                  <li>Review safety requirements for automated systems</li>
-                                  <li>Establish quality control verification procedures</li>
-                                </>
-                              )}
-                              
-                              {userProfile.industry === "Public Sector" && (
-                                <>
-                                  <li>Complete risk assessments for citizen service systems</li>
-                                  <li>Implement transparency documentation for eligibility decisions</li>
-                                  <li>Develop human oversight protocols for resource allocation</li>
-                                  <li>Establish audit procedures for algorithmic decisions</li>
-                                </>
-                              )}
-                              
-                              {userProfile.industry === "Professional Services" && (
-                                <>
-                                  <li>Complete risk assessments for client management systems</li>
-                                  <li>Implement data governance for document analysis</li>
-                                  <li>Review compliance requirements for generative AI tools</li>
-                                  <li>Establish best practices for secure AI integration</li>
-                                </>
-                              )}
-                              
-                              {/* Default ending steps for all industries */}
-                              <li>Explore the knowledge center for {userProfile.industry} compliance guides</li>
-                            </ol>
+                        {/* Quick start guide - simplified */}
+                        <div className="bg-blue-50 rounded-lg border border-blue-100 p-3 mb-4">
+                          <h3 className="font-medium text-blue-800 text-sm mb-2 flex items-center">
+                            <ClipboardList className="w-4 h-4 mr-1 text-blue-600" />
+                            Quick Start Guide
+                          </h3>
+                          
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
+                              onClick={() => handleNavigateTo("/inventory")}
+                            >
+                              <span className="bg-blue-100 rounded-full p-1 mr-1">
+                                <Database className="h-3 w-3 text-blue-600" />
+                              </span>
+                              Register AI System
+                            </Button>
+                            
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
+                              onClick={() => handleNavigateTo("/risk-assessment/wizard")}
+                            >
+                              <span className="bg-blue-100 rounded-full p-1 mr-1">
+                                <AlertTriangle className="h-3 w-3 text-blue-600" />
+                              </span>
+                              Risk Assessment
+                            </Button>
+                            
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
+                              onClick={() => handleNavigateTo("/knowledge-center")}
+                            >
+                              <span className="bg-blue-100 rounded-full p-1 mr-1">
+                                <BookOpen className="h-3 w-3 text-blue-600" />
+                              </span>
+                              Knowledge Center
+                            </Button>
+                            
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
+                              onClick={() => handleNavigateTo("/documentation")}
+                            >
+                              <span className="bg-blue-100 rounded-full p-1 mr-1">
+                                <FileText className="h-3 w-3 text-blue-600" />
+                              </span>
+                              Documentation
+                            </Button>
                           </div>
-                        ) : (
-                          <ol className="space-y-3 list-decimal list-inside">
-                            <li>Register your first AI system in the inventory</li>
-                            <li>Complete a risk assessment for your system</li>
-                            <li>Generate required documentation based on risk level</li>
-                            <li>Set up continuous monitoring and compliance checks</li>
-                            <li>Explore the knowledge center to deepen your understanding</li>
-                          </ol>
-                        )}
+                        </div>
                         
-                        {/* Recommended learning resources based on role */}
+                        {/* Recommended learning resources based on role - Simplified */}
                         {userProfile.role && (
-                          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                            <h4 className="font-medium text-blue-700 mb-2 flex items-center">
-                              <BookOpen className="w-5 h-5 mr-2 text-blue-600" />
-                              Recommended for {userProfile.role}s
-                            </h4>
-                            <ul className="space-y-2 text-sm list-disc list-inside text-blue-800">
+                          <div className="bg-green-50 rounded-lg border border-green-100 overflow-hidden mb-4">
+                            <div className="bg-green-100 px-3 py-2 border-b border-green-200 flex justify-between items-center">
+                              <h4 className="font-medium text-green-800 flex items-center text-sm">
+                                <BookOpen className="w-4 h-4 mr-1 text-green-700" />
+                                Training Resources
+                              </h4>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="h-6 text-xs text-green-700"
+                                onClick={() => handleNavigateTo("/training")}
+                              >
+                                View All
+                              </Button>
+                            </div>
+                            
+                            <div className="p-2 grid grid-cols-2 gap-2">
                               {userProfile.role === "Decision Maker" && (
                                 <>
-                                  <li>Strategic Planning for EU AI Act Compliance</li>
-                                  <li>Cost-Benefit Analysis of Compliance Investments</li>
-                                  <li>Governance Framework Implementation</li>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Strategic Planning
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Compliance ROI
+                                  </Button>
                                 </>
                               )}
                               
                               {userProfile.role === "Legal/Compliance" && (
                                 <>
-                                  <li>Legal Requirements Analysis for AI Systems</li>
-                                  <li>Detailed Article Interpretation Guides</li>
-                                  <li>Conformity Assessment Procedures</li>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Legal Requirements
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Article Guides
+                                  </Button>
                                 </>
                               )}
                               
                               {userProfile.role === "Technical Team" && (
                                 <>
-                                  <li>Technical Documentation Requirements</li>
-                                  <li>Implementation of Testing and Validation</li>
-                                  <li>Monitoring and Post-Market Surveillance</li>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Technical Docs
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Testing Methods
+                                  </Button>
                                 </>
                               )}
                               
                               {userProfile.role === "Data Scientist" && (
                                 <>
-                                  <li>Bias and Fairness Evaluation Methods</li>
-                                  <li>Data Quality and Documentation Requirements</li>
-                                  <li>Model Explainability Techniques</li>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Bias & Fairness
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Explainability
+                                  </Button>
                                 </>
                               )}
                               
                               {userProfile.role === "Project Manager" && (
                                 <>
-                                  <li>AI Compliance Project Planning</li>
-                                  <li>Risk Management Methodologies</li>
-                                  <li>Stakeholder Communication Guidelines</li>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Project Planning
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Risk Management
+                                  </Button>
                                 </>
                               )}
                               
                               {userProfile.role === "Executive" && (
                                 <>
-                                  <li>Executive Briefing on EU AI Act Responsibilities</li>
-                                  <li>Strategic Compliance Planning and Budgeting</li>
-                                  <li>Market Implications of the EU AI Act</li>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Executive Brief
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={() => handleNavigateTo("/training")} 
+                                    className="text-xs justify-start bg-white border-green-200 text-green-700 hover:bg-green-50">
+                                    Strategic Planning
+                                  </Button>
                                 </>
                               )}
-                            </ul>
-                            <div className="mt-3">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                className="flex items-center gap-2 text-blue-700 border-blue-300"
-                                onClick={() => handleNavigateTo("/training")}
-                              >
-                                Browse Training Resources <BookOpen size={14} />
-                              </Button>
                             </div>
                           </div>
                         )}
