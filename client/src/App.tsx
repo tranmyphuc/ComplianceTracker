@@ -63,6 +63,7 @@ import AdminApiKeys from "@/pages/admin/api-keys";
 import AdminDashboard from "@/pages/admin/dashboard";
 import DevelopmentMode from "@/pages/development-mode";
 import EnhancedDocumentsPage from "@/pages/enhanced-documents";
+import ComplianceReportPage from "@/pages/compliance-report";
 
 
 function Router() {
@@ -128,6 +129,7 @@ function Router() {
     "/advanced-analytics",
     "/executive-dashboard",
     "/enhanced-documents",
+    "/compliance-report",
     "/admin/dashboard", // Added route
     "/development-mode" // Development mode page
   ];
@@ -321,6 +323,9 @@ function Router() {
       </Route>
       <Route path="/enhanced-documents">
         {() => renderWithLayout(EnhancedDocumentsPage)}
+      </Route>
+      <Route path="/compliance-report">
+        {() => renderWithLayout(ComplianceReportPage)}
       </Route>
       <Route path="/admin/dashboard"> {/* Added route */}
         {() => renderWithLayout(AdminDashboard)} {/* Added route */}

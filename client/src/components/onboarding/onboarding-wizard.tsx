@@ -789,7 +789,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                               size="sm" 
                               variant="outline" 
                               className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
-                              onClick={() => handleNavigateTo("/register-system")}
+                              onClick={() => handleNavigateTo("/")}
                             >
                               <span className="bg-blue-100 rounded-full p-1 mr-1">
                                 <Database className="h-3 w-3 text-blue-600" />
@@ -801,7 +801,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                               size="sm" 
                               variant="outline" 
                               className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
-                              onClick={() => handleNavigateTo("/risk-assessment/guides")}
+                              onClick={() => handleNavigateTo("/")}
                             >
                               <span className="bg-blue-100 rounded-full p-1 mr-1">
                                 <AlertTriangle className="h-3 w-3 text-blue-600" />
@@ -813,7 +813,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                               size="sm" 
                               variant="outline" 
                               className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
-                              onClick={() => handleNavigateTo("/dashboard")}
+                              onClick={() => handleNavigateTo("/")}
                             >
                               <span className="bg-blue-100 rounded-full p-1 mr-1">
                                 <BookOpen className="h-3 w-3 text-blue-600" />
@@ -825,7 +825,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                               size="sm" 
                               variant="outline" 
                               className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
-                              onClick={() => handleNavigateTo("/guides/platform-introduction")}
+                              onClick={() => handleNavigateTo("/")}
                             >
                               <span className="bg-blue-100 rounded-full p-1 mr-1">
                                 <FileText className="h-3 w-3 text-blue-600" />
@@ -847,7 +847,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                                 variant="ghost" 
                                 size="sm"
                                 className="h-6 text-xs text-green-700"
-                                onClick={() => handleNavigateTo("/training")}
+                                onClick={() => handleNavigateTo("/")}
                               >
                                 View All
                               </Button>
@@ -946,7 +946,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                               variant="outline"
                               size="sm"
                               className="h-7 text-xs border-orange-300 text-orange-700 hover:bg-orange-100"
-                              onClick={() => handleNavigateTo("/dashboard")}
+                              onClick={() => handleNavigateTo("/compliance-report")}
                             >
                               <Download className="h-3 w-3 mr-1" /> Download PDF
                             </Button>
@@ -966,7 +966,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                         
                         <div className="mt-6 flex justify-center">
                           <Button 
-                            onClick={() => handleNavigateTo("/dashboard")}
+                            onClick={() => handleNavigateTo("/compliance-report")}
                             className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-6 rounded-lg flex items-center gap-2 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                           >
                             <span className="text-lg">Start Your Compliance Journey</span>
