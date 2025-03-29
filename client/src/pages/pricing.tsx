@@ -1293,483 +1293,331 @@ export default function PricingPage() {
           </div>
           
           {/* Alternative compliance methods comparison chart */}
-          <div className="border-t border-gray-100 bg-gradient-to-br from-white to-blue-50">
-            <div className="max-w-6xl mx-auto p-6 md:p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Scale className="h-5 w-5 text-blue-600" />
+          <div className="border-t border-gray-100">
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>Comparing Implementation Approaches</CardTitle>
+                <CardDescription>
+                  See how our platform compares to alternative compliance methods
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {/* Mobile tabs navigation for responsive display */}
+                <div className="md:hidden mb-6">
+                  <Tabs defaultValue="features" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="features">Features</TabsTrigger>
+                      <TabsTrigger value="metrics">Performance</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="features" className="mt-4">
+                      <h4 className="text-sm font-medium mb-3">Key Operational Differences</h4>
+                      <div className="overflow-x-auto pb-2">
+                        <table className="w-full text-sm border-collapse">
+                          <thead>
+                            <tr className="border-b border-gray-100">
+                              <th className="p-2 text-left font-medium">Feature</th>
+                              <th className="p-2 text-center font-medium">Our Platform</th>
+                              <th className="p-2 text-center font-medium">In-House</th>
+                              <th className="p-2 text-center font-medium">Consultants</th>
+                              <th className="p-2 text-center font-medium">Basic Tools</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr className="border-b border-gray-100">
+                              <td className="p-2 font-medium">Risk Classification</td>
+                              <td className="p-2 text-center text-xs">Automated</td>
+                              <td className="p-2 text-center text-xs">Manual</td>
+                              <td className="p-2 text-center text-xs">Expert-driven</td>
+                              <td className="p-2 text-center text-xs">Limited</td>
+                            </tr>
+                            <tr className="border-b border-gray-100">
+                              <td className="p-2 font-medium">Regulatory Updates</td>
+                              <td className="p-2 text-center text-xs">Real-time</td>
+                              <td className="p-2 text-center text-xs">Periodic</td>
+                              <td className="p-2 text-center text-xs">Varied</td>
+                              <td className="p-2 text-center text-xs">None</td>
+                            </tr>
+                            <tr className="border-b border-gray-100">
+                              <td className="p-2 font-medium">Documentation</td>
+                              <td className="p-2 text-center text-xs">AI-assisted</td>
+                              <td className="p-2 text-center text-xs">Manual</td>
+                              <td className="p-2 text-center text-xs">Templates</td>
+                              <td className="p-2 text-center text-xs">Basic</td>
+                            </tr>
+                            <tr className="border-b border-gray-100">
+                              <td className="p-2 font-medium">Multi-system Management</td>
+                              <td className="p-2 text-center text-xs">Scalable DB</td>
+                              <td className="p-2 text-center text-xs">Manual</td>
+                              <td className="p-2 text-center text-xs">Custom</td>
+                              <td className="p-2 text-center text-xs">Basic</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="metrics" className="mt-4">
+                      <h4 className="text-sm font-medium mb-3">Performance Metrics</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <div className="text-xs font-medium">Implementation Time (weeks)</div>
+                            <div className="text-xs text-gray-500">Lower is better</div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 text-xs">Our Platform</div>
+                              <div className="flex-1 bg-gray-100 h-2 rounded-full relative">
+                                <div className="absolute inset-y-0 left-0 bg-blue-500 rounded-l-full" style={{width: "15%"}}>
+                                  <span className="absolute inset-0 flex items-center px-1 text-white text-[10px]">2-4</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 text-xs">In-house Team</div>
+                              <div className="flex-1 bg-gray-100 h-2 rounded-full relative">
+                                <div className="absolute inset-y-0 left-0 bg-red-500 rounded-l-full" style={{width: "75%"}}>
+                                  <span className="absolute inset-0 flex items-center px-1 text-white text-[10px]">12-16</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 text-xs">Consultants</div>
+                              <div className="flex-1 bg-gray-100 h-2 rounded-full relative">
+                                <div className="absolute inset-y-0 left-0 bg-purple-500 rounded-l-full" style={{width: "40%"}}>
+                                  <span className="absolute inset-0 flex items-center px-1 text-white text-[10px]">6-8</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 text-xs">Basic Tools</div>
+                              <div className="flex-1 bg-gray-100 h-2 rounded-full relative">
+                                <div className="absolute inset-y-0 left-0 bg-amber-500 rounded-l-full" style={{width: "25%"}}>
+                                  <span className="absolute inset-0 flex items-center px-1 text-white text-[10px]">4-6</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <div className="text-xs font-medium">Compliance Effectiveness (%)</div>
+                            <div className="text-xs text-gray-500">Higher is better</div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 text-xs">Our Platform</div>
+                              <div className="flex-1 bg-gray-100 h-2 rounded-full relative">
+                                <div className="absolute inset-y-0 left-0 bg-blue-500 rounded-l-full" style={{width: "95%"}}>
+                                  <span className="absolute inset-0 flex items-center px-1 text-white text-[10px]">95%</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 text-xs">In-house Team</div>
+                              <div className="flex-1 bg-gray-100 h-2 rounded-full relative">
+                                <div className="absolute inset-y-0 left-0 bg-red-500 rounded-l-full" style={{width: "80%"}}>
+                                  <span className="absolute inset-0 flex items-center px-1 text-white text-[10px]">80%</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 text-xs">Consultants</div>
+                              <div className="flex-1 bg-gray-100 h-2 rounded-full relative">
+                                <div className="absolute inset-y-0 left-0 bg-purple-500 rounded-l-full" style={{width: "90%"}}>
+                                  <span className="absolute inset-0 flex items-center px-1 text-white text-[10px]">90%</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 text-xs">Basic Tools</div>
+                              <div className="flex-1 bg-gray-100 h-2 rounded-full relative">
+                                <div className="absolute inset-y-0 left-0 bg-amber-500 rounded-l-full" style={{width: "65%"}}>
+                                  <span className="absolute inset-0 flex items-center px-1 text-white text-[10px]">65%</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-blue-800">Comparing Implementation Approaches</h3>
-                  <p className="text-sm text-blue-600">See how our platform compares to alternative compliance methods</p>
-                </div>
-              </div>
-              
-              {/* Mobile tabs navigation for responsive display */}
-              <div className="md:hidden mb-6">
-                <Tabs defaultValue="features" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="features">Features</TabsTrigger>
-                    <TabsTrigger value="metrics">Performance</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="features" className="mt-4">
+                
+                {/* Desktop layout - show both panels side by side */}
+                <div className="hidden md:grid md:grid-cols-2 gap-6">
+                  <div>
                     <h4 className="text-sm font-medium mb-3 flex items-center">
-                      <Shield className="h-4 w-4 text-blue-600 mr-2" />
-                      Key Operational Differences
+                      <Shield className="h-4 w-4 text-gray-500 mr-2" />
+                      Key Operational Differences by Approach
                     </h4>
-                    <div className="overflow-x-auto pb-2">
-                      <table className="w-full text-sm bg-white rounded-lg shadow-sm">
+                    <div className="border rounded-md overflow-hidden">
+                      <table className="w-full text-sm border-collapse">
                         <thead>
-                          <tr className="bg-blue-50">
-                            <th className="p-3 text-left font-medium text-blue-800">Feature</th>
-                            <th className="p-3 text-center font-medium text-blue-800">Our Platform</th>
-                            <th className="p-3 text-center font-medium text-blue-800">In-House</th>
-                            <th className="p-3 text-center font-medium text-blue-800">Consultants</th>
-                            <th className="p-3 text-center font-medium text-blue-800">Basic Tools</th>
+                          <tr className="bg-gray-50 border-b">
+                            <th className="p-2 text-left font-medium">Feature</th>
+                            <th className="p-2 text-center font-medium">Our Platform</th>
+                            <th className="p-2 text-center font-medium">In-House</th>
+                            <th className="p-2 text-center font-medium">Consultants</th>
+                            <th className="p-2 text-center font-medium">Basic Tools</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr className="border-b border-blue-50 hover:bg-blue-50/30 transition-colors">
-                            <td className="p-3 font-medium">Risk Classification</td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-                                Automated
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
-                                Manual
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium">
-                                Expert-driven
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
-                                Limited
-                              </div>
-                            </td>
+                          <tr className="border-b">
+                            <td className="p-2">Risk Classification</td>
+                            <td className="p-2 text-center text-xs font-medium text-blue-700">Automated</td>
+                            <td className="p-2 text-center text-xs">Manual</td>
+                            <td className="p-2 text-center text-xs">Expert-driven</td>
+                            <td className="p-2 text-center text-xs">Limited</td>
                           </tr>
-                          <tr className="border-b border-blue-50 hover:bg-blue-50/30 transition-colors">
-                            <td className="p-3 font-medium">Regulatory Updates</td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-                                Real-time
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
-                                Periodic
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium">
-                                Varied
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-medium">
-                                None
-                              </div>
-                            </td>
+                          <tr className="border-b">
+                            <td className="p-2">Regulatory Updates</td>
+                            <td className="p-2 text-center text-xs font-medium text-blue-700">Real-time</td>
+                            <td className="p-2 text-center text-xs">Periodic</td>
+                            <td className="p-2 text-center text-xs">Consultant-dependent</td>
+                            <td className="p-2 text-center text-xs">Not included</td>
                           </tr>
-                          <tr className="border-b border-blue-50 hover:bg-blue-50/30 transition-colors">
-                            <td className="p-3 font-medium">Documentation</td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-                                AI-assisted
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
-                                Manual
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium">
-                                Templates
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
-                                Basic
-                              </div>
-                            </td>
+                          <tr className="border-b">
+                            <td className="p-2">Documentation</td>
+                            <td className="p-2 text-center text-xs font-medium text-blue-700">AI-assisted</td>
+                            <td className="p-2 text-center text-xs">Manual templates</td>
+                            <td className="p-2 text-center text-xs">Standard templates</td>
+                            <td className="p-2 text-center text-xs">Basic templates</td>
                           </tr>
-                          <tr className="border-b border-blue-50 hover:bg-blue-50/30 transition-colors">
-                            <td className="p-3 font-medium">System Management</td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-                                Scalable DB
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
-                                Manual
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium">
-                                Custom
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="inline-flex items-center px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
-                                Basic
-                              </div>
-                            </td>
+                          <tr className="border-b">
+                            <td className="p-2">Multi-system Management</td>
+                            <td className="p-2 text-center text-xs font-medium text-blue-700">Scalable database</td>
+                            <td className="p-2 text-center text-xs">Manual tracking</td>
+                            <td className="p-2 text-center text-xs">Custom spreadsheets</td>
+                            <td className="p-2 text-center text-xs">Basic spreadsheets</td>
+                          </tr>
+                          <tr className="border-b">
+                            <td className="p-2">Staff Training</td>
+                            <td className="p-2 text-center text-xs font-medium text-blue-700">Role-based modules</td>
+                            <td className="p-2 text-center text-xs">Internal workshops</td>
+                            <td className="p-2 text-center text-xs">External workshops</td>
+                            <td className="p-2 text-center text-xs">Self-study</td>
+                          </tr>
+                          <tr>
+                            <td className="p-2">Operational Model</td>
+                            <td className="p-2 text-center text-xs font-medium text-blue-700">SaaS</td>
+                            <td className="p-2 text-center text-xs">Fixed staff costs</td>
+                            <td className="p-2 text-center text-xs">Project-based</td>
+                            <td className="p-2 text-center text-xs">Internal resources</td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
-                  </TabsContent>
-                  <TabsContent value="metrics" className="mt-4">
-                    <h4 className="text-sm font-medium mb-3 flex items-center">
-                      <BarChart className="h-4 w-4 text-blue-600 mr-2" />
-                      Performance Metrics
-                    </h4>
-                    <div className="space-y-6 bg-white rounded-lg shadow-sm p-4">
-                      <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="text-sm font-medium text-blue-800">Implementation Time</div>
-                          <div className="text-xs text-blue-600">Lower is better</div>
-                        </div>
-                        <div className="flex flex-col gap-3">
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs">
-                              <span className="font-medium">Our Platform</span>
-                              <span className="font-bold">2-4 weeks</span>
-                            </div>
-                            <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" style={{width: "15%"}}></div>
-                            </div>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-sm font-medium mb-3 flex items-center">
+                        <Clock className="h-4 w-4 text-gray-500 mr-2" />
+                        Implementation Timeline (weeks)
+                      </h4>
+                      <div className="space-y-3 p-3 border rounded-md">
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <div className="text-xs font-medium">Our Platform</div>
+                            <div className="text-xs font-bold text-blue-700">2-4 weeks</div>
                           </div>
-                          
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs">
-                              <span className="font-medium">In-house Team</span>
-                              <span className="font-bold">12-16 weeks</span>
-                            </div>
-                            <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-gradient-to-r from-red-400 to-red-600 rounded-full" style={{width: "75%"}}></div>
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs">
-                              <span className="font-medium">Consultants</span>
-                              <span className="font-bold">6-8 weeks</span>
-                            </div>
-                            <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full" style={{width: "40%"}}></div>
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs">
-                              <span className="font-medium">Basic Tools</span>
-                              <span className="font-bold">4-6 weeks</span>
-                            </div>
-                            <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full" style={{width: "25%"}}></div>
-                            </div>
+                          <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-500 rounded-full" style={{width: "15%"}}></div>
                           </div>
                         </div>
-                      </div>
-                      
-                      <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="text-sm font-medium text-blue-800">Compliance Effectiveness</div>
-                          <div className="text-xs text-blue-600">Higher is better</div>
+                        
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <div className="text-xs font-medium">In-house Team</div>
+                            <div className="text-xs font-bold text-red-700">12-16 weeks</div>
+                          </div>
+                          <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-red-500 rounded-full" style={{width: "75%"}}></div>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-3">
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs">
-                              <span className="font-medium">Our Platform</span>
-                              <span className="font-bold">95%</span>
-                            </div>
-                            <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" style={{width: "95%"}}></div>
-                            </div>
+                        
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <div className="text-xs font-medium">Consultants</div>
+                            <div className="text-xs font-bold text-purple-700">6-8 weeks</div>
                           </div>
-                          
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs">
-                              <span className="font-medium">In-house Team</span>
-                              <span className="font-bold">80%</span>
-                            </div>
-                            <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-gradient-to-r from-red-400 to-red-600 rounded-full" style={{width: "80%"}}></div>
-                            </div>
+                          <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-purple-500 rounded-full" style={{width: "40%"}}></div>
                           </div>
-                          
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs">
-                              <span className="font-medium">Consultants</span>
-                              <span className="font-bold">90%</span>
-                            </div>
-                            <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full" style={{width: "90%"}}></div>
-                            </div>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <div className="text-xs font-medium">Basic Tools</div>
+                            <div className="text-xs font-bold text-amber-700">4-6 weeks</div>
                           </div>
-                          
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-xs">
-                              <span className="font-medium">Basic Tools</span>
-                              <span className="font-bold">65%</span>
-                            </div>
-                            <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full" style={{width: "65%"}}></div>
-                            </div>
+                          <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-amber-500 rounded-full" style={{width: "25%"}}></div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
-              
-              {/* Desktop layout - show both panels side by side */}
-              <div className="hidden md:grid md:grid-cols-2 gap-8">
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                  <div className="bg-blue-50 p-3 border-b border-blue-100">
-                    <h4 className="font-medium text-blue-800 flex items-center">
-                      <Shield className="h-4 w-4 text-blue-600 mr-2" />
-                      Key Operational Differences by Approach
-                    </h4>
-                  </div>
-                  <div className="p-4">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr>
-                          <th className="py-2 px-3 text-left font-medium text-blue-800 border-b">Feature</th>
-                          <th className="py-2 px-3 text-center font-medium text-blue-800 border-b">Our Platform</th>
-                          <th className="py-2 px-3 text-center font-medium text-blue-800 border-b">In-House</th>
-                          <th className="py-2 px-3 text-center font-medium text-blue-800 border-b">Consultants</th>
-                          <th className="py-2 px-3 text-center font-medium text-blue-800 border-b">Basic Tools</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="hover:bg-blue-50/30 transition-colors">
-                          <td className="py-3 px-3 font-medium">AI Risk Classification</td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">Automated</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-gray-50">Manual</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">Expert-driven</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-red-50 text-red-700">Limited</Badge>
-                          </td>
-                        </tr>
-                        <tr className="hover:bg-blue-50/30 transition-colors">
-                          <td className="py-3 px-3 font-medium">Regulatory Updates</td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">Real-time</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-gray-50">Periodic</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">Consultant-dependent</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-red-50 text-red-700">Not included</Badge>
-                          </td>
-                        </tr>
-                        <tr className="hover:bg-blue-50/30 transition-colors">
-                          <td className="py-3 px-3 font-medium">Documentation Generation</td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">AI-assisted</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-gray-50">Manual templates</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">Standard templates</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-amber-50 text-amber-700">Basic templates</Badge>
-                          </td>
-                        </tr>
-                        <tr className="hover:bg-blue-50/30 transition-colors">
-                          <td className="py-3 px-3 font-medium">Multi-system Management</td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">Scalable database</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-gray-50">Manual tracking</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">Custom spreadsheets</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-amber-50 text-amber-700">Basic spreadsheets</Badge>
-                          </td>
-                        </tr>
-                        <tr className="hover:bg-blue-50/30 transition-colors">
-                          <td className="py-3 px-3 font-medium">Staff Training</td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">Role-based modules</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-gray-50">Internal workshops</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">External workshops</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-amber-50 text-amber-700">Self-study</Badge>
-                          </td>
-                        </tr>
-                        <tr className="hover:bg-blue-50/30 transition-colors">
-                          <td className="py-3 px-3 font-medium">Operational Model</td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">SaaS</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-gray-50">Fixed staff costs</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">Project-based</Badge>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <Badge variant="outline" className="bg-amber-50 text-amber-700">Internal resources</Badge>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    
+                    <div>
+                      <h4 className="text-sm font-medium mb-3 flex items-center">
+                        <CheckCircle className="h-4 w-4 text-gray-500 mr-2" />
+                        Compliance Effectiveness (%)
+                      </h4>
+                      <div className="space-y-3 p-3 border rounded-md">
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <div className="text-xs font-medium">Our Platform</div>
+                            <div className="text-xs font-bold text-blue-700">95%</div>
+                          </div>
+                          <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-500 rounded-full" style={{width: "95%"}}></div>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <div className="text-xs font-medium">In-house Team</div>
+                            <div className="text-xs font-bold text-red-700">80%</div>
+                          </div>
+                          <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-red-500 rounded-full" style={{width: "80%"}}></div>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <div className="text-xs font-medium">Consultants</div>
+                            <div className="text-xs font-bold text-purple-700">90%</div>
+                          </div>
+                          <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-purple-500 rounded-full" style={{width: "90%"}}></div>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <div className="text-xs font-medium">Basic Tools</div>
+                            <div className="text-xs font-bold text-amber-700">65%</div>
+                          </div>
+                          <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-amber-500 rounded-full" style={{width: "65%"}}></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
-                <div className="space-y-6">
-                  <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div className="bg-blue-50 p-3 border-b border-blue-100">
-                      <h4 className="font-medium text-blue-800 flex items-center">
-                        <Clock className="h-4 w-4 text-blue-600 mr-2" />
-                        Implementation Timeline (weeks)
-                      </h4>
-                    </div>
-                    <div className="p-5">
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <div className="text-sm font-medium">Our Platform</div>
-                            <div className="text-sm font-bold text-blue-700">2-4 weeks</div>
-                          </div>
-                          <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" style={{width: "15%"}}>
-                              <div className="h-full w-full bg-blue-400/20 animate-pulse"></div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <div className="text-sm font-medium">In-house Team</div>
-                            <div className="text-sm font-bold text-red-700">12-16 weeks</div>
-                          </div>
-                          <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-red-400 to-red-600 rounded-full" style={{width: "75%"}}></div>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <div className="text-sm font-medium">Consultants</div>
-                            <div className="text-sm font-bold text-purple-700">6-8 weeks</div>
-                          </div>
-                          <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full" style={{width: "40%"}}></div>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <div className="text-sm font-medium">Basic Tools</div>
-                            <div className="text-sm font-bold text-amber-700">4-6 weeks</div>
-                          </div>
-                          <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full" style={{width: "25%"}}></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex justify-between mt-3 text-xs text-gray-500">
-                        <div>Implementation Start</div>
-                        <div>16 weeks</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div className="bg-blue-50 p-3 border-b border-blue-100">
-                      <h4 className="font-medium text-blue-800 flex items-center">
-                        <CheckCircle className="h-4 w-4 text-blue-600 mr-2" />
-                        Compliance Effectiveness (%)
-                      </h4>
-                    </div>
-                    <div className="p-5">
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <div className="text-sm font-medium">Our Platform</div>
-                            <div className="text-sm font-bold text-blue-700">95%</div>
-                          </div>
-                          <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" style={{width: "95%"}}>
-                              <div className="h-full w-full bg-blue-400/20 animate-pulse"></div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <div className="text-sm font-medium">In-house Team</div>
-                            <div className="text-sm font-bold text-red-700">80%</div>
-                          </div>
-                          <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-red-400 to-red-600 rounded-full" style={{width: "80%"}}></div>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <div className="text-sm font-medium">Consultants</div>
-                            <div className="text-sm font-bold text-purple-700">90%</div>
-                          </div>
-                          <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full" style={{width: "90%"}}></div>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <div className="text-sm font-medium">Basic Tools</div>
-                            <div className="text-sm font-bold text-amber-700">65%</div>
-                          </div>
-                          <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full" style={{width: "65%"}}></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                {/* Bottom explanation */}
+                <div className="mt-6 flex p-3 bg-gray-50 border rounded-md items-start gap-3">
+                  <Info className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-xs text-gray-700">
+                    <span className="font-medium">Why our approach outperforms:</span> Our platform achieves the fastest implementation time while maintaining the highest compliance effectiveness through AI-powered systems that continuously adapt to regulatory changes and streamline documentation.
                   </div>
                 </div>
-              </div>
-              
-              {/* Bottom explanation for all devices */}
-              <div className="mt-6 flex p-4 bg-white rounded-lg shadow-sm items-start gap-3 border-l-4 border-blue-500">
-                <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-gray-700">
-                  <span className="font-medium text-blue-800">Why our approach outperforms:</span> Our platform achieves the fastest implementation time while maintaining the highest compliance effectiveness. This is made possible through our AI-powered system that continuously adapts to regulatory changes and streamlines documentation processes that would otherwise require significant manual effort.
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </CardContent>
       </Card>
