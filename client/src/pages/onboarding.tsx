@@ -56,3 +56,61 @@ export default function OnboardingPage() {
     </div>
   );
 }
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Shield, ArrowRight } from "lucide-react";
+import { useUser } from "@/contexts/user-context";
+import { useOnboarding } from "@/services/onboarding-service";
+
+export default function OnboardingPage() {
+  const { user } = useUser();
+  const { startOnboarding } = useOnboarding(user?.uid);
+  
+  const handleStartOnboarding = () => {
+    startOnboarding();
+  };
+  
+  return (
+    <div className="container py-10">
+      <div className="max-w-3xl mx-auto">
+        <Card className="bg-white shadow-lg">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Shield className="h-6 w-6 text-primary" />
+              <CardTitle className="text-2xl">Welcome to the EU AI Act Compliance Platform</CardTitle>
+            </div>
+            <CardDescription>
+              Your comprehensive solution for navigating EU AI Act compliance
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="space-y-4">
+            <p>
+              We've designed this platform to guide you through every step of your compliance journey.
+              From registering your AI systems to generating required documentation and training your team,
+              we're here to help you achieve and maintain compliance with the EU AI Act.
+            </p>
+            
+            <div className="bg-muted p-4 rounded-lg">
+              <h3 className="font-semibold mb-2">What you'll learn in the onboarding tour:</h3>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>How to register and classify your AI systems</li>
+                <li>How to assess risks and identify compliance gaps</li>
+                <li>How to generate required documentation automatically</li>
+                <li>How to access role-specific training modules</li>
+                <li>How to set up continuous compliance monitoring</li>
+              </ul>
+            </div>
+          </CardContent>
+          
+          <CardFooter>
+            <Button onClick={handleStartOnboarding} className="w-full gap-2">
+              Start Guided Tour
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    </div>
+  );
+}
