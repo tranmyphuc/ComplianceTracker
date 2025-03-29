@@ -524,28 +524,35 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                         <h3 className="font-semibold text-lg">Customize Your Experience:</h3>
                         
                         <div className="space-y-6 mt-4">
-                          {/* Organization Type */}
+                          {/* Organization Type - Changed to Dropdown */}
                           <div className="space-y-2">
-                            <div className="font-medium mb-1">Your Organization Type</div>
-                            <div className="grid grid-cols-2 gap-2">
-                              {["Large Enterprise", "Mid-size Organization", "Small Business", "Startup", "Government/Public Sector", "Non-profit/NGO"].map((type) => (
-                                <Button 
-                                  key={type} 
-                                  variant="outline" 
-                                  className={`justify-start ${userProfile.organizationType === type ? 'bg-primary/20 border-primary' : ''}`}
-                                  onClick={() => updateUserProfile('organizationType', type)}
-                                >
-                                  {type}
-                                </Button>
-                              ))}
-                            </div>
+                            <Label htmlFor="org-type">Your Organization Type</Label>
+                            <Select
+                              value={userProfile.organizationType || ""}
+                              onValueChange={(value) => updateUserProfile('organizationType', value)}
+                            >
+                              <SelectTrigger id="org-type" className="w-full">
+                                <SelectValue placeholder="Select organization type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {["Large Enterprise", "Mid-size Organization", "Small Business", "Startup", "Government/Public Sector", "Non-profit/NGO"].map((type) => (
+                                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                           
-                          {/* Industry Selection - appears after org type is selected */}
-                          {userProfile.organizationType && (
-                            <div className="space-y-2">
-                              <div className="font-medium mb-1">Your Industry</div>
-                              <div className="grid grid-cols-2 gap-2">
+                          {/* Industry Selection - Changed to Dropdown */}
+                          <div className="space-y-2">
+                            <Label htmlFor="industry">Your Industry</Label>
+                            <Select
+                              value={userProfile.industry || ""}
+                              onValueChange={(value) => updateUserProfile('industry', value)}
+                            >
+                              <SelectTrigger id="industry" className="w-full">
+                                <SelectValue placeholder="Select your industry" />
+                              </SelectTrigger>
+                              <SelectContent>
                                 {[
                                   "Healthcare", 
                                   "Financial Services",
@@ -560,47 +567,39 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                                   "Education",
                                   "Software & Technology"
                                 ].map((industry) => (
-                                  <Button 
-                                    key={industry} 
-                                    variant="outline" 
-                                    className={`justify-start ${userProfile.industry === industry ? 'bg-primary/20 border-primary' : ''}`}
-                                    onClick={() => updateUserProfile('industry', industry)}
-                                  >
-                                    {industry}
-                                  </Button>
+                                  <SelectItem key={industry} value={industry}>{industry}</SelectItem>
                                 ))}
-                              </div>
-                            </div>
-                          )}
+                              </SelectContent>
+                            </Select>
+                          </div>
                           
-                          {/* Organization Size - appears after industry is selected */}
-                          {userProfile.industry && (
-                            <div className="space-y-2">
-                              <div className="font-medium mb-1">Organization Size</div>
-                              <div className="grid grid-cols-1 gap-2">
+                          {/* Organization Size - Changed to Dropdown */}
+                          <div className="space-y-2">
+                            <Label htmlFor="org-size">Organization Size</Label>
+                            <Select
+                              value={userProfile.organizationSize || ""}
+                              onValueChange={(value) => updateUserProfile('organizationSize', value)}
+                            >
+                              <SelectTrigger id="org-size" className="w-full">
+                                <SelectValue placeholder="Select organization size" />
+                              </SelectTrigger>
+                              <SelectContent>
                                 {[
                                   "Small (<50 employees)",
                                   "Medium (50-249 employees)",
                                   "Large (250-999 employees)",
                                   "Enterprise (1,000+ employees)"
                                 ].map((size) => (
-                                  <Button 
-                                    key={size} 
-                                    variant="outline" 
-                                    className={`justify-start ${userProfile.organizationSize === size ? 'bg-primary/20 border-primary' : ''}`}
-                                    onClick={() => updateUserProfile('organizationSize', size)}
-                                  >
-                                    {size}
-                                  </Button>
+                                  <SelectItem key={size} value={size}>{size}</SelectItem>
                                 ))}
-                              </div>
-                            </div>
-                          )}
+                              </SelectContent>
+                            </Select>
+                          </div>
                           
-                          {/* AI System Types */}
-                          <div className="space-y-2">
-                            <div className="font-medium mb-1">AI System Types of Interest <span className="text-xs text-muted-foreground">(select multiple)</span></div>
-                            <div className="grid grid-cols-2 gap-2">
+                          {/* AI System Types - Now a Multi-select CheckboxGroup */}
+                          <div className="space-y-3">
+                            <Label>AI System Types of Interest <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span></Label>
+                            <div className="grid grid-cols-2 gap-2 border rounded-md p-3">
                               {[
                                 "Computer Vision",
                                 "Natural Language Processing",
@@ -615,22 +614,33 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                                 "Facial Recognition",
                                 "Emotion Analysis"
                               ].map((type) => (
-                                <Button 
-                                  key={type} 
-                                  variant="outline" 
-                                  className={`justify-start ${userProfile.aiSystemTypes?.includes(type) ? 'bg-primary/20 border-primary' : ''}`}
-                                  onClick={() => toggleArraySelection('aiSystemTypes', type)}
-                                >
-                                  {type}
-                                </Button>
+                                <div key={type} className="flex items-center space-x-2">
+                                  <Checkbox 
+                                    id={`ai-type-${type}`}
+                                    checked={userProfile.aiSystemTypes?.includes(type) || false}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        toggleArraySelection('aiSystemTypes', type);
+                                      } else {
+                                        toggleArraySelection('aiSystemTypes', type);
+                                      }
+                                    }}
+                                  />
+                                  <Label 
+                                    htmlFor={`ai-type-${type}`}
+                                    className="text-sm font-normal cursor-pointer"
+                                  >
+                                    {type}
+                                  </Label>
+                                </div>
                               ))}
                             </div>
                           </div>
                           
-                          {/* Primary Compliance Goals */}
-                          <div className="space-y-2">
-                            <div className="font-medium mb-1">Primary Compliance Goals <span className="text-xs text-muted-foreground">(select multiple)</span></div>
-                            <div className="grid grid-cols-1 gap-2">
+                          {/* Primary Compliance Goals - Now a Multi-select Checkbox group */}
+                          <div className="space-y-3">
+                            <Label>Primary Compliance Goals <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span></Label>
+                            <div className="border rounded-md p-3">
                               {[
                                 "Proactive compliance before enforcement",
                                 "Risk assessment and mitigation",
@@ -641,40 +651,52 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                                 "Conformity assessment preparation",
                                 "Integration with existing governance"
                               ].map((goal) => (
-                                <Button 
-                                  key={goal} 
-                                  variant="outline" 
-                                  className={`justify-start ${userProfile.complianceGoals?.includes(goal) ? 'bg-primary/20 border-primary' : ''}`}
-                                  onClick={() => toggleArraySelection('complianceGoals', goal)}
-                                >
-                                  {goal}
-                                </Button>
+                                <div key={goal} className="flex items-center space-x-2 py-1">
+                                  <Checkbox 
+                                    id={`goal-${goal}`}
+                                    checked={userProfile.complianceGoals?.includes(goal) || false}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        toggleArraySelection('complianceGoals', goal);
+                                      } else {
+                                        toggleArraySelection('complianceGoals', goal);
+                                      }
+                                    }}
+                                  />
+                                  <Label 
+                                    htmlFor={`goal-${goal}`}
+                                    className="text-sm font-normal cursor-pointer"
+                                  >
+                                    {goal}
+                                  </Label>
+                                </div>
                               ))}
                             </div>
                           </div>
                           
-                          {/* User Role */}
+                          {/* User Role - Changed to Dropdown */}
                           <div className="space-y-2">
-                            <div className="font-medium mb-1">Your Role</div>
-                            <div className="grid grid-cols-2 gap-2">
-                              {[
-                                "Decision Maker",
-                                "Legal/Compliance",
-                                "Technical Team",
-                                "Project Manager",
-                                "Data Scientist",
-                                "Executive"
-                              ].map((role) => (
-                                <Button 
-                                  key={role} 
-                                  variant="outline" 
-                                  className={`justify-start ${userProfile.role === role ? 'bg-primary/20 border-primary' : ''}`}
-                                  onClick={() => updateUserProfile('role', role)}
-                                >
-                                  {role}
-                                </Button>
-                              ))}
-                            </div>
+                            <Label htmlFor="user-role">Your Role</Label>
+                            <Select
+                              value={userProfile.role || ""}
+                              onValueChange={(value) => updateUserProfile('role', value)}
+                            >
+                              <SelectTrigger id="user-role" className="w-full">
+                                <SelectValue placeholder="Select your role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[
+                                  "Decision Maker",
+                                  "Legal/Compliance",
+                                  "Technical Team",
+                                  "Project Manager",
+                                  "Data Scientist",
+                                  "Executive"
+                                ].map((role) => (
+                                  <SelectItem key={role} value={role}>{role}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                         
