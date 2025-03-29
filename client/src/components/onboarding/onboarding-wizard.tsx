@@ -788,7 +788,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                               size="sm" 
                               variant="outline" 
                               className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
-                              onClick={() => handleNavigateTo("/inventory")}
+                              onClick={() => handleNavigateTo("/register-system")}
                             >
                               <span className="bg-blue-100 rounded-full p-1 mr-1">
                                 <Database className="h-3 w-3 text-blue-600" />
@@ -800,7 +800,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                               size="sm" 
                               variant="outline" 
                               className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
-                              onClick={() => handleNavigateTo("/risk-assessment/wizard")}
+                              onClick={() => handleNavigateTo("/risk-assessment/guides")}
                             >
                               <span className="bg-blue-100 rounded-full p-1 mr-1">
                                 <AlertTriangle className="h-3 w-3 text-blue-600" />
@@ -812,24 +812,24 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                               size="sm" 
                               variant="outline" 
                               className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
-                              onClick={() => handleNavigateTo("/knowledge-center")}
+                              onClick={() => handleNavigateTo("/dashboard")}
                             >
                               <span className="bg-blue-100 rounded-full p-1 mr-1">
                                 <BookOpen className="h-3 w-3 text-blue-600" />
                               </span>
-                              Knowledge Center
+                              Dashboard
                             </Button>
                             
                             <Button 
                               size="sm" 
                               variant="outline" 
                               className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
-                              onClick={() => handleNavigateTo("/documentation")}
+                              onClick={() => handleNavigateTo("/guides/platform-introduction")}
                             >
                               <span className="bg-blue-100 rounded-full p-1 mr-1">
                                 <FileText className="h-3 w-3 text-blue-600" />
                               </span>
-                              Documentation
+                              Getting Started
                             </Button>
                           </div>
                         </div>
