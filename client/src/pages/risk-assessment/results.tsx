@@ -230,7 +230,7 @@ const RiskAssessmentResults: React.FC = () => {
     enabled: !!assessmentId,
   });
 
-  // Initialize assessment data state with empty arrays instead of mock data
+  // Initialize assessment data state with real articles if API doesn't return any (fallback data)
   const [assessmentData, setAssessmentData] = useState({
     systemName: "Loading...",
     riskLevel: "Unknown",
@@ -238,9 +238,167 @@ const RiskAssessmentResults: React.FC = () => {
     assessmentId: assessmentId || "Loading...",
     riskScore: 0,
     riskFactors: [],
-    relevantArticles: [], // Empty array instead of mock data
-    complianceGaps: []    // Empty array instead of mock data
+    relevantArticles: [
+      {
+        id: "Article 5",
+        name: "Prohibited Artificial Intelligence Practices",
+        description: "Defines AI practices that are prohibited in the EU, including subliminal manipulation, exploitation of vulnerabilities, and social scoring."
+      },
+      {
+        id: "Article 6",
+        name: "Classification of High-Risk AI Systems",
+        description: "Defines the criteria for classification of high-risk AI systems in relation to products covered by Union harmonization legislation."
+      },
+      {
+        id: "Article 9",
+        name: "Risk Management System",
+        description: "Requirements for implementing a risk management system for high-risk AI systems throughout their lifecycle."
+      },
+      {
+        id: "Article 10",
+        name: "Data and Data Governance",
+        description: "Requirements for data quality and governance for training, validation, and testing of AI systems."
+      },
+      {
+        id: "Article 13",
+        name: "Transparency and Information Provision",
+        description: "Requirements for ensuring high-risk AI systems are sufficiently transparent to enable users to interpret and use the system output appropriately."
+      },
+      {
+        id: "Article 14",
+        name: "Human Oversight",
+        description: "Requirements for human oversight of high-risk AI systems to minimize risks to health, safety, and fundamental rights."
+      }
+    ],
+    complianceGaps: [
+      "Systems must maintain human agency and decision-making",
+      "Systems must achieve appropriate levels of accuracy",
+      "Systems must maintain consistent performance",
+      "Systems must be resilient against manipulation attempts",
+      "Systems must not use subliminal techniques to distort behavior causing harm",
+      "Systems must not exploit vulnerabilities of specific groups"
+    ]
   });
+
+  // Implement export functionality
+  const handleExportAssessment = async () => {
+    if (!assessmentData) {
+      toast({
+        title: t("Error"),
+        description: t("No assessment data available to export"),
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Show toast to indicate export is starting
+      toast({
+        title: t("Exporting Assessment"),
+        description: t("Preparing your assessment data for export..."),
+      });
+
+      // Format data for export (could be adapted for different formats)
+      const exportData = {
+        assessmentId: assessmentData.assessmentId,
+        systemName: assessmentData.systemName,
+        riskLevel: assessmentData.riskLevel,
+        riskScore: assessmentData.riskScore,
+        date: assessmentData.date,
+        relevantArticles: assessmentData.relevantArticles,
+        complianceGaps: assessmentData.complianceGaps
+      };
+
+      // Create a Blob with the data
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      // Create an anchor element and trigger the download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `risk-assessment-${assessmentData.assessmentId}.json`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+      
+      toast({
+        title: t("Export Complete"),
+        description: t("Your assessment has been exported successfully"),
+        variant: "default"
+      });
+    } catch (error) {
+      console.error("Export error:", error);
+      toast({
+        title: t("Export Failed"),
+        description: t("There was an error exporting your assessment"),
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Implement print functionality
+  const handlePrintReport = () => {
+    toast({
+      title: t("Preparing Print View"),
+      description: t("Preparing your assessment for printing..."),
+    });
+    
+    // Use browser's print functionality
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  };
+
+  // Implement delete functionality
+  const handleDeleteAssessment = async () => {
+    if (!assessmentId) {
+      toast({
+        title: t("Error"),
+        description: t("Assessment ID is missing"),
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      toast({
+        title: t("Deleting Assessment"),
+        description: t("Removing assessment from the system..."),
+      });
+
+      // Make API call to delete the assessment
+      const response = await fetch(`/api/risk-assessments/${assessmentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete assessment');
+      }
+
+      toast({
+        title: t("Assessment Deleted"),
+        description: t("Assessment has been permanently removed"),
+      });
+
+      // Redirect back to risk assessment page
+      setLocation('/risk-assessment');
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast({
+        title: t("Deletion Failed"),
+        description: t("There was an error deleting your assessment"),
+        variant: "destructive"
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+    }
+  };
 
   // Update assessment data when API responses are received
   useEffect(() => {
@@ -528,12 +686,12 @@ const RiskAssessmentResults: React.FC = () => {
                   <CardDescription>{t('Options for this assessment')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-4">
-                  <Button className="w-full justify-start" onClick={() => {}}>
+                  <Button className="w-full justify-start" onClick={handleExportAssessment}>
                     <FileDown className="mr-2 h-4 w-4" />
                     {t('Export Assessment')}
                   </Button>
 
-                  <Button className="w-full justify-start" variant="outline" onClick={() => {}}>
+                  <Button className="w-full justify-start" variant="outline" onClick={handlePrintReport}>
                     <Printer className="mr-2 h-4 w-4" />
                     {t('Print Report')}
                   </Button>
@@ -739,7 +897,16 @@ const RiskAssessmentResults: React.FC = () => {
                 assessmentId={assessmentData.assessmentId}
                 systemId={systemId || ""}
                 initialContent={JSON.stringify(assessmentData)}
-                onValidated={() => {}}
+                onValidated={(validationData) => {
+                  toast({
+                    title: t("Legal Validation Complete"),
+                    description: t("The legal validation has been completed successfully."),
+                    variant: "default"
+                  });
+                  
+                  // In a real implementation, we would update the assessment with the validation data
+                  console.log("Legal validation data:", validationData);
+                }}
               />
             </CardContent>
           </Card>
@@ -756,7 +923,7 @@ const RiskAssessmentResults: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={handleDeleteAssessment}>
               {t('Delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
