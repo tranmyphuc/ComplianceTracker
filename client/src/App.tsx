@@ -58,7 +58,7 @@ import ProfessionalServicesScenario from '@/pages/demo-scenarios/professional-se
 import AutomotiveScenario from '@/pages/demo-scenarios/automotive-ai-systems';
 import LogisticsScenario from '@/pages/demo-scenarios/logistics-transportation';
 import VendorManagement from '@/pages/vendor-management';
-import ComplianceChatbotPage from "./pages/compliance-chatbot";
+// import ComplianceChatbotPage from "./pages/compliance-chatbot"; // Commented out due to missing AI-Jack component
 import AdminApiKeys from "@/pages/admin/api-keys";
 import AdminDashboard from "@/pages/admin/dashboard";
 import DevelopmentMode from "@/pages/development-mode";
@@ -125,7 +125,7 @@ function Router() {
     "/demo-scenarios/sgh-service-consulting",
     "/demo-scenarios/automotive-safety-systems",
     "/demo-scenarios/logistics-supply-chain",
-    "/compliance-chatbot",
+    // "/compliance-chatbot", // Temporarily disabled due to missing AIJack component
     "/advanced-analytics",
     "/executive-dashboard",
     "/enhanced-documents",
@@ -309,9 +309,11 @@ function Router() {
       <Route path="/demo-scenarios/logistics-transportation">
         {() => renderSuspense(LogisticsScenario)}
       </Route>
+      {/* Temporarily disabled due to missing AIJack component 
       <Route path="/compliance-chatbot">
         {() => renderWithLayout(ComplianceChatbotPage)}
       </Route>
+      */}
       <Route path="/advanced-analytics"> {/* Added route */}
         {() => renderWithLayout(() => <div>Advanced Analytics Placeholder</div>)} {/* Placeholder component */}
       </Route>

@@ -2071,9 +2071,64 @@ export async function analyzeSystemCompliance(systemId: string): Promise<any> {
  * Chatbot endpoint handler using DeepSeek AI
  * This function should be exported for use in routes.ts
  */
+// Define coaching persona types for the chatbot
+type PersonaType = 'mentor' | 'expert' | 'cheerleader' | 'strategist' | 'jack';
+
+// Define personality traits and speaking styles for each persona
+const PERSONA_PROMPTS: Record<PersonaType, string> = {
+  mentor: `You are a supportive EU AI Act Compliance Mentor Coach named "Mentor". 
+    You have a patient, educational approach, guiding users through complex compliance topics at their own pace.
+    - Use a supportive and encouraging tone
+    - Speak in a balanced, measured way
+    - Provide explanations that build on what the user likely already knows
+    - Ask questions to help users arrive at their own understanding
+    - Use phrases like "Let's explore this together" and "I'd be happy to help you learn about this"
+    - Acknowledge the learning journey and the complexity of the topic`,
+  
+  expert: `You are a highly knowledgeable EU AI Act Technical Expert Advisor. 
+    You provide precise, technically detailed information with a focus on accuracy and depth.
+    - Use a formal, authoritative tone with precise language
+    - Cite specific articles and sections of the EU AI Act
+    - Provide nuanced technical details when appropriate
+    - Use industry-standard terminology
+    - Include clear distinctions between requirements for different risk levels
+    - Structure your answers with logical sections
+    - Use phrases like "According to Article X" and "The technical requirements specify..."`,
+  
+  cheerleader: `You are an enthusiastic Supportive Ally for EU AI Act compliance. 
+    You focus on encouragement, positivity, and highlighting what the user is doing right.
+    - Use an upbeat, enthusiastic tone with positive language
+    - Include motivational statements and encouragement
+    - Emphasize progress and wins, however small
+    - Use emojis and exclamation marks occasionally
+    - Highlight the positive impact of compliance efforts
+    - Use phrases like "You're making great progress!" and "That's exactly right!"
+    - Acknowledge that compliance can be challenging but is worthwhile`,
+  
+  strategist: `You are a pragmatic Strategic Compliance Planner. 
+    You focus on efficient, goal-oriented approaches to EU AI Act compliance with clear action steps.
+    - Use a concise, practical tone focused on actions and outcomes
+    - Provide clear, actionable steps in a logical sequence
+    - Prioritize high-impact activities that will move compliance forward
+    - Include efficiency tips and implementation strategies
+    - Focus on concrete measures rather than theory
+    - Use phrases like "Your next steps should be..." and "To efficiently address this requirement..."
+    - Always connect advice to business outcomes and reduced compliance risk`,
+  
+  jack: `You are AI Jack, a friendly and approachable AI mascot who specializes in EU AI Act compliance.
+    You make complex regulatory concepts accessible through a conversational, slightly playful approach.
+    - Use a friendly, conversational tone with some light humor
+    - Simplify complex concepts without oversimplifying requirements
+    - Use analogies and examples to make regulatory concepts relatable
+    - Occasionally use casual phrases and conversational language
+    - Balance being approachable with being informative
+    - Use phrases like "Think of it this way..." and "Here's the simple version..."
+    - Make compliance feel less intimidating while emphasizing its importance`
+};
+
 export async function handleChatbotQuery(req: Request, res: Response) {
   try {
-    const { query } = req.body;
+    const { query, persona = 'jack' } = req.body;
 
     if (!query || typeof query !== 'string') {
       return res.status(400).json({ message: "Invalid query parameter" });
@@ -2086,10 +2141,11 @@ export async function handleChatbotQuery(req: Request, res: Response) {
       });
     }
 
-    // Construct a context-specific prompt with knowledge base information
-    const prompt = `You are an expert SGH ASIA AI assistant specializing in EU AI Act compliance. 
-      You provide clear, accurate, and helpful responses to questions about AI regulation, 
-      compliance requirements, risk assessment, and implementation strategies.
+    // Get the appropriate persona prompt
+    const personaPrompt = PERSONA_PROMPTS[persona as PersonaType] || PERSONA_PROMPTS.jack;
+
+    // Construct a context-specific prompt with knowledge base information and persona characteristics
+    const prompt = `${personaPrompt}
 
       Here is some key information about the EU AI Act:
       - The EU AI Act is the world's first comprehensive legal framework for AI
@@ -2097,17 +2153,19 @@ export async function handleChatbotQuery(req: Request, res: Response) {
       - High-risk systems require technical documentation, human oversight, and risk management
       - Limited risk systems have specific transparency obligations
       - Implementation timeline includes phases over 36 months after entry into force
+      
+      Remember to maintain your coaching persona's communication style throughout your response.
 
       User question: ${query}
 
-      Please provide a detailed, helpful, and technically accurate response. Include specific 
+      Please provide a helpful and accurate response in your persona's distinctive style. Include specific 
       article references when relevant. Format your answer to be clear and structured.`;
+
+    // Log the selected persona and query
+    console.log(`Chatbot Query [${persona}]: "${query.substring(0, 100)}${query.length > 100 ? '...' : ''}"`);
 
     // Call DeepSeek API through our wrapper
     const aiResponse = await callDeepSeekApi(prompt);
-
-    // Log the interaction for audit purposes
-    console.log(`Chatbot Query: "${query.substring(0, 100)}${query.length > 100 ? '...' : ''}"`);
 
     // Enhanced response formatting
     let formattedResponse = aiResponse;
@@ -2120,6 +2178,12 @@ export async function handleChatbotQuery(req: Request, res: Response) {
         cleanedResponse = cleanedResponse.replace(/```json\s*/g, '').replace(/\s*```\s*/g, '');
       } else if (cleanedResponse.includes('```')) {
         cleanedResponse = cleanedResponse.replace(/```\s*/g, '').replace(/\s*```\s*/g, '');
+      }
+      
+      // Apply persona-specific formatting if needed
+      if (persona === 'cheerleader' && !formattedResponse.includes('!')) {
+        // Add some enthusiasm for the cheerleader if it's missing
+        formattedResponse = formattedResponse.replace(/\.(\s+|$)/g, '! ').trim();
       }
       
       return res.json({ response: formattedResponse });
