@@ -64,6 +64,7 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import DevelopmentMode from "@/pages/development-mode";
 import EnhancedDocumentsPage from "@/pages/enhanced-documents";
 import ComplianceReportPage from "@/pages/compliance-report";
+import PricingPage from "@/pages/pricing";
 
 
 function Router() {
@@ -130,6 +131,7 @@ function Router() {
     "/executive-dashboard",
     "/enhanced-documents",
     "/compliance-report",
+    "/pricing",
     "/admin/dashboard", // Added route
     "/development-mode" // Development mode page
   ];
@@ -326,6 +328,9 @@ function Router() {
       </Route>
       <Route path="/compliance-report">
         {() => renderWithLayout(ComplianceReportPage)}
+      </Route>
+      <Route path="/pricing">
+        {() => renderWithLayout(PricingPage)}
       </Route>
       <Route path="/admin/dashboard"> {/* Added route */}
         {() => renderWithLayout(AdminDashboard)} {/* Added route */}
