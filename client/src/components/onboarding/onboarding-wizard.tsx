@@ -627,23 +627,23 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </Select>
                           </div>
                           
-                          {/* AI System Types - Simplified grid of checkboxes */}
+                          {/* Healthcare AI System Types - Specialized checkboxes */}
                           <div className="space-y-3">
-                            <Label>AI System Types <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span></Label>
-                            <div className="grid grid-cols-3 gap-x-2 gap-y-1 border rounded-md p-2">
+                            <Label>Healthcare AI Systems <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span></Label>
+                            <div className="grid grid-cols-2 gap-x-2 gap-y-2 border rounded-md p-3 bg-blue-50/30">
                               {[
-                                "Computer Vision",
-                                "NLP",
-                                "Decision Support",
-                                "Analytics",
-                                "Autonomous Systems",
-                                "Biometrics",
-                                "Healthcare AI",
-                                "Risk Scoring",
-                                "Generative AI",
-                                "Recommendation",
-                                "Facial Recognition",
-                                "Voice Analysis"
+                                "Medical Imaging AI",
+                                "Diagnostic Support",
+                                "Patient Risk Prediction",
+                                "Treatment Planning",
+                                "Clinical Decision Support",
+                                "Medical Robotics",
+                                "Smart Medical Devices",
+                                "Health Monitoring AI",
+                                "Drug Discovery AI",
+                                "Electronic Health Records AI",
+                                "Telemedicine Systems",
+                                "Patient Triage AI"
                               ].map((type) => (
                                 <div key={type} className="flex items-center space-x-1">
                                   <Checkbox 
