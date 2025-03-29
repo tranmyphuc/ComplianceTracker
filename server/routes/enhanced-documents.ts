@@ -289,6 +289,46 @@ router.get('/download/:filename', (req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/enhanced-documents/analyze
+ * Analyze an uploaded document and extract content with AI assistance
+ */
+router.post('/analyze', async (req: Request, res: Response) => {
+  try {
+    // This is a placeholder for document analysis functionality
+    // In a real implementation, you would use a library like pdf-parse, mammoth, or OCR
+    // to extract text from uploaded documents, and then use AI to process it
+    
+    // For demo purposes, we'll simulate the analysis with a delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Simulate extracted content
+    const simulatedContent = `This AI system performs image recognition for medical diagnoses, 
+using neural networks trained on medical imaging data. The system assists radiologists 
+in identifying potential abnormalities in X-ray and MRI scans.
+
+The system processes patient data including medical images and diagnostic history,
+and has been validated with an accuracy rate of 92% in controlled clinical trials.
+
+The system requires human oversight and final diagnosis confirmation by qualified medical professionals.`;
+    
+    // Simulate AI suggestions
+    const simulatedSuggestions = [
+      "Consider adding more details about data governance policies",
+      "Include information about validation methodology",
+      "Specify human oversight mechanisms for high-risk medical applications"
+    ];
+    
+    res.status(200).json({
+      content: simulatedContent,
+      suggestions: simulatedSuggestions
+    });
+    
+  } catch (error) {
+    handleApiError(res, error, 'Failed to analyze document');
+  }
+});
+
+/**
  * GET /api/enhanced-documents
  * Get list of generated documents
  */

@@ -65,6 +65,9 @@ import {
   Loader2,
   ChevronDown,
   ChevronRight,
+  FileUp,
+  FileSearch,
+  Lightbulb,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -154,6 +157,9 @@ export function EnhancedDocumentGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState('template');
   const [generatedDocumentId, setGeneratedDocumentId] = useState<string | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
   // Fetch AI systems for selection
   const { data: systems } = useQuery({
@@ -257,6 +263,63 @@ export function EnhancedDocumentGenerator() {
         id: generatedDocumentId,
         format: form.getValues('format'),
       });
+    }
+  };
+  
+  // Handle document file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+  
+  // Handle document import and analysis
+  const handleImportDocument = async () => {
+    if (!selectedFile) return;
+    
+    setIsImporting(true);
+    
+    try {
+      // Create a FormData object to send the file
+      const formData = new FormData();
+      formData.append('document', selectedFile);
+      
+      // Call the API to analyze the document
+      const response = await fetch('/api/enhanced-documents/analyze', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to analyze document');
+      }
+      
+      const data = await response.json();
+      
+      // Update the form with the analyzed content
+      if (data.content) {
+        form.setValue('content', data.content);
+      }
+      
+      // Set AI suggestions if available
+      if (data.suggestions) {
+        setAiSuggestions(data.suggestions);
+      }
+      
+      // Show success message
+      toast({
+        title: "Document Analyzed Successfully",
+        description: "The content has been extracted and analyzed.",
+      });
+      
+    } catch (error: any) {
+      toast({
+        title: "Document Analysis Failed",
+        description: error.message || "Please try again with a different file",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImporting(false);
     }
   };
   
@@ -382,7 +445,7 @@ export function EnhancedDocumentGenerator() {
                             </FormControl>
                             <SelectContent>
                               <SelectItem value="">None (Generic Document)</SelectItem>
-                              {systems && systems.map((system: any) => (
+                              {Array.isArray(systems) && systems.map((system: any) => (
                                 <SelectItem key={system.id} value={system.systemId}>
                                   {system.name} ({system.systemId})
                                 </SelectItem>
@@ -398,6 +461,62 @@ export function EnhancedDocumentGenerator() {
                     />
                   </div>
                   
+                  {/* Document Import */}
+                  <div className="p-4 border rounded-md mb-4 bg-muted/30">
+                    <h3 className="text-sm font-medium mb-2 flex items-center">
+                      <FileUp className="h-4 w-4 mr-2" />
+                      Import from Existing Document
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="col-span-2">
+                        <Input
+                          type="file"
+                          onChange={handleFileChange}
+                          accept=".pdf,.docx,.txt,.md"
+                          className="max-w-full"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Supported formats: PDF, DOCX, TXT, Markdown
+                        </p>
+                      </div>
+                      <div className="col-span-1">
+                        <Button
+                          type="button"
+                          className="w-full"
+                          variant="outline"
+                          onClick={handleImportDocument}
+                          disabled={!selectedFile || isImporting}
+                        >
+                          {isImporting ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Analyzing...
+                            </>
+                          ) : (
+                            <>
+                              <FileSearch className="mr-2 h-4 w-4" />
+                              Analyze & Import
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {aiSuggestions.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium mb-2">AI Suggestions</h4>
+                        <ul className="space-y-1">
+                          {aiSuggestions.map((suggestion, index) => (
+                            <li key={index} className="text-sm flex items-start gap-2">
+                              <Lightbulb className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                              <span>{suggestion}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                
                   <FormField
                     control={form.control}
                     name="content"

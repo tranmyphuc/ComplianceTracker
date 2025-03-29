@@ -4,7 +4,7 @@ import { useLocation, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { AIJack } from "./ai-jack";
-import { AnimatedJourneyTracker } from "./animated-journey-tracker";
+// Journey tracker import removed since we're using a simpler progress bar
 import { RegulatoryEmojiReaction } from "./regulatory-emoji-reaction";
 import { 
   CheckCircle, 
@@ -18,8 +18,19 @@ import {
   Database,
   Award, 
   Settings,
-  BookOpen
+  BookOpen,
+  Lightbulb
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 
 // Define the onboarding steps
 const onboardingSteps = [
@@ -70,6 +81,14 @@ const onboardingSteps = [
     mascotMood: "happy" as const,
     mascotMessage: "Continuous learning is key! Explore our training modules to deepen your understanding of the EU AI Act.",
     icon: BookOpen
+  },
+  {
+    id: "personalization",
+    title: "Personalize Your Experience",
+    description: "Customize your compliance journey based on your organization's specific needs and goals.",
+    mascotMood: "explaining" as const,
+    mascotMessage: "Let's tailor your experience to your specific needs. This will help us provide more relevant guidance and recommendations.",
+    icon: Settings
   },
   {
     id: "complete",
@@ -249,13 +268,18 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
               </CardHeader>
               
               <CardContent>
-                {/* Journey Tracker for all steps */}
+                {/* Simple progress indicator */}
                 {currentStep > 0 && (
                   <div className="mb-6">
-                    <AnimatedJourneyTracker 
-                      currentStep={currentStep - 1} 
-                      onStepClick={(index) => setCurrentStep(index + 1)}
-                    />
+                    <div className="text-sm text-muted-foreground text-center mb-2">
+                      Step {currentStep + 1} of {onboardingSteps.length}
+                    </div>
+                    <div className="h-1 w-full bg-muted overflow-hidden rounded-full">
+                      <div 
+                        className="h-full bg-primary"
+                        style={{ width: `${((currentStep + 1) / onboardingSteps.length) * 100}%` }}
+                      ></div>
+                    </div>
                   </div>
                 )}
                 
@@ -435,6 +459,74 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                               // In a real implementation, this would be sent to the server
                             }}
                           />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {currentStepData.id === "personalization" && (
+                      <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Customize Your Experience:</h3>
+                        
+                        <div className="space-y-4 mt-4">
+                          <div className="space-y-2">
+                            <div className="font-medium mb-1">Your Organization Type</div>
+                            <div className="grid grid-cols-2 gap-2">
+                              {["Large Enterprise", "Mid-size Organization", "Small Business", "Startup", "Government/Public Sector", "Non-profit/NGO"].map((type, i) => (
+                                <Button 
+                                  key={i} 
+                                  variant="outline" 
+                                  className={`justify-start ${i === 0 ? 'bg-primary/10' : ''}`}
+                                >
+                                  {type}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div className="font-medium mb-1">AI System Types of Interest</div>
+                            <div className="grid grid-cols-2 gap-2">
+                              {[
+                                "Computer Vision",
+                                "Natural Language Processing",
+                                "Decision Support Systems",
+                                "Predictive Analytics",
+                                "Autonomous Systems",
+                                "Biometric Identification",
+                                "Healthcare Diagnostics",
+                                "Risk Scoring"
+                              ].map((type, i) => (
+                                <Button 
+                                  key={i} 
+                                  variant="outline" 
+                                  className={`justify-start ${[0, 3].includes(i) ? 'bg-primary/10' : ''}`}
+                                >
+                                  {type}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div className="font-medium mb-1">Primary Compliance Goal</div>
+                            <div className="grid grid-cols-1 gap-2">
+                              {[
+                                "Proactive compliance before enforcement",
+                                "Risk assessment and mitigation",
+                                "Documentation and record-keeping",
+                                "Staff training and awareness",
+                                "Continuous monitoring and updating"
+                              ].map((goal, i) => (
+                                <Button 
+                                  key={i} 
+                                  variant="outline" 
+                                  className={`justify-start ${i === 0 ? 'bg-primary/10' : ''}`}
+                                >
+                                  {goal}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
