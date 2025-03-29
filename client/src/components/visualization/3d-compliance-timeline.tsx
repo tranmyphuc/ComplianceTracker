@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html, Line } from '@react-three/drei';
-import * as THREE from 'three';
+import * as THREE from '../../utils/three-compatibility';
 
 interface TimelineEvent {
   id: string;

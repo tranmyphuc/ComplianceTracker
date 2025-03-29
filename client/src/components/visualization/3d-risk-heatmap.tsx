@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
-import * as THREE from 'three';
+import * as THREE from '../../utils/three-compatibility';
 
 interface RiskDataPoint {
   id: string;
