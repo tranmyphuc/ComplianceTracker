@@ -2039,7 +2039,11 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
                   <div className="space-y-4">
                     {riskCategories
                       .find(category => category.id === 'technical_robustness')
-                      ?.questions.map(question => renderQuestion(question, 'technical_robustness'))}
+                      ?.questions?.map(question => renderQuestion(question, 'technical_robustness')) || (
+                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                          <p className="text-sm text-yellow-700">Technical robustness parameters will be available in the next assessment phase.</p>
+                        </div>
+                      )}
                   </div>
                 </div>
               </div>
@@ -2090,7 +2094,11 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
                   <div className="space-y-4">
                     {riskCategories
                       .find(category => category.id === 'data_governance')
-                      ?.questions.map(question => renderQuestion(question, 'data_governance'))}
+                      ?.questions?.map(question => renderQuestion(question, 'data_governance')) || (
+                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                          <p className="text-sm text-yellow-700">Data governance parameters will be available in the next assessment phase.</p>
+                        </div>
+                      )}
                   </div>
                 </div>
 
@@ -2107,7 +2115,11 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
                   <div className="space-y-4">
                     {riskCategories
                       .find(category => category.id === 'human_oversight')
-                      ?.questions.map(question => renderQuestion(question, 'human_oversight'))}
+                      ?.questions?.map(question => renderQuestion(question, 'human_oversight')) || (
+                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                          <p className="text-sm text-yellow-700">Human oversight parameters will be available in the next assessment phase.</p>
+                        </div>
+                      )}
                   </div>
                 </div>
 
@@ -2124,7 +2136,11 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
                   <div className="space-y-4">
                     {riskCategories
                       .find(category => category.id === 'transparency')
-                      ?.questions.map(question => renderQuestion(question, 'transparency'))}
+                      ?.questions?.map(question => renderQuestion(question, 'transparency')) || (
+                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                          <p className="text-sm text-yellow-700">Transparency parameters will be available in the next assessment phase.</p>
+                        </div>
+                      )}
                   </div>
                 </div>
               </div>
