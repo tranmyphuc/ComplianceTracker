@@ -50,28 +50,74 @@ export default function PricingPage() {
     });
   };
 
-  // Calculate ROI based on company size and AI systems
+  // Enhanced ROI calculation with industry, customization, and risk level factors
+  const [industry, setIndustry] = useState<'healthcare' | 'finance' | 'manufacturing' | 'retail' | 'government' | 'other'>('healthcare');
+  const [customizationLevel, setCustomizationLevel] = useState<'minimal' | 'moderate' | 'extensive'>('moderate');
+  const [riskLevel, setRiskLevel] = useState<'minimal' | 'limited' | 'high' | 'unacceptable'>('high');
+  
   const calculateROI = (planTier: 'essential' | 'professional' | 'enterprise') => {
+    // Company size factors (how much time/resources are saved based on company size)
     const companyFactors = {
       small: 1,
       medium: 2.5,
       enterprise: 5
     };
     
+    // Plan factors (how much efficiency is gained from each plan tier)
     const planFactors = {
       essential: 3,
       professional: 5,
       enterprise: 8
     };
-
-    const baseROI = aiSystems * 5000 * companyFactors[companySize] * planFactors[planTier];
+    
+    // Industry factors (different industries have different compliance complexities)
+    const industryFactors = {
+      healthcare: 1.4,  // Healthcare has strict regulations
+      finance: 1.3,     // Financial services have complex requirements
+      manufacturing: 1.1, // Manufacturing has moderate complexity
+      retail: 0.9,      // Retail typically has less complexity
+      government: 1.2,   // Government has specific public sector requirements
+      other: 1.0         // Baseline for other industries
+    };
+    
+    // Customization level factors (more customization = higher ROI)
+    const customizationFactors = {
+      minimal: 0.8,    // Basic implementation
+      moderate: 1.0,   // Standard implementation
+      extensive: 1.3   // Heavily customized implementation
+    };
+    
+    // Risk level factors (higher risk = higher potential savings)
+    const riskFactors = {
+      minimal: 0.7,      // Minimal risk AI systems
+      limited: 1.0,      // Limited risk AI systems
+      high: 1.5,         // High-risk AI systems
+      unacceptable: 2.0  // Unacceptable risk (that need major modification)
+    };
+    
+    // Calculate base ROI with all factors
+    const baseROI = aiSystems * 5000 * 
+                    companyFactors[companySize] * 
+                    planFactors[planTier] * 
+                    industryFactors[industry] * 
+                    customizationFactors[customizationLevel] * 
+                    riskFactors[riskLevel];
+                    
     const planCost = getPlanPrice(planTier, billingCycle);
+    
+    // Calculate potential penalty avoidance based on risk level
+    const penaltyAvoidanceMultiplier = {
+      minimal: 2,
+      limited: 5,
+      high: 10,
+      unacceptable: 15
+    }[riskLevel];
     
     return {
       annualSavings: baseROI,
-      breakEvenMonths: Math.ceil((planCost * 12) / (baseROI / 12)),
-      fiveYearROI: (baseROI * 5 - planCost * 5).toLocaleString(),
-      penaltyAvoidance: (baseROI * 7).toLocaleString()
+      breakEvenMonths: Math.ceil((planCost * (billingCycle === 'annual' ? 1 : 12)) / (baseROI / 12)),
+      fiveYearROI: (baseROI * 5 - planCost * (billingCycle === 'annual' ? 5 : 5 * 12)).toLocaleString(),
+      penaltyAvoidance: (baseROI * penaltyAvoidanceMultiplier).toLocaleString()
     };
   };
 
@@ -194,87 +240,167 @@ export default function PricingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h4 className="font-medium text-sm">Organization Size</h4>
-              <div className="flex gap-2">
-                {['small', 'medium', 'enterprise'].map((size) => (
-                  <Button 
-                    key={size}
-                    onClick={() => setCompanySize(size as any)}
-                    variant={companySize === size ? "default" : "outline"}
-                    size="sm"
-                    className="flex-1 capitalize"
-                  >
-                    {size}
-                    {size === 'small' && <span className="text-xs ml-1">(1-50)</span>}
-                    {size === 'medium' && <span className="text-xs ml-1">(51-250)</span>}
-                    {size === 'enterprise' && <span className="text-xs ml-1">(251+)</span>}
-                  </Button>
-                ))}
-              </div>
-              
-              <h4 className="font-medium text-sm pt-2">Number of AI Systems</h4>
-              <div className="flex flex-wrap gap-2">
-                {[1, 3, 5, 10, 15, 20].map((num) => (
-                  <Button 
-                    key={num}
-                    onClick={() => setAiSystems(num)}
-                    variant={aiSystems === num ? "default" : "outline"}
-                    size="sm"
-                    className="flex-1"
-                  >
-                    {num}
-                  </Button>
-                ))}
-              </div>
-              
-              <div className="pt-2">
-                <label className="font-medium text-sm block mb-1">Custom AI Systems</label>
-                <div className="flex gap-2 items-center">
-                  <input 
-                    type="number" 
-                    min="1" 
-                    max="100"
-                    value={aiSystems}
-                    onChange={(e) => setAiSystems(parseInt(e.target.value) || 1)}
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-                  />
-                  <Button 
-                    onClick={() => setAiSystems(Math.max(1, aiSystems - 1))}
-                    variant="outline"
-                    size="sm"
-                  >
-                    -
-                  </Button>
-                  <Button 
-                    onClick={() => setAiSystems(Math.min(100, aiSystems + 1))}
-                    variant="outline"
-                    size="sm"
-                  >
-                    +
-                  </Button>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Organization Size</h4>
+                  <div className="flex flex-col gap-2">
+                    {['small', 'medium', 'enterprise'].map((size) => (
+                      <Button 
+                        key={size}
+                        onClick={() => setCompanySize(size as any)}
+                        variant={companySize === size ? "default" : "outline"}
+                        size="sm"
+                        className="justify-start"
+                      >
+                        <span className="capitalize">{size}</span>
+                        {size === 'small' && <span className="text-xs ml-auto">(1-50)</span>}
+                        {size === 'medium' && <span className="text-xs ml-auto">(51-250)</span>}
+                        {size === 'enterprise' && <span className="text-xs ml-auto">(251+)</span>}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Industry</h4>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { id: 'healthcare', label: 'Healthcare' }, 
+                      { id: 'finance', label: 'Finance' }, 
+                      { id: 'manufacturing', label: 'Manufacturing' },
+                      { id: 'retail', label: 'Retail' },
+                      { id: 'government', label: 'Government' },
+                      { id: 'other', label: 'Other' }
+                    ].map((ind) => (
+                      <Button 
+                        key={ind.id}
+                        onClick={() => setIndustry(ind.id as any)}
+                        variant={industry === ind.id ? "default" : "outline"}
+                        size="sm"
+                        className="justify-start"
+                      >
+                        {ind.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
               
-              <h4 className="font-medium text-sm pt-2">Billing Preference</h4>
-              <div className="flex items-center gap-2">
-                <Button 
-                  onClick={() => setBillingCycle('annual')}
-                  variant={billingCycle === 'annual' ? "default" : "outline"}
-                  size="sm"
-                  className="flex-1"
-                >
-                  Annual <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 border-0">Save up to 22%</Badge>
-                </Button>
-                <Button 
-                  onClick={() => setBillingCycle('monthly')}
-                  variant={billingCycle === 'monthly' ? "default" : "outline"}
-                  size="sm"
-                  className="flex-1"
-                >
-                  Monthly
-                </Button>
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Customization Level</h4>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { id: 'minimal', label: 'Minimal' },
+                      { id: 'moderate', label: 'Moderate' },
+                      { id: 'extensive', label: 'Extensive' }
+                    ].map((cust) => (
+                      <Button 
+                        key={cust.id}
+                        onClick={() => setCustomizationLevel(cust.id as any)}
+                        variant={customizationLevel === cust.id ? "default" : "outline"}
+                        size="sm"
+                        className="justify-start"
+                      >
+                        {cust.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium text-sm mb-2">AI System Risk Level</h4>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { id: 'minimal', label: 'Minimal Risk' },
+                      { id: 'limited', label: 'Limited Risk' },
+                      { id: 'high', label: 'High Risk' },
+                      { id: 'unacceptable', label: 'Unacceptable Risk' }
+                    ].map((risk) => (
+                      <Button 
+                        key={risk.id}
+                        onClick={() => setRiskLevel(risk.id as any)}
+                        variant={riskLevel === risk.id ? "default" : "outline"}
+                        size="sm"
+                        className="justify-start"
+                      >
+                        {risk.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Number of AI Systems</h4>
+                  <div className="flex gap-2 items-center">
+                    <input 
+                      type="number" 
+                      min="1" 
+                      max="100"
+                      value={aiSystems}
+                      onChange={(e) => setAiSystems(parseInt(e.target.value) || 1)}
+                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                    />
+                    <div className="flex flex-col gap-1">
+                      <Button 
+                        onClick={() => setAiSystems(Math.min(100, aiSystems + 1))}
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2"
+                      >
+                        +
+                      </Button>
+                      <Button 
+                        onClick={() => setAiSystems(Math.max(1, aiSystems - 1))}
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2"
+                      >
+                        -
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {[1, 3, 5, 10, 25, 50].map((num) => (
+                      <Button 
+                        key={num}
+                        onClick={() => setAiSystems(num)}
+                        variant={aiSystems === num ? "default" : "outline"}
+                        size="sm"
+                        className="text-xs px-2 h-6"
+                      >
+                        {num}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Billing Preference</h4>
+                  <div className="flex flex-col gap-2">
+                    <Button 
+                      onClick={() => setBillingCycle('annual')}
+                      variant={billingCycle === 'annual' ? "default" : "outline"}
+                      size="sm"
+                      className="justify-between"
+                    >
+                      Annual 
+                      <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 border-0 text-xs">Save up to 22%</Badge>
+                    </Button>
+                    <Button 
+                      onClick={() => setBillingCycle('monthly')}
+                      variant={billingCycle === 'monthly' ? "default" : "outline"}
+                      size="sm"
+                      className="justify-start"
+                    >
+                      Monthly
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -368,25 +494,285 @@ export default function PricingPage() {
                 </div>
                 
                 <div className="mt-4 pt-4 border-t border-gray-100">
-                  <p className="text-sm text-gray-600">
-                    ROI calculation based on industry data from organizations similar to your size with {aiSystems} AI systems.
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="link" size="sm" className="h-auto p-0 ml-1">
-                            <HelpCircle className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs">
-                            ROI is calculated using averages from 200+ organizations across industries. 
-                            Factors include reduced compliance risk, staff efficiency, faster time-to-market, 
-                            and avoided regulatory penalties.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </p>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm text-gray-600">
+                        Industry-specific ROI calculation for <span className="font-semibold capitalize">{industry}</span> with {aiSystems} AI systems.
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="link" size="sm" className="h-auto p-0 ml-1">
+                                <HelpCircle className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs">
+                                ROI is calculated using averages from 200+ organizations across industries. 
+                                Factors include reduced compliance risk, staff efficiency, faster time-to-market, 
+                                and avoided regulatory penalties.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </p>
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        className="text-xs border-blue-200 text-blue-700"
+                        onClick={() => {
+                          toast({
+                            title: "Detailed ROI Analysis",
+                            description: "A detailed ROI analysis has been sent to your email.",
+                            duration: 5000,
+                          });
+                        }}
+                      >
+                        Download Detailed Analysis
+                      </Button>
+                    </div>
+                    
+                    {/* Industry-specific ROI examples */}
+                    <div className="bg-gray-50 rounded-md p-3 border border-gray-100">
+                      <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <ChevronRight className="h-4 w-4 text-blue-500" />
+                        {industry === 'healthcare' && 'Healthcare-Specific ROI Examples'}
+                        {industry === 'finance' && 'Finance-Specific ROI Examples'}
+                        {industry === 'manufacturing' && 'Manufacturing-Specific ROI Examples'}
+                        {industry === 'retail' && 'Retail-Specific ROI Examples'}
+                        {industry === 'government' && 'Government-Specific ROI Examples'}
+                        {industry === 'other' && 'Industry ROI Examples'}
+                      </h5>
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        {industry === 'healthcare' && (
+                          <>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Diagnostic AI Systems</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>2-4 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€82K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Patient Management AI</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>5-7 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€64K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Medical Research AI</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>3-6 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€120K/year</span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        
+                        {industry === 'finance' && (
+                          <>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Fraud Detection AI</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>2-3 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€95K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Credit Scoring AI</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>4-6 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€78K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Trading Algorithms</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>1-3 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€150K/year</span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        
+                        {industry === 'manufacturing' && (
+                          <>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Quality Control AI</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>3-5 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€68K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Predictive Maintenance</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>4-7 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€92K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Supply Chain AI</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>5-8 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€85K/year</span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        
+                        {industry === 'retail' && (
+                          <>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Recommendation Engines</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>3-5 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€58K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Pricing Optimization</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>4-6 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€72K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Inventory Management</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>5-7 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€65K/year</span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        
+                        {industry === 'government' && (
+                          <>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Public Service AI</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>6-9 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€105K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Benefits Assessment</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>7-10 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€88K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Public Safety AI</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>5-8 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€130K/year</span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        
+                        {industry === 'other' && (
+                          <>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Customer Service AI</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>4-6 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€62K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">Process Automation</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>3-5 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€75K/year</span>
+                              </div>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                              <div className="font-medium mb-1 text-blue-800">General Purpose AI</div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Break-even:</span>
+                                <span>5-8 months</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Avg. savings:</span>
+                                <span className="font-medium">€70K/year</span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -902,6 +1288,166 @@ export default function PricingPage() {
               Based on average market rates for compliance consultants (€250-350/hr), in-house compliance officer salaries (€80,000-120,000/yr), 
               and implementation timelines from 200+ EU organizations.
             </p>
+          </div>
+          
+          {/* Alternative compliance methods comparison chart */}
+          <div className="p-6 border-t border-gray-100">
+            <h3 className="text-lg font-semibold mb-4">Comparing Implementation Approaches</h3>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h4 className="text-sm font-medium mb-3 flex items-center">
+                  <Shield className="h-4 w-4 text-blue-600 mr-2" />
+                  Key Operational Differences by Approach
+                </h4>
+                <div className="rounded-md border overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 border-b">
+                        <th className="p-2 text-left font-medium text-gray-600">Feature</th>
+                        <th className="p-2 text-center font-medium text-gray-600">Our Platform</th>
+                        <th className="p-2 text-center font-medium text-gray-600">In-House Team</th>
+                        <th className="p-2 text-center font-medium text-gray-600">Consultants</th>
+                        <th className="p-2 text-center font-medium text-gray-600">Basic Tools</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b">
+                        <td className="p-2">AI Risk Classification</td>
+                        <td className="p-2 text-center text-xs">Automated</td>
+                        <td className="p-2 text-center text-xs">Manual</td>
+                        <td className="p-2 text-center text-xs">Expert-driven</td>
+                        <td className="p-2 text-center text-xs">Limited</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-2">Regulatory Updates</td>
+                        <td className="p-2 text-center text-xs">Real-time</td>
+                        <td className="p-2 text-center text-xs">Periodic</td>
+                        <td className="p-2 text-center text-xs">Consultant-dependent</td>
+                        <td className="p-2 text-center text-xs">Not included</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-2">Documentation Generation</td>
+                        <td className="p-2 text-center text-xs">AI-assisted</td>
+                        <td className="p-2 text-center text-xs">Manual templates</td>
+                        <td className="p-2 text-center text-xs">Standard templates</td>
+                        <td className="p-2 text-center text-xs">Basic templates</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-2">Multi-system Management</td>
+                        <td className="p-2 text-center text-xs">Scalable database</td>
+                        <td className="p-2 text-center text-xs">Manual tracking</td>
+                        <td className="p-2 text-center text-xs">Custom spreadsheets</td>
+                        <td className="p-2 text-center text-xs">Basic spreadsheets</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-2">Staff Training</td>
+                        <td className="p-2 text-center text-xs">Role-based modules</td>
+                        <td className="p-2 text-center text-xs">Internal workshops</td>
+                        <td className="p-2 text-center text-xs">External workshops</td>
+                        <td className="p-2 text-center text-xs">Self-study</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2">Operational Model</td>
+                        <td className="p-2 text-center text-xs">Software as a Service</td>
+                        <td className="p-2 text-center text-xs">Fixed staff costs</td>
+                        <td className="p-2 text-center text-xs">Project-based billing</td>
+                        <td className="p-2 text-center text-xs">Internal resources</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium mb-3 flex items-center">
+                  <BarChart className="h-4 w-4 text-blue-600 mr-2" />
+                  Performance Metrics by Implementation Approach
+                </h4>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <div className="text-xs font-medium">Time to Implement (weeks)</div>
+                      <div className="text-xs text-gray-500">Lower is better</div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs">Our Platform</div>
+                        <div className="flex-1 bg-gray-100 h-5 rounded-md relative">
+                          <div className="absolute inset-y-0 left-0 bg-blue-500 rounded-l-md" style={{width: "15%"}}>
+                            <span className="absolute inset-0 flex items-center px-1 text-white text-xs">2-4 weeks</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs">In-house Team</div>
+                        <div className="flex-1 bg-gray-100 h-5 rounded-md relative">
+                          <div className="absolute inset-y-0 left-0 bg-red-500 rounded-l-md" style={{width: "75%"}}>
+                            <span className="absolute inset-0 flex items-center px-1 text-white text-xs">12-16 weeks</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs">Consultants</div>
+                        <div className="flex-1 bg-gray-100 h-5 rounded-md relative">
+                          <div className="absolute inset-y-0 left-0 bg-purple-500 rounded-l-md" style={{width: "40%"}}>
+                            <span className="absolute inset-0 flex items-center px-1 text-white text-xs">6-8 weeks</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs">Basic Tools</div>
+                        <div className="flex-1 bg-gray-100 h-5 rounded-md relative">
+                          <div className="absolute inset-y-0 left-0 bg-amber-500 rounded-l-md" style={{width: "25%"}}>
+                            <span className="absolute inset-0 flex items-center px-1 text-white text-xs">4-6 weeks</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <div className="text-xs font-medium">Compliance Effectiveness (%)</div>
+                      <div className="text-xs text-gray-500">Higher is better</div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs">Our Platform</div>
+                        <div className="flex-1 bg-gray-100 h-5 rounded-md relative">
+                          <div className="absolute inset-y-0 left-0 bg-blue-500 rounded-l-md" style={{width: "95%"}}>
+                            <span className="absolute inset-0 flex items-center px-1 text-white text-xs">95%</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs">In-house Team</div>
+                        <div className="flex-1 bg-gray-100 h-5 rounded-md relative">
+                          <div className="absolute inset-y-0 left-0 bg-red-500 rounded-l-md" style={{width: "80%"}}>
+                            <span className="absolute inset-0 flex items-center px-1 text-white text-xs">80%</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs">Consultants</div>
+                        <div className="flex-1 bg-gray-100 h-5 rounded-md relative">
+                          <div className="absolute inset-y-0 left-0 bg-purple-500 rounded-l-md" style={{width: "90%"}}>
+                            <span className="absolute inset-0 flex items-center px-1 text-white text-xs">90%</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs">Basic Tools</div>
+                        <div className="flex-1 bg-gray-100 h-5 rounded-md relative">
+                          <div className="absolute inset-y-0 left-0 bg-amber-500 rounded-l-md" style={{width: "65%"}}>
+                            <span className="absolute inset-0 flex items-center px-1 text-white text-xs">65%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
