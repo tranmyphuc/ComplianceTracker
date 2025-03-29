@@ -1707,13 +1707,13 @@ export function AdvancedRiskWizard({ systemId, onComplete, onSaveDraft }: RiskWi
                     <div className="col-span-2 border rounded-lg p-4 space-y-4">
                       <div className="flex justify-between items-center">
                         <h4 className="font-medium">System Details</h4>
-                        {systemData && (
+                        {systemData && systemData.riskLevel && (
                           <Badge variant="outline" className={`
                             ${systemData.riskLevel === 'High' ? 'bg-red-50 text-red-700 border-red-200' :
                               systemData.riskLevel === 'Limited' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
                               'bg-green-50 text-green-700 border-green-200'}
                           `}>
-                            {systemData.riskLevel || 'Unknown'} Risk
+                            {systemData.riskLevel} Risk
                           </Badge>
                         )}
                       </div>
