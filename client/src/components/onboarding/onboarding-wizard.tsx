@@ -243,13 +243,13 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
     setLocation(path);
   };
 
-  // When onboarding is complete, redirect to the dashboard
+  // When onboarding is complete, redirect to the home page
   useEffect(() => {
     if (isOnboardingComplete) {
       // Short delay before redirecting to ensure state is properly saved
       const redirectTimer = setTimeout(() => {
-        // Always redirect to the dashboard after completing onboarding
-        setLocation('/dashboard');
+        // Always redirect to the home page after completing onboarding
+        setLocation('/');
       }, 500);
       
       return () => clearTimeout(redirectTimer);
@@ -503,9 +503,9 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                           <Button 
                             variant="outline" 
                             className="flex items-center gap-2"
-                            onClick={() => handleNavigateTo("/dashboard")}
+                            onClick={() => handleNavigateTo("/")}
                           >
-                            View Dashboard <ArrowRight size={16} />
+                            View Home <ArrowRight size={16} />
                           </Button>
                         </div>
                       </div>
@@ -998,7 +998,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
                             <span className="font-medium">Next: </span> 
                             <span className="ml-1">
-                              We'll take you to your personalized dashboard where you can begin managing your AI compliance.
+                              We'll take you to the home page where you can begin managing your AI compliance journey.
                             </span>
                           </p>
                         </div>
@@ -1094,12 +1094,12 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                               size="sm" 
                               variant="outline" 
                               className="text-xs justify-start bg-white hover:bg-blue-50 text-blue-700 border-blue-200 flex items-center"
-                              onClick={() => handleNavigateTo("/dashboard")}
+                              onClick={() => handleNavigateTo("/")}
                             >
                               <span className="bg-blue-100 rounded-full p-1 mr-1">
                                 <BookOpen className="h-3 w-3 text-blue-600" />
                               </span>
-                              Dashboard
+                              Home
                             </Button>
                             
                             <Button 
@@ -1247,7 +1247,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                         
                         <div className="mt-6 flex justify-center">
                           <Button 
-                            onClick={() => handleNavigateTo("/dashboard")}
+                            onClick={() => handleNavigateTo("/")}
                             className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-6 rounded-lg flex items-center gap-2 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                           >
                             <span className="text-lg">Start Your Compliance Journey</span>
