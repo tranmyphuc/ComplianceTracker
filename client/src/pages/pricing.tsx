@@ -1167,6 +1167,88 @@ export default function PricingPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Direct Contact Section */}
+      <Card className="mb-8 mt-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Phone className="h-6 w-6 text-green-600" />
+            Contact Us Directly
+          </CardTitle>
+          <CardDescription>
+            Have questions about our plans? Our sales team is ready to help!
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-3 gap-6">
+          <div className="border rounded-lg p-4 flex flex-col items-center text-center">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+              <Phone className="h-6 w-6 text-blue-600" />
+            </div>
+            <h3 className="font-medium mb-2">Schedule a Call</h3>
+            <p className="text-gray-600 text-sm mb-3">
+              Book a 30-minute consultation with a compliance expert
+            </p>
+            <Button 
+              className="w-full" 
+              onClick={() => {
+                toast({
+                  title: "Call Request Received",
+                  description: "Our team will contact you to schedule a call.",
+                  duration: 5000,
+                });
+              }}
+            >
+              Book a Call
+            </Button>
+          </div>
+          
+          <div className="border rounded-lg p-4 flex flex-col items-center text-center">
+            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-3">
+              <Mail className="h-6 w-6 text-indigo-600" />
+            </div>
+            <h3 className="font-medium mb-2">Email Us</h3>
+            <p className="text-gray-600 text-sm mb-3">
+              Send us your questions and we'll respond within 24 hours
+            </p>
+            <Button 
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                toast({
+                  title: "Email Contact",
+                  description: "Contact our team at sales@eaai-compliance.com",
+                  duration: 5000,
+                });
+              }}
+            >
+              Email Sales Team
+            </Button>
+          </div>
+          
+          <div className="border rounded-lg p-4 flex flex-col items-center text-center">
+            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+              <FileText className="h-6 w-6 text-purple-600" />
+            </div>
+            <h3 className="font-medium mb-2">Download Information</h3>
+            <p className="text-gray-600 text-sm mb-3">
+              Get our detailed pricing guide with case studies
+            </p>
+            <Button 
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                toast({
+                  title: "Download Started",
+                  description: "Your pricing guide is being prepared for download.",
+                  duration: 5000,
+                });
+              }}
+            >
+              Download Guide
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
