@@ -21,7 +21,8 @@ import {
   Settings,
   BookOpen,
   Lightbulb,
-  CheckCheck
+  CheckCheck,
+  Download
 } from "lucide-react";
 import {
   Select,
@@ -933,6 +934,35 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </div>
                           </div>
                         )}
+                        
+                        {/* Personalized compliance brief with download option */}
+                        <div className="mb-6 p-4 rounded-lg border border-orange-200 bg-orange-50">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-medium text-orange-800 flex items-center text-sm">
+                              <FileText className="w-4 h-4 mr-1 text-orange-700" />
+                              Your Personalized Compliance Brief
+                            </h4>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs border-orange-300 text-orange-700 hover:bg-orange-100"
+                              onClick={() => handleNavigateTo("/dashboard")}
+                            >
+                              <Download className="h-3 w-3 mr-1" /> Download PDF
+                            </Button>
+                          </div>
+                          
+                          <div className="text-xs text-orange-800">
+                            <p>Based on your profile, we've prepared a professional compliance brief for your organization. This report includes:</p>
+                            <ul className="mt-2 space-y-1 list-disc list-inside">
+                              <li>Personalized compliance roadmap for {userProfile.industry || "your industry"}</li>
+                              <li>Key EU AI Act requirements for your specific use cases</li>
+                              <li>Risk assessment checklist for {userProfile.aiSystemTypes?.[0] || "your AI systems"}</li>
+                              <li>Timeline of implementation milestones</li>
+                              <li>Expert recommendations for your compliance journey</li>
+                            </ul>
+                          </div>
+                        </div>
                         
                         <div className="mt-6 flex justify-center">
                           <Button 
