@@ -262,15 +262,15 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
       } else if (userIndustry.includes('insurance')) {
         demoRoute = '/demo-scenarios/insurance-risk-assessment';
       } else if (userIndustry.includes('logistics') || userIndustry.includes('transport')) {
-        demoRoute = '/demo-scenarios/logistics-supply-chain';
+        demoRoute = '/demo-scenarios/logistics-transportation';
       } else if (userIndustry.includes('manufacturing')) {
         demoRoute = '/demo-scenarios/manufacturing-predictive-maintenance';
       } else if (userIndustry.includes('energy') || userIndustry.includes('utilities')) {
         demoRoute = '/demo-scenarios/energy-smart-grid';
       } else if (userIndustry.includes('automotive')) {
-        demoRoute = '/demo-scenarios/automotive-safety-systems';
+        demoRoute = '/demo-scenarios/automotive-ai-systems';
       } else if (userIndustry.includes('professional') || userIndustry.includes('services')) {
-        demoRoute = '/demo-scenarios/sgh-service-consulting';
+        demoRoute = '/demo-scenarios/professional-services';
       } else {
         // Default to main demo scenarios page if no specific match
         demoRoute = '/demo-scenarios';

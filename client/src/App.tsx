@@ -300,13 +300,13 @@ function Router() {
       <Route path="/demo-scenarios/manufacturing-predictive-maintenance">
         {() => renderSuspense(ManufacturingScenario)}
       </Route>
-      <Route path="/demo-scenarios/sgh-service-consulting">
+      <Route path="/demo-scenarios/professional-services">
         {() => renderSuspense(ProfessionalServicesScenario)}
       </Route>
-      <Route path="/demo-scenarios/automotive-safety-systems">
+      <Route path="/demo-scenarios/automotive-ai-systems">
         {() => renderSuspense(AutomotiveScenario)}
       </Route>
-      <Route path="/demo-scenarios/logistics-supply-chain">
+      <Route path="/demo-scenarios/logistics-transportation">
         {() => renderSuspense(LogisticsScenario)}
       </Route>
       <Route path="/compliance-chatbot">
