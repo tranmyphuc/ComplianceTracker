@@ -243,7 +243,41 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
     setLocation(path);
   };
 
-  // When onboarding is complete, return null
+  // When onboarding is complete, redirect to appropriate demo scenario
+  useEffect(() => {
+    if (isOnboardingComplete) {
+      // Get user industry and navigate to appropriate demo scenario
+      const userIndustry = userProfile.industry?.toLowerCase() || '';
+      let demoRoute = '/demo-scenarios';
+
+      // Map industry to specific demo scenario
+      if (userIndustry.includes('healthcare')) {
+        demoRoute = '/demo-scenarios/healthcare-ai-diagnostics';
+      } else if (userIndustry.includes('financial') || userIndustry.includes('banking')) {
+        demoRoute = '/demo-scenarios/fintech-fraud-detection';
+      } else if (userIndustry.includes('retail') || userIndustry.includes('commerce')) {
+        demoRoute = '/demo-scenarios/retail-recommendation-engine';
+      } else if (userIndustry.includes('public') || userIndustry.includes('government')) {
+        demoRoute = '/demo-scenarios/public-sector-eligibility';
+      } else if (userIndustry.includes('insurance')) {
+        demoRoute = '/demo-scenarios/insurance-risk-scoring';
+      } else if (userIndustry.includes('logistics') || userIndustry.includes('transport')) {
+        demoRoute = '/demo-scenarios/logistics-route-optimization';
+      } else {
+        // Default to main demo scenarios page if no specific match
+        demoRoute = '/demo-scenarios';
+      }
+
+      // Short delay before redirecting to ensure state is properly saved
+      const redirectTimer = setTimeout(() => {
+        setLocation(demoRoute);
+      }, 500);
+      
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [isOnboardingComplete, userProfile.industry, setLocation]);
+
+  // If onboarding is complete, return null while redirecting
   if (isOnboardingComplete) {
     return null;
   }
@@ -978,6 +1012,17 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                     {currentStepData.id === "complete" && (
                       <div className="space-y-4">
                         <h3 className="font-semibold text-lg">Your Personalized Compliance Journey:</h3>
+                        
+                        {/* Next steps preview - show where they'll be redirected */}
+                        <div className="bg-green-50 p-4 rounded-lg border border-green-100 mb-4">
+                          <p className="text-green-800 text-sm flex items-center">
+                            <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
+                            <span className="font-medium">Next: </span> 
+                            <span className="ml-1">
+                              We'll take you to a demo scenario tailored to your industry for a hands-on experience.
+                            </span>
+                          </p>
+                        </div>
                         
                         {/* Simplified profile card */}
                         <div className="bg-purple-50 rounded-lg border border-purple-200 overflow-hidden mb-4">
