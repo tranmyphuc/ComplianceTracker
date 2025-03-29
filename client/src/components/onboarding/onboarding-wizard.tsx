@@ -24,7 +24,11 @@ import {
   CheckCheck,
   Download,
   User,
-  ShieldAlert
+  ShieldAlert,
+  Building2,
+  Mail,
+  Phone,
+  Globe
 } from "lucide-react";
 import {
   Select,
@@ -738,63 +742,93 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                     )}
                     
                     {currentStepData.id === "contact-information" && (
-                      <div className="space-y-4">
-                        <h3 className="font-semibold text-lg">Your Contact Details:</h3>
+                      <div className="space-y-6">
+                        <div className="rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 p-4 border border-purple-100">
+                          <h3 className="font-semibold text-lg flex items-center gap-2 text-purple-800">
+                            <User className="h-5 w-5 text-purple-600" />
+                            Your Contact Information
+                          </h3>
+                          <p className="text-sm text-purple-700 mt-1">
+                            AI Jack will help tailor your compliance experience to your organization's needs.
+                          </p>
+                        </div>
                         
-                        <div className="space-y-6 mt-4">
+                        <div className="grid md:grid-cols-2 gap-x-6 gap-y-4 bg-white p-5 rounded-lg border border-gray-100 shadow-sm">
                           {/* Company Name */}
                           <div className="grid gap-2">
-                            <Label htmlFor="companyName">Company Name</Label>
+                            <Label htmlFor="companyName" className="flex items-center gap-1.5 text-sm font-medium">
+                              <Building2 className="h-4 w-4 text-purple-500" />
+                              Company Name <span className="text-red-500">*</span>
+                            </Label>
                             <Input 
                               id="companyName"
-                              placeholder="Enter your company name"
+                              placeholder="Enter your organization's name"
                               value={userProfile.companyName || ''}
                               onChange={(e) => updateUserProfile('companyName', e.target.value)}
+                              className="border-gray-200 focus:border-purple-400 focus:ring-purple-200"
                             />
                           </div>
                           
                           {/* Contact Name */}
                           <div className="grid gap-2">
-                            <Label htmlFor="contactName">Contact Person</Label>
+                            <Label htmlFor="contactName" className="flex items-center gap-1.5 text-sm font-medium">
+                              <User className="h-4 w-4 text-purple-500" />
+                              Contact Person <span className="text-red-500">*</span>
+                            </Label>
                             <Input 
                               id="contactName"
                               placeholder="Your full name"
                               value={userProfile.contactName || ''}
                               onChange={(e) => updateUserProfile('contactName', e.target.value)}
+                              className="border-gray-200 focus:border-purple-400 focus:ring-purple-200"
                             />
                           </div>
                           
                           {/* Contact Email */}
                           <div className="grid gap-2">
-                            <Label htmlFor="contactEmail">Email Address</Label>
+                            <Label htmlFor="contactEmail" className="flex items-center gap-1.5 text-sm font-medium">
+                              <Mail className="h-4 w-4 text-purple-500" />
+                              Email Address <span className="text-red-500">*</span>
+                            </Label>
                             <Input 
                               id="contactEmail"
                               type="email"
                               placeholder="your.email@company.com"
                               value={userProfile.contactEmail || ''}
                               onChange={(e) => updateUserProfile('contactEmail', e.target.value)}
+                              className="border-gray-200 focus:border-purple-400 focus:ring-purple-200"
                             />
+                            <p className="text-xs text-gray-500 mt-1">
+                              We'll send compliance updates and notifications to this email.
+                            </p>
                           </div>
                           
                           {/* Contact Phone */}
                           <div className="grid gap-2">
-                            <Label htmlFor="contactPhone">Phone Number</Label>
+                            <Label htmlFor="contactPhone" className="flex items-center gap-1.5 text-sm font-medium">
+                              <Phone className="h-4 w-4 text-purple-500" />
+                              Phone Number
+                            </Label>
                             <Input 
                               id="contactPhone"
                               placeholder="+123 456 7890"
                               value={userProfile.contactPhone || ''}
                               onChange={(e) => updateUserProfile('contactPhone', e.target.value)}
+                              className="border-gray-200 focus:border-purple-400 focus:ring-purple-200"
                             />
                           </div>
                           
                           {/* Country */}
-                          <div className="grid gap-2">
-                            <Label htmlFor="country">Country</Label>
+                          <div className="grid gap-2 md:col-span-2">
+                            <Label htmlFor="country" className="flex items-center gap-1.5 text-sm font-medium">
+                              <Globe className="h-4 w-4 text-purple-500" />
+                              Country <span className="text-red-500">*</span>
+                            </Label>
                             <Select 
                               value={userProfile.country || ''} 
                               onValueChange={(value) => updateUserProfile('country', value)}
                             >
-                              <SelectTrigger id="country">
+                              <SelectTrigger id="country" className="border-gray-200 focus:border-purple-400 focus:ring-purple-200">
                                 <SelectValue placeholder="Select your country" />
                               </SelectTrigger>
                               <SelectContent>
@@ -833,17 +867,28 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                                 </SelectGroup>
                               </SelectContent>
                             </Select>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Your country helps us provide location-specific compliance guidance.
+                            </p>
                           </div>
                         </div>
                         
-                        <div className="p-3 mt-4 bg-amber-50 rounded-lg border border-amber-100">
-                          <div className="flex items-start">
-                            <ShieldAlert className="h-5 w-5 text-amber-500 mt-0.5 mr-2" />
+                        <div className="p-4 bg-amber-50 rounded-lg border border-amber-100 flex gap-3">
+                          <div className="flex-shrink-0">
+                            <ShieldAlert className="h-6 w-6 text-amber-500" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-amber-800 mb-1">Privacy Information</h4>
                             <p className="text-sm text-amber-700">
                               Your information is securely stored and will only be used to provide 
                               personalized compliance guidance. We never share your data with third parties.
                             </p>
                           </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 flex-wrap bg-purple-50 p-3 rounded-lg border border-purple-100">
+                          <CheckCheck className="h-5 w-5 text-purple-600" />
+                          <span className="text-sm font-medium text-purple-800">We recommend completing all fields for the best personalized experience</span>
                         </div>
                       </div>
                     )}
