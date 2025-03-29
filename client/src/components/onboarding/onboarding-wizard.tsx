@@ -243,47 +243,18 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
     setLocation(path);
   };
 
-  // When onboarding is complete, redirect to appropriate demo scenario
+  // When onboarding is complete, redirect to the dashboard
   useEffect(() => {
     if (isOnboardingComplete) {
-      // Get user industry and navigate to appropriate demo scenario
-      const userIndustry = userProfile.industry?.toLowerCase() || '';
-      let demoRoute = '/demo-scenarios';
-
-      // Map industry to specific demo scenario
-      if (userIndustry.includes('healthcare')) {
-        demoRoute = '/demo-scenarios/healthcare-ai-diagnostics';
-      } else if (userIndustry.includes('financial') || userIndustry.includes('banking')) {
-        demoRoute = '/demo-scenarios/fintech-fraud-detection';
-      } else if (userIndustry.includes('retail') || userIndustry.includes('commerce')) {
-        demoRoute = '/demo-scenarios/retail-recommendation-engine';
-      } else if (userIndustry.includes('public') || userIndustry.includes('government')) {
-        demoRoute = '/demo-scenarios/public-sector-eligibility';
-      } else if (userIndustry.includes('insurance')) {
-        demoRoute = '/demo-scenarios/insurance-risk-assessment';
-      } else if (userIndustry.includes('logistics') || userIndustry.includes('transport')) {
-        demoRoute = '/demo-scenarios/logistics-transportation';
-      } else if (userIndustry.includes('manufacturing')) {
-        demoRoute = '/demo-scenarios/manufacturing-predictive-maintenance';
-      } else if (userIndustry.includes('energy') || userIndustry.includes('utilities')) {
-        demoRoute = '/demo-scenarios/energy-smart-grid';
-      } else if (userIndustry.includes('automotive')) {
-        demoRoute = '/demo-scenarios/automotive-ai-systems';
-      } else if (userIndustry.includes('professional') || userIndustry.includes('services')) {
-        demoRoute = '/demo-scenarios/professional-services';
-      } else {
-        // Default to main demo scenarios page if no specific match
-        demoRoute = '/demo-scenarios';
-      }
-
       // Short delay before redirecting to ensure state is properly saved
       const redirectTimer = setTimeout(() => {
-        setLocation(demoRoute);
+        // Always redirect to the dashboard after completing onboarding
+        setLocation('/dashboard');
       }, 500);
       
       return () => clearTimeout(redirectTimer);
     }
-  }, [isOnboardingComplete, userProfile.industry, setLocation]);
+  }, [isOnboardingComplete, setLocation]);
 
   // If onboarding is complete, return null while redirecting
   if (isOnboardingComplete) {
@@ -1027,7 +998,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
                             <span className="font-medium">Next: </span> 
                             <span className="ml-1">
-                              We'll take you to a demo scenario tailored to your industry for a hands-on experience.
+                              We'll take you to your personalized dashboard where you can begin managing your AI compliance.
                             </span>
                           </p>
                         </div>
