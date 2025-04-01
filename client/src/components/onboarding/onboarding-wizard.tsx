@@ -673,94 +673,96 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                           </div>
                           
                           {/* AI System Types */}
-                          <div className="col-span-12">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Label className="text-sm flex items-center">
-                                <Database className="h-3.5 w-3.5 mr-1 text-blue-600" />
-                                AI Systems <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span>
-                              </Label>
-                            </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-1 border rounded-md p-2 bg-blue-50/30">
-                              {[
-                                "Machine Learning Models",
-                                "Natural Language Processing",
-                                "Computer Vision Systems",
-                                "Predictive Analytics",
-                                "Decision Support Systems",
-                                "Recommendation Engines",
-                                "Chatbots & Virtual Assistants",
-                                "Biometric Recognition",
-                                "Knowledge Representation",
-                                "Autonomous Systems",
-                                "Neural Networks",
-                                "Generative AI"
-                              ].map((type) => (
-                                <div key={type} className="flex items-center space-x-1">
-                                  <Checkbox 
-                                    id={`ai-type-${type}`}
-                                    checked={userProfile.aiSystemTypes?.includes(type) || false}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) {
-                                        toggleArraySelection('aiSystemTypes', type);
-                                      } else {
-                                        toggleArraySelection('aiSystemTypes', type);
-                                      }
-                                    }}
-                                  />
-                                  <Label 
-                                    htmlFor={`ai-type-${type}`}
-                                    className="text-xs font-normal cursor-pointer"
-                                  >
-                                    {type}
-                                  </Label>
-                                </div>
-                              ))}
+                          <div className="col-span-12 space-y-1">
+                            <Label className="text-sm flex items-center">
+                              <Database className="h-3.5 w-3.5 mr-1 text-blue-600" />
+                              AI Systems <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span>
+                            </Label>
+                            <div className="border rounded-md p-3 bg-blue-50/30">
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4">
+                                {[
+                                  "Machine Learning Models",
+                                  "Natural Language Processing",
+                                  "Computer Vision Systems",
+                                  "Predictive Analytics",
+                                  "Decision Support Systems",
+                                  "Recommendation Engines",
+                                  "Chatbots & Virtual Assistants",
+                                  "Biometric Recognition",
+                                  "Knowledge Representation",
+                                  "Autonomous Systems",
+                                  "Neural Networks",
+                                  "Generative AI"
+                                ].map((type) => (
+                                  <div key={type} className="flex items-center gap-2">
+                                    <Checkbox 
+                                      id={`ai-type-${type}`}
+                                      className="h-4 w-4"
+                                      checked={userProfile.aiSystemTypes?.includes(type) || false}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          toggleArraySelection('aiSystemTypes', type);
+                                        } else {
+                                          toggleArraySelection('aiSystemTypes', type);
+                                        }
+                                      }}
+                                    />
+                                    <Label 
+                                      htmlFor={`ai-type-${type}`}
+                                      className="text-sm font-normal cursor-pointer"
+                                    >
+                                      {type}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </div>
                           
                           {/* Compliance Goals */}
-                          <div className="col-span-12">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Label className="text-sm flex items-center">
-                                <CheckSquare className="h-3.5 w-3.5 mr-1 text-blue-600" />
-                                Compliance Goals <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span>
-                              </Label>
-                            </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-1 border rounded-md p-2 bg-blue-50/30">
-                              {[
-                                "EU AI Act compliance",
-                                "Risk management framework",
-                                "Transparent AI documentation",
-                                "GDPR data protection compliance",
-                                "Human oversight implementation",
-                                "Staff AI awareness training",
-                                "Ethical AI governance",
-                                "Technical robustness verification",
-                                "Bias monitoring & mitigation",
-                                "Post-market monitoring system",
-                                "Regulatory notification readiness",
-                                "Conformity assessment preparation"
-                              ].map((goal) => (
-                                <div key={goal} className="flex items-center space-x-1">
-                                  <Checkbox 
-                                    id={`goal-${goal}`}
-                                    checked={userProfile.complianceGoals?.includes(goal) || false}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) {
-                                        toggleArraySelection('complianceGoals', goal);
-                                      } else {
-                                        toggleArraySelection('complianceGoals', goal);
-                                      }
-                                    }}
-                                  />
-                                  <Label 
-                                    htmlFor={`goal-${goal}`}
-                                    className="text-xs font-normal cursor-pointer"
-                                  >
-                                    {goal}
-                                  </Label>
-                                </div>
-                              ))}
+                          <div className="col-span-12 space-y-1">
+                            <Label className="text-sm flex items-center">
+                              <CheckSquare className="h-3.5 w-3.5 mr-1 text-blue-600" />
+                              Compliance Goals <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span>
+                            </Label>
+                            <div className="border rounded-md p-3 bg-blue-50/30">
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4">
+                                {[
+                                  "EU AI Act compliance",
+                                  "Risk management",
+                                  "Transparent documentation",
+                                  "GDPR compliance",
+                                  "Human oversight",
+                                  "Staff AI training",
+                                  "Ethical AI governance",
+                                  "Technical robustness",
+                                  "Bias monitoring",
+                                  "Post-market monitoring",
+                                  "Regulatory readiness",
+                                  "Conformity assessment"
+                                ].map((goal) => (
+                                  <div key={goal} className="flex items-center gap-2">
+                                    <Checkbox 
+                                      id={`goal-${goal}`}
+                                      className="h-4 w-4"
+                                      checked={userProfile.complianceGoals?.includes(goal) || false}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          toggleArraySelection('complianceGoals', goal);
+                                        } else {
+                                          toggleArraySelection('complianceGoals', goal);
+                                        }
+                                      }}
+                                    />
+                                    <Label 
+                                      htmlFor={`goal-${goal}`}
+                                      className="text-sm font-normal cursor-pointer"
+                                    >
+                                      {goal}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </div>
                           
