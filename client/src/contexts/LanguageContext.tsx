@@ -195,35 +195,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   // Translation function
   const t = (key: string): string => {
-    // Split the key to support nested translations (like pricing.calculator.title)
-    const keyParts = key.split('.');
-    let result: any = translations[currentLanguage];
-    
-    // Navigate through the nested objects to find the translation
-    for (const part of keyParts) {
-      if (result && typeof result === 'object' && part in result) {
-        result = result[part];
-      } else {
-        // If not found in current language, fallback to English
-        result = null;
-        break;
-      }
-    }
-    
-    // If not found in current language, try English
-    if (result === null) {
-      result = translations.en;
-      for (const part of keyParts) {
-        if (result && typeof result === 'object' && part in result) {
-          result = result[part];
-        } else {
-          // If not found in English either, return the key
-          return key;
-        }
-      }
-    }
-    
-    return result || key;
+    return translations[currentLanguage]?.[key] || translations.en[key] || key;
   };
 
   return (
