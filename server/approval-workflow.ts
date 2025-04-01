@@ -8,13 +8,43 @@ import {
   ApprovalPriority, 
   ModuleType, 
   NotificationFrequency,
-  Language,
   approvalItems,
   approvalAssignments,
   approvalHistory,
   approvalNotifications,
   approvalSettings
 } from "@shared/schema";
+
+// Define Language enum since it's not in the schema
+export enum Language {
+  ENGLISH = 'en',
+  FRENCH = 'fr',
+  GERMAN = 'de',
+  SPANISH = 'es',
+  ITALIAN = 'it',
+  PORTUGUESE = 'pt',
+  DUTCH = 'nl',
+  SWEDISH = 'sv',
+  DANISH = 'da',
+  FINNISH = 'fi',
+  NORWEGIAN = 'no',
+  POLISH = 'pl',
+  CZECH = 'cs',
+  SLOVAK = 'sk',
+  HUNGARIAN = 'hu',
+  ROMANIAN = 'ro',
+  BULGARIAN = 'bg',
+  GREEK = 'el',
+  TURKISH = 'tr',
+  RUSSIAN = 'ru',
+  UKRAINIAN = 'uk',
+  ARABIC = 'ar',
+  HEBREW = 'he',
+  HINDI = 'hi',
+  CHINESE = 'zh',
+  JAPANESE = 'ja',
+  KOREAN = 'ko',
+}
 import { eq, and, desc, asc, isNull, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";

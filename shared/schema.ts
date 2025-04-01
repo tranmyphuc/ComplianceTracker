@@ -130,6 +130,16 @@ export const trainingModules = pgTable('training_modules', {
   status: text('status').default('active'),
 });
 
+// Training progress table
+export const trainingProgress = pgTable('training_progress', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id').references(() => users.uid),
+  moduleId: text('module_id').references(() => trainingModules.moduleId),
+  completion: integer('completion').default(0),
+  assessmentScore: integer('assessment_score'),
+  lastUpdated: timestamp('last_updated').defaultNow(),
+});
+
 // Insertion Schemas
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -154,3 +164,146 @@ export type ArticleVersion = typeof articleVersions.$inferSelect;
 export const insertTrainingModuleSchema = createInsertSchema(trainingModules).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertTrainingModule = z.infer<typeof insertTrainingModuleSchema>;
 export type TrainingModule = typeof trainingModules.$inferSelect;
+
+export const insertTrainingProgressSchema = createInsertSchema(trainingProgress).omit({ id: true, lastUpdated: true });
+export type InsertTrainingProgress = z.infer<typeof insertTrainingProgressSchema>;
+export type TrainingProgress = typeof trainingProgress.$inferSelect;
+
+// Enums for approval workflow
+export enum ApprovalPriority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  URGENT = 'urgent',
+}
+
+export enum ApprovalStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  IN_REVIEW = 'in_review',
+  REQUESTED_CHANGES = 'requested_changes',
+}
+
+export enum ModuleType {
+  TRAINING = 'training',
+  RISK_ASSESSMENT = 'risk_assessment',
+  COMPLIANCE = 'compliance',
+  DOCUMENTATION = 'documentation',
+  POLICY = 'policy',
+}
+
+export enum NotificationFrequency {
+  IMMEDIATE = 'immediate',
+  DAILY = 'daily',
+  WEEKLY = 'weekly',
+  NEVER = 'never',
+}
+
+// Tables for approval workflow
+export const approvalItems = pgTable('approval_items', {
+  id: serial('id').primaryKey(),
+  itemId: text('item_id').notNull().unique(),
+  title: text('title').notNull(),
+  description: text('description'),
+  moduleType: text('module_type').notNull(),
+  contentId: text('content_id').notNull(),
+  status: text('status').default('pending'),
+  priority: text('priority').default('medium'),
+  createdAt: timestamp('created_at').defaultNow(),
+  createdBy: text('created_by').references(() => users.uid),
+  updatedAt: timestamp('updated_at'),
+});
+
+export const approvalAssignments = pgTable('approval_assignments', {
+  id: serial('id').primaryKey(),
+  assignmentId: text('assignment_id').notNull().unique(),
+  itemId: text('item_id').references(() => approvalItems.itemId),
+  assignedTo: text('assigned_to').references(() => users.uid),
+  assignedBy: text('assigned_by').references(() => users.uid),
+  assignedAt: timestamp('assigned_at').defaultNow(),
+  dueDate: timestamp('due_date'),
+  status: text('status').default('pending'),
+  notes: text('notes'),
+});
+
+export const approvalHistory = pgTable('approval_history', {
+  id: serial('id').primaryKey(),
+  historyId: text('history_id').notNull().unique(),
+  itemId: text('item_id').references(() => approvalItems.itemId),
+  action: text('action').notNull(),
+  actionBy: text('action_by').references(() => users.uid),
+  actionAt: timestamp('action_at').defaultNow(),
+  comments: text('comments'),
+  previousStatus: text('previous_status'),
+  newStatus: text('new_status'),
+});
+
+export const approvalNotifications = pgTable('approval_notifications', {
+  id: serial('id').primaryKey(),
+  notificationId: text('notification_id').notNull().unique(),
+  userId: text('user_id').references(() => users.uid),
+  itemId: text('item_id').references(() => approvalItems.itemId),
+  message: text('message').notNull(),
+  isRead: boolean('is_read').default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const approvalSettings = pgTable('approval_settings', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id').references(() => users.uid).unique(),
+  notificationFrequency: text('notification_frequency').default('immediate'),
+  emailNotifications: boolean('email_notifications').default(true),
+  assignmentAlerts: boolean('assignment_alerts').default(true),
+  statusChangeAlerts: boolean('status_change_alerts').default(true),
+  updatedAt: timestamp('updated_at'),
+});
+
+// Approval workflow schemas
+export const insertApprovalItemSchema = createInsertSchema(approvalItems).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertApprovalItem = z.infer<typeof insertApprovalItemSchema>;
+export type ApprovalItem = typeof approvalItems.$inferSelect;
+
+export const insertApprovalAssignmentSchema = createInsertSchema(approvalAssignments).omit({ id: true, assignedAt: true });
+export type InsertApprovalAssignment = z.infer<typeof insertApprovalAssignmentSchema>;
+export type ApprovalAssignment = typeof approvalAssignments.$inferSelect;
+
+export const insertApprovalHistorySchema = createInsertSchema(approvalHistory).omit({ id: true, actionAt: true });
+export type InsertApprovalHistory = z.infer<typeof insertApprovalHistorySchema>;
+export type ApprovalHistory = typeof approvalHistory.$inferSelect;
+
+export const insertApprovalNotificationSchema = createInsertSchema(approvalNotifications).omit({ id: true, createdAt: true });
+export type InsertApprovalNotification = z.infer<typeof insertApprovalNotificationSchema>;
+export type ApprovalNotification = typeof approvalNotifications.$inferSelect;
+
+export const insertApprovalSettingsSchema = createInsertSchema(approvalSettings).omit({ id: true, updatedAt: true });
+export type InsertApprovalSettings = z.infer<typeof insertApprovalSettingsSchema>;
+export type ApprovalSettings = typeof approvalSettings.$inferSelect;
+
+// Feature flags table for development features
+export const featureFlags = pgTable('feature_flags', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull().unique(),
+  enabled: boolean('enabled').default(false),
+  description: text('description'),
+  created_at: timestamp('created_at').defaultNow(),
+  updated_at: timestamp('updated_at'),
+});
+
+// System settings table for global configurations
+export const systemSettings = pgTable('system_settings', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull().unique(),
+  value: text('value'),
+  description: text('description'),
+  created_at: timestamp('created_at').defaultNow(),
+  updated_at: timestamp('updated_at'),
+});
+
+export const insertFeatureFlagSchema = createInsertSchema(featureFlags).omit({ id: true, created_at: true, updated_at: true });
+export type InsertFeatureFlag = z.infer<typeof insertFeatureFlagSchema>;
+export type FeatureFlag = typeof featureFlags.$inferSelect;
+
+export const insertSystemSettingSchema = createInsertSchema(systemSettings).omit({ id: true, created_at: true, updated_at: true });
+export type InsertSystemSetting = z.infer<typeof insertSystemSettingSchema>;
+export type SystemSetting = typeof systemSettings.$inferSelect;

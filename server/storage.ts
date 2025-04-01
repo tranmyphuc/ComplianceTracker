@@ -4,7 +4,13 @@ import {
   riskAssessments, type RiskAssessment, type InsertRiskAssessment,
   euAiActArticles, type EuAiActArticle, type InsertEuAiActArticle,
   articleVersions, type ArticleVersion, type InsertArticleVersion,
-  trainingModules, type TrainingModule, type InsertTrainingModule
+  trainingModules, type TrainingModule, type InsertTrainingModule,
+  approvalItems, type ApprovalItem, type InsertApprovalItem,
+  approvalAssignments, type ApprovalAssignment, type InsertApprovalAssignment,
+  approvalHistory, type ApprovalHistory, type InsertApprovalHistory,
+  approvalNotifications, type ApprovalNotification, type InsertApprovalNotification,
+  approvalSettings, type ApprovalSettings, type InsertApprovalSettings,
+  ApprovalPriority, ApprovalStatus, ModuleType, NotificationFrequency
 } from "@shared/schema";
 import { documentFiles, type DocumentFile, type InsertDocumentFile } from "@shared/schemas/document";
 import { eq, desc, or, like, sql } from "drizzle-orm";

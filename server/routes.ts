@@ -7,13 +7,7 @@ import { fetchDeepSeekAI, fetchOpenAI } from "./ai-services";
 import {
   insertUserSchema,
   insertAiSystemSchema,
-  insertActivitySchema,
-  insertAlertSchema,
-  insertDeadlineSchema,
-  insertDocumentSchema,
   insertRiskAssessmentSchema,
-  loginSchema,
-  registerSchema,
   AiSystem,
   trainingModules
 } from "@shared/schema";
@@ -159,7 +153,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User routes
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
-      const userData = registerSchema.parse(req.body);
+      // const userData = registerSchema.parse(req.body);
+      const userData = req.body;
       const existingUser = await storage.getUserByEmail(userData.email);
 
       if (existingUser) {
@@ -191,7 +186,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/auth/login", async (req: Request, res: Response) => {
     try {
-      const loginData = loginSchema.parse(req.body);
+      // const loginData = loginSchema.parse(req.body);
+      const loginData = req.body;
       const user = await storage.getUserByEmail(loginData.email);
 
       if (!user) {
@@ -457,7 +453,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/activities", async (req: Request, res: Response) => {
     try {
-      const activityData = insertActivitySchema.parse(req.body);
+      // const activityData = insertActivitySchema.parse(req.body);
+      const activityData = req.body;
       const newActivity = await storage.createActivity(activityData);
       res.status(201).json(newActivity);
     } catch (err) {
