@@ -1,18 +1,10 @@
 import {
   users, type User, type InsertUser,
   aiSystems, type AiSystem, type InsertAiSystem,
-  departments, type Department, type InsertDepartment,
-  activities, type Activity, type InsertActivity,
-  alerts, type Alert, type InsertAlert,
-  deadlines, type Deadline, type InsertDeadline,
-  documents, type Document, type InsertDocument,
   riskAssessments, type RiskAssessment, type InsertRiskAssessment,
-  approvalItems, type ApprovalItem, type InsertApprovalItem,
-  approvalAssignments, type ApprovalAssignment, type InsertApprovalAssignment,
-  approvalHistory, type ApprovalHistory, type InsertApprovalHistory,
-  approvalNotifications, type ApprovalNotification, type InsertApprovalNotification,
-  approvalSettings, type ApprovalSettings, type InsertApprovalSettings,
-  expertReviews, type ExpertReview, type InsertExpertReview
+  euAiActArticles, type EuAiActArticle, type InsertEuAiActArticle,
+  articleVersions, type ArticleVersion, type InsertArticleVersion,
+  trainingModules, type TrainingModule, type InsertTrainingModule
 } from "@shared/schema";
 import { documentFiles, type DocumentFile, type InsertDocumentFile } from "@shared/schemas/document";
 import { eq, desc, or, like, sql } from "drizzle-orm";
@@ -150,6 +142,18 @@ export interface IStorage {
   createExpertReview(review: InsertExpertReview): Promise<ExpertReview>;
   updateExpertReview(reviewId: string, updates: Partial<InsertExpertReview>): Promise<ExpertReview>;
   deleteExpertReview(reviewId: string): Promise<boolean>;
+  
+  // EU AI Act Article operations
+  getEuAiActArticle(id: number): Promise<EuAiActArticle | undefined>;
+  getEuAiActArticleByArticleId(articleId: string): Promise<EuAiActArticle | undefined>;
+  getAllEuAiActArticles(options?: { riskLevel?: string; version?: string }): Promise<EuAiActArticle[]>;
+  createEuAiActArticle(article: InsertEuAiActArticle): Promise<EuAiActArticle>;
+  updateEuAiActArticle(id: number, article: Partial<EuAiActArticle>): Promise<EuAiActArticle | undefined>;
+  
+  // Article Version operations
+  getArticleVersions(articleId: string): Promise<ArticleVersion[]>;
+  createArticleVersion(version: InsertArticleVersion): Promise<ArticleVersion>;
+  getLatestArticleVersion(articleId: string): Promise<ArticleVersion | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -158,6 +162,8 @@ export class MemStorage implements IStorage {
   private departments: Map<number, Department>;
   private activities: Map<number, Activity>;
   private alerts: Map<number, Alert>;
+  private euAiActArticles: Map<number, EuAiActArticle>;
+  private articleVersions: Map<number, ArticleVersion>;
 
   /**
    * Initialize demo data for memory storage
@@ -341,6 +347,8 @@ export class MemStorage implements IStorage {
   private documentIdCounter: number;
   private riskAssessmentIdCounter: number;
   private expertReviewIdCounter: number;
+  private euAiActArticleIdCounter: number;
+  private articleVersionIdCounter: number;
 
   constructor() {
     this.users = new Map();
@@ -353,6 +361,8 @@ export class MemStorage implements IStorage {
     this.documentFiles = new Map();
     this.riskAssessments = new Map();
     this.expertReviews = new Map();
+    this.euAiActArticles = new Map();
+    this.articleVersions = new Map();
 
     this.userIdCounter = 1;
     this.systemIdCounter = 1;
@@ -363,6 +373,8 @@ export class MemStorage implements IStorage {
     this.documentIdCounter = 1;
     this.riskAssessmentIdCounter = 1;
     this.expertReviewIdCounter = 1;
+    this.euAiActArticleIdCounter = 1;
+    this.articleVersionIdCounter = 1;
 
     // Initialize with some sample departments
     this.initializeDepartments();
@@ -663,6 +675,81 @@ export class MemStorage implements IStorage {
   
   async deleteRiskAssessment(id: number): Promise<boolean> {
     return this.riskAssessments.delete(id);
+  }
+
+  // EU AI Act Article methods
+  async getEuAiActArticle(id: number): Promise<EuAiActArticle | undefined> {
+    return this.euAiActArticles.get(id);
+  }
+
+  async getEuAiActArticleByArticleId(articleId: string): Promise<EuAiActArticle | undefined> {
+    return Array.from(this.euAiActArticles.values())
+      .find(article => article.articleId === articleId);
+  }
+
+  async getAllEuAiActArticles(options: { riskLevel?: string; version?: string } = {}): Promise<EuAiActArticle[]> {
+    let articles = Array.from(this.euAiActArticles.values());
+    
+    if (options.riskLevel) {
+      articles = articles.filter(article => article.riskLevel === options.riskLevel);
+    }
+    
+    if (options.version) {
+      articles = articles.filter(article => article.version === options.version);
+    }
+    
+    return articles.sort((a, b) => a.number - b.number);
+  }
+
+  async createEuAiActArticle(article: InsertEuAiActArticle): Promise<EuAiActArticle> {
+    const id = this.euAiActArticleIdCounter++;
+    const now = new Date();
+    const newArticle: EuAiActArticle = {
+      ...article,
+      id,
+      lastUpdated: now,
+      isLatest: true
+    };
+    this.euAiActArticles.set(id, newArticle);
+    return newArticle;
+  }
+
+  async updateEuAiActArticle(id: number, article: Partial<EuAiActArticle>): Promise<EuAiActArticle | undefined> {
+    const existingArticle = this.euAiActArticles.get(id);
+    if (!existingArticle) return undefined;
+
+    const updatedArticle: EuAiActArticle = {
+      ...existingArticle,
+      ...article,
+      lastUpdated: new Date()
+    };
+    
+    this.euAiActArticles.set(id, updatedArticle);
+    return updatedArticle;
+  }
+
+  // Article Version methods
+  async getArticleVersions(articleId: string): Promise<ArticleVersion[]> {
+    return Array.from(this.articleVersions.values())
+      .filter(version => version.articleId === articleId)
+      .sort((a, b) => new Date(b.changedAt).getTime() - new Date(a.changedAt).getTime());
+  }
+
+  async createArticleVersion(version: InsertArticleVersion): Promise<ArticleVersion> {
+    const id = this.articleVersionIdCounter++;
+    const now = new Date();
+    const newVersion: ArticleVersion = {
+      ...version,
+      id,
+      changedAt: now
+    };
+    this.articleVersions.set(id, newVersion);
+    return newVersion;
+  }
+
+  async getLatestArticleVersion(articleId: string): Promise<ArticleVersion | undefined> {
+    const versions = await this.getArticleVersions(articleId);
+    return versions.length > 0 ? versions[0] : undefined;
   }
 
   createRiskManagementSystem(rms: any): Promise<any> { throw new Error("Method not implemented."); }
@@ -1756,6 +1843,123 @@ export class DatabaseStorage implements IStorage {
       return false;
     }
   }
+  
+  // EU AI Act Article methods
+  async getEuAiActArticle(id: number): Promise<EuAiActArticle | undefined> {
+    try {
+      const result = await db.select().from(euAiActArticles).where(eq(euAiActArticles.id, id)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error in getEuAiActArticle:', error);
+      return undefined;
+    }
+  }
+
+  async getEuAiActArticleByArticleId(articleId: string): Promise<EuAiActArticle | undefined> {
+    try {
+      const result = await db.select().from(euAiActArticles).where(eq(euAiActArticles.articleId, articleId)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error in getEuAiActArticleByArticleId:', error);
+      return undefined;
+    }
+  }
+
+  async getAllEuAiActArticles(options: { riskLevel?: string; version?: string } = {}): Promise<EuAiActArticle[]> {
+    try {
+      let query = db.select().from(euAiActArticles);
+      
+      if (options.riskLevel) {
+        query = query.where(eq(euAiActArticles.riskLevel, options.riskLevel));
+      }
+      
+      if (options.version) {
+        query = query.where(eq(euAiActArticles.version, options.version));
+      }
+      
+      // Always sort by article number for consistent ordering
+      return await query.orderBy(euAiActArticles.number);
+    } catch (error) {
+      console.error('Error in getAllEuAiActArticles:', error);
+      return [];
+    }
+  }
+
+  async createEuAiActArticle(article: InsertEuAiActArticle): Promise<EuAiActArticle> {
+    try {
+      const newArticle = {
+        ...article,
+        lastUpdated: new Date(),
+        isLatest: true
+      };
+      const result = await db.insert(euAiActArticles).values(newArticle).returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error in createEuAiActArticle:', error);
+      throw error;
+    }
+  }
+
+  async updateEuAiActArticle(id: number, article: Partial<EuAiActArticle>): Promise<EuAiActArticle | undefined> {
+    try {
+      const updatedArticle = {
+        ...article,
+        lastUpdated: new Date()
+      };
+      const result = await db
+        .update(euAiActArticles)
+        .set(updatedArticle)
+        .where(eq(euAiActArticles.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error in updateEuAiActArticle:', error);
+      return undefined;
+    }
+  }
+
+  // Article Version methods
+  async getArticleVersions(articleId: string): Promise<ArticleVersion[]> {
+    try {
+      return await db
+        .select()
+        .from(articleVersions)
+        .where(eq(articleVersions.articleId, articleId))
+        .orderBy(desc(articleVersions.changedAt));
+    } catch (error) {
+      console.error('Error in getArticleVersions:', error);
+      return [];
+    }
+  }
+
+  async createArticleVersion(version: InsertArticleVersion): Promise<ArticleVersion> {
+    try {
+      const newVersion = {
+        ...version,
+        changedAt: new Date()
+      };
+      const result = await db.insert(articleVersions).values(newVersion).returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error in createArticleVersion:', error);
+      throw error;
+    }
+  }
+
+  async getLatestArticleVersion(articleId: string): Promise<ArticleVersion | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(articleVersions)
+        .where(eq(articleVersions.articleId, articleId))
+        .orderBy(desc(articleVersions.changedAt))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error in getLatestArticleVersion:', error);
+      return undefined;
+    }
+  }
 }
 
 /**
@@ -2172,6 +2376,88 @@ export class HybridStorage implements IStorage {
       console.error("Error in deleteExpertReview, falling back to memory storage:", error);
       this.useDatabase = false;
       return this.memStorage.deleteExpertReview(reviewId);
+    }
+  }
+
+  // EU AI Act Article methods
+  async getEuAiActArticle(id: number): Promise<EuAiActArticle | undefined> {
+    try {
+      return await this.storage.getEuAiActArticle(id);
+    } catch (error) {
+      console.error("Error in getEuAiActArticle, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getEuAiActArticle(id);
+    }
+  }
+
+  async getEuAiActArticleByArticleId(articleId: string): Promise<EuAiActArticle | undefined> {
+    try {
+      return await this.storage.getEuAiActArticleByArticleId(articleId);
+    } catch (error) {
+      console.error("Error in getEuAiActArticleByArticleId, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getEuAiActArticleByArticleId(articleId);
+    }
+  }
+
+  async getAllEuAiActArticles(options: { riskLevel?: string; version?: string } = {}): Promise<EuAiActArticle[]> {
+    try {
+      return await this.storage.getAllEuAiActArticles(options);
+    } catch (error) {
+      console.error("Error in getAllEuAiActArticles, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getAllEuAiActArticles(options);
+    }
+  }
+
+  async createEuAiActArticle(article: InsertEuAiActArticle): Promise<EuAiActArticle> {
+    try {
+      return await this.storage.createEuAiActArticle(article);
+    } catch (error) {
+      console.error("Error in createEuAiActArticle, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.createEuAiActArticle(article);
+    }
+  }
+
+  async updateEuAiActArticle(id: number, article: Partial<EuAiActArticle>): Promise<EuAiActArticle | undefined> {
+    try {
+      return await this.storage.updateEuAiActArticle(id, article);
+    } catch (error) {
+      console.error("Error in updateEuAiActArticle, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.updateEuAiActArticle(id, article);
+    }
+  }
+
+  // Article Version methods
+  async getArticleVersions(articleId: string): Promise<ArticleVersion[]> {
+    try {
+      return await this.storage.getArticleVersions(articleId);
+    } catch (error) {
+      console.error("Error in getArticleVersions, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getArticleVersions(articleId);
+    }
+  }
+
+  async createArticleVersion(version: InsertArticleVersion): Promise<ArticleVersion> {
+    try {
+      return await this.storage.createArticleVersion(version);
+    } catch (error) {
+      console.error("Error in createArticleVersion, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.createArticleVersion(version);
+    }
+  }
+
+  async getLatestArticleVersion(articleId: string): Promise<ArticleVersion | undefined> {
+    try {
+      return await this.storage.getLatestArticleVersion(articleId);
+    } catch (error) {
+      console.error("Error in getLatestArticleVersion, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getLatestArticleVersion(articleId);
     }
   }
 }

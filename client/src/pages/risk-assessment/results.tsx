@@ -32,6 +32,7 @@ import { ConfidenceLevel } from "@/components/legal";
 import AssessmentResultsCharts from '@/components/risk-assessment/assessment-results-charts';
 import RiskControls from '@/components/risk-assessment/risk-controls';
 import { Progress } from "@nextui-org/react";
+import { ArticleReference } from "@/components/eu-ai-act";
 
 // Chart.js imports
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
@@ -702,10 +703,20 @@ const RiskAssessmentResults: React.FC = () => {
                     {assessmentData.relevantArticles.map((article, index) => (
                       <div key={index} className="flex items-start p-3 border rounded-md hover:bg-gray-50 transition-colors">
                         <div className="flex-1">
-                          <div className="font-medium">{article.id}</div>
-                          <div className="text-sm text-muted-foreground">{article.description}</div>
+                          <div className="font-medium">
+                            <ArticleReference articleId={article.id}>
+                              {article.id}
+                            </ArticleReference>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {article.description}
+                          </div>
                         </div>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => window.open(`https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689`, '_blank', 'noopener,noreferrer')}
+                        >
                           <FileText className="h-4 w-4 mr-2" />
                           View Details
                         </Button>

@@ -67,6 +67,7 @@ function extractValue(text: string | null | undefined, key: string): string | nu
 import { regulatoryRoutes } from "./routes/regulatory-routes";
 import assistantRoutes from "./routes/assistant";
 import { documentRoutes } from "./routes/documents";
+import { createEuAiActRoutes } from "./routes/eu-ai-act";
 import { initializeRegulationUpdates } from "./regulatory-service";
 
 // Import legal validation functions
@@ -2600,6 +2601,9 @@ if (isDemoMode) {
   
   // Register Document API routes
   app.use('/api/documents', documentRoutes);
+  
+  // Register EU AI Act routes
+  app.use('/api/eu-ai-act', createEuAiActRoutes(storage));
 
   // Legal validation routes
   app.post("/api/legal/validate", validateAssessmentText);
