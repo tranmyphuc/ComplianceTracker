@@ -54,6 +54,7 @@ import { Loader2, CheckCircle, XCircle, Clock, AlertTriangle } from "lucide-reac
 // Define types based on database schema
 interface ApprovalItem {
   id: number;
+  itemId: string; // Used for API endpoints, uniquely identifies the item
   workflowId: string;
   moduleType: string;
   moduleId: string;
@@ -144,14 +145,14 @@ export const ApprovalWorkflow = () => {
   // Fetch approval items with filters
   const { data: approvalItems, isLoading } = useQuery({
     queryKey: [
-      "/api/approval/workflows",
+      "/api/approval/items",
       activeTab,
       currentPage,
       pageSize,
       searchTerm,
     ],
     queryFn: () =>
-      apiRequest("/api/approval/workflows", {
+      apiRequest("/api/approval/items", {
         params: {
           status: activeTab !== "all" ? activeTab : undefined,
           page: currentPage.toString(),
@@ -163,20 +164,20 @@ export const ApprovalWorkflow = () => {
 
   // Fetch assignments for a selected item
   const { data: assignments, isLoading: isLoadingAssignments } = useQuery({
-    queryKey: ["/api/approval/assignments", selectedItem?.workflowId],
+    queryKey: ["/api/approval/items", selectedItem?.itemId, "assignments"],
     queryFn: () =>
       selectedItem
-        ? apiRequest(`/api/approval/assignments/${selectedItem.workflowId}`)
+        ? apiRequest(`/api/approval/items/${selectedItem.itemId}`).then(data => data.assignments)
         : Promise.resolve([]),
     enabled: !!selectedItem,
   });
 
   // Fetch history for a selected item
   const { data: history, isLoading: isLoadingHistory } = useQuery({
-    queryKey: ["/api/approval/history", selectedItem?.workflowId],
+    queryKey: ["/api/approval/items", selectedItem?.itemId, "history"],
     queryFn: () =>
       selectedItem
-        ? apiRequest(`/api/approval/history/${selectedItem.workflowId}`)
+        ? apiRequest(`/api/approval/items/${selectedItem.itemId}/history`)
         : Promise.resolve([]),
     enabled: !!selectedItem,
   });
@@ -190,17 +191,17 @@ export const ApprovalWorkflow = () => {
   // Mutation for assigning a workflow
   const assignMutation = useMutation({
     mutationFn: (data: {
-      workflowId: string;
-      assignee: string;
+      itemId: string;
+      assignedTo: string;
       role: string;
-    }) => apiRequest("/api/approval/assign", { method: "POST", body: data }),
+    }) => apiRequest("/api/approval/assignments", { method: "POST", body: data }),
     onSuccess: () => {
       toast({
-        title: "Workflow assigned",
-        description: "The approval workflow has been assigned successfully.",
+        title: "Item assigned",
+        description: "The approval item has been assigned successfully.",
       });
       queryClient.invalidateQueries({
-        queryKey: ["/api/approval/assignments", selectedItem?.workflowId],
+        queryKey: ["/api/approval/items", selectedItem?.itemId, "assignments"],
       });
       setAssignDialogOpen(false);
       assignForm.reset();
@@ -211,7 +212,7 @@ export const ApprovalWorkflow = () => {
         description:
           error instanceof Error
             ? error.message
-            : "Failed to assign workflow. Please try again.",
+            : "Failed to assign approval item. Please try again.",
         variant: "destructive",
       });
     },
@@ -220,24 +221,24 @@ export const ApprovalWorkflow = () => {
   // Mutation for updating a workflow status
   const updateStatusMutation = useMutation({
     mutationFn: (data: {
-      workflowId: string;
+      itemId: string;
       status: string;
       comments: string;
     }) =>
-      apiRequest("/api/approval/status", {
+      apiRequest(`/api/approval/items/${data.itemId}`, {
         method: "PUT",
         body: data,
       }),
     onSuccess: () => {
       toast({
         title: "Status updated",
-        description: "The approval workflow status has been updated successfully.",
+        description: "The approval item status has been updated successfully.",
       });
       queryClient.invalidateQueries({
-        queryKey: ["/api/approval/workflows"],
+        queryKey: ["/api/approval/items"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["/api/approval/history", selectedItem?.workflowId],
+        queryKey: ["/api/approval/items", selectedItem?.itemId, "history"],
       });
       setReviewDialogOpen(false);
       setDetailsOpen(false);
@@ -249,7 +250,7 @@ export const ApprovalWorkflow = () => {
         description:
           error instanceof Error
             ? error.message
-            : "Failed to update workflow status. Please try again.",
+            : "Failed to update approval status. Please try again.",
         variant: "destructive",
       });
     },
@@ -259,8 +260,8 @@ export const ApprovalWorkflow = () => {
   const handleAssignSubmit = (data: { assignee: string; role: string }) => {
     if (selectedItem) {
       assignMutation.mutate({
-        workflowId: selectedItem.workflowId,
-        assignee: data.assignee,
+        itemId: selectedItem.itemId,
+        assignedTo: data.assignee,
         role: data.role,
       });
     }
@@ -270,7 +271,7 @@ export const ApprovalWorkflow = () => {
   const handleReviewSubmit = (data: { decision: string; comments: string }) => {
     if (selectedItem) {
       updateStatusMutation.mutate({
-        workflowId: selectedItem.workflowId,
+        itemId: selectedItem.itemId,
         status: data.decision,
         comments: data.comments,
       });

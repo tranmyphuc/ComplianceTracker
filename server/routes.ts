@@ -2,14 +2,19 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { db, sql } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, inArray, and, desc, asc, isNull } from "drizzle-orm";
 import { fetchDeepSeekAI, fetchOpenAI } from "./ai-services";
 import {
   insertUserSchema,
   insertAiSystemSchema,
   insertRiskAssessmentSchema,
   AiSystem,
-  trainingModules
+  trainingModules,
+  approvalItems,
+  approvalAssignments,
+  approvalHistory,
+  approvalNotifications,
+  approvalSettings
 } from "@shared/schema";
 import { ZodError } from "zod";
 import { 
@@ -2635,6 +2640,336 @@ if (isDemoMode) {
 
   // Update user approval settings
   app.put("/api/approval/settings", updateUserApprovalSettings);
+
+  // Approval Items endpoints
+  app.get("/api/approval/items", async (req: Request, res: Response) => {
+    try {
+      // Parse query params
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = (page - 1) * limit;
+      const status = req.query.status as string;
+      const moduleType = req.query.moduleType as string;
+      const search = req.query.search as string;
+      
+      // Build query
+      let query = db.select().from(approvalItems);
+      
+      // Apply filters
+      if (status) {
+        query = query.where(eq(approvalItems.status, status));
+      }
+      
+      if (moduleType) {
+        query = query.where(eq(approvalItems.moduleType, moduleType));
+      }
+      
+      if (search) {
+        query = query.where(sql`title ILIKE ${`%${search}%`}`);
+      }
+      
+      // Count total items for pagination
+      const countResult = await db.select({ count: sql<number>`COUNT(*)` }).from(approvalItems);
+      const totalItems = countResult[0].count;
+      
+      // Add sorting and pagination
+      query = query.orderBy(desc(approvalItems.createdAt)).limit(limit).offset(offset);
+      
+      // Execute query
+      const items = await query;
+      
+      // Return response with pagination metadata
+      res.json({
+        items,
+        pagination: {
+          page,
+          limit,
+          totalItems,
+          totalPages: Math.ceil(totalItems / limit)
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching approval items:", error);
+      return handleError(res, error as Error, "Failed to fetch approval items");
+    }
+  });
+  
+  app.get("/api/approval/items/:id", async (req: Request, res: Response) => {
+    try {
+      const itemId = req.params.id;
+      
+      const item = await db.query.approvalItems.findFirst({
+        where: eq(approvalItems.itemId, itemId),
+      });
+      
+      if (!item) {
+        return res.status(404).json({ message: "Approval item not found" });
+      }
+      
+      // Get assignments for this item
+      const assignments = await db.query.approvalAssignments.findMany({
+        where: eq(approvalAssignments.itemId, itemId),
+      });
+      
+      res.json({
+        item,
+        assignments
+      });
+    } catch (error) {
+      console.error("Error fetching approval item details:", error);
+      return handleError(res, error as Error, "Failed to fetch approval item details");
+    }
+  });
+  
+  app.post("/api/approval/items", async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.uid;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      // Validate request body
+      const { title, description, moduleType, contentId, priority } = req.body;
+      
+      if (!title || !moduleType || !contentId) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      
+      // Generate a unique item ID
+      const itemId = `AI-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 5)}`;
+      
+      // Create new approval item
+      const newItem = {
+        itemId,
+        title,
+        description: description || "",
+        moduleType,
+        contentId,
+        status: "pending",
+        priority: priority || "medium",
+        createdBy: userId,
+        updatedAt: new Date(),
+      };
+      
+      const [createdItem] = await db.insert(approvalItems).values(newItem).returning();
+      
+      // Create history entry
+      const historyId = `HIST-${Date.now().toString(36)}`;
+      await db.insert(approvalHistory).values({
+        historyId,
+        itemId,
+        action: "created",
+        actionBy: userId,
+        comments: "Initial submission",
+        newStatus: "pending"
+      });
+      
+      // Auto-assign if needed
+      const admins = await db.query.users.findMany({
+        where: eq(sql`LOWER(role)`, 'admin'),
+        limit: 2
+      });
+      
+      if (admins.length > 0) {
+        const assignmentId = `ASGN-${Date.now().toString(36)}`;
+        await db.insert(approvalAssignments).values({
+          assignmentId,
+          itemId,
+          assignedTo: admins[0].uid,
+          assignedBy: userId,
+          status: "pending",
+          notes: "Auto-assigned"
+        });
+        
+        // Create notification for admin
+        const notificationId = `NOTIF-${Date.now().toString(36)}`;
+        await db.insert(approvalNotifications).values({
+          notificationId,
+          userId: admins[0].uid,
+          itemId,
+          message: `New approval request: ${title}`
+        });
+      }
+      
+      res.status(201).json(createdItem);
+    } catch (error) {
+      console.error("Error creating approval item:", error);
+      return handleError(res, error as Error, "Failed to create approval item");
+    }
+  });
+  
+  app.put("/api/approval/items/:id", async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.uid;
+      const itemId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      // Find the item
+      const existingItem = await db.query.approvalItems.findFirst({
+        where: eq(approvalItems.itemId, itemId)
+      });
+      
+      if (!existingItem) {
+        return res.status(404).json({ message: "Approval item not found" });
+      }
+      
+      // Update status and any other fields
+      const { status, title, description, priority } = req.body;
+      
+      const updateData: any = {
+        updatedAt: new Date()
+      };
+      
+      if (status) updateData.status = status;
+      if (title) updateData.title = title;
+      if (description) updateData.description = description;
+      if (priority) updateData.priority = priority;
+      
+      // Update the item
+      const [updatedItem] = await db.update(approvalItems)
+        .set(updateData)
+        .where(eq(approvalItems.itemId, itemId))
+        .returning();
+      
+      // Create history entry
+      if (status && status !== existingItem.status) {
+        const historyId = `HIST-${Date.now().toString(36)}`;
+        await db.insert(approvalHistory).values({
+          historyId,
+          itemId,
+          action: "status_update",
+          actionBy: userId,
+          previousStatus: existingItem.status,
+          newStatus: status,
+          comments: req.body.comments || `Status updated to ${status}`
+        });
+        
+        // Notify creator
+        if (existingItem.createdBy && existingItem.createdBy !== userId) {
+          const notificationId = `NOTIF-${Date.now().toString(36)}`;
+          await db.insert(approvalNotifications).values({
+            notificationId,
+            userId: existingItem.createdBy,
+            itemId,
+            message: `Your approval request "${existingItem.title}" status has been updated to ${status}`
+          });
+        }
+      }
+      
+      res.json(updatedItem);
+    } catch (error) {
+      console.error("Error updating approval item:", error);
+      return handleError(res, error as Error, "Failed to update approval item");
+    }
+  });
+  
+  app.get("/api/approval/items/:id/history", async (req: Request, res: Response) => {
+    try {
+      const itemId = req.params.id;
+      
+      // Check if item exists
+      const item = await db.query.approvalItems.findFirst({
+        where: eq(approvalItems.itemId, itemId)
+      });
+      
+      if (!item) {
+        return res.status(404).json({ message: "Approval item not found" });
+      }
+      
+      // Get history
+      const history = await db.query.approvalHistory.findMany({
+        where: eq(approvalHistory.itemId, itemId),
+        orderBy: desc(approvalHistory.actionAt)
+      });
+      
+      res.json(history);
+    } catch (error) {
+      console.error("Error fetching approval history:", error);
+      return handleError(res, error as Error, "Failed to fetch approval history");
+    }
+  });
+  
+  app.get("/api/approval/assignments", async (req: Request, res: Response) => {
+    try {
+      // Parse query params
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = (page - 1) * limit;
+      const status = req.query.status as string;
+      
+      // Build query
+      let query = db.select().from(approvalAssignments);
+      
+      // Apply filters
+      if (status) {
+        query = query.where(eq(approvalAssignments.status, status));
+      }
+      
+      // Count total items for pagination
+      const countResult = await db.select({ count: sql<number>`COUNT(*)` }).from(approvalAssignments);
+      const totalItems = countResult[0].count;
+      
+      // Add sorting and pagination
+      query = query.orderBy(desc(approvalAssignments.assignedAt)).limit(limit).offset(offset);
+      
+      // Execute query
+      const assignments = await query;
+      
+      // Return response with pagination metadata
+      res.json({
+        assignments,
+        pagination: {
+          page,
+          limit,
+          totalItems,
+          totalPages: Math.ceil(totalItems / limit)
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching approval assignments:", error);
+      return handleError(res, error as Error, "Failed to fetch approval assignments");
+    }
+  });
+  
+  app.get("/api/approval/assignments/me", async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.uid;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      // Get assignments for current user
+      const myAssignments = await db.query.approvalAssignments.findMany({
+        where: eq(approvalAssignments.assignedTo, userId),
+        orderBy: desc(approvalAssignments.assignedAt)
+      });
+      
+      // Get item details for these assignments
+      const itemIds = myAssignments.map(a => a.itemId);
+      const items = await db.query.approvalItems.findMany({
+        where: inArray(approvalItems.itemId, itemIds)
+      });
+      
+      // Combine data
+      const assignmentsWithItems = myAssignments.map(assignment => {
+        const item = items.find(i => i.itemId === assignment.itemId);
+        return {
+          ...assignment,
+          item
+        };
+      });
+      
+      res.json(assignmentsWithItems);
+    } catch (error) {
+      console.error("Error fetching user assignments:", error);
+      return handleError(res, error as Error, "Failed to fetch your assignments");
+    }
+  });
 
   // Get approval statistics
   app.get("/api/approval/statistics", getApprovalStatistics);
