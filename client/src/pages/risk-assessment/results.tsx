@@ -33,6 +33,7 @@ import AssessmentResultsCharts from '@/components/risk-assessment/assessment-res
 import RiskControls from '@/components/risk-assessment/risk-controls';
 import { Progress } from "@nextui-org/react";
 import { ArticleReference } from "@/components/eu-ai-act";
+import { IntegratedApprovalButton } from '@/components/approval/integrated-approval-button';
 
 // Chart.js imports
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
@@ -746,6 +747,15 @@ const RiskAssessmentResults: React.FC = () => {
                     <Printer className="mr-2 h-4 w-4" />
                     {t('Print Report')}
                   </Button>
+                  
+                  <IntegratedApprovalButton 
+                    moduleId={assessmentData.assessmentId}
+                    moduleType="risk_assessment"
+                    title={`Risk Assessment for ${assessmentData.systemName}`}
+                    description={`Risk level: ${assessmentData.riskLevel}, Risk score: ${assessmentData.riskScore}%`}
+                    className="w-full justify-start"
+                    variant="secondary"
+                  />
 
                   <Button 
                     className="w-full justify-start" 

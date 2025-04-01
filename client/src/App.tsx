@@ -65,6 +65,7 @@ import DevelopmentMode from "@/pages/development-mode";
 import EnhancedDocumentsPage from "@/pages/enhanced-documents";
 import ComplianceReportPage from "@/pages/compliance-report";
 import PricingPage from "@/pages/pricing";
+import ApprovalWorkflowPage from "@/pages/approval-workflow";
 
 
 function Router() {
@@ -104,6 +105,7 @@ function Router() {
     "/strategic-planning",
     "/regulatory-complexity",
     "/workflow",
+    "/approval-workflow",
     "/onboarding",
     "/profile",
     "/settings",
@@ -227,6 +229,9 @@ function Router() {
       </Route>
       <Route path="/workflow">
         {() => renderWithLayout(Workflow)}
+      </Route>
+      <Route path="/approval-workflow">
+        {() => renderWithLayout(ApprovalWorkflowPage)}
       </Route>
       <Route path="/strategic-planning">
         {() => renderWithLayout(StrategicPlanning)}

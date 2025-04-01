@@ -2893,6 +2893,42 @@ if (isDemoMode) {
     }
   });
   
+  // Check if a module already has a pending approval item
+  app.get("/api/approval/items/check", async (req: Request, res: Response) => {
+    try {
+      const moduleType = req.query.moduleType as string;
+      const moduleId = req.query.moduleId as string;
+      
+      if (!moduleType || !moduleId) {
+        return res.status(400).json({ error: 'Module type and ID are required' });
+      }
+      
+      // Import necessary operators
+      const { and, or, eq } = db.drizzle;
+      
+      // Find any pending or in_review approval items for this module
+      const existingItems = await db.query.approvalItems.findMany({
+        where: (items) => and(
+          eq(items.moduleType, moduleType),
+          eq(items.moduleId, moduleId),
+          or(
+            eq(items.status, 'pending'),
+            eq(items.status, 'in_review')
+          )
+        ),
+        limit: 1
+      });
+      
+      return res.json({
+        exists: existingItems.length > 0,
+        item: existingItems[0] || null
+      });
+    } catch (error) {
+      console.error('Error checking approval items:', error);
+      return handleError(res, error as Error, 'Failed to check approval status');
+    }
+  });
+  
   app.get("/api/approval/assignments", async (req: Request, res: Response) => {
     try {
       // Parse query params
