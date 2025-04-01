@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test EU AI Act Article References</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+        }
+        .article-ref {
+            color: #0066cc;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kiểm Tra Tooltip EU AI Act</h1>
+    
+    <div class="section">
+        <h2>Các Điều Khoản Bị Cấm (Prohibited Practices)</h2>
+        <p>
+            EU AI Act nghiêm cấm một số thực hành AI cụ thể như được quy định trong <span class="article-ref">Article 5</span>. 
+            Những thực hành này bao gồm sử dụng kỹ thuật thao túng tiềm thức, lợi dụng điểm yếu của các nhóm đối tượng cụ thể và 
+            hệ thống chấm điểm xã hội.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Phân Loại Hệ Thống AI Rủi Ro Cao</h2>
+        <p>
+            <span class="article-ref">Article 6</span> quy định các tiêu chí phân loại hệ thống AI rủi ro cao, 
+            bao gồm các hệ thống là sản phẩm được quy định bởi pháp luật hài hòa của EU.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Hệ Thống Quản Lý Rủi Ro</h2>
+        <p>
+            Nhà cung cấp hệ thống AI rủi ro cao phải thiết lập hệ thống quản lý rủi ro theo <span class="article-ref">Article 9</span>.
+            Quy trình này phải bao gồm việc nhận diện và phân tích rủi ro đã biết và rủi ro có thể thấy trước.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Dữ Liệu và Quản Trị Dữ Liệu</h2>
+        <p>
+            <span class="article-ref">Article 10</span> quy định các yêu cầu về dữ liệu và quản trị dữ liệu cho hệ thống AI rủi ro cao.
+            Dữ liệu huấn luyện, xác thực và kiểm thử phải tuân theo các tiêu chuẩn chất lượng phù hợp.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Yêu Cầu Hồ Sơ Kỹ Thuật</h2>
+        <p>
+            Theo <span class="article-ref">Article 13</span>, nhà cung cấp hệ thống AI rủi ro cao phải lập và cập nhật hồ sơ kỹ thuật
+            của hệ thống trước khi đưa ra thị trường hoặc đưa vào sử dụng.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Giám Sát Con Người</h2>
+        <p>
+            <span class="article-ref">Article 14</span> yêu cầu hệ thống AI rủi ro cao phải được thiết kế và phát triển để có thể 
+            được giám sát hiệu quả bởi con người trong quá trình sử dụng.
+        </p>
+    </div>
+
+    <script>
+        document.querySelectorAll('.article-ref').forEach(ref => {
+            ref.addEventListener('click', () => {
+                alert(`Chức năng tooltip cho ${ref.textContent} sẽ hiển thị ở đây trong ứng dụng chính`);
+                // Trong ứng dụng thực, điều này sẽ mở một tooltip hoặc dialog
+                window.location.href = `/risk-assessment/results?article=${ref.textContent.replace('Article ', '')}`;
+            });
+        });
+    </script>
+</body>
+</html>

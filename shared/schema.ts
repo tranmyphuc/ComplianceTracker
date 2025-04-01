@@ -52,13 +52,18 @@ export const riskAssessments = pgTable('risk_assessments', {
   id: serial('id').primaryKey(),
   assessmentId: text('assessment_id').notNull().unique(),
   systemId: text('system_id').references(() => aiSystems.systemId),
+  assessmentDate: timestamp('assessment_date'), // Added to match database structure
   createdBy: text('created_by').references(() => users.uid),
   createdAt: timestamp('created_at').defaultNow(),
   status: text('status').default('draft'),
   riskLevel: text('risk_level').notNull(),
   riskScore: integer('risk_score').notNull(),
+  systemCategory: text('system_category'),
+  prohibitedUseChecks: jsonb('prohibited_use_checks'),
   euAiActArticles: jsonb('eu_ai_act_articles'),
   complianceGaps: jsonb('compliance_gaps'),
+  remediationActions: jsonb('remediation_actions'),
+  evidenceDocuments: jsonb('evidence_documents'),
   summaryNotes: text('summary_notes'),
 });
 

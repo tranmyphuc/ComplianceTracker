@@ -1124,52 +1124,67 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async getRiskAssessmentsForSystem(systemId: string): Promise<RiskAssessment[]> {
-    return await db
-      .select()
-      .from(riskAssessments)
-      .where(eq(riskAssessments.systemId, systemId))
-      .orderBy(desc(riskAssessments.assessmentDate));
+  // Helper method to process risk assessment results and parse JSON fields
+  private processRiskAssessmentResults(results: RiskAssessment[]): RiskAssessment[] {
+    return results.map(assessment => {
+      try {
+        // Parse JSON string fields if they exist
+        if (assessment.prohibitedUseChecks && typeof assessment.prohibitedUseChecks === 'string') {
+          assessment.prohibitedUseChecks = JSON.parse(assessment.prohibitedUseChecks);
+        }
+        
+        // Skip riskParameters parsing as it's not defined in the schema
+        
+        if (assessment.euAiActArticles && typeof assessment.euAiActArticles === 'string') {
+          assessment.euAiActArticles = JSON.parse(assessment.euAiActArticles);
+        }
+        
+        if (assessment.complianceGaps && typeof assessment.complianceGaps === 'string') {
+          assessment.complianceGaps = JSON.parse(assessment.complianceGaps);
+        }
+        
+        if (assessment.remediationActions && typeof assessment.remediationActions === 'string') {
+          assessment.remediationActions = JSON.parse(assessment.remediationActions);
+        }
+        
+        if (assessment.evidenceDocuments && typeof assessment.evidenceDocuments === 'string') {
+          assessment.evidenceDocuments = JSON.parse(assessment.evidenceDocuments);
+        }
+      } catch (e) {
+        console.error("Error parsing JSON fields for assessment:", assessment.assessmentId, e);
+      }
+      
+      return assessment;
+    });
   }
 
-  async getAllRiskAssessments(): Promise<RiskAssessment[]> {
+
+  async getRiskAssessmentsForSystem(systemId: string): Promise<RiskAssessment[]> {
     try {
       const results = await db
         .select()
         .from(riskAssessments)
-        .orderBy(desc(riskAssessments.assessmentDate));
+        .where(eq(riskAssessments.systemId, systemId))
+        .orderBy(sql`${riskAssessments.assessmentDate} DESC`);
       
       // Process results to ensure JSON fields are properly parsed
-      return results.map(assessment => {
-        try {
-          // Parse JSON string fields if they exist
-          if (assessment.prohibitedUseChecks && typeof assessment.prohibitedUseChecks === 'string') {
-            assessment.prohibitedUseChecks = JSON.parse(assessment.prohibitedUseChecks);
-          }
-          
-          // Skip riskParameters parsing as it's not defined in the schema
-          
-          if (assessment.euAiActArticles && typeof assessment.euAiActArticles === 'string') {
-            assessment.euAiActArticles = JSON.parse(assessment.euAiActArticles);
-          }
-          
-          if (assessment.complianceGaps && typeof assessment.complianceGaps === 'string') {
-            assessment.complianceGaps = JSON.parse(assessment.complianceGaps);
-          }
-          
-          if (assessment.remediationActions && typeof assessment.remediationActions === 'string') {
-            assessment.remediationActions = JSON.parse(assessment.remediationActions);
-          }
-          
-          if (assessment.evidenceDocuments && typeof assessment.evidenceDocuments === 'string') {
-            assessment.evidenceDocuments = JSON.parse(assessment.evidenceDocuments);
-          }
-        } catch (e) {
-          console.error("Error parsing JSON fields for assessment:", assessment.assessmentId, e);
-        }
-        
-        return assessment;
-      });
+      return this.processRiskAssessmentResults(results);
+    } catch (error) {
+      console.error("Error in getRiskAssessmentsForSystem:", error);
+      return [];
+    }
+  }
+
+  async getAllRiskAssessments(): Promise<RiskAssessment[]> {
+    try {
+      // Use SQL order by instead of desc() function to avoid SQL syntax error
+      const results = await db
+        .select()
+        .from(riskAssessments)
+        .orderBy(sql`${riskAssessments.assessmentDate} DESC`);
+      
+      // Process results to ensure JSON fields are properly parsed
+      return this.processRiskAssessmentResults(results);
     } catch (error) {
       console.error("Error in getAllRiskAssessments:", error);
       return [];
