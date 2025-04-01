@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/tooltip";
 import { FeatureComparison } from '@/components/pricing/feature-comparison';
 import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageTest from '@/components/language-test';
 
 export default function PricingPage() {
   const { toast } = useToast();
@@ -225,6 +226,8 @@ export default function PricingPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
+      <LanguageTest />
+      
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">{t('pricing.title')}</h1>
         <p className="text-muted-foreground mt-2">

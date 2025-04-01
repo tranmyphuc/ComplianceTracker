@@ -146,7 +146,10 @@ export function Header({ onMenuClick }: HeaderProps) {
               <DropdownMenuContent align="end" className="w-36">
                 <DropdownMenuLabel>Language</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup value={currentLanguage} onValueChange={(value) => setLanguage(value as LanguageCode)}>
+                <DropdownMenuRadioGroup value={currentLanguage} onValueChange={(value) => {
+                  console.log("Language changed to:", value);
+                  setLanguage(value as LanguageCode);
+                }}>
                   {languages.map((lang) => (
                     <DropdownMenuRadioItem key={lang.code} value={lang.code} className="cursor-pointer">
                       <span className="mr-2">{lang.flag}</span>
