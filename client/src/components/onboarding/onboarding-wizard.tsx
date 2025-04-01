@@ -161,7 +161,7 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
     aiSystemTypes: [],
     complianceGoals: [],
     preferredLanguage: 'en',
-    industry: 'Healthcare'
+    industry: ''
   });
   
   // Get the current step data
