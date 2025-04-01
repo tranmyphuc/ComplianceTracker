@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 
 const LanguageTest: React.FC = () => {
-  const { currentLanguage, setLanguage, languages } = useLanguage();
+  const { currentLanguage, setLanguage, languages, t } = useLanguage();
+  
+  // Debug the translations object
+  useEffect(() => {
+    console.log("Current language:", currentLanguage);
+    console.log("Translation for nav.home:", t('nav.home'));
+    console.log("Translation for pricing.title:", t('pricing.title'));
+    console.log("Available translations:", Object.keys(languages).join(", "));
+  }, [currentLanguage, t]);
 
   return (
     <div className="p-4 border rounded mb-4 bg-white">
@@ -25,9 +33,11 @@ const LanguageTest: React.FC = () => {
       </div>
       <div className="mt-4 p-3 border rounded">
         <h3 className="font-medium mb-1">Translation test:</h3>
-        <p>nav.home = {useLanguage().t('nav.home')}</p>
-        <p>nav.inventory = {useLanguage().t('nav.inventory')}</p>
-        <p>pricing.title = {useLanguage().t('pricing.title')}</p>
+        <p>nav.home = {t('nav.home')}</p>
+        <p>nav.inventory = {t('nav.inventory')}</p>
+        <p>pricing.title = {t('pricing.title')}</p>
+        <p>pricing.subtitle = {t('pricing.subtitle')}</p>
+        <p>pricing.calculator.title = {t('pricing.calculator.title')}</p>
       </div>
     </div>
   );
