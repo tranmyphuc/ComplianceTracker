@@ -560,27 +560,30 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                     )}
                     
                     {currentStepData.id === "personalization" && (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <h3 className="font-semibold text-lg">Your Organization AI Compliance Profile:</h3>
                         
-                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-4">
-                          <p className="text-blue-800 text-sm">
-                            <span className="font-medium">Industry-Specific Compliance:</span> The EU AI Act requirements vary by industry and use case. Please provide your organization details below for tailored compliance guidance.
-                          </p>
+                        <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-2">
+                          <div className="flex items-start gap-2">
+                            <Building2 className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                            <p className="text-blue-800 text-sm">
+                              <span className="font-medium">Industry-Specific Compliance:</span> The EU AI Act requirements vary by industry and use case. Please provide organization details for tailored guidance.
+                            </p>
+                          </div>
                         </div>
                         
-                        <div className="space-y-6 mt-4">
-                          {/* Organization Type - First based on industry selection */}
-                          <div className="space-y-2">
-                            <Label htmlFor="industry" className="flex items-center">
-                              <Building2 className="h-4 w-4 mr-1.5 text-blue-600" />
-                              Your Industry <span className="text-red-500 ml-0.5">*</span>
+                        <div className="grid grid-cols-12 gap-4">
+                          {/* Basic Organization Information - first row */}
+                          <div className="col-span-12 md:col-span-4 space-y-1">
+                            <Label htmlFor="industry" className="text-sm flex items-center">
+                              <Building2 className="h-3.5 w-3.5 mr-1 text-blue-600" />
+                              Your Industry<span className="text-red-500 ml-0.5">*</span>
                             </Label>
                             <Select
                               value={userProfile.industry || ""}
                               onValueChange={(value) => updateUserProfile('industry', value)}
                             >
-                              <SelectTrigger id="industry" className="w-full">
+                              <SelectTrigger id="industry" className="h-9">
                                 <SelectValue placeholder="Select your industry" />
                               </SelectTrigger>
                               <SelectContent>
@@ -616,14 +619,13 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </p>
                           </div>
                           
-                          {/* Specific Organization Type */}
-                          <div className="space-y-2">
-                            <Label htmlFor="org-type">Organization Type</Label>
+                          <div className="col-span-12 md:col-span-4 space-y-1">
+                            <Label htmlFor="org-type" className="text-sm">Organization Type</Label>
                             <Select
                               value={userProfile.organizationType || ""}
                               onValueChange={(value) => updateUserProfile('organizationType', value)}
                             >
-                              <SelectTrigger id="org-type" className="w-full">
+                              <SelectTrigger id="org-type" className="h-9">
                                 <SelectValue placeholder="Select organization type" />
                               </SelectTrigger>
                               <SelectContent>
@@ -648,14 +650,13 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                           
 
                           
-                          {/* Organization Size - Changed to Dropdown */}
-                          <div className="space-y-2">
-                            <Label htmlFor="org-size">Organization Size</Label>
+                          <div className="col-span-12 md:col-span-4 space-y-1">
+                            <Label htmlFor="org-size" className="text-sm">Organization Size</Label>
                             <Select
                               value={userProfile.organizationSize || ""}
                               onValueChange={(value) => updateUserProfile('organizationSize', value)}
                             >
-                              <SelectTrigger id="org-size" className="w-full">
+                              <SelectTrigger id="org-size" className="h-9">
                                 <SelectValue placeholder="Select organization size" />
                               </SelectTrigger>
                               <SelectContent>
@@ -671,13 +672,15 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </Select>
                           </div>
                           
-                          {/* AI System Types - Broad categories */}
-                          <div className="space-y-3">
-                            <Label className="flex items-center">
-                              <Database className="h-4 w-4 mr-1.5 text-blue-600" />
-                              AI Systems <span className="text-xs text-muted-foreground ml-1.5">(select all that apply)</span>
-                            </Label>
-                            <div className="grid md:grid-cols-2 gap-x-2 gap-y-2 border rounded-md p-3 bg-blue-50/30">
+                          {/* AI System Types */}
+                          <div className="col-span-12">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Label className="text-sm flex items-center">
+                                <Database className="h-3.5 w-3.5 mr-1 text-blue-600" />
+                                AI Systems <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span>
+                              </Label>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-1 border rounded-md p-2 bg-blue-50/30">
                               {[
                                 "Machine Learning Models",
                                 "Natural Language Processing",
@@ -716,12 +719,14 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                           </div>
                           
                           {/* Compliance Goals */}
-                          <div className="space-y-3">
-                            <Label className="flex items-center">
-                              <CheckCircle className="h-4 w-4 mr-1.5 text-blue-600" />
-                              Compliance Goals <span className="text-xs text-muted-foreground ml-1.5">(select all that apply)</span>
-                            </Label>
-                            <div className="grid md:grid-cols-2 gap-x-2 gap-y-2 border rounded-md p-3 bg-blue-50/30">
+                          <div className="col-span-12">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Label className="text-sm flex items-center">
+                                <CheckSquare className="h-3.5 w-3.5 mr-1 text-blue-600" />
+                                Compliance Goals <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span>
+                              </Label>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-1 border rounded-md p-2 bg-blue-50/30">
                               {[
                                 "EU AI Act compliance",
                                 "Risk management framework",
@@ -760,16 +765,16 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                           </div>
                           
                           {/* User Role */}
-                          <div className="space-y-2">
-                            <Label htmlFor="user-role" className="flex items-center">
-                              <User className="h-4 w-4 mr-1.5 text-blue-600" />
+                          <div className="col-span-12 md:col-span-6 space-y-1">
+                            <Label htmlFor="user-role" className="text-sm flex items-center">
+                              <User className="h-3.5 w-3.5 mr-1 text-blue-600" />
                               Your Role <span className="text-red-500 ml-0.5">*</span>
                             </Label>
                             <Select
                               value={userProfile.role || ""}
                               onValueChange={(value) => updateUserProfile('role', value)}
                             >
-                              <SelectTrigger id="user-role" className="w-full">
+                              <SelectTrigger id="user-role" className="h-9">
                                 <SelectValue placeholder="Select your role" />
                               </SelectTrigger>
                               <SelectContent>
@@ -817,19 +822,14 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                           </div>
                         </div>
                         
-                        {/* Industry-specific recommendations - Simplified */}
+                        {/* Industry-specific recommendations */}
                         {userProfile.industry && (
-                          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-center">
-                            <div className="bg-white rounded-full p-2 mr-3 text-blue-600">
-                              <Lightbulb className="h-5 w-5" />
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-blue-700 text-sm">
-                                {userProfile.industry} Focus
-                              </h4>
-                              <p className="text-xs text-blue-600">
-                                Your dashboard will be tailored for {userProfile.industry.toLowerCase()} compliance needs.
-                              </p>
+                          <div className="col-span-12 md:col-span-6">
+                            <div className="h-9 flex items-center p-2 bg-blue-50 rounded-md border border-blue-100">
+                              <Lightbulb className="h-4 w-4 text-blue-600 mr-2" />
+                              <span className="text-xs text-blue-700">
+                                <span className="font-medium">{userProfile.industry} Focus:</span> Your dashboard will be tailored for {userProfile.industry.toLowerCase()} compliance needs.
+                              </span>
                             </div>
                           </div>
                         )}
