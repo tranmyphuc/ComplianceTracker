@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { text, integer, timestamp, pgTable, serial, boolean, jsonb, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -32,10 +32,25 @@ export const aiSystems = pgTable('ai_systems', {
   description: text('description'),
   vendor: text('vendor'),
   department: text('department'),
+  riskLevel: text('risk_level').notNull(), // Added as required field
+  riskScore: integer('risk_score'),
+  implementationDate: timestamp('implementation_date'),
+  lastAssessmentDate: timestamp('last_assessment_date'),
+  docCompleteness: integer('doc_completeness').default(0),
+  trainingCompleteness: integer('training_completeness').default(0),
   purpose: text('purpose'),
   version: text('version'),
+  aiCapabilities: text('ai_capabilities'),
+  trainingDatasets: text('training_datasets'),
+  usageContext: text('usage_context'),
+  potentialImpact: text('potential_impact'),
+  keywords: jsonb('keywords'),
+  expectedLifetime: text('expected_lifetime'),
+  maintenanceSchedule: text('maintenance_schedule'),
+  deploymentScope: text('deployment_scope'),
   status: text('status').default('active'),
   createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at'),
   createdBy: text('created_by').references(() => users.uid),
 });
 

@@ -320,10 +320,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
         requestData.potentialImpact = requestData.potentialImpact.join(', ');
       }
 
+      // Check if risk_level is set, set default if not
+      if (!requestData.riskLevel) {
+        // Simplified risk level determination function (no external API calls)
+        const determineRiskLevel = (data: any): string => {
+          // Default to 'Limited Risk' if we can't determine
+          if (!data) return 'Limited Risk';
+          
+          // Combine text fields for analysis
+          const allText = [
+            data.name || '',
+            data.description || '',
+            data.purpose || '',
+            data.aiCapabilities || '',
+            data.usageContext || '',
+            data.potentialImpact || ''
+          ].join(' ').toLowerCase();
+          
+          // Check for prohibited/unacceptable risk terms
+          const prohibitedTerms = [
+            'social scoring', 'mass surveillance', 'emotion recognition',
+            'real-time biometric', 'exploit vulnerabilities', 'manipulate persons'
+          ];
+          for (const term of prohibitedTerms) {
+            if (allText.includes(term)) return 'Unacceptable Risk';
+          }
+          
+          // Check for high risk terms
+          const highRiskTerms = [
+            'safety component', 'critical infrastructure', 'law enforcement',
+            'migration', 'asylum', 'employment', 'essential services', 'education',
+            'healthcare', 'credit scoring', 'criminal', 'biometric', 'medical device'
+          ];
+          for (const term of highRiskTerms) {
+            if (allText.includes(term)) return 'High Risk';
+          }
+          
+          // Check for strong AI capabilities that might indicate high risk
+          const highRiskCapabilities = [
+            'deep learning', 'facial recognition', 'behavioral prediction',
+            'autonomous decision', 'predictive policing', 'content moderation'
+          ];
+          for (const capability of highRiskCapabilities) {
+            if (allText.includes(capability)) return 'High Risk';
+          }
+          
+          // Default to Limited Risk if nothing matches
+          return 'Limited Risk';
+        };
+        
+        try {
+          requestData.riskLevel = determineRiskLevel(requestData);
+          console.log(`Determined risk level using internal logic: ${requestData.riskLevel}`);
+        } catch (error) {
+          console.warn("Failed to determine risk level, using 'Limited Risk' as default:", error);
+          requestData.riskLevel = "Limited Risk";
+        }
+      }
+
       // Log the preprocessed data for debugging
       console.log('Preprocessed data:', {
         implementationDate: requestData.implementationDate,
         lastAssessmentDate: requestData.lastAssessmentDate,
+        name: requestData.name,
+        riskLevel: requestData.riskLevel,
+        department: requestData.department,
+        purpose: requestData.purpose,
         aiCapabilities: requestData.aiCapabilities,
         trainingDatasets: requestData.trainingDatasets,
         usageContext: requestData.usageContext,
