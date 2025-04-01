@@ -1,5 +1,4 @@
 import { callDeepSeekApi } from './ai-analysis';
-import { callAI, AIModel } from './ai-service';
 
 // Knowledge base article interface
 export interface KnowledgeArticle {
@@ -434,13 +433,8 @@ export async function askComplianceAI(question: string): Promise<string> {
       Include references to specific articles or sections of the EU AI Act when relevant.
     `;
     
-    // Use our improved AI service with proper fallback mechanism
-    const aiResponse = await callAI({
-      prompt,
-      model: AIModel.OPENAI,  // Use OpenAI as primary model per user preference
-      temperature: 0.2
-    });
-    return aiResponse.text;
+    const response = await callDeepSeekApi(prompt);
+    return response;
   } catch (error) {
     console.error("Error querying compliance AI:", error);
     return "I'm sorry, I encountered an error while trying to answer your question. Please try again later.";

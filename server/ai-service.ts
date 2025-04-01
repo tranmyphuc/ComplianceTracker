@@ -64,54 +64,31 @@ const modelDefaults = {
  * Call an AI model with error handling and automatic fallback
  */
 export async function callAI(request: AIRequest): Promise<AIResponse> {
-  const { prompt, model = AIModel.OPENAI, temperature, maxTokens, contextType, systemPrompt } = request;
+  const { prompt, model = AIModel.DEEPSEEK, temperature, maxTokens, contextType, systemPrompt } = request;
   
-  // First attempt with specified or default model
+  // Try primary model
   try {
-    // Use OpenAI by default as per user preference
     return await callSpecificModel(prompt, model, temperature, maxTokens, contextType, systemPrompt);
   } catch (error) {
     console.error(`Error calling ${model}:`, error);
     
-    // Implement fallback chain with priority: OpenAI → DeepSeek → Gemini
-    if (model === AIModel.OPENAI) {
-      // If OpenAI fails, try DeepSeek
-      console.log('OpenAI API failed. Attempting DeepSeek API as fallback...');
+    // Fallback chain
+    if (model === AIModel.DEEPSEEK) {
+      console.log('Attempting Gemini API as fallback...');
       try {
-        return await callSpecificModel(prompt, AIModel.DEEPSEEK, temperature, maxTokens, contextType, systemPrompt);
-      } catch (deepseekError) {
-        console.error('Error calling DeepSeek API:', deepseekError);
-        
-        // Last resort: Gemini
-        console.log('DeepSeek API failed. Attempting Gemini API as final fallback...');
         return await callSpecificModel(prompt, AIModel.GEMINI, temperature, maxTokens, contextType, systemPrompt);
-      }
-    } else if (model === AIModel.DEEPSEEK) {
-      // If DeepSeek was specified and failed, try OpenAI first (per user priority)
-      console.log('DeepSeek API failed. Attempting OpenAI API as fallback...');
-      try {
+      } catch (geminiError) {
+        console.error('Error calling Gemini API:', geminiError);
+        
+        // Last resort: OpenAI
+        console.log('Attempting OpenAI API as final fallback...');
         return await callSpecificModel(prompt, AIModel.OPENAI, temperature, maxTokens, contextType, systemPrompt);
-      } catch (openaiError) {
-        console.error('Error calling OpenAI API:', openaiError);
-        
-        // Last resort: Gemini
-        console.log('OpenAI API failed. Attempting Gemini API as final fallback...');
-        return await callSpecificModel(prompt, AIModel.GEMINI, temperature, maxTokens, contextType, systemPrompt);
       }
     } else if (model === AIModel.GEMINI) {
-      // If Gemini was specified and failed, try OpenAI first (per user priority)
-      console.log('Gemini API failed. Attempting OpenAI API as fallback...');
-      try {
-        return await callSpecificModel(prompt, AIModel.OPENAI, temperature, maxTokens, contextType, systemPrompt);
-      } catch (openaiError) {
-        console.error('Error calling OpenAI API:', openaiError);
-        
-        // Last resort: DeepSeek
-        console.log('OpenAI API failed. Attempting DeepSeek API as final fallback...');
-        return await callSpecificModel(prompt, AIModel.DEEPSEEK, temperature, maxTokens, contextType, systemPrompt);
-      }
+      console.log('Attempting OpenAI API as fallback...');
+      return await callSpecificModel(prompt, AIModel.OPENAI, temperature, maxTokens, contextType, systemPrompt);
     } else {
-      // If all models failed, throw the error
+      // If we're already at OpenAI and it failed, throw the error
       throw new AIModelError('All AI models failed', { originalError: error });
     }
   }
@@ -440,7 +417,7 @@ export async function generateSystemSuggestion(name: string, description?: strin
 
   const response = await callAI({
     prompt,
-    model: AIModel.OPENAI,  // Use OpenAI as primary model per user preference
+    model: AIModel.DEEPSEEK,
     temperature: 0.2
   });
 
@@ -514,7 +491,7 @@ export async function analyzeRiskParameters(system: any): Promise<any> {
 
   const response = await callAI({
     prompt,
-    model: AIModel.OPENAI,  // Use OpenAI as primary model per user preference
+    model: AIModel.DEEPSEEK,
     temperature: 0.1
   });
 
