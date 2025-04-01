@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getApiKey } from './ai-key-management';
 import { callDeepSeekApi, searchGoogleApi } from './ai-analysis';
+import { callAI, AIModel } from './ai-service';
 
 /**
  * Regulatory Updates Service
@@ -182,8 +183,13 @@ Generate a concise compliance tip (max 200 characters) that helps organizations 
 The tip should be practical, actionable, and clear.
 `;
 
-    const response = await callDeepSeekApi(prompt);
-    return response.substring(0, 200); // Limit to 200 characters
+    // Use our improved AI service with proper fallback mechanism
+    const aiResponse = await callAI({
+      prompt,
+      model: AIModel.OPENAI,  // Use OpenAI as primary model per user preference
+      temperature: 0.2
+    });
+    return aiResponse.text.substring(0, 200); // Limit to 200 characters
   } catch (error) {
     console.error('Error generating tip from update:', error);
     return 'Stay updated with the latest EU AI Act requirements. Review your compliance procedures regularly.';
