@@ -30,7 +30,11 @@ import {
   Phone,
   Globe,
   Cpu,
-  CheckSquare
+  CheckSquare,
+  ChevronDown,
+  ChevronUp,
+  Check,
+  X
 } from "lucide-react";
 import {
   Select,
@@ -45,6 +49,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 // Define the onboarding steps
 const onboardingSteps = [
@@ -672,98 +681,114 @@ export function OnboardingWizard({ onComplete, initialStep = 0 }: OnboardingWiza
                             </Select>
                           </div>
                           
-                          {/* AI System Types */}
+                          {/* AI System Types - Dropdown Multichoice */}
                           <div className="col-span-12 space-y-1">
                             <Label className="text-sm flex items-center">
                               <Database className="h-3.5 w-3.5 mr-1 text-blue-600" />
                               AI Systems <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span>
                             </Label>
-                            <div className="border rounded-md p-3 bg-blue-50/30">
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4">
-                                {[
-                                  "Machine Learning Models",
-                                  "Natural Language Processing",
-                                  "Computer Vision Systems",
-                                  "Predictive Analytics",
-                                  "Decision Support Systems",
-                                  "Recommendation Engines",
-                                  "Chatbots & Virtual Assistants",
-                                  "Biometric Recognition",
-                                  "Knowledge Representation",
-                                  "Autonomous Systems",
-                                  "Neural Networks",
-                                  "Generative AI"
-                                ].map((type) => (
-                                  <div key={type} className="flex items-center gap-2">
-                                    <Checkbox 
-                                      id={`ai-type-${type}`}
-                                      className="h-4 w-4"
-                                      checked={userProfile.aiSystemTypes?.includes(type) || false}
-                                      onCheckedChange={(checked) => {
-                                        if (checked) {
-                                          toggleArraySelection('aiSystemTypes', type);
-                                        } else {
-                                          toggleArraySelection('aiSystemTypes', type);
-                                        }
-                                      }}
-                                    />
-                                    <Label 
-                                      htmlFor={`ai-type-${type}`}
-                                      className="text-sm font-normal cursor-pointer"
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className="w-full justify-between"
+                                >
+                                  <span className="flex-grow text-left truncate">
+                                    {userProfile.aiSystemTypes && userProfile.aiSystemTypes.length > 0
+                                      ? userProfile.aiSystemTypes.length > 2
+                                        ? `${userProfile.aiSystemTypes.length} systems selected`
+                                        : userProfile.aiSystemTypes.join(", ")
+                                      : "Select AI systems"}
+                                  </span>
+                                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-full p-0" align="start">
+                                <div className="p-2 grid gap-1 max-h-[280px] overflow-y-auto">
+                                  {[
+                                    "Machine Learning Models",
+                                    "Natural Language Processing",
+                                    "Computer Vision Systems",
+                                    "Predictive Analytics",
+                                    "Decision Support Systems",
+                                    "Recommendation Engines",
+                                    "Chatbots & Virtual Assistants",
+                                    "Biometric Recognition", 
+                                    "Knowledge Representation",
+                                    "Autonomous Systems",
+                                    "Neural Networks",
+                                    "Generative AI"
+                                  ].map((type) => (
+                                    <div 
+                                      key={type}
+                                      className="flex items-center space-x-2 p-1.5 hover:bg-blue-50 rounded-md cursor-pointer"
+                                      onClick={() => toggleArraySelection('aiSystemTypes', type)}
                                     >
-                                      {type}
-                                    </Label>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
+                                      <div className="h-4 w-4 rounded-sm border flex-shrink-0 flex items-center justify-center">
+                                        {userProfile.aiSystemTypes?.includes(type) && <Check className="h-3 w-3 text-blue-600" />}
+                                      </div>
+                                      <span className="text-sm">{type}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                           </div>
                           
-                          {/* Compliance Goals */}
+                          {/* Compliance Goals - Dropdown Multichoice */}
                           <div className="col-span-12 space-y-1">
                             <Label className="text-sm flex items-center">
                               <CheckSquare className="h-3.5 w-3.5 mr-1 text-blue-600" />
                               Compliance Goals <span className="text-xs text-muted-foreground ml-1">(select all that apply)</span>
                             </Label>
-                            <div className="border rounded-md p-3 bg-blue-50/30">
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4">
-                                {[
-                                  "EU AI Act compliance",
-                                  "Risk management",
-                                  "Transparent documentation",
-                                  "GDPR compliance",
-                                  "Human oversight",
-                                  "Staff AI training",
-                                  "Ethical AI governance",
-                                  "Technical robustness",
-                                  "Bias monitoring",
-                                  "Post-market monitoring",
-                                  "Regulatory readiness",
-                                  "Conformity assessment"
-                                ].map((goal) => (
-                                  <div key={goal} className="flex items-center gap-2">
-                                    <Checkbox 
-                                      id={`goal-${goal}`}
-                                      className="h-4 w-4"
-                                      checked={userProfile.complianceGoals?.includes(goal) || false}
-                                      onCheckedChange={(checked) => {
-                                        if (checked) {
-                                          toggleArraySelection('complianceGoals', goal);
-                                        } else {
-                                          toggleArraySelection('complianceGoals', goal);
-                                        }
-                                      }}
-                                    />
-                                    <Label 
-                                      htmlFor={`goal-${goal}`}
-                                      className="text-sm font-normal cursor-pointer"
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className="w-full justify-between"
+                                >
+                                  <span className="flex-grow text-left truncate">
+                                    {userProfile.complianceGoals && userProfile.complianceGoals.length > 0
+                                      ? userProfile.complianceGoals.length > 2
+                                        ? `${userProfile.complianceGoals.length} goals selected`
+                                        : userProfile.complianceGoals.join(", ")
+                                      : "Select compliance goals"}
+                                  </span>
+                                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-full p-0" align="start">
+                                <div className="p-2 grid gap-1 max-h-[280px] overflow-y-auto">
+                                  {[
+                                    "EU AI Act compliance",
+                                    "Risk management",
+                                    "Transparent documentation",
+                                    "GDPR compliance",
+                                    "Human oversight",
+                                    "Staff AI training",
+                                    "Ethical AI governance",
+                                    "Technical robustness",
+                                    "Bias monitoring",
+                                    "Post-market monitoring",
+                                    "Regulatory readiness",
+                                    "Conformity assessment"
+                                  ].map((goal) => (
+                                    <div 
+                                      key={goal}
+                                      className="flex items-center space-x-2 p-1.5 hover:bg-blue-50 rounded-md cursor-pointer"
+                                      onClick={() => toggleArraySelection('complianceGoals', goal)}
                                     >
-                                      {goal}
-                                    </Label>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
+                                      <div className="h-4 w-4 rounded-sm border flex-shrink-0 flex items-center justify-center">
+                                        {userProfile.complianceGoals?.includes(goal) && <Check className="h-3 w-3 text-blue-600" />}
+                                      </div>
+                                      <span className="text-sm">{goal}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                           </div>
                           
                           {/* User Role */}
