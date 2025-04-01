@@ -226,9 +226,9 @@ export default function PricingPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">EU AI Act Compliance Pricing</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('pricing.title')}</h1>
         <p className="text-muted-foreground mt-2">
-          Transparent pricing packages designed to maximize your ROI while ensuring compliance
+          {t('pricing.subtitle')}
         </p>
       </div>
       
@@ -237,10 +237,10 @@ export default function PricingPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart className="h-6 w-6 text-purple-600" />
-            Enhanced ROI Calculator
+            {t('pricing.calculator.title')}
           </CardTitle>
           <CardDescription>
-            Calculate your exact return on investment with our interactive tool
+            {t('pricing.calculator.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -248,7 +248,7 @@ export default function PricingPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-medium text-sm mb-2">Organization Size</h4>
+                  <h4 className="font-medium text-sm mb-2">{t('pricing.calculator.organizationSize')}</h4>
                   <div className="flex flex-col gap-2">
                     {['small', 'medium', 'enterprise'].map((size) => (
                       <Button 
@@ -258,7 +258,7 @@ export default function PricingPage() {
                         size="sm"
                         className="justify-start"
                       >
-                        <span className="capitalize">{size}</span>
+                        <span className="capitalize">{t(`pricing.calculator.${size}`)}</span>
                         {size === 'small' && <span className="text-xs ml-auto">(1-50)</span>}
                         {size === 'medium' && <span className="text-xs ml-auto">(51-250)</span>}
                         {size === 'enterprise' && <span className="text-xs ml-auto">(251+)</span>}
@@ -268,15 +268,15 @@ export default function PricingPage() {
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-sm mb-2">Industry</h4>
+                  <h4 className="font-medium text-sm mb-2">{t('pricing.calculator.industry')}</h4>
                   <div className="flex flex-col gap-2">
                     {[
-                      { id: 'healthcare', label: 'Healthcare' }, 
-                      { id: 'finance', label: 'Finance' }, 
-                      { id: 'manufacturing', label: 'Manufacturing' },
-                      { id: 'retail', label: 'Retail' },
-                      { id: 'government', label: 'Government' },
-                      { id: 'other', label: 'Other' }
+                      { id: 'healthcare', label: t('pricing.calculator.healthcare') }, 
+                      { id: 'finance', label: t('pricing.calculator.finance') }, 
+                      { id: 'manufacturing', label: t('pricing.calculator.manufacturing') },
+                      { id: 'retail', label: t('pricing.calculator.retail') },
+                      { id: 'government', label: t('pricing.calculator.government') },
+                      { id: 'other', label: t('pricing.calculator.other') }
                     ].map((ind) => (
                       <Button 
                         key={ind.id}
@@ -294,12 +294,12 @@ export default function PricingPage() {
               
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div>
-                  <h4 className="font-medium text-sm mb-2">Customization Level</h4>
+                  <h4 className="font-medium text-sm mb-2">{t('pricing.calculator.customization')}</h4>
                   <div className="flex flex-col gap-2">
                     {[
-                      { id: 'minimal', label: 'Minimal' },
-                      { id: 'moderate', label: 'Moderate' },
-                      { id: 'extensive', label: 'Extensive' }
+                      { id: 'minimal', label: t('pricing.calculator.minimal') },
+                      { id: 'moderate', label: t('pricing.calculator.moderate') },
+                      { id: 'extensive', label: t('pricing.calculator.extensive') }
                     ].map((cust) => (
                       <Button 
                         key={cust.id}
@@ -315,13 +315,13 @@ export default function PricingPage() {
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-sm mb-2">AI System Risk Level</h4>
+                  <h4 className="font-medium text-sm mb-2">{t('pricing.calculator.riskLevel')}</h4>
                   <div className="flex flex-col gap-2">
                     {[
-                      { id: 'minimal', label: 'Minimal Risk' },
-                      { id: 'limited', label: 'Limited Risk' },
-                      { id: 'high', label: 'High Risk' },
-                      { id: 'unacceptable', label: 'Unacceptable Risk' }
+                      { id: 'minimal', label: t('pricing.calculator.riskMinimal') },
+                      { id: 'limited', label: t('pricing.calculator.riskLimited') },
+                      { id: 'high', label: t('pricing.calculator.riskHigh') },
+                      { id: 'unacceptable', label: t('pricing.calculator.riskUnacceptable') }
                     ].map((risk) => (
                       <Button 
                         key={risk.id}
@@ -339,7 +339,7 @@ export default function PricingPage() {
               
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div>
-                  <h4 className="font-medium text-sm mb-2">Number of AI Systems</h4>
+                  <h4 className="font-medium text-sm mb-2">{t('pricing.calculator.aiSystems')}</h4>
                   <div className="flex gap-2 items-center">
                     <input 
                       type="number" 
@@ -384,7 +384,7 @@ export default function PricingPage() {
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-sm mb-2">Billing Preference</h4>
+                  <h4 className="font-medium text-sm mb-2">{t('pricing.calculator.billing')}</h4>
                   <div className="flex flex-col gap-2">
                     <Button 
                       onClick={() => setBillingCycle('annual')}
@@ -392,8 +392,8 @@ export default function PricingPage() {
                       size="sm"
                       className="justify-between"
                     >
-                      Annual 
-                      <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 border-0 text-xs">Save up to 22%</Badge>
+                      {t('pricing.calculator.billingAnnual')}
+                      <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 border-0 text-xs">{t('pricing.calculator.saveUpTo')}</Badge>
                     </Button>
                     <Button 
                       onClick={() => setBillingCycle('monthly')}
@@ -401,7 +401,7 @@ export default function PricingPage() {
                       size="sm"
                       className="justify-start"
                     >
-                      Monthly
+                      {t('pricing.calculator.billingMonthly')}
                     </Button>
                   </div>
                 </div>
@@ -410,7 +410,7 @@ export default function PricingPage() {
             
             <div className="col-span-2">
               <div className="bg-white p-5 rounded-lg border border-blue-100 h-full flex flex-col">
-                <h4 className="font-medium mb-4">Your Estimated ROI Analysis</h4>
+                <h4 className="font-medium mb-4">{t('pricing.calculator.estimatedROI')}</h4>
                 
                 <div className="grid grid-cols-3 gap-4 mb-6">
                   {tiers.map((tier) => {
@@ -426,7 +426,7 @@ export default function PricingPage() {
                       >
                         <div className="text-sm font-bold mb-1">{tier.name}</div>
                         <div className="text-lg font-bold">€{Math.round(roi.annualSavings / 1000)}K</div>
-                        <div className="text-xs text-gray-500">Annual Savings</div>
+                        <div className="text-xs text-gray-500">{t('pricing.calculator.annualSavings')}</div>
                       </div>
                     );
                   })}
@@ -434,7 +434,7 @@ export default function PricingPage() {
                 
                 <div className="space-y-4 flex-grow">
                   <div>
-                    <div className="text-sm font-medium mb-2">5-Year ROI Comparison</div>
+                    <div className="text-sm font-medium mb-2">{t('pricing.calculator.fiveYearComparison')}</div>
                     <div className="space-y-2">
                       {tiers.map((tier) => {
                         const roi = calculateROI(tier.key as any);
@@ -465,7 +465,7 @@ export default function PricingPage() {
                   </div>
                   
                   <div>
-                    <div className="text-sm font-medium mb-2">Break-Even Timeline</div>
+                    <div className="text-sm font-medium mb-2">{t('pricing.calculator.breakEvenTimeline')}</div>
                     <div className="space-y-2">
                       {tiers.map((tier) => {
                         const roi = calculateROI(tier.key as any);
@@ -473,7 +473,7 @@ export default function PricingPage() {
                           <div key={tier.key}>
                             <div className="flex justify-between text-sm mb-1">
                               <span className="font-medium">{tier.name}</span>
-                              <span>{roi.breakEvenMonths} months</span>
+                              <span>{roi.breakEvenMonths} {t('pricing.calculator.months')}</span>
                             </div>
                             <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
                               <div
@@ -491,8 +491,8 @@ export default function PricingPage() {
                     </div>
                     <div className="flex justify-between text-xs text-gray-500 mt-1">
                       <span>Immediate</span>
-                      <span>18 months</span>
-                      <span>36 months</span>
+                      <span>18 {t('pricing.calculator.months')}</span>
+                      <span>36 {t('pricing.calculator.months')}</span>
                     </div>
                   </div>
                 </div>
@@ -501,7 +501,7 @@ export default function PricingPage() {
                   <div className="flex flex-col gap-3">
                     <div className="flex justify-between items-center">
                       <p className="text-sm text-gray-600">
-                        Industry-specific ROI calculation for <span className="font-semibold capitalize">{industry}</span> with {aiSystems} AI systems.
+                        {t('pricing.calculator.industry-specific')} <span className="font-semibold capitalize">{t(`pricing.calculator.${industry}`)}</span> {t('pricing.calculator.with')} {aiSystems} {t('pricing.calculator.systems')}.
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -531,7 +531,7 @@ export default function PricingPage() {
                           });
                         }}
                       >
-                        Download Detailed Analysis
+                        {t('pricing.calculator.downloadAnalysis')}
                       </Button>
                     </div>
                     
@@ -833,9 +833,9 @@ export default function PricingPage() {
       >
         <div className="flex justify-center mb-8">
           <TabsList className="grid grid-cols-2 w-64">
-            <TabsTrigger value="monthly">Monthly</TabsTrigger>
+            <TabsTrigger value="monthly">{t('pricing.billing.monthly')}</TabsTrigger>
             <TabsTrigger value="annual">
-              Annual <Badge variant="outline" className="ml-1 bg-green-100 text-green-800 border-0">Save 10-22%</Badge>
+              {t('pricing.billing.annual')} <Badge variant="outline" className="ml-1 bg-green-100 text-green-800 border-0">{t('pricing.billing.saveUpTo')}</Badge>
             </TabsTrigger>
           </TabsList>
         </div>
