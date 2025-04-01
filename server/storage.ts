@@ -1940,13 +1940,41 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Article Version methods
-  async getArticleVersions(articleId: string): Promise<ArticleVersion[]> {
+  async getArticleVersions(articleId: string): Promise<EuAiActArticle[]> {
     try {
-      return await db
+      // Lấy thông tin bài viết hiện tại
+      const currentArticle = await this.getEuAiActArticleByArticleId(articleId);
+      
+      if (!currentArticle) {
+        return [];
+      }
+      
+      // Lấy các phiên bản từ bảng article_versions
+      const versions = await db
         .select()
         .from(articleVersions)
         .where(eq(articleVersions.articleId, articleId))
         .orderBy(desc(articleVersions.changedAt));
+      
+      // Chuyển đổi định dạng từ ArticleVersion sang EuAiActArticle
+      return versions.map(version => ({
+        id: currentArticle.id,
+        articleId: version.articleId,
+        number: currentArticle.number,
+        title: currentArticle.title,
+        content: version.content,
+        officialUrl: currentArticle.officialUrl,
+        riskLevel: currentArticle.riskLevel as any,
+        keyPoints: currentArticle.keyPoints,
+        version: version.version,
+        lastUpdated: version.changedAt.toISOString(),
+        isLatest: version.version === currentArticle.version,
+        changeDescription: version.changeNotes,
+        exampleSummary: currentArticle.exampleSummary,
+        exampleDetails: currentArticle.exampleDetails,
+        imageUrl: currentArticle.imageUrl,
+        hasChanges: true
+      }));
     } catch (error) {
       console.error('Error in getArticleVersions:', error);
       return [];
@@ -2452,7 +2480,7 @@ export class HybridStorage implements IStorage {
   }
 
   // Article Version methods
-  async getArticleVersions(articleId: string): Promise<ArticleVersion[]> {
+  async getArticleVersions(articleId: string): Promise<EuAiActArticle[]> {
     try {
       return await this.storage.getArticleVersions(articleId);
     } catch (error) {

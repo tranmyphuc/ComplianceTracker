@@ -64,13 +64,14 @@ export function EnhancedArticleTooltip({
   });
   
   // Handle version history - this would be a separate query
-  const { data: versionHistory } = useQuery<ArticleDetails[]>({
-    queryKey: [`/api/eu-ai-act/articles/${articleId}/versions`],
+  const { data: versionHistory, isLoading: isLoadingVersions } = useQuery<ArticleDetails[]>({
+    queryKey: [`/api/eu-ai-act/articles/${encodeURIComponent(articleId)}/versions`],
     enabled: showDialog && !!articleId,
   });
   
-  // If we're still loading or have an error, use fallback data
-  const article = articleData || getFallbackArticleData(articleId);
+  // Use article data from API only, or show error states
+  // This is critical to avoid using synthetic data that doesn't match reality
+  const article = articleData;
   
   // Badge color based on risk level
   const getBadgeVariant = (riskLevel?: string) => {
@@ -83,6 +84,19 @@ export function EnhancedArticleTooltip({
     }
   };
 
+  // Handle loading and error states
+  if (isLoading) {
+    return <span className="text-gray-500">Loading article {articleId}...</span>;
+  }
+  
+  if (error || !article) {
+    return (
+      <span className="text-red-500">
+        Error loading article data. Please try again later.
+      </span>
+    );
+  }
+  
   return (
     <>
       <TooltipProvider>
@@ -383,103 +397,4 @@ export function EnhancedArticleTooltip({
   );
 }
 
-/**
- * Returns fallback article data when API data is not available
- */
-function getFallbackArticleData(articleId: string): ArticleDetails {
-  // Extract article number from the article ID
-  const numberMatch = articleId.match(/\d+/);
-  const articleNumber = numberMatch ? parseInt(numberMatch[0]) : 0;
-  
-  const fallbackData: Record<string, Partial<ArticleDetails>> = {
-    "Article 5": {
-      title: "Prohibited Artificial Intelligence Practices",
-      content: "This article defines AI practices that are prohibited in the EU, including subliminal manipulation, exploitation of vulnerabilities, and social scoring.",
-      riskLevel: "prohibited",
-      exampleSummary: "This article prohibits AI systems that manipulate human behavior, exploit vulnerabilities of specific groups, or implement social scoring systems by public authorities.",
-      keyPoints: [
-        "Prohibition of subliminal manipulation techniques",
-        "Ban on exploiting vulnerabilities of specific groups",
-        "Prohibition of social scoring systems by public authorities",
-        "Ban on remote biometric identification systems in publicly accessible spaces (with exceptions)"
-      ]
-    },
-    "Article 6": {
-      title: "Classification of High-Risk AI Systems",
-      content: "This article defines the criteria for classification of high-risk AI systems in relation to products covered by Union harmonization legislation.",
-      riskLevel: "high",
-      exampleSummary: "This article establishes criteria for classifying AI systems as high-risk, particularly for products under EU safety legislation and in specific critical applications.",
-      keyPoints: [
-        "AI systems as safety components of products",
-        "Products covered by EU safety legislation",
-        "Systems used in critical infrastructure",
-        "Educational or vocational training systems"
-      ]
-    },
-    "Article 9": {
-      title: "Risk Management System",
-      content: "This article outlines requirements for implementing a risk management system for high-risk AI systems throughout their lifecycle.",
-      riskLevel: "high",
-      exampleSummary: "This article requires a comprehensive risk management system for high-risk AI systems throughout their entire lifecycle, with ongoing monitoring and risk mitigation.",
-      keyPoints: [
-        "Establishment of continuous risk identification and analysis",
-        "Implementation of risk management measures",
-        "Testing to identify risks",
-        "Ongoing monitoring throughout the AI lifecycle"
-      ]
-    },
-    "Article 10": {
-      title: "Data and Data Governance",
-      content: "This article sets forth requirements for data quality and governance for training, validation, and testing of AI systems.",
-      riskLevel: "high",
-      exampleSummary: "This article establishes requirements for data used in AI systems, focusing on relevance, representativeness, and appropriate data governance practices.",
-      keyPoints: [
-        "Training datasets must be relevant and representative",
-        "Data preparation must address biases",
-        "Establishment of data governance practices",
-        "Processing of special categories of personal data"
-      ]
-    },
-    "Article 13": {
-      title: "Transparency and Information Provision",
-      content: "This article outlines requirements for ensuring high-risk AI systems are sufficiently transparent to enable users to interpret and use the system output appropriately.",
-      riskLevel: "high",
-      exampleSummary: "This article mandates transparency requirements for high-risk AI systems, requiring clear documentation, instructions, and disclosure of AI capabilities and limitations.",
-      keyPoints: [
-        "Clear instructions for users",
-        "Disclosure of AI system capabilities and limitations",
-        "Specification of human oversight measures",
-        "Documentation of changes to the system"
-      ]
-    },
-    "Article 14": {
-      title: "Human Oversight",
-      content: "This article outlines requirements for human oversight of high-risk AI systems to minimize risks to health, safety, and fundamental rights.",
-      riskLevel: "high",
-      exampleSummary: "This article requires effective human oversight for high-risk AI systems to prevent or minimize risks to health, safety, and fundamental rights.",
-      keyPoints: [
-        "Identification of human oversight measures",
-        "Detection of anomalies, dysfunctions and unexpected performance",
-        "Ability to intervene or interrupt the system",
-        "Prevention of automation bias"
-      ]
-    }
-  };
-  
-  // Return a default article if no match found
-  return {
-    id: articleId,
-    articleId: articleId,
-    number: articleNumber,
-    title: fallbackData[articleId]?.title || "EU AI Act Article",
-    content: fallbackData[articleId]?.content || "This article is part of the EU AI Act regulation.",
-    officialUrl: "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689",
-    riskLevel: (fallbackData[articleId]?.riskLevel || "limited") as any,
-    keyPoints: fallbackData[articleId]?.keyPoints || ["Key compliance requirements for AI systems"],
-    version: "1.0",
-    lastUpdated: "April 1, 2024",
-    isLatest: true,
-    exampleSummary: fallbackData[articleId]?.exampleSummary || "This article defines requirements for AI systems under the EU AI Act.",
-    hasChanges: false
-  };
-}
+// Function removed - using only API data now
