@@ -35,9 +35,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { FeatureComparison } from '@/components/pricing/feature-comparison';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function PricingPage() {
   const { toast } = useToast();
+  const { t } = useLanguage(); // Add translation function
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
   const [companySize, setCompanySize] = useState<'small' | 'medium' | 'enterprise'>('small');
   const [aiSystems, setAiSystems] = useState<number>(3);
