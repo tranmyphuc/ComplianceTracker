@@ -1,35 +1,36 @@
 import React, { useState, ReactNode } from "react";
-import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { SparklesIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AiAssistantDialog } from "@/components/ai-assistant/assistant-dialog";
-
+import { NavigationBar } from "@/components/layout/navigation-bar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const isMobile = useIsMobile();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [assistantDialogOpen, setAssistantDialogOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50">
-      <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+      {/* Header with top navigation bar */}
+      <Header onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
+      
+      {/* New horizontal navigation bar */}
+      <NavigationBar 
+        isMobile={isMobile} 
+        onItemClick={() => isMobile && setMobileMenuOpen(false)}
+      />
 
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar 
-          className={sidebarOpen ? "" : "hidden"} 
-          onClose={() => setSidebarOpen(false)} 
-          isOpen={sidebarOpen} 
-        />
-
-        <main className="flex-1 overflow-y-auto pb-10">
-          {children}
-        </main>
-      </div>
+      {/* Main content */}
+      <main className="flex-1 overflow-y-auto pb-10">
+        {children}
+      </main>
 
       <Footer />
 
