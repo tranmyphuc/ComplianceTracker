@@ -782,7 +782,83 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
   // Apply a specific field from AI results
   const applyField = (field: string) => {
     if (aiResults && aiResults[field]) {
-      setFormData(prev => ({ ...prev, [field]: aiResults[field] }));
+      // Convert field name to camelCase if needed (to match the formData structure)
+      const formField = field.charAt(0).toLowerCase() + field.slice(1);
+      
+      // Log the field being applied to help with debugging
+      console.log(`Applying field ${field} with value:`, aiResults[field]);
+      
+      // Update the form data with type safety
+      setFormData(prev => {
+        // Create a new form data object with type safety
+        const newData = { ...prev };
+        const value = aiResults[field];
+        
+        // Map AI result fields to form data fields using specific field mappings
+        switch (field) {
+          case 'name':
+            newData.name = value;
+            break;
+          case 'description':
+            newData.description = value;
+            break;
+          case 'purpose':
+            newData.purpose = value;
+            break;
+          case 'version':
+            newData.version = value;
+            break;
+          case 'department':
+            newData.department = value;
+            break;
+          case 'vendor':
+            newData.vendor = value;
+            break;
+          case 'internalOwner':
+            newData.internalOwner = value;
+            break;
+          case 'riskLevel':
+            newData.riskLevel = value;
+            break;
+          case 'systemId':
+            newData.systemId = value;
+            break;
+          case 'riskClassification':
+            newData.riskLevel = value;
+            break;
+          case 'capabilities':
+            newData.aiCapabilities = value;
+            break;
+          case 'dataSources':
+            newData.trainingDatasets = value;
+            break;
+          case 'aiCapabilities':
+            newData.aiCapabilities = value;
+            break;
+          case 'trainingDatasets':
+            newData.trainingDatasets = value;
+            break;
+          case 'outputTypes':
+            newData.outputTypes = value;
+            break;
+          case 'usageContext':
+            newData.usageContext = value;
+            break;
+          case 'potentialImpact':
+            newData.potentialImpact = value;
+            break;
+          default:
+            // For any other fields, use type assertion as a fallback
+            console.log(`Using fallback handling for field: ${field}`);
+            try {
+              (newData as any)[formField] = value;
+            } catch (e) {
+              console.error(`Failed to apply field ${field}:`, e);
+            }
+        }
+        
+        return newData;
+      });
 
       // Clear validation errors and missing fields for this field
       if (validationErrors[field]) {
@@ -795,10 +871,11 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         // Also update missingFields list
         setMissingFields(prev => prev.filter(item => item !== field));
       }
-
+      
+      // Show toast notification for confirmation
       toast({
         title: "Field Applied",
-        description: `${field.charAt(0).toUpperCase() + field.slice(1)} field has been updated`,
+        description: `Applied "${field.replace(/([A-Z])/g, ' $1').trim()}" to the form`,
       });
     }
   };
@@ -1031,42 +1108,86 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
     const newFormData = { ...formData };
 
-    // Apply each field from AI results if present
-    const fields = [
-      'name', 'vendor', 'version', 'department', 'purpose',
-      'aiCapabilities', 'trainingDatasets', 'outputTypes',
-      'usageContext', 'potentialImpact', 'riskLevel'
-    ];
-
     // Track which required fields are now filled
     const filledRequiredFields: string[] = [];
 
-    fields.forEach(field => {
-      if (aiResults[field]) {
-        // Use type assertion to handle the dynamic property access
-        (newFormData as any)[field] = aiResults[field];
-
-        // If this is a required field, add it to our tracking array
-        if (['name', 'description', 'purpose', 'vendor', 'department', 'riskLevel'].includes(field)) {
-          filledRequiredFields.push(field);
-        }
-      }
-    });
-
-    // Handle special fields
+    // Explicitly map each field in a type-safe way
+    // Handle standard fields
+    if (aiResults.name) {
+      newFormData.name = aiResults.name;
+      filledRequiredFields.push('name');
+    }
+    
+    if (aiResults.description) {
+      newFormData.description = aiResults.description;
+      filledRequiredFields.push('description');
+    }
+    
+    if (aiResults.purpose) {
+      newFormData.purpose = aiResults.purpose;
+      filledRequiredFields.push('purpose');
+    }
+    
+    if (aiResults.vendor) {
+      newFormData.vendor = aiResults.vendor;
+      filledRequiredFields.push('vendor');
+    }
+    
+    if (aiResults.version) {
+      newFormData.version = aiResults.version;
+    }
+    
+    if (aiResults.department) {
+      newFormData.department = aiResults.department;
+      filledRequiredFields.push('department');
+    }
+    
+    if (aiResults.internalOwner) {
+      newFormData.internalOwner = aiResults.internalOwner;
+    }
+    
+    if (aiResults.systemId) {
+      newFormData.systemId = aiResults.systemId;
+    }
+    
+    // Handle AI capabilities fields
+    if (aiResults.aiCapabilities) {
+      newFormData.aiCapabilities = aiResults.aiCapabilities;
+    }
+    
+    if (aiResults.trainingDatasets) {
+      newFormData.trainingDatasets = aiResults.trainingDatasets;
+    }
+    
+    if (aiResults.outputTypes) {
+      newFormData.outputTypes = aiResults.outputTypes;
+    }
+    
+    if (aiResults.usageContext) {
+      newFormData.usageContext = aiResults.usageContext;
+    }
+    
+    if (aiResults.potentialImpact) {
+      newFormData.potentialImpact = aiResults.potentialImpact;
+    }
+    
+    // Handle special case mappings
     if (aiResults.capabilities) {
       newFormData.aiCapabilities = aiResults.capabilities;
     }
-
+    
     if (aiResults.dataSources) {
       newFormData.trainingDatasets = aiResults.dataSources;
     }
-
-    // Set risk level if available
+    
+    // Risk level handling
+    if (aiResults.riskLevel) {
+      newFormData.riskLevel = aiResults.riskLevel;
+      filledRequiredFields.push('riskLevel');
+    }
+    
     if (aiResults.riskClassification) {
       newFormData.riskLevel = aiResults.riskClassification;
-
-      // Add risk level to filled fields if it's one of the required fields
       if (!filledRequiredFields.includes('riskLevel')) {
         filledRequiredFields.push('riskLevel');
       }
@@ -1268,7 +1389,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
                 <span className="text-xs font-medium text-neutral-500 whitespace-nowrap">
                   {Math.round(extractionProgress)}% Complete
                 </span>
-                <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-medium text-blue-700 px-2 py-0.5 rounded-full border border-blue-200">
                   {aiExtractionStatus === 'extracting' ? 'Processing...' : 'Completed'}
                 </span>
               </div>
