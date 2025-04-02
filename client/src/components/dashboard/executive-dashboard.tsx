@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
 import { 
   ClipboardCheck, 
   AlertTriangle, 
@@ -150,6 +151,34 @@ const StatCard: React.FC<StatCardProps> = ({
 const ExecutiveDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("euAiAct");
   const { currentLanguage } = useLanguage();
+  
+  // Fetch real data for the dashboard
+  const { data: systems, isLoading: isLoadingSystems } = useQuery({
+    queryKey: ['/api/systems'],
+  });
+  
+  const { data: riskAssessments, isLoading: isLoadingAssessments } = useQuery({
+    queryKey: ['/api/risk-assessments'],
+  });
+  
+  // Calculate real statistics based on the data
+  const riskDistribution = React.useMemo(() => {
+    if (!riskAssessments) return {
+      unacceptable: 0,
+      high: 0,
+      limited: 0,
+      minimal: 0,
+      unclassified: 0
+    };
+    
+    return {
+      unacceptable: riskAssessments.filter((assessment: any) => assessment.riskLevel === 'Unacceptable').length,
+      high: riskAssessments.filter((assessment: any) => assessment.riskLevel === 'High Risk').length,
+      limited: riskAssessments.filter((assessment: any) => assessment.riskLevel === 'Limited Risk').length,
+      minimal: riskAssessments.filter((assessment: any) => assessment.riskLevel === 'Minimal Risk').length,
+      unclassified: riskAssessments.filter((assessment: any) => !assessment.riskLevel || assessment.riskLevel === 'Unclassified').length
+    };
+  }, [riskAssessments]);
 
   const companies = [
     {
@@ -400,7 +429,7 @@ const ExecutiveDashboard: React.FC = () => {
                 <div className="col-span-1">
                   <div className="flex flex-col items-center">
                     <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-2">
-                      <span className="text-2xl font-bold text-red-600">5</span>
+                      <span className="text-2xl font-bold text-red-600">{riskDistribution.unacceptable}</span>
                     </div>
                     <span className="text-sm font-medium text-center">{currentLanguage === 'de' ? 'Unzulässig' : 'Unacceptable'}</span>
                   </div>
@@ -408,7 +437,7 @@ const ExecutiveDashboard: React.FC = () => {
                 <div className="col-span-1">
                   <div className="flex flex-col items-center">
                     <div className="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center mb-2">
-                      <span className="text-2xl font-bold text-amber-600">14</span>
+                      <span className="text-2xl font-bold text-amber-600">{riskDistribution.high}</span>
                     </div>
                     <span className="text-sm font-medium text-center">{currentLanguage === 'de' ? 'Hohes Risiko' : 'High Risk'}</span>
                   </div>
@@ -416,7 +445,7 @@ const ExecutiveDashboard: React.FC = () => {
                 <div className="col-span-1">
                   <div className="flex flex-col items-center">
                     <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                      <span className="text-2xl font-bold text-blue-600">18</span>
+                      <span className="text-2xl font-bold text-blue-600">{riskDistribution.limited}</span>
                     </div>
                     <span className="text-sm font-medium text-center">{currentLanguage === 'de' ? 'Begrenztes Risiko' : 'Limited Risk'}</span>
                   </div>
@@ -424,7 +453,7 @@ const ExecutiveDashboard: React.FC = () => {
                 <div className="col-span-1">
                   <div className="flex flex-col items-center">
                     <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                      <span className="text-2xl font-bold text-green-600">10</span>
+                      <span className="text-2xl font-bold text-green-600">{riskDistribution.minimal}</span>
                     </div>
                     <span className="text-sm font-medium text-center">{currentLanguage === 'de' ? 'Minimales Risiko' : 'Minimal Risk'}</span>
                   </div>
@@ -432,7 +461,7 @@ const ExecutiveDashboard: React.FC = () => {
                 <div className="col-span-1">
                   <div className="flex flex-col items-center">
                     <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-2">
-                      <span className="text-2xl font-bold text-gray-600">3</span>
+                      <span className="text-2xl font-bold text-gray-600">{riskDistribution.unclassified}</span>
                     </div>
                     <span className="text-sm font-medium text-center">{currentLanguage === 'de' ? 'Nicht klassifiziert' : 'Unclassified'}</span>
                   </div>

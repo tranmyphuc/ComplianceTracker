@@ -12,6 +12,11 @@ const mainNavItems = [
       icon: <Presentation className="h-5 w-5" />,
     },
     {
+      title: 'Register AI',
+      href: '/register-system',
+      icon: <Database className="h-5 w-5" />,
+    },
+    {
       title: 'Risk Assessment',
       href: '/risk-assessment',
       icon: <ShieldAlert className="h-5 w-5" />,
@@ -19,6 +24,28 @@ const mainNavItems = [
         {
           title: 'Assessment',
           href: '/risk-assessment',
+          icon: <Book className="h-5 w-5" />,
+        },
+      ]
+    },
+    {
+      title: 'Legal Reviews',
+      href: '/legal-reviews',
+      icon: <Landmark className="h-5 w-5" />,
+    },
+    {
+      title: 'AI Inventory',
+      href: '/inventory',
+      icon: <Boxes className="h-5 w-5" />,
+    },
+    {
+      title: 'Compliance',
+      href: '/compliance',
+      icon: <ClipboardList className="h-5 w-5" />,
+      submenu: [
+        {
+          title: 'Compliance Dashboard',
+          href: '/compliance',
           icon: <Book className="h-5 w-5" />,
         },
         {
