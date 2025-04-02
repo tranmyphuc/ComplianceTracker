@@ -59,55 +59,137 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
 
   // Main navigation items that will be in the horizontal bar
   const mainNavigationItems = [
-    { name: 'Dashboard', path: '/', icon: <HomeIcon className="w-4 h-4" /> },
-    { name: 'Demo Scenarios', path: '/demo-scenarios', icon: <FileTextIcon className="w-4 h-4" /> },
-    { name: 'Strategic Planning', path: '/strategic-planning', icon: <TargetIcon className="w-4 h-4" /> },
-    { name: 'Market Intelligence', path: '/market-intelligence', icon: <PieChartIcon className="w-4 h-4" /> },
-    { name: 'Operations Excellence', path: '/operations-excellence', icon: <BriefcaseIcon className="w-4 h-4" /> },
-    { name: 'Growth & Innovation', path: '/growth-innovation', icon: <TrendingUpIcon className="w-4 h-4" /> },
-    { name: 'Legal Reviews', path: '/legal-reviews', icon: <ShieldIcon className="w-4 h-4" /> },
-    { name: 'Settings', path: '/settings', icon: <SettingsIcon className="w-4 h-4" /> },
-  ];
-
-  // EU AI Act Compliance items for dropdown
-  const complianceItems = [
-    { name: 'AI Systems', path: '/inventory', icon: <CpuIcon className="h-4 w-4 mr-2" /> },
-    { name: 'Risk Assessment', path: '/risk-assessment', icon: <ShieldIcon className="h-4 w-4 mr-2" /> },
-    { name: 'Documentation', path: '/documentation', icon: <FileTextIcon className="h-4 w-4 mr-2" /> },
-    { name: 'Training', path: '/training', icon: <AwardIcon className="h-4 w-4 mr-2" /> },
-    { name: 'Tasks', path: '/tasks', icon: <CheckSquareIcon className="h-4 w-4 mr-2" /> },
-    { name: 'Reports', path: '/reports', icon: <BarChart3Icon className="h-4 w-4 mr-2" /> },
-    { name: 'Register AI System', path: '/register-system', icon: <BrainIcon className="h-4 w-4 mr-2" /> },
-    { name: 'Knowledge Center', path: '/knowledge-center', icon: <BookOpenIcon className="h-4 w-4 mr-2" /> },
-  ];
-
-  // Platform features items for dropdown
-  const platformItems = [
     { 
-      name: 'Platform Guides', 
-      path: '/guides', 
-      icon: <HelpCircleIcon className="h-4 w-4 mr-2 text-orange-500" />,
-      isNew: true,
-      badgeColor: 'orange' 
+      name: 'Dashboard', 
+      path: '/', 
+      icon: <HomeIcon className="w-4 h-4" />,
+      isNew: false,
+      badgeColor: '' 
     },
     { 
-      name: 'AI Workflow Diagram', 
-      path: '/workflow', 
-      icon: <NetworkIcon className="h-4 w-4 mr-2" /> 
+      name: 'Settings', 
+      path: '/settings', 
+      icon: <SettingsIcon className="w-4 h-4" />,
+      isNew: false,
+      badgeColor: '' 
+    },
+  ];
+
+  // EU AI Act Compliance Suite main dropdown items
+  const complianceSuiteItems = [
+    { 
+      name: 'AI Registration', 
+      path: '/register-system', 
+      icon: <BrainIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Risk Assessment', 
+      path: '/risk-assessment', 
+      icon: <ShieldIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: false,
+      badgeColor: ''
     },
     { 
       name: 'Approval Workflow', 
       path: '/approval-workflow', 
-      icon: <CheckSquareIcon className="h-4 w-4 mr-2 text-green-600" />,
+      icon: <CheckSquareIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
       isNew: true,
       badgeColor: 'green'
     },
     { 
-      name: 'Platform Tour', 
-      path: '/onboarding', 
-      icon: <SparklesIcon className="h-4 w-4 mr-2 text-purple-500" />,
-      isNew: true,
-      badgeColor: 'purple'
+      name: 'Compliance Reports', 
+      path: '/reports', 
+      icon: <BarChart3Icon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Governance Dashboard', 
+      path: '/governance', 
+      icon: <TargetIcon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
+    },
+  ];
+
+  // Knowledge Resources items for dropdown
+  const knowledgeResourcesItems = [
+    { 
+      name: 'EU AI Act Articles', 
+      path: '/knowledge-center', 
+      icon: <BookOpenIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Knowledge Center', 
+      path: '/knowledge-center/advanced', 
+      icon: <BookOpenIcon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Training & Certification', 
+      path: '/training', 
+      icon: <AwardIcon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Documentation Center', 
+      path: '/documentation', 
+      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
+    },
+  ];
+
+  // Business Intelligence items for dropdown
+  const businessIntelligenceItems = [
+    { 
+      name: 'Market Intelligence', 
+      path: '/market-intelligence', 
+      icon: <PieChartIcon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Strategic Planning', 
+      path: '/strategic-planning', 
+      icon: <TargetIcon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Operations Excellence', 
+      path: '/operations-excellence', 
+      icon: <BriefcaseIcon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Growth & Innovation', 
+      path: '/growth-innovation', 
+      icon: <TrendingUpIcon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
+    },
+  ];
+
+  // Tools items for dropdown
+  const toolsItems = [
+    { 
+      name: 'Text Analyzer', 
+      path: '/risk-assessment/text-analyzer', 
+      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
     },
     { 
       name: 'Enterprise Decision Platform', 
@@ -117,11 +199,18 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       badgeColor: 'blue'
     },
     { 
-      name: 'Service Packages & Pricing', 
-      path: '/pricing', 
-      icon: <DollarSignIcon className="h-4 w-4 mr-2 text-green-500" />,
-      isNew: true,
-      badgeColor: 'green'
+      name: 'Legal Review Platform', 
+      path: '/legal-reviews', 
+      icon: <ShieldIcon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Demo Scenarios', 
+      path: '/demo-scenarios', 
+      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isNew: false,
+      badgeColor: ''
     },
   ];
 
@@ -166,128 +255,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
               </Link>
             ))}
 
-            {/* EU AI Act Dropdown - Main entry point */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className={cn(
-                    "h-8 px-3 text-sm rounded-md whitespace-nowrap flex items-center gap-1.5 border-primary/30 bg-primary/5 font-medium",
-                    complianceItems.some(item => isActive(item.path)) && "bg-primary/20 text-primary font-medium border-primary/40"
-                  )}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <ShieldIcon className="h-4 w-4 text-primary" />
-                    <span className="font-medium">EU AI Act</span>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">92%</Badge>
-                    <ChevronDownIcon className="h-4 w-4" />
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>EU AI Act Components</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                
-                {/* AI Systems Management Section */}
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-blue-700">AI Systems Management</DropdownMenuLabel>
-                  <DropdownMenuItem asChild className="bg-blue-50">
-                    <Link href="/inventory" onClick={handleItemClick}>
-                      <CpuIcon className="h-4 w-4 mr-2 text-blue-600" />
-                      <span className="font-medium">AI Systems Inventory</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="bg-emerald-50 mt-1">
-                    <Link href="/register-system" onClick={handleItemClick}>
-                      <BrainIcon className="h-4 w-4 mr-2 text-emerald-600" />
-                      <span className="font-medium">Register New AI System</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="mt-1">
-                    <Link href="/workflow" onClick={handleItemClick}>
-                      <NetworkIcon className="h-4 w-4 mr-2" />
-                      <span>AI Workflow Diagram</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                
-                {/* Risk Assessment Section */}
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-amber-700">Risk Management</DropdownMenuLabel>
-                  <DropdownMenuItem asChild className="bg-amber-50">
-                    <Link href="/risk-assessment" onClick={handleItemClick}>
-                      <ShieldIcon className="h-4 w-4 mr-2 text-amber-600" />
-                      <span className="font-medium">Risk Assessment</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="mt-1">
-                    <Link href="/risk-assessment/wizard" onClick={handleItemClick}>
-                      <SparklesIcon className="h-4 w-4 mr-2" />
-                      <span>Risk Assessment Wizard</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="mt-1">
-                    <Link href="/risk-assessment/results" onClick={handleItemClick}>
-                      <BarChart3Icon className="h-4 w-4 mr-2" />
-                      <span>Assessment Results</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                
-                {/* Compliance Resources Section */}
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-purple-700">Knowledge & Documentation</DropdownMenuLabel>
-                  <DropdownMenuItem asChild className="bg-purple-50">
-                    <Link href="/knowledge-center" onClick={handleItemClick}>
-                      <BookOpenIcon className="h-4 w-4 mr-2 text-purple-600" />
-                      <span className="font-medium">Knowledge Center</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="mt-1">
-                    <Link href="/documentation" onClick={handleItemClick}>
-                      <FileTextIcon className="h-4 w-4 mr-2" />
-                      <span>Documentation</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="mt-1">
-                    <Link href="/training" onClick={handleItemClick}>
-                      <AwardIcon className="h-4 w-4 mr-2" />
-                      <span>Training & Certification</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                
-                {/* Approval & Reporting Section */}
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-green-700">Workflows & Reporting</DropdownMenuLabel>
-                  <DropdownMenuItem asChild className="bg-green-50">
-                    <Link href="/approval-workflow" onClick={handleItemClick}>
-                      <CheckSquareIcon className="h-4 w-4 mr-2 text-green-600" />
-                      <span className="font-medium">Approval Workflow</span>
-                      <Badge variant="outline" className="ml-2 px-1.5 py-0.5 h-5 bg-green-100 border-green-200 text-green-700 text-[10px]">New</Badge>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="mt-1">
-                    <Link href="/reports" onClick={handleItemClick}>
-                      <BarChart3Icon className="h-4 w-4 mr-2" />
-                      <span>Compliance Reports</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="mt-1">
-                    <Link href="/tasks" onClick={handleItemClick}>
-                      <CheckSquareIcon className="h-4 w-4 mr-2" />
-                      <span>Tasks & Assignments</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            {/* Main navigation items as separate buttons for quick access */}
+            {/* AI Inventory Link - Direct Access */}
             <Link 
               href="/inventory" 
               onClick={handleItemClick} 
@@ -301,51 +269,49 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
                 <span className="ml-1.5">AI Inventory</span>
               </span>
             </Link>
-            
-            <Link 
-              href="/register-system" 
-              onClick={handleItemClick} 
-              className={cn(
-                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-emerald-50 hover:text-emerald-700 whitespace-nowrap",
-                isActive('/register-system') && "bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium"
-              )}
-            >
-              <span className="flex items-center">
-                <BrainIcon className="w-4 h-4" />
-                <span className="ml-1.5">AI Register</span>
-              </span>
-            </Link>
-            
-            <Link 
-              href="/risk-assessment" 
-              onClick={handleItemClick} 
-              className={cn(
-                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-amber-50 hover:text-amber-700 whitespace-nowrap",
-                isActive('/risk-assessment') && "bg-amber-50 text-amber-700 border border-amber-200 font-medium"
-              )}
-            >
-              <span className="flex items-center">
-                <ShieldIcon className="w-4 h-4" />
-                <span className="ml-1.5">Risk Assessment</span>
-              </span>
-            </Link>
-                        
-            <Link 
-              href="/approval-workflow" 
-              onClick={handleItemClick} 
-              className={cn(
-                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-green-50 hover:text-green-700 whitespace-nowrap",
-                isActive('/approval-workflow') && "bg-green-50 text-green-700 border border-green-200 font-medium"
-              )}
-            >
-              <span className="flex items-center">
-                <CheckSquareIcon className="w-4 h-4" />
-                <span className="ml-1.5">Approval Workflow</span>
-                <Badge variant="outline" className="ml-1 px-1.5 py-0.5 h-5 bg-green-100 border-green-200 text-green-700 text-[10px]">New</Badge>
-              </span>
-            </Link>
 
-            {/* Platform Features Dropdown */}
+            {/* EU AI Act Compliance Suite Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className={cn(
+                    "h-8 px-3 text-sm rounded-md whitespace-nowrap flex items-center gap-1.5 border-primary/30 bg-primary/5 font-medium",
+                    complianceSuiteItems.some((item) => isActive(item.path)) && "bg-primary/20 text-primary font-medium border-primary/40"
+                  )}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <ShieldIcon className="h-4 w-4 text-primary" />
+                    <span className="font-medium">Compliance Suite</span>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">92%</Badge>
+                    <ChevronDownIcon className="h-4 w-4" />
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-60">
+                <DropdownMenuLabel>EU AI Act Compliance Tools</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuGroup>
+                  {complianceSuiteItems.map((item) => (
+                    <DropdownMenuItem 
+                      key={item.name} 
+                      asChild 
+                      className={item.isPriority ? "bg-blue-50 font-medium mt-1" : "mt-1"}
+                    >
+                      <Link href={item.path} onClick={handleItemClick}>
+                        {item.icon}
+                        <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
+                        {item.isNew && renderBadge(item.badgeColor)}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {/* Knowledge Resources Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
@@ -353,30 +319,62 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
                   size="sm" 
                   className={cn(
                     "h-8 px-2 text-xs rounded-md whitespace-nowrap flex items-center gap-1",
-                    platformItems.some(item => isActive(item.path)) && "bg-primary/10 text-primary font-medium"
+                    knowledgeResourcesItems.some((item) => isActive(item.path)) && "bg-purple-50 text-purple-700 font-medium"
                   )}
                 >
                   <span className="flex items-center gap-1.5">
-                    <SparklesIcon className="h-4 w-4" />
-                    <span>Platform Features</span>
+                    <BookOpenIcon className="h-4 w-4 text-purple-700" />
+                    <span>Knowledge Resources</span>
                     <ChevronDownIcon className="h-4 w-4" />
                   </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>Platform Features</DropdownMenuLabel>
+                <DropdownMenuLabel>Knowledge & Documentation</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  {platformItems.map((item) => (
-                    <DropdownMenuItem key={item.name} asChild>
-                      <Link
-                        href={item.path}
-                        className={cn(
-                          "flex w-full cursor-pointer",
-                          isActive(item.path) && "bg-primary/10 text-primary font-medium"
-                        )}
-                        onClick={handleItemClick}
-                      >
+                  {knowledgeResourcesItems.map((item) => (
+                    <DropdownMenuItem 
+                      key={item.name} 
+                      asChild 
+                      className={item.isPriority ? "bg-purple-50 font-medium mt-1" : "mt-1"}
+                    >
+                      <Link href={item.path} onClick={handleItemClick}>
+                        {item.icon}
+                        <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
+                        {item.isNew && renderBadge(item.badgeColor)}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {/* Business Intelligence Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    "h-8 px-2 text-xs rounded-md whitespace-nowrap flex items-center gap-1",
+                    businessIntelligenceItems.some((item) => isActive(item.path)) && "bg-amber-50 text-amber-700 font-medium"
+                  )}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <PieChartIcon className="h-4 w-4 text-amber-600" />
+                    <span>Business Intelligence</span>
+                    <ChevronDownIcon className="h-4 w-4" />
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel>Business Strategy & Planning</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  {businessIntelligenceItems.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild className="mt-1">
+                      <Link href={item.path} onClick={handleItemClick}>
                         {item.icon}
                         <span>{item.name}</span>
                         {item.isNew && renderBadge(item.badgeColor)}
@@ -386,6 +384,56 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Tools Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    "h-8 px-2 text-xs rounded-md whitespace-nowrap flex items-center gap-1",
+                    toolsItems.some((item) => isActive(item.path)) && "bg-blue-50 text-blue-700 font-medium"
+                  )}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <SparklesIcon className="h-4 w-4" />
+                    <span>Tools</span>
+                    <ChevronDownIcon className="h-4 w-4" />
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel>Tools & Resources</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  {toolsItems.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild className="mt-1">
+                      <Link href={item.path} onClick={handleItemClick}>
+                        {item.icon}
+                        <span>{item.name}</span>
+                        {item.isNew && renderBadge(item.badgeColor)}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {/* Pricing Link - Direct Access */}
+            <Link 
+              href="/pricing" 
+              onClick={handleItemClick} 
+              className={cn(
+                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-green-50 hover:text-green-700 whitespace-nowrap",
+                isActive('/pricing') && "bg-green-50 text-green-700 border border-green-200 font-medium"
+              )}
+            >
+              <span className="flex items-center">
+                <DollarSignIcon className="w-4 h-4 text-green-600" />
+                <span className="ml-1.5">Pricing & Plans</span>
+              </span>
+            </Link>
           </div>
         </ScrollArea>
       </div>
