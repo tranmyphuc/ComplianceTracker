@@ -166,7 +166,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
               </Link>
             ))}
 
-            {/* EU AI Act - Main dropdown with prominent styling */}
+            {/* EU AI Act Dropdown - Main entry point */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
@@ -185,221 +185,99 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
                   </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64">
-                <DropdownMenuLabel>EU AI Act Compliance</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  {/* High-Priority Items with badges and special styling */}
-                  <DropdownMenuItem asChild>
-                    <Link href="/inventory" onClick={handleItemClick} className="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 mb-1">
-                      <CpuIcon className="h-4 w-4 mr-2" />
-                      <span className="font-medium">AI Systems Inventory</span>
-                      <Badge variant="outline" className="ml-auto px-1.5 py-0.5 h-5 bg-blue-100 border-blue-200 text-blue-700 text-[10px]">Important</Badge>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/register-system" onClick={handleItemClick} className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 mb-1">
-                      <BrainIcon className="h-4 w-4 mr-2" />
-                      <span className="font-medium">Register New AI System</span>
-                      <Badge variant="outline" className="ml-auto px-1.5 py-0.5 h-5 bg-emerald-100 border-emerald-200 text-emerald-700 text-[10px]">Key</Badge>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/risk-assessment" onClick={handleItemClick} className="bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 mb-1">
-                      <ShieldIcon className="h-4 w-4 mr-2" />
-                      <span className="font-medium">Risk Assessment</span>
-                      <Badge variant="outline" className="ml-auto px-1.5 py-0.5 h-5 bg-amber-100 border-amber-200 text-amber-700 text-[10px]">Critical</Badge>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/knowledge-center" onClick={handleItemClick} className="mb-1">
-                      <BookOpenIcon className="h-4 w-4 mr-2" />
-                      <span>Knowledge Center</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/documentation" onClick={handleItemClick} className="mb-1">
-                      <FileTextIcon className="h-4 w-4 mr-2" />
-                      <span>Documentation</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/reports" onClick={handleItemClick} className="mb-1">
-                      <BarChart3Icon className="h-4 w-4 mr-2" />
-                      <span>Compliance Reports</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/training" onClick={handleItemClick} className="mb-1">
-                      <AwardIcon className="h-4 w-4 mr-2" />
-                      <span>Training & Certification</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            {/* AI Systems dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={cn(
-                    "h-8 px-2 text-xs rounded-md whitespace-nowrap",
-                    isActive("/inventory") || isActive("/register-system") ? "bg-blue-50 text-blue-700 border border-blue-200" : ""
-                  )}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <CpuIcon className="h-4 w-4" />
-                    <span>AI Systems</span>
-                    <ChevronDownIcon className="h-4 w-4" />
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>AI System Management</DropdownMenuLabel>
+                <DropdownMenuLabel>EU AI Act Components</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                
+                {/* AI Systems Management Section */}
                 <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-blue-700">AI Systems Management</DropdownMenuLabel>
+                  <DropdownMenuItem asChild className="bg-blue-50">
                     <Link href="/inventory" onClick={handleItemClick}>
-                      <CpuIcon className="h-4 w-4 mr-2" />
-                      <span>AI Systems Inventory</span>
+                      <CpuIcon className="h-4 w-4 mr-2 text-blue-600" />
+                      <span className="font-medium">AI Systems Inventory</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="bg-emerald-50 mt-1">
                     <Link href="/register-system" onClick={handleItemClick}>
-                      <BrainIcon className="h-4 w-4 mr-2" />
-                      <span>Register New AI System</span>
+                      <BrainIcon className="h-4 w-4 mr-2 text-emerald-600" />
+                      <span className="font-medium">Register New AI System</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="mt-1">
                     <Link href="/workflow" onClick={handleItemClick}>
                       <NetworkIcon className="h-4 w-4 mr-2" />
                       <span>AI Workflow Diagram</span>
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 px-2 text-xs rounded-md whitespace-nowrap"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <ShieldIcon className="h-4 w-4" />
-                    <span>Risk Assessment</span>
-                    <ChevronDownIcon className="h-4 w-4" />
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>Risk Assessment Tools</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                
+                {/* Risk Assessment Section */}
                 <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-amber-700">Risk Management</DropdownMenuLabel>
+                  <DropdownMenuItem asChild className="bg-amber-50">
                     <Link href="/risk-assessment" onClick={handleItemClick}>
-                      <ShieldIcon className="h-4 w-4 mr-2" />
-                      <span>Risk Assessment Dashboard</span>
+                      <ShieldIcon className="h-4 w-4 mr-2 text-amber-600" />
+                      <span className="font-medium">Risk Assessment</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="mt-1">
                     <Link href="/risk-assessment/wizard" onClick={handleItemClick}>
                       <SparklesIcon className="h-4 w-4 mr-2" />
                       <span>Risk Assessment Wizard</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="mt-1">
                     <Link href="/risk-assessment/results" onClick={handleItemClick}>
                       <BarChart3Icon className="h-4 w-4 mr-2" />
                       <span>Assessment Results</span>
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 px-2 text-xs rounded-md whitespace-nowrap"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <FileTextIcon className="h-4 w-4" />
-                    <span>Compliance</span>
-                    <ChevronDownIcon className="h-4 w-4" />
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>Compliance Resources</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                
+                {/* Compliance Resources Section */}
                 <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-purple-700">Knowledge & Documentation</DropdownMenuLabel>
+                  <DropdownMenuItem asChild className="bg-purple-50">
+                    <Link href="/knowledge-center" onClick={handleItemClick}>
+                      <BookOpenIcon className="h-4 w-4 mr-2 text-purple-600" />
+                      <span className="font-medium">Knowledge Center</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="mt-1">
                     <Link href="/documentation" onClick={handleItemClick}>
                       <FileTextIcon className="h-4 w-4 mr-2" />
                       <span>Documentation</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/knowledge-center" onClick={handleItemClick}>
-                      <BookOpenIcon className="h-4 w-4 mr-2" />
-                      <span>Knowledge Center</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="mt-1">
                     <Link href="/training" onClick={handleItemClick}>
                       <AwardIcon className="h-4 w-4 mr-2" />
                       <span>Training & Certification</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                
+                {/* Approval & Reporting Section */}
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-green-700">Workflows & Reporting</DropdownMenuLabel>
+                  <DropdownMenuItem asChild className="bg-green-50">
+                    <Link href="/approval-workflow" onClick={handleItemClick}>
+                      <CheckSquareIcon className="h-4 w-4 mr-2 text-green-600" />
+                      <span className="font-medium">Approval Workflow</span>
+                      <Badge variant="outline" className="ml-2 px-1.5 py-0.5 h-5 bg-green-100 border-green-200 text-green-700 text-[10px]">New</Badge>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="mt-1">
                     <Link href="/reports" onClick={handleItemClick}>
                       <BarChart3Icon className="h-4 w-4 mr-2" />
                       <span>Compliance Reports</span>
                     </Link>
                   </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={cn(
-                    "h-8 px-2 text-xs rounded-md whitespace-nowrap",
-                    isActive("/approval-workflow") && "bg-primary/10 text-primary font-medium"
-                  )}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <CheckSquareIcon className="h-4 w-4" />
-                    <span>Workflows</span>
-                    <Badge variant="outline" className="ml-1 px-1.5 py-0.5 h-5 bg-green-100 border-green-200 text-green-700 text-[10px]">New</Badge>
-                    <ChevronDownIcon className="h-4 w-4" />
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>Workflow Management</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
-                    <Link href="/approval-workflow" onClick={handleItemClick}>
-                      <CheckSquareIcon className="h-4 w-4 mr-2 text-green-600" />
-                      <span>Approval Workflow</span>
-                      <Badge variant="outline" className="ml-2 px-1.5 py-0.5 h-5 bg-green-100 border-green-200 text-green-700 text-[10px]">New</Badge>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="mt-1">
                     <Link href="/tasks" onClick={handleItemClick}>
                       <CheckSquareIcon className="h-4 w-4 mr-2" />
                       <span>Tasks & Assignments</span>
@@ -408,6 +286,64 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
+            
+            {/* Main navigation items as separate buttons for quick access */}
+            <Link 
+              href="/inventory" 
+              onClick={handleItemClick} 
+              className={cn(
+                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-blue-50 hover:text-blue-700 whitespace-nowrap",
+                isActive('/inventory') && "bg-blue-50 text-blue-700 border border-blue-200 font-medium"
+              )}
+            >
+              <span className="flex items-center">
+                <CpuIcon className="w-4 h-4" />
+                <span className="ml-1.5">AI Inventory</span>
+              </span>
+            </Link>
+            
+            <Link 
+              href="/register-system" 
+              onClick={handleItemClick} 
+              className={cn(
+                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-emerald-50 hover:text-emerald-700 whitespace-nowrap",
+                isActive('/register-system') && "bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium"
+              )}
+            >
+              <span className="flex items-center">
+                <BrainIcon className="w-4 h-4" />
+                <span className="ml-1.5">AI Register</span>
+              </span>
+            </Link>
+            
+            <Link 
+              href="/risk-assessment" 
+              onClick={handleItemClick} 
+              className={cn(
+                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-amber-50 hover:text-amber-700 whitespace-nowrap",
+                isActive('/risk-assessment') && "bg-amber-50 text-amber-700 border border-amber-200 font-medium"
+              )}
+            >
+              <span className="flex items-center">
+                <ShieldIcon className="w-4 h-4" />
+                <span className="ml-1.5">Risk Assessment</span>
+              </span>
+            </Link>
+                        
+            <Link 
+              href="/approval-workflow" 
+              onClick={handleItemClick} 
+              className={cn(
+                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-green-50 hover:text-green-700 whitespace-nowrap",
+                isActive('/approval-workflow') && "bg-green-50 text-green-700 border border-green-200 font-medium"
+              )}
+            >
+              <span className="flex items-center">
+                <CheckSquareIcon className="w-4 h-4" />
+                <span className="ml-1.5">Approval Workflow</span>
+                <Badge variant="outline" className="ml-1 px-1.5 py-0.5 h-5 bg-green-100 border-green-200 text-green-700 text-[10px]">New</Badge>
+              </span>
+            </Link>
 
             {/* Platform Features Dropdown */}
             <DropdownMenu>
