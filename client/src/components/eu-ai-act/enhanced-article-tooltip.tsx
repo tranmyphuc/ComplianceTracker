@@ -292,6 +292,20 @@ export function EnhancedArticleTooltip({
                         For the full official text, please visit the EU's official legal website.
                       </p>
                     )}
+                    
+                    {article.officialUrl && (
+                      <div className="mt-4 pt-3 border-t border-gray-200">
+                        <a 
+                          href={article.officialUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                        >
+                          <ExternalLink className="h-4 w-4 mr-1" />
+                          View on Official EU AI Act Website
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

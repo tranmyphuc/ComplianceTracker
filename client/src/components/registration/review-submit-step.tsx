@@ -253,9 +253,15 @@ export const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
         <IntegratedApprovalButton 
           moduleId={formData.systemId || `AI-SYS-${Math.floor(1000 + Math.random() * 9000)}`}
           moduleType="system_registration"
-          title={`System Registration: ${formData.name || 'Unnamed System'}`}
-          description={`Request approval for ${formData.name || 'Unnamed System'} ${formData.riskLevel ? `(${formData.riskLevel} Risk)` : ''}`}
-          variant="outline"
+          moduleName={`System Registration: ${formData.name || 'Unnamed System'}`}
+          moduleData={{
+            systemName: formData.name || 'Unnamed System',
+            riskLevel: formData.riskLevel || 'Unknown',
+            department: formData.department || '',
+            description: formData.description || '',
+          }}
+          buttonText={`Request Approval for ${formData.name || 'This System'}`}
+          buttonVariant="outline"
           className="w-full"
         />
       </div>

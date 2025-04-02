@@ -2623,7 +2623,7 @@ if (isDemoMode) {
   // Update an approval workflow status
   app.put("/api/approval/workflows/:id/status", updateApprovalStatus);
 
-  // Assign an approval workflow to a user
+  // Assign an approval workflow to a user (manual assignment)
   app.post("/api/approval/workflows/:id/assign", assignApprovalWorkflow);
 
   // Get user notifications with pagination
