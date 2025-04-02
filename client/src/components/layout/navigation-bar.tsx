@@ -70,6 +70,26 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
   ];
 
   // ===== CLUSTER 1: EU AI Act Compliance Suite =====
+  // Main AI inventory items - Added to first cụm/group
+  const aiInventoryItems = [
+    { 
+      name: 'AI Inventory', 
+      path: '/inventory', 
+      icon: <CpuIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Pricing & Plans', 
+      path: '/pricing', 
+      icon: <DollarSignIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: false,
+      badgeColor: ''
+    },
+  ];
+  
   // Main compliance items
   const complianceSuiteItems = [
     { 
@@ -368,36 +388,44 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
               </Link>
             ))}
 
-            {/* CLUSTER 1: Main Items - AI Inventory and Pricing & Plans */}
-            {/* AI Inventory Link - Direct Access */}
-            <Link 
-              href="/inventory" 
-              onClick={handleItemClick} 
-              className={cn(
-                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-blue-50 hover:text-blue-700 whitespace-nowrap",
-                isActive('/inventory') && "bg-blue-50 text-blue-700 border border-blue-200 font-medium"
-              )}
-            >
-              <span className="flex items-center">
-                <CpuIcon className="w-4 h-4" />
-                <span className="ml-1.5">AI Inventory</span>
-              </span>
-            </Link>
-            
-            {/* Pricing Link - Direct Access - Moved up to be next to AI Inventory */}
-            <Link 
-              href="/pricing" 
-              onClick={handleItemClick} 
-              className={cn(
-                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-green-50 hover:text-green-700 whitespace-nowrap",
-                isActive('/pricing') && "bg-green-50 text-green-700 border border-green-200 font-medium"
-              )}
-            >
-              <span className="flex items-center">
-                <DollarSignIcon className="w-4 h-4 text-green-600" />
-                <span className="ml-1.5">Pricing & Plans</span>
-              </span>
-            </Link>
+            {/* CLUSTER 1: AI Inventory Dropdown Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className={cn(
+                    "h-8 px-3 text-sm rounded-md whitespace-nowrap flex items-center gap-1.5 border-blue-300 bg-blue-50 font-medium",
+                    aiInventoryItems.some((item) => isActive(item.path)) && "bg-blue-100 text-blue-700 font-medium border-blue-400"
+                  )}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <CpuIcon className="h-4 w-4 text-blue-600" />
+                    <span className="font-medium">AI Systems</span>
+                    <ChevronDownIcon className="h-4 w-4" />
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuLabel>AI Inventory & Plans</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  {aiInventoryItems.map((item) => (
+                    <DropdownMenuItem 
+                      key={item.name} 
+                      asChild 
+                      className={item.isPriority ? "bg-blue-50 font-medium mt-1" : "mt-1"}
+                    >
+                      <Link href={item.path} onClick={handleItemClick}>
+                        {item.icon}
+                        <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
+                        {item.isNew && renderBadge(item.badgeColor)}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* EU AI Act Compliance Suite Dropdown */}
             <DropdownMenu>
