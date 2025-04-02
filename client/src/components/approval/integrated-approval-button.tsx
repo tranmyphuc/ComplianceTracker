@@ -52,7 +52,7 @@ export function IntegratedApprovalButton({
   moduleType,
   moduleId,
   moduleName,
-  buttonText = 'Gửi phê duyệt',
+  buttonText = 'Send for Approval',
   buttonVariant = 'default',
   buttonSize = 'default',
   moduleData,
@@ -77,8 +77,8 @@ export function IntegratedApprovalButton({
     }),
     onSuccess: (data) => {
       toast({
-        title: 'Gửi phê duyệt thành công',
-        description: 'Yêu cầu phê duyệt đã được tạo và đang chờ xử lý',
+        title: 'Approval Request Submitted',
+        description: 'Approval request has been created and is awaiting processing',
       });
       setIsSubmitDialogOpen(false);
       setNewApprovalItemId(data.id);
@@ -95,8 +95,8 @@ export function IntegratedApprovalButton({
     },
     onError: (error: any) => {
       toast({
-        title: 'Lỗi khi gửi phê duyệt',
-        description: error.message || 'Không thể tạo yêu cầu phê duyệt. Vui lòng thử lại.',
+        title: 'Error Submitting Approval',
+        description: error.message || 'Unable to create approval request. Please try again.',
         variant: 'destructive',
       });
       if (onSubmitError) onSubmitError(error);
@@ -110,8 +110,8 @@ export function IntegratedApprovalButton({
     }),
     onSuccess: () => {
       toast({
-        title: 'Tự động phân công thành công',
-        description: 'Yêu cầu phê duyệt đã được tự động phân công cho người phù hợp',
+        title: 'Auto-assignment Successful',
+        description: 'Approval request has been automatically assigned to appropriate reviewers',
       });
       queryClient.invalidateQueries({ queryKey: ['/api/approval/workflows'] });
       setIsAssignDialogOpen(false);
@@ -119,8 +119,8 @@ export function IntegratedApprovalButton({
     },
     onError: (error: any) => {
       toast({
-        title: 'Lỗi khi tự động phân công',
-        description: error.message || 'Không thể tự động phân công yêu cầu phê duyệt. Vui lòng thử lại.',
+        title: 'Auto-assignment Failed',
+        description: error.message || 'Unable to automatically assign approval request. Please try again.',
         variant: 'destructive',
       });
     }
@@ -166,9 +166,9 @@ export function IntegratedApprovalButton({
       <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Phân công phê duyệt</DialogTitle>
+            <DialogTitle>Assign for Approval</DialogTitle>
             <DialogDescription>
-              Yêu cầu phê duyệt đã được tạo. Bạn có muốn phân công ngay bây giờ?
+              Approval request has been created. Would you like to assign it now?
             </DialogDescription>
           </DialogHeader>
           
@@ -183,16 +183,16 @@ export function IntegratedApprovalButton({
               ) : (
                 <BadgeCheck className="mr-2 h-4 w-4" />
               )}
-              Tự động phân công
+              Auto-assign
             </Button>
             
             <AssignmentDialog
               itemId={newApprovalItemId}
-              title="Chọn người phê duyệt thủ công"
+              title="Choose Manual Approver"
               trigger={
                 <Button variant="outline" className="w-full flex items-center justify-center">
                   <UserCheck2 className="mr-2 h-4 w-4" />
-                  Phân công thủ công
+                  Manual Assignment
                 </Button>
               }
               onAssignmentComplete={() => {
@@ -210,7 +210,7 @@ export function IntegratedApprovalButton({
                 if (onSubmitSuccess) onSubmitSuccess(newApprovalItemId);
               }}
             >
-              Để sau
+              Later
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -223,18 +223,18 @@ export function IntegratedApprovalButton({
     <Dialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Gửi phê duyệt</DialogTitle>
+          <DialogTitle>Submit for Approval</DialogTitle>
           <DialogDescription>
-            Thêm ghi chú hoặc thông tin chi tiết cho người phê duyệt
+            Add notes or details for the approval reviewer
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="comments">Ghi chú</Label>
+            <Label htmlFor="comments">Notes</Label>
             <Textarea
               id="comments"
-              placeholder="Thêm thông tin chi tiết về yêu cầu phê duyệt này..."
+              placeholder="Add detailed information about this approval request..."
               value={comments}
               onChange={(e) => setComments(e.target.value)}
               rows={4}
@@ -247,7 +247,7 @@ export function IntegratedApprovalButton({
             variant="outline" 
             onClick={() => setIsSubmitDialogOpen(false)}
           >
-            Hủy
+            Cancel
           </Button>
           <Button 
             onClick={submitApproval}
@@ -256,9 +256,9 @@ export function IntegratedApprovalButton({
             {createApprovalMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Đang gửi...
+                Sending...
               </>
-            ) : 'Gửi phê duyệt'}
+            ) : 'Submit for approval'}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -280,7 +280,7 @@ export function IntegratedApprovalButton({
               {createApprovalMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Đang gửi...
+                  Sending...
                 </>
               ) : (
                 <>
@@ -292,7 +292,7 @@ export function IntegratedApprovalButton({
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={handleSubmit}>
-              Gửi với ghi chú
+              Submit with notes
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
@@ -300,7 +300,7 @@ export function IntegratedApprovalButton({
                 submitApproval();
               }}
             >
-              Gửi nhanh
+              Quick submit
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -324,7 +324,7 @@ export function IntegratedApprovalButton({
         {createApprovalMutation.isPending ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Đang gửi...
+            Sending...
           </>
         ) : buttonText}
       </Button>
