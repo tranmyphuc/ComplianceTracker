@@ -39,6 +39,8 @@ import {
   testApiKey
 } from "./ai-key-management";
 
+import { createComplianceWizardRoutes } from "./routes/compliance-wizard";
+
 /**
  * Helper function to extract values from unstructured AI text responses
  * This is used as a fallback when JSON parsing fails
@@ -3035,6 +3037,9 @@ if (isDemoMode) {
   
   // Register EU AI Act routes
   app.use('/api/eu-ai-act', createEuAiActRoutes(storage));
+  
+  // Register Compliance Wizard routes
+  app.use('/api/compliance', createComplianceWizardRoutes(storage));
 
   // Legal validation routes
   app.post("/api/legal/validate", validateAssessmentText);
