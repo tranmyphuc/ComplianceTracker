@@ -75,7 +75,8 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
     },
   ];
 
-  // EU AI Act Compliance Suite main dropdown items
+  // ===== CLUSTER 1: EU AI Act Compliance Suite =====
+  // Main compliance items
   const complianceSuiteItems = [
     { 
       name: 'AI Registration', 
@@ -94,6 +95,22 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       badgeColor: ''
     },
     { 
+      name: 'Risk Assessment Guides', 
+      path: '/risk-assessment/guides', 
+      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Text Analyzer', 
+      path: '/risk-assessment/text-analyzer', 
+      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
       name: 'Approval Workflow', 
       path: '/approval-workflow', 
       icon: <CheckSquareIcon className="h-4 w-4 mr-2" />,
@@ -105,6 +122,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       name: 'Compliance Reports', 
       path: '/reports', 
       icon: <BarChart3Icon className="h-4 w-4 mr-2" />,
+      isPriority: false,
       isNew: false,
       badgeColor: ''
     },
@@ -112,12 +130,29 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       name: 'Governance Dashboard', 
       path: '/governance', 
       icon: <TargetIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Risk Management', 
+      path: '/risk-management', 
+      icon: <ShieldIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Legal Review Platform', 
+      path: '/legal-reviews', 
+      icon: <ShieldIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
       isNew: false,
       badgeColor: ''
     },
   ];
 
-  // Knowledge Resources items for dropdown
+  // Knowledge & Training Resources
   const knowledgeResourcesItems = [
     { 
       name: 'EU AI Act Articles', 
@@ -131,6 +166,15 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       name: 'Knowledge Center', 
       path: '/knowledge-center/advanced', 
       icon: <BookOpenIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'ISO 42001', 
+      path: '/knowledge-center/iso42001', 
+      icon: <BookOpenIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
       isNew: false,
       badgeColor: ''
     },
@@ -138,24 +182,52 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       name: 'Training & Certification', 
       path: '/training', 
       icon: <AwardIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
       isNew: false,
       badgeColor: ''
+    },
+    { 
+      name: 'EU AI Act Guides', 
+      path: '/training/eu-ai-act-guides', 
+      icon: <BookOpenIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: true,
+      badgeColor: 'purple'
     },
     { 
       name: 'Documentation Center', 
       path: '/documentation', 
       icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Platform Guide', 
+      path: '/guides/platform-guide', 
+      icon: <HelpCircleIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
       isNew: false,
       badgeColor: ''
     },
   ];
 
-  // Business Intelligence items for dropdown
+  // ===== CLUSTER 2: Decision Support Tools =====
+  // Business Intelligence & Strategy Tools
   const businessIntelligenceItems = [
+    { 
+      name: 'Enterprise Decision Platform', 
+      path: '/enterprise-decision-platform', 
+      icon: <PieChartIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: true,
+      badgeColor: 'blue'
+    },
     { 
       name: 'Market Intelligence', 
       path: '/market-intelligence', 
       icon: <PieChartIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
       isNew: false,
       badgeColor: ''
     },
@@ -163,6 +235,15 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       name: 'Strategic Planning', 
       path: '/strategic-planning', 
       icon: <TargetIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Regulatory Complexity', 
+      path: '/regulatory-complexity', 
+      icon: <NetworkIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
       isNew: false,
       badgeColor: ''
     },
@@ -170,6 +251,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       name: 'Operations Excellence', 
       path: '/operations-excellence', 
       icon: <BriefcaseIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
       isNew: false,
       badgeColor: ''
     },
@@ -177,38 +259,59 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       name: 'Growth & Innovation', 
       path: '/growth-innovation', 
       icon: <TrendingUpIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
       isNew: false,
       badgeColor: ''
     },
   ];
 
-  // Tools items for dropdown
-  const toolsItems = [
-    { 
-      name: 'Text Analyzer', 
-      path: '/risk-assessment/text-analyzer', 
-      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
-      isNew: false,
-      badgeColor: ''
-    },
-    { 
-      name: 'Enterprise Decision Platform', 
-      path: '/enterprise-decision-platform', 
-      icon: <PieChartIcon className="h-4 w-4 mr-2 text-blue-500" />,
-      isNew: true,
-      badgeColor: 'blue'
-    },
-    { 
-      name: 'Legal Review Platform', 
-      path: '/legal-reviews', 
-      icon: <ShieldIcon className="h-4 w-4 mr-2" />,
-      isNew: false,
-      badgeColor: ''
-    },
+  // Demo Scenarios & Resources
+  const demoItems = [
     { 
       name: 'Demo Scenarios', 
       path: '/demo-scenarios', 
       icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Healthcare AI', 
+      path: '/demo-scenarios/healthcare-ai-diagnostics', 
+      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'SGH Consulting', 
+      path: '/demo-scenarios/sgh-service-consulting', 
+      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Fintech Fraud Detection', 
+      path: '/demo-scenarios/fintech-fraud-detection', 
+      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Manufacturing AI', 
+      path: '/demo-scenarios/manufacturing-predictive-maintenance', 
+      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Platform Introduction', 
+      path: '/guides/platform-introduction', 
+      icon: <HelpCircleIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
       isNew: false,
       badgeColor: ''
     },
@@ -354,29 +457,34 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   size="sm" 
                   className={cn(
-                    "h-8 px-2 text-xs rounded-md whitespace-nowrap flex items-center gap-1",
-                    businessIntelligenceItems.some((item) => isActive(item.path)) && "bg-amber-50 text-amber-700 font-medium"
+                    "h-8 px-3 text-sm rounded-md whitespace-nowrap flex items-center gap-1.5 border-amber-300 bg-amber-50 font-medium",
+                    businessIntelligenceItems.some((item) => isActive(item.path)) && "bg-amber-100 text-amber-700 font-medium border-amber-400"
                   )}
                 >
                   <span className="flex items-center gap-1.5">
                     <PieChartIcon className="h-4 w-4 text-amber-600" />
-                    <span>Business Intelligence</span>
+                    <span className="font-medium">Decision Support</span>
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[10px]">New</Badge>
                     <ChevronDownIcon className="h-4 w-4" />
                   </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuContent align="start" className="w-60">
                 <DropdownMenuLabel>Business Strategy & Planning</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   {businessIntelligenceItems.map((item) => (
-                    <DropdownMenuItem key={item.name} asChild className="mt-1">
+                    <DropdownMenuItem
+                      key={item.name}
+                      asChild
+                      className={item.isPriority ? "bg-amber-50 font-medium mt-1" : "mt-1"}
+                    >
                       <Link href={item.path} onClick={handleItemClick}>
                         {item.icon}
-                        <span>{item.name}</span>
+                        <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
                         {item.isNew && renderBadge(item.badgeColor)}
                       </Link>
                     </DropdownMenuItem>
@@ -385,7 +493,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Tools Dropdown */}
+            {/* Demo Scenarios Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
@@ -393,25 +501,29 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
                   size="sm" 
                   className={cn(
                     "h-8 px-2 text-xs rounded-md whitespace-nowrap flex items-center gap-1",
-                    toolsItems.some((item) => isActive(item.path)) && "bg-blue-50 text-blue-700 font-medium"
+                    demoItems.some((item) => isActive(item.path)) && "bg-blue-50 text-blue-700 font-medium"
                   )}
                 >
                   <span className="flex items-center gap-1.5">
                     <SparklesIcon className="h-4 w-4" />
-                    <span>Tools</span>
+                    <span>Demo Scenarios</span>
                     <ChevronDownIcon className="h-4 w-4" />
                   </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>Tools & Resources</DropdownMenuLabel>
+                <DropdownMenuLabel>Industry Demo Scenarios</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  {toolsItems.map((item) => (
-                    <DropdownMenuItem key={item.name} asChild className="mt-1">
+                  {demoItems.map((item) => (
+                    <DropdownMenuItem
+                      key={item.name}
+                      asChild
+                      className={item.isPriority ? "bg-blue-50 font-medium mt-1" : "mt-1"}
+                    >
                       <Link href={item.path} onClick={handleItemClick}>
                         {item.icon}
-                        <span>{item.name}</span>
+                        <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
                         {item.isNew && renderBadge(item.badgeColor)}
                       </Link>
                     </DropdownMenuItem>
