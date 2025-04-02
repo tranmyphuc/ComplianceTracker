@@ -55,7 +55,7 @@ import { RiskAssessmentStep } from './risk-assessment-step';
 import { LegalValidationStep } from './legal-validation-step';
 import { ReviewSubmitStep } from './review-submit-step';
 import { AutoFillGuidanceModal } from './AutoFillGuidanceModal';
-import { AutoFillProcessStepper, defaultAutoFillSteps } from './AutoFillProcessStepper';
+import { AutoFillProcessStepper, getDefaultAutoFillSteps } from './AutoFillProcessStepper';
 
 const initialFormData = {
   name: '',
@@ -184,7 +184,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
   
   // New state variables for the auto-fill guidance
   const [showGuidanceModal, setShowGuidanceModal] = useState(false);
-  const [autoFillSteps, setAutoFillSteps] = useState(defaultAutoFillSteps);
+  const [autoFillSteps, setAutoFillSteps] = useState(getDefaultAutoFillSteps());
   const [currentAutoFillStep, setCurrentAutoFillStep] = useState<string | undefined>(undefined);
 
   // Handle input changes with smart completion
@@ -838,7 +838,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     setAiTab('process');
     
     // Initialize the steps for visualization
-    const initialSteps = [...defaultAutoFillSteps].map(step => ({
+    const initialSteps = [...getDefaultAutoFillSteps()].map(step => ({
       ...step,
       status: step.id === 'input' ? 'complete' as const : 
               step.id === 'web_research' ? 'processing' as const : 
