@@ -1,0 +1,51 @@
+ // If parsing fails but we got a response, extract data from text
+      console.log("OpenAI response parsing failed, extracting from raw text");
+      const aiText = openAIResult.response.text;
+      
+      return {
+        systemDetails: {
+          name: { value: extractFromText(aiText, "name") || fileName.replace(/\.[^/.]+$/, ""), confidence: 65 },
+          vendor: { value: extractFromText(aiText, "vendor") || extractFromText(aiText, "manufacturer") || extractFromText(aiText, "company") || "Unknown", confidence: 60 },
+          version: { value: extractFromText(aiText, "version") || extractFromText(aiText, "versionNumber") || "1.0", confidence: 55 },
+          department: { value: extractFromText(aiText, "department") || extractFromText(aiText, "division") || extractFromText(aiText, "unit") || "Information Technology", confidence: 55 },
+          purpose: { value: extractFromText(aiText, "purpose") || extractFromText(aiText, "description") || extractFromText(aiText, "about") || "AI system for business operations", confidence: 60 },
+          capabilities: { value: extractFromText(aiText, "capabilities") || extractFromText(aiText, "features") || extractFromText(aiText, "functionality") || "Natural Language Processing", confidence: 55 },
+          trainingDatasets: { value: extractFromText(aiText, "trainingDatasets") || extractFromText(aiText, "training data") || extractFromText(aiText, "data") || "Proprietary datasets", confidence: 50 },
+          riskLevel: { value: extractFromText(aiText, "riskLevel") || extractFromText(aiText, "risk") || "Limited", confidence: 50 }
+        },
+        documentQuality: { score: 65, assessment: "Document processed with partial information extraction" },
+        overallConfidenceScore: 60,
+        unstructuredInsights: ["Document processed but structured extraction was required", "Some fields may require manual verification"]
+      };
+    }
+    
+    // Fall back to DeepSeek if OpenAI fails completely
+    console.log("Falling back to DeepSeek for document processing");
+    const deepseekResult = await tryProcessWithModel(AIModel.DEEPSEEK, 0.2, 2500);
+    
+    if (deepseekResult.success) {
+      const parsedResponse = safeJsonParse(deepseekResult.response.text);
+      if (parsedResponse) {
+        console.log("Successfully processed document with DeepSeek");
+        return parsedResponse;
+      }
+      
+      // Extract from DeepSeek raw text
+      const deepseekText = deepseekResult.response.text;
+      return {
+        systemDetails: {
+          name: { value: extractFromText(deepseekText, "name") || fileName.replace(/\.[^/.]+$/, ""), confidence: 60 },
+          vendor: { value: extractFromText(deepseekText, "vendor") || "Unknown", confidence: 55 },
+          version: { value: extractFromText(deepseekText, "version") || "1.0", confidence: 50 },
+          department: { value: extractFromText(deepseekText, "department") || "IT", confidence: 50 },
+          purpose: { value: extractFromText(deepseekText, "purpose") || "Unknown purpose", confidence: 55 },
+          capabilities: { value: extractFromText(deepseekText, "capabilities") || "Unknown capabilities", confidence: 50 },
+          trainingDatasets: { value: extractFromText(deepseekText, "trainingDatasets") || "Unknown datasets", confidence: 45 },
+          riskLevel: { value: extractFromText(deepseekText, "riskLevel") || "Limited", confidence: 45 }
+        },
+        documentQuality: { score: 55, assessment: "Document processed with moderate information extraction" },
+        overallConfidenceScore: 55,
+        unstructuredInsights: ["Document processed with fallback AI model", "Limited information could be extracted"]
+      };
+    }
+    

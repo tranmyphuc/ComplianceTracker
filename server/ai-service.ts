@@ -33,6 +33,8 @@ export interface AIRequest {
 export interface AIResponse {
   text: string;
   model: AIModel;
+  confidence?: number;
+  metadata?: any;
   tokens: {
     prompt: number;
     completion: number;
@@ -231,12 +233,13 @@ async function callDeepSeek(
     
     // If we get here, we've exhausted our retries
     throw lastError || new Error('Maximum retries exceeded');
-  } catch (error) {
+  } catch (error: unknown) {
     clearTimeout(timeoutId);
     
-    console.error('DeepSeek API error:', error.message || error);
+    const typedError = error as Error;
+    console.error('DeepSeek API error:', typedError.message || error);
     
-    if (error.name === 'AbortError') {
+    if (typedError.name === 'AbortError') {
       throw new AIModelError('DeepSeek API timeout', { modelName: 'deepseek' });
     }
     
@@ -320,10 +323,11 @@ async function callGemini(
       model: AIModel.GEMINI,
       tokens: approximateTokens
     };
-  } catch (error) {
+  } catch (error: unknown) {
     clearTimeout(timeoutId);
     
-    if (error.name === 'AbortError') {
+    const typedError = error as Error;
+    if (typedError.name === 'AbortError') {
       throw new AIModelError('Gemini API timeout', { modelName: 'gemini' });
     }
     
@@ -394,10 +398,11 @@ async function callOpenAI(
         total: data.usage.total_tokens
       }
     };
-  } catch (error) {
+  } catch (error: unknown) {
     clearTimeout(timeoutId);
     
-    if (error.name === 'AbortError') {
+    const typedError = error as Error;
+    if (typedError.name === 'AbortError') {
       throw new AIModelError('OpenAI API timeout', { modelName: 'openai' });
     }
     
@@ -428,11 +433,12 @@ export function safeJsonParse(jsonString: string): any {
     }
     
     return JSON.parse(cleanedResponse);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error parsing JSON from AI response:', error);
+    const typedError = error as Error;
     throw new AIModelError('Failed to parse AI response as JSON', { 
       jsonString,
-      parseError: error.message
+      parseError: typedError.message
     });
   }
 }
@@ -702,7 +708,7 @@ export async function processDocumentWithOCR(fileContent: string, fileName: stri
     // Try OpenAI first
     const openAIResult = await tryProcessWithModel(AIModel.OPENAI);
     
-    if (openAIResult.success) {
+    if (openAIResult.success && openAIResult.response) {
       const parsedResponse = safeJsonParse(openAIResult.response.text);
       if (parsedResponse) {
         console.log("Successfully processed document with OpenAI");
@@ -734,7 +740,7 @@ export async function processDocumentWithOCR(fileContent: string, fileName: stri
     console.log("Falling back to DeepSeek for document processing");
     const deepseekResult = await tryProcessWithModel(AIModel.DEEPSEEK, 0.2, 2500);
     
-    if (deepseekResult.success) {
+    if (deepseekResult.success && deepseekResult.response) {
       const parsedResponse = safeJsonParse(deepseekResult.response.text);
       if (parsedResponse) {
         console.log("Successfully processed document with DeepSeek");

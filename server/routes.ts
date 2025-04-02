@@ -40,6 +40,7 @@ import {
 } from "./ai-key-management";
 
 import { createComplianceWizardRoutes } from "./routes/compliance-wizard";
+import { enhancedAutoFillHandler } from "./routes/enhanced-auto-fill";
 
 /**
  * Helper function to extract values from unstructured AI text responses
@@ -735,9 +736,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fileUploaded: !!fileContent,
         fileName 
       });
-
+      
+      // Use the enhanced auto-fill handler for improved accuracy
+      // Jack said: "Use improved auto-fill with web search integration for better results"
+      return await enhancedAutoFillHandler({
+        body: {
+          name,
+          description,
+          documentType,
+          documentContent: fileContent
+        }
+      } as Request, res);
+      
+      /* Original implementation - keeping as fallback
       // Check for specific AI systems first - this will prioritize certain keywords
       // to ensure correct identification even when the AI API fails
+      */
       let systemType = null;
       // Make sure name is a string before calling toLowerCase()
       const inputText = (typeof name === 'string' ? name : String(name || '')).toLowerCase();

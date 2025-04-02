@@ -3,7 +3,7 @@
  * fallback, and retry capabilities to ensure reliable API access.
  */
 
-import { AppError, ConfigurationError, ServiceUnavailableError, ErrorType } from '../error-handling.js';
+import { AppError, ConfigurationError, ServiceUnavailableError, ErrorType } from '../error-handling';
 
 interface ApiKeyConfig {
   keys: string[];

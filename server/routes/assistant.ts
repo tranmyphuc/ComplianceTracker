@@ -1,6 +1,7 @@
 import express from 'express';
 import { storage } from '../storage';
-import { fetchDeepSeekAI, fetchOpenAI } from '../ai-services';
+import { callDeepSeekApi } from '../ai-analysis';
+import { fetchOpenAI } from '../ai-services';
 
 const router = express.Router();
 
@@ -96,11 +97,11 @@ User query: ${query}
     // Use the appropriate AI service (with fallback)
     let response;
     try {
-      response = await fetchDeepSeekAI(prompt, 0.7);
+      response = await callDeepSeekApi(prompt);
     } catch (error) {
-      console.error('DeepSeek AI error, falling back to OpenAI:', error);
+      console.error('DeepSeek API error, falling back to OpenAI:', error);
       try {
-        response = await fetchOpenAI(prompt, 0.7);
+        response = await fetchOpenAI(prompt);
       } catch (openAiError) {
         console.error('OpenAI fallback error:', openAiError);
         throw new Error('Failed to get AI response');
