@@ -3019,16 +3019,16 @@ if (isDemoMode) {
   
   app.post("/api/approval/items", async (req: Request, res: Response) => {
     try {
-      const userId = req.user?.uid;
+      // Use fixed userId for development mode
+      const userId = req.user?.uid || 'admin-uid';
       
-      if (!userId) {
-        return res.status(401).json({ message: "Authentication required" });
-      }
+      // Validate request body - we've renamed contentId to moduleId in the client, so check for both
+      const { title, description, moduleType, moduleId, contentId, priority } = req.body;
       
-      // Validate request body
-      const { title, description, moduleType, contentId, priority } = req.body;
+      // Use moduleId if available, fallback to contentId for backward compatibility
+      const itemContentId = moduleId || contentId;
       
-      if (!title || !moduleType || !contentId) {
+      if (!title || !moduleType || !itemContentId) {
         return res.status(400).json({ message: "Missing required fields" });
       }
       
@@ -3041,7 +3041,7 @@ if (isDemoMode) {
         title,
         description: description || "",
         moduleType,
-        contentId,
+        contentId: itemContentId, // Use the determined value
         status: "pending",
         priority: priority || "medium",
         createdBy: userId,

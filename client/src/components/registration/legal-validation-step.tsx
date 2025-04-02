@@ -177,6 +177,8 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
   
   // Process validation API response into our expected format
   const processValidationResult = (result: any) => {
+    console.log("Processing validation result:", result);
+    
     // Transform the API response to match our expected format
     const transformedResult: ValidatorResult = {
       issues: [],
@@ -185,13 +187,24 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
       validatedTimestamp: new Date().toISOString()
     };
     
+    // Analyze based on the system's risk level to provide meaningful feedback
+    const riskLevel = formData.riskLevel?.toLowerCase() || 'unknown';
+    console.log("System risk level for validation:", riskLevel);
+    
     // Map API response to our format
     if (result) {
-      // Directly use confidenceScore if provided, otherwise map confidence level to score
+      // Adjust confidence score based on risk level
+      // High-risk systems should have lower confidence unless extensive validation is done
       if (result.result && typeof result.result === 'object') {
         // Handle response format where data is nested under 'result'
         if (typeof result.result.confidenceScore === 'number') {
-          transformedResult.confidenceScore = result.result.confidenceScore;
+          // Adjust confidence score based on risk level
+          const baseScore = result.result.confidenceScore;
+          transformedResult.confidenceScore = riskLevel === 'high' 
+            ? Math.min(baseScore, 85) // Cap high-risk systems at 85% confidence
+            : riskLevel === 'limited' 
+              ? Math.min(baseScore + 5, 95) // Slightly boost limited-risk
+              : baseScore;
         } else if (result.result.confidenceLevel) {
           const confidenceMap: Record<string, number> = {
             'high': 95,
@@ -199,25 +212,41 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
             'low': 55,
             'uncertain': 35
           };
-          transformedResult.confidenceScore = confidenceMap[result.result.confidenceLevel.toLowerCase()] || 70;
+          let baseScore = confidenceMap[result.result.confidenceLevel.toLowerCase()] || 70;
+          transformedResult.confidenceScore = riskLevel === 'high' 
+            ? Math.min(baseScore, 85)
+            : riskLevel === 'limited' 
+              ? Math.min(baseScore + 5, 95)
+              : baseScore;
         } else {
-          transformedResult.confidenceScore = 70; // Fallback
+          // Set a risk-aware baseline confidence
+          transformedResult.confidenceScore = riskLevel === 'high' ? 65 : riskLevel === 'limited' ? 80 : 70;
         }
       } else if (typeof result.confidenceScore === 'number') {
-        // Direct confidenceScore from API - prioritize this value when available
-        transformedResult.confidenceScore = result.confidenceScore;
+        // Direct confidenceScore from API - still apply risk-based adjustment
+        const baseScore = result.confidenceScore;
+        transformedResult.confidenceScore = riskLevel === 'high' 
+          ? Math.min(baseScore, 85)
+          : riskLevel === 'limited' 
+            ? Math.min(baseScore + 5, 95)
+            : baseScore;
       } else if (result.confidenceLevel) {
-        // Map confidence level to score when no direct score is available
+        // Map confidence level to score with risk-based adjustment
         const confidenceMap: Record<string, number> = {
           'high': 95,
           'medium': 75,
           'low': 55,
           'uncertain': 35
         };
-        transformedResult.confidenceScore = confidenceMap[result.confidenceLevel.toLowerCase()] || 70;
+        let baseScore = confidenceMap[result.confidenceLevel.toLowerCase()] || 70;
+        transformedResult.confidenceScore = riskLevel === 'high' 
+          ? Math.min(baseScore, 85)
+          : riskLevel === 'limited' 
+            ? Math.min(baseScore + 5, 95)
+            : baseScore;
       } else {
-        // Last fallback
-        transformedResult.confidenceScore = 70;
+        // Risk-aware baseline confidence
+        transformedResult.confidenceScore = riskLevel === 'high' ? 65 : riskLevel === 'limited' ? 80 : 70;
       }
       
       // Map validity status (handle different API response formats)

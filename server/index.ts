@@ -1,10 +1,21 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { developmentAuth } from "./dev-auth-middleware";
+import { devMode, enableDevAuth } from "./config";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Add development authentication middleware in development mode
+// This will automatically add an admin user to all requests
+if (devMode && enableDevAuth) {
+  console.log('🔑 Development authentication enabled - all requests will have admin privileges');
+  app.use(developmentAuth);
+} else {
+  console.log('💂 Authentication required for protected routes');
+}
 
 app.use((req, res, next) => {
   const start = Date.now();

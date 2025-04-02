@@ -59,9 +59,17 @@ export function ApprovalButton({
   // Mutation to create approval request
   const createApprovalMutation = useMutation({
     mutationFn: (data: any) => {
+      // Ensure contentId is properly set for the backend API
+      // The backend expects contentId, but we use moduleId for clarity in the client
+      const bodyData = {
+        ...data,
+        contentId: data.moduleId || data.contentId
+      };
+      
+      console.log("Sending approval request with data:", bodyData);
       return apiRequest('/api/approval/items', {
         method: 'POST',
-        body: data
+        body: bodyData
       });
     },
     onSuccess: () => {
