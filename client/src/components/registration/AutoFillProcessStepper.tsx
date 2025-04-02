@@ -34,137 +34,67 @@ export function AutoFillProcessStepper({
   showDetails = false,
   onViewDetails
 }: AutoFillProcessStepperProps) {
-  const [expandedStep, setExpandedStep] = useState<string | null>(null);
-  
   // Calculate overall progress
   const completedSteps = steps.filter(s => s.status === 'complete').length;
   const totalSteps = steps.length;
   const progress = Math.round((completedSteps / totalSteps) * 100);
   
-  // Get appropriate icon for each step
-  const getStepIcon = (step: AutoFillStep) => {
-    if (step.icon) return step.icon;
-    
-    switch (step.id) {
-      case 'input':
-        return <PencilIcon className="h-3.5 w-3.5" />;
-      case 'web_research':
-        return <Globe className="h-3.5 w-3.5" />;
-      case 'ai_analysis':
-        return <BotIcon className="h-3.5 w-3.5" />;
-      case 'classification':
-        return <FilterIcon className="h-3.5 w-3.5" />;
-      case 'form_completion':
-        return <DatabaseIcon className="h-3.5 w-3.5" />;
-      default:
-        return <InfoIcon className="h-3.5 w-3.5" />;
-    }
-  };
-  
-  const toggleStepDetails = (stepId: string) => {
-    setExpandedStep(expandedStep === stepId ? null : stepId);
-    if (onViewDetails) onViewDetails(stepId);
-  };
-  
   // Get current step details
   const currentStep = steps.find(s => s.id === currentStepId);
   
+  // Ultra-minimal design 
   return (
     <div className="w-full">
-      {/* Super compact horizontal progress with step indicators */}
-      <div className="flex items-center space-x-1 mb-2">
-        <span className="text-xs font-medium text-slate-700 whitespace-nowrap">Progress:</span>
-        <div className="flex-1 flex items-center space-x-1">
-          {steps.map((step, index) => (
-            <React.Fragment key={step.id}>
-              {/* Step indicator dot */}
-              <div 
-                className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${
-                  step.status === 'complete' ? 'bg-green-500' : 
-                  step.status === 'processing' ? 'bg-blue-500 animate-pulse' : 
-                  step.status === 'error' ? 'bg-red-500' : 
-                  'bg-slate-300'
-                } ${step.id === currentStepId ? 'ring-2 ring-blue-300' : ''}`}
-                title={step.title}
-              />
-              {/* Connector line between dots (except after last dot) */}
-              {index < steps.length - 1 && (
-                <div className={`h-0.5 flex-1 ${
-                  steps[index].status === 'complete' && steps[index + 1].status === 'complete' 
-                    ? 'bg-green-500' 
-                    : 'bg-slate-300'
-                }`} />
-              )}
-            </React.Fragment>
-          ))}
+      <div className="flex items-center gap-1 mb-1">
+        <div className="flex-1 flex items-center h-1.5 bg-slate-200 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-blue-500 transition-all duration-300 ease-in-out"
+            style={{ width: `${progress}%` }}
+          />
         </div>
-        <span className="text-xs font-medium text-slate-700 w-8 text-right">{progress}%</span>
+        <span className="text-xs text-slate-600">{progress}%</span>
       </div>
       
-      {/* Ultra-compact horizontal layout */}
-      <div className="grid grid-cols-4 gap-x-2 gap-y-1">
-        {/* Step list - first column (25%) */}
-        <div className="col-span-1 border rounded p-1.5 bg-slate-50">
-          <div className="space-y-0.5">
-            {steps.map((step) => (
-              <div 
-                key={step.id}
-                onClick={() => toggleStepDetails(step.id)}
-                className={`flex items-center cursor-pointer rounded py-0.5 px-1 text-[11px]
-                  ${step.id === currentStepId ? 'bg-blue-50 font-medium' : 'hover:bg-slate-100'}
-                  ${step.status === 'complete' ? 'text-green-700' : 
-                    step.status === 'processing' ? 'text-blue-700' : 
-                    step.status === 'error' ? 'text-red-700' : 
-                    'text-slate-600'}`}
-              >
-                <div className={`h-4 w-4 rounded-full flex-shrink-0 flex items-center justify-center mr-1.5
-                  ${step.status === 'complete' ? 'bg-green-100' : 
-                    step.status === 'processing' ? 'bg-blue-100' : 
-                    step.status === 'error' ? 'bg-red-100' : 
-                    'bg-slate-200'}`}
-                >
-                  {step.status === 'complete' && <CheckIcon className="h-2.5 w-2.5 text-green-600" />}
-                  {step.status === 'processing' && <LoaderIcon className="h-2.5 w-2.5 text-blue-600 animate-spin" />}
-                  {step.status === 'error' && <XIcon className="h-2.5 w-2.5 text-red-600" />}
-                  {step.status === 'pending' && getStepIcon(step)}
-                </div>
-                <span className="truncate leading-tight">{step.title}</span>
-              </div>
-            ))}
+      {/* Inline steps with no vertical padding */}
+      <div className="flex items-center space-x-0.5 text-[9px] mb-1 overflow-x-auto pb-0.5">
+        {steps.map((step, index) => (
+          <div 
+            key={step.id} 
+            className={`flex items-center whitespace-nowrap px-1.5 py-0.5 rounded-sm
+              ${step.id === currentStepId ? 'bg-blue-100 text-blue-800' : 'text-slate-600'}
+              ${step.status === 'complete' ? 'text-green-700' : ''}
+            `}
+          >
+            <span className="mr-1">
+              {step.status === 'complete' ? 
+                <CheckIcon className="h-2 w-2 text-green-600" /> : 
+                step.status === 'processing' ? 
+                <LoaderIcon className="h-2 w-2 text-blue-600 animate-spin" /> :
+                <span className="inline-block h-2 w-2 rounded-full bg-slate-300" />
+              }
+            </span>
+            {step.title}
+            {index < steps.length - 1 && <span className="mx-1 text-slate-300">•</span>}
           </div>
-        </div>
-        
-        {/* Current step details - middle two columns (50%) */}
-        <div className="col-span-2 border rounded p-1.5 bg-slate-50 flex flex-col justify-center">
-          {currentStep ? (
-            <>
-              <div className="flex items-center">
-                <h4 className="text-xs font-medium text-blue-800 truncate mr-1">
-                  {currentStep.title}
-                </h4>
-                {currentStep.status === 'processing' && (
-                  <Badge variant="outline" className="ml-auto h-3.5 px-1 py-0 bg-blue-50 text-blue-600 text-[9px]">
-                    Active
-                  </Badge>
-                )}
-              </div>
-              <p className="text-[10px] text-slate-600 mt-0.5 line-clamp-1">
-                {currentStep.description}
-              </p>
-            </>
-          ) : (
-            <p className="text-[10px] text-slate-500 text-center">No active step</p>
-          )}
-        </div>
-        
-        {/* Info box - last column (25%) */}
-        <div className="col-span-1 border rounded p-1.5 bg-slate-50 flex items-center">
-          <InfoIcon className="h-3 w-3 text-blue-600 mr-1 flex-shrink-0" />
-          <div className="text-[9px] text-slate-600 leading-tight">
-            AI auto-fill extracts compliance data from your description
-          </div>
-        </div>
+        ))}
       </div>
+      
+      {currentStep && (
+        <div className="flex items-center border-t border-slate-200 pt-1">
+          <div className="flex-1">
+            <div className="flex items-center">
+              <span className="text-[10px] font-medium text-blue-800">{currentStep.title}</span>
+              {currentStep.status === 'processing' && (
+                <span className="ml-1.5 px-1 py-0 text-[8px] bg-blue-50 text-blue-600 rounded">Processing</span>
+              )}
+            </div>
+            <p className="text-[9px] text-slate-600 line-clamp-1">{currentStep.description}</p>
+          </div>
+          <div className="flex-shrink-0 ml-2">
+            <InfoIcon className="h-2.5 w-2.5 text-slate-400" title="AI auto-fill extracts compliance data" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
