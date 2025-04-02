@@ -73,17 +73,41 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
   // Main compliance items - now including AI Inventory, Demo Scenarios and Pricing & Plans
   const complianceSuiteItems = [
     { 
-      name: 'AI Inventory', 
-      path: '/inventory', 
-      icon: <CpuIcon className="h-4 w-4 mr-2" />,
+      name: 'AI Registration', 
+      path: '/register-system', 
+      icon: <BrainIcon className="h-4 w-4 mr-2" />,
       isPriority: true,
       isNew: false,
       badgeColor: ''
     },
     { 
-      name: 'AI Registration', 
-      path: '/register-system', 
-      icon: <BrainIcon className="h-4 w-4 mr-2" />,
+      name: 'Risk Assessment', 
+      path: '/risk-assessment', 
+      icon: <ShieldIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Text Analyzer', 
+      path: '/risk-assessment/text-analyzer', 
+      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Legal Review Platform', 
+      path: '/legal-reviews', 
+      icon: <ShieldIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'AI Inventory', 
+      path: '/inventory', 
+      icon: <CpuIcon className="h-4 w-4 mr-2" />,
       isPriority: true,
       isNew: false,
       badgeColor: ''
@@ -97,44 +121,12 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       badgeColor: ''
     },
     { 
-      name: 'Pricing & Plans', 
-      path: '/pricing', 
-      icon: <DollarSignIcon className="h-4 w-4 mr-2" />,
-      isPriority: true,
-      isNew: false,
-      badgeColor: ''
-    },
-    { 
       name: 'Platform Tour', 
-      path: '/guides/platform-guide', 
+      path: '/guides/platform-tour', 
       icon: <HelpCircleIcon className="h-4 w-4 mr-2" />,
       isPriority: true,
       isNew: true,
       badgeColor: 'green'
-    },
-    { 
-      name: 'Risk Assessment', 
-      path: '/risk-assessment', 
-      icon: <ShieldIcon className="h-4 w-4 mr-2" />,
-      isPriority: true,
-      isNew: false,
-      badgeColor: ''
-    },
-    { 
-      name: 'Risk Assessment Guides', 
-      path: '/risk-assessment/guides', 
-      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
-      isPriority: false,
-      isNew: false,
-      badgeColor: ''
-    },
-    { 
-      name: 'Text Analyzer', 
-      path: '/risk-assessment/text-analyzer', 
-      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
-      isPriority: false,
-      isNew: false,
-      badgeColor: ''
     },
     { 
       name: 'Approval Workflow', 
@@ -161,10 +153,10 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       badgeColor: ''
     },
     { 
-      name: 'Legal Review Platform', 
-      path: '/legal-reviews', 
-      icon: <ShieldIcon className="h-4 w-4 mr-2" />,
-      isPriority: false,
+      name: 'Pricing & Plans', 
+      path: '/pricing', 
+      icon: <DollarSignIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
       isNew: false,
       badgeColor: ''
     },
@@ -480,7 +472,6 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
                   <span className="flex items-center gap-1.5">
                     <PieChartIcon className="h-4 w-4 text-amber-600" />
                     <span className="font-medium">Decision Support</span>
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[10px]">New</Badge>
                     <ChevronDownIcon className="h-4 w-4" />
                   </span>
                 </Button>
