@@ -46,20 +46,20 @@ const modelDefaults = {
     temperature: 0.2,
     maxTokens: 1000,
     endpointUrl: 'https://api.deepseek.com/v1/chat/completions',
-    timeout: 45000 // 45 seconds timeout
+    timeout: 60000 // 60 seconds timeout
   },
   [AIModel.GEMINI]: {
     temperature: 0.3,
     maxTokens: 1000,
     endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
-    timeout: 45000 // 45 seconds timeout
+    timeout: 60000 // 60 seconds timeout
   },
   [AIModel.OPENAI]: {
     temperature: 0.1,
     maxTokens: 1000,
     endpointUrl: 'https://api.openai.com/v1/chat/completions',
     model: 'gpt-4',
-    timeout: 45000 // 45 seconds timeout
+    timeout: 60000 // 60 seconds timeout
   }
 };
 
@@ -134,12 +134,12 @@ async function callDeepSeek(
     throw new Error('DeepSeek API key not configured');
   }
 
-  // Increased timeout to 45 seconds to accommodate slower responses
+  // Increased timeout to 60 seconds to accommodate slower responses
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
-    console.warn('DeepSeek API request timed out after 45 seconds');
+    console.warn('DeepSeek API request timed out after 60 seconds');
     controller.abort();
-  }, 45000); 
+  }, 60000); 
 
   try {
     console.log('Calling DeepSeek API with prompt length:', prompt.length);
@@ -254,9 +254,9 @@ async function callGemini(
   
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
-    console.warn('Gemini API request timed out after 45 seconds');
+    console.warn('Gemini API request timed out after 60 seconds');
     controller.abort();
-  }, 45000); // 45 second timeout - increased to handle slower API responses
+  }, 60000); // 60 second timeout - increased to handle slower API responses
 
   try {
     const response = await fetch(
@@ -339,9 +339,9 @@ async function callOpenAI(
   
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
-    console.warn('OpenAI API request timed out after 45 seconds');
+    console.warn('OpenAI API request timed out after 60 seconds');
     controller.abort();
-  }, 45000); // 45 second timeout - increased to handle slower API responses
+  }, 60000); // 60 second timeout - increased to handle slower API responses
 
   try {
     const systemMessage = systemPrompt || "You are an EU AI Act compliance expert that provides accurate, regulatory-focused guidance.";

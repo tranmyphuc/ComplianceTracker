@@ -675,7 +675,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
       // Set a timeout to ensure the request doesn't hang indefinitely
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
       // Detect document type based on filename and content
       let documentType = 'unspecified';
@@ -916,7 +916,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
       const abortController = new AbortController();
       const timeoutId = setTimeout(() => {
         abortController.abort();
-      }, 35000); // 35 second timeout (increased to prevent premature aborts)
+      }, 60000); // 60 second timeout (increased to prevent timeouts during processing)
 
       // Detect if the input appears to be a document type based on keywords
       let documentType = 'unspecified';
