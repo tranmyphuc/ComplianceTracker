@@ -166,59 +166,90 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
               </Link>
             ))}
 
-            {/* EU AI Act Compliance Dropdown - Made more prominent */}
-            <Link href="/inventory" onClick={handleItemClick} className={cn(
-              "flex items-center px-3 py-1.5 text-xs rounded-md bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 whitespace-nowrap font-medium",
-              isActive('/inventory') && "bg-blue-100 text-blue-800 font-medium"
-            )}>
-              <span className="flex items-center">
-                <CpuIcon className="w-4 h-4" />
-                <span className="ml-1.5">AI Inventory</span>
-              </span>
-            </Link>
+            {/* EU AI Act - Main dropdown with prominent styling */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className={cn(
+                    "h-8 px-3 text-sm rounded-md whitespace-nowrap flex items-center gap-1.5 border-primary/30 bg-primary/5 font-medium",
+                    complianceItems.some(item => isActive(item.path)) && "bg-primary/20 text-primary font-medium border-primary/40"
+                  )}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <ShieldIcon className="h-4 w-4 text-primary" />
+                    <span className="font-medium">EU AI Act</span>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">92%</Badge>
+                    <ChevronDownIcon className="h-4 w-4" />
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64">
+                <DropdownMenuLabel>EU AI Act Compliance</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  {/* High-Priority Items with badges and special styling */}
+                  <DropdownMenuItem asChild>
+                    <Link href="/inventory" onClick={handleItemClick} className="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 mb-1">
+                      <CpuIcon className="h-4 w-4 mr-2" />
+                      <span className="font-medium">AI Systems Inventory</span>
+                      <Badge variant="outline" className="ml-auto px-1.5 py-0.5 h-5 bg-blue-100 border-blue-200 text-blue-700 text-[10px]">Important</Badge>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/register-system" onClick={handleItemClick} className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 mb-1">
+                      <BrainIcon className="h-4 w-4 mr-2" />
+                      <span className="font-medium">Register New AI System</span>
+                      <Badge variant="outline" className="ml-auto px-1.5 py-0.5 h-5 bg-emerald-100 border-emerald-200 text-emerald-700 text-[10px]">Key</Badge>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/risk-assessment" onClick={handleItemClick} className="bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 mb-1">
+                      <ShieldIcon className="h-4 w-4 mr-2" />
+                      <span className="font-medium">Risk Assessment</span>
+                      <Badge variant="outline" className="ml-auto px-1.5 py-0.5 h-5 bg-amber-100 border-amber-200 text-amber-700 text-[10px]">Critical</Badge>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/knowledge-center" onClick={handleItemClick} className="mb-1">
+                      <BookOpenIcon className="h-4 w-4 mr-2" />
+                      <span>Knowledge Center</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/documentation" onClick={handleItemClick} className="mb-1">
+                      <FileTextIcon className="h-4 w-4 mr-2" />
+                      <span>Documentation</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/reports" onClick={handleItemClick} className="mb-1">
+                      <BarChart3Icon className="h-4 w-4 mr-2" />
+                      <span>Compliance Reports</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/training" onClick={handleItemClick} className="mb-1">
+                      <AwardIcon className="h-4 w-4 mr-2" />
+                      <span>Training & Certification</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
-            <Link href="/register-system" onClick={handleItemClick} className={cn(
-              "flex items-center px-3 py-1.5 text-xs rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 whitespace-nowrap font-medium",
-              isActive('/register-system') && "bg-emerald-100 text-emerald-800 font-medium"
-            )}>
-              <span className="flex items-center">
-                <BrainIcon className="w-4 h-4" />
-                <span className="ml-1.5">AI Register</span>
-              </span>
-            </Link>
-            
-            <Link href="/risk-assessment" onClick={handleItemClick} className={cn(
-              "flex items-center px-3 py-1.5 text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100 whitespace-nowrap font-medium",
-              isActive('/risk-assessment') && "bg-amber-100 text-amber-800 font-medium"
-            )}>
-              <span className="flex items-center">
-                <ShieldIcon className="w-4 h-4" />
-                <span className="ml-1.5">Risk Assessment</span>
-              </span>
-            </Link>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className={cn(
-                "h-8 px-2 text-xs rounded-md whitespace-nowrap flex items-center gap-1 border-primary/30 bg-primary/5",
-                complianceItems.some(item => isActive(item.path)) && "bg-primary/20 text-primary font-medium border-primary/40"
-              )}
-            >
-              <span className="flex items-center gap-1.5">
-                <ShieldIcon className="h-4 w-4 text-primary" />
-                <span className="font-medium">EU AI Act</span>
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">92%</Badge>
-              </span>
-            </Button>
-          
-            {/* AI Act Compliance Menu Items - Displayed individually for importance */}
+            {/* AI Systems dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 px-2 text-xs rounded-md whitespace-nowrap"
+                  className={cn(
+                    "h-8 px-2 text-xs rounded-md whitespace-nowrap",
+                    isActive("/inventory") || isActive("/register-system") ? "bg-blue-50 text-blue-700 border border-blue-200" : ""
+                  )}
                 >
                   <span className="flex items-center gap-1.5">
                     <CpuIcon className="h-4 w-4" />
