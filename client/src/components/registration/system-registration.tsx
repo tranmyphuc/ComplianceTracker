@@ -1080,10 +1080,14 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         description: "AI suggestions have been generated based on your input.",
       });
 
+      // First set to 100% to show completion (removes the "Processing..." text)
+      setExtractionProgress(100);
+      
+      // Reset extraction status completely after a short delay
       setTimeout(() => {
-        setExtractionProgress(0);
         setExtractionInProgress(false);
-      }, 1000);
+        setExtractionProgress(0);
+      }, 800);
     } catch (error) {
       console.error('Error getting AI suggestions:', error);
       clearInterval(progressInterval);
@@ -1397,7 +1401,8 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
                   {Math.round(extractionProgress)}% Complete
                 </span>
                 <span className="text-xs font-medium text-blue-700 px-2 py-0.5 rounded-full border border-blue-200">
-                  {aiExtractionStatus === 'extracting' ? 'Processing...' : 'Completed'}
+                  {aiExtractionStatus === 'extracting' && extractionProgress < 95 ? 'Processing...' : 
+                   extractionProgress >= 95 ? 'Complete' : 'Ready'}
                 </span>
               </div>
             </div>

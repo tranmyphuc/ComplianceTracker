@@ -169,7 +169,9 @@ export function AutoFillProcessStepper(props: AutoFillProcessStepperProps) {
         </div>
         <div className="flex justify-between text-xs">
           <span className="font-medium">{Math.round(progress)}%</span>
-          <span className="text-gray-600">{processingLabel}</span>
+          <span className="text-gray-600">
+            {progress >= 100 ? "Complete" : progress === 0 ? "" : processingLabel}
+          </span>
         </div>
       </div>
     </div>
