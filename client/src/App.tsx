@@ -58,6 +58,7 @@ import ProfessionalServicesScenario from '@/pages/demo-scenarios/professional-se
 import AutomotiveScenario from '@/pages/demo-scenarios/automotive-ai-systems';
 import LogisticsScenario from '@/pages/demo-scenarios/logistics-transportation';
 import VendorManagement from '@/pages/vendor-management';
+import ComplianceWizardPage from '@/pages/compliance-wizard';
 import ComplianceChatbotPage from "./pages/compliance-chatbot";
 import AdminApiKeys from "@/pages/admin/api-keys";
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -94,6 +95,7 @@ function Router() {
     "/knowledge-center",
     "/knowledge-center/iso42001",
     "/compliance",
+    "/compliance-wizard", // New compliance wizard page
     "/governance",
     "/reports",
     "/training",
@@ -208,6 +210,9 @@ function Router() {
       </Route>
       <Route path="/compliance">
         {() => renderWithLayout(Documentation)}
+      </Route>
+      <Route path="/compliance-wizard">
+        {() => renderWithLayout(ComplianceWizardPage)}
       </Route>
       <Route path="/governance">
         {() => renderWithLayout(Dashboard)}
