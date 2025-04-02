@@ -5,6 +5,8 @@ import { Separator } from "../ui/separator";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { AlertCircle } from "lucide-react";
+import { Button } from "../ui/button";
+import { IntegratedApprovalButton } from "../approval/integrated-approval-button";
 
 interface ReviewSubmitStepProps {
   formData: {
@@ -244,6 +246,18 @@ export const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
             </p>
           )}
         </div>
+      </div>
+      
+      {/* Add approval button */}
+      <div className="mt-6 flex justify-between">
+        <IntegratedApprovalButton 
+          moduleId={formData.systemId || `AI-SYS-${Math.floor(1000 + Math.random() * 9000)}`}
+          moduleType="system_registration"
+          title={`System Registration: ${formData.name || 'Unnamed System'}`}
+          description={`Request approval for ${formData.name || 'Unnamed System'} ${formData.riskLevel ? `(${formData.riskLevel} Risk)` : ''}`}
+          variant="outline"
+          className="w-full"
+        />
       </div>
     </div>
   );
