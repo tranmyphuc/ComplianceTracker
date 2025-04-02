@@ -2,7 +2,14 @@ import type { AiSystem } from '@shared/schema';
 import fetch from 'node-fetch';
 import {Request, Response} from 'express';
 import {storage} from './storage'; // Assuming storage is defined elsewhere
-import {AppError} from './error-handling'; // Import AppError instead of handleError
+import {
+  AppError, 
+  ConfigurationError, 
+  ServiceUnavailableError, 
+  AuthorizationError, 
+  RateLimitError,
+  ExternalServiceError
+} from './error-handling';
 import {getApiKey} from './ai-key-management'; // Import getApiKey function
 import { AIModel, callAI } from './ai-service'; // Removed safeJsonParse import as we have our own implementation
 
@@ -153,23 +160,38 @@ function extractSystemNameFromPrompt(prompt: string): string | null {
 }
 
 /**
- * Search using Google Custom Search API
- * This provides real data from the internet
+ * Search using Google Custom Search API with enhanced error handling and caching
+ * This provides real data from the internet with fallback mechanisms
  */
-export async function searchGoogleApi(query: string, siteUrl?: string): Promise<string> {
-  const googleSearchApiKey = await getApiKey('google_search');
-  if (!googleSearchApiKey) {
-    throw new Error('No Google Search API key available');
-  }
+// Simple in-memory cache for search results to reduce API calls
+const searchCache = new Map<string, { result: string, timestamp: number }>();
+const CACHE_TTL = 3600000; // 1 hour cache TTL
+const MAX_CACHE_ENTRIES = 50; // Limit cache size
 
+export async function searchGoogleApi(query: string, siteUrl?: string): Promise<string> {
   try {
+    // Generate a cache key based on the query and site URL
+    const cacheKey = `${query}:${siteUrl || ''}`;
+    
+    // Check if we have a cached result that's not expired
+    const cachedResult = searchCache.get(cacheKey);
+    if (cachedResult && (Date.now() - cachedResult.timestamp) < CACHE_TTL) {
+      console.log('Using cached Google Search result for query:', query.substring(0, 50) + '...');
+      return cachedResult.result;
+    }
+    
+    const googleSearchApiKey = await getApiKey('google_search');
+    if (!googleSearchApiKey) {
+      throw new ConfigurationError('No Google Search API key available');
+    }
+
     // Log key details for debugging (masked for security)
     const maskedKey = googleSearchApiKey.substring(0, 4) + '...' + googleSearchApiKey.substring(googleSearchApiKey.length - 4);
     console.log(`Using Google Search API key: ${maskedKey}, Engine ID: ${GOOGLE_SEARCH_ENGINE_ID}`);
     
     // Validate required parameters
     if (!GOOGLE_SEARCH_ENGINE_ID) {
-      throw new Error('Google Search Engine ID is missing');
+      throw new ConfigurationError('Google Search Engine ID is missing');
     }
     
     // Clean up and format the query
@@ -211,7 +233,8 @@ export async function searchGoogleApi(query: string, siteUrl?: string): Promise<
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
-        }
+        },
+        signal: AbortSignal.timeout(15000) // 15 second timeout
       }
     );
 
@@ -221,7 +244,21 @@ export async function searchGoogleApi(query: string, siteUrl?: string): Promise<
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`Google Search API error response: ${errorText}`);
-      throw new Error(`Google Search API error: ${response.status} ${response.statusText}`);
+      
+      // Handle specific error cases
+      if (response.status === 429) {
+        throw new RateLimitError('Google Search API rate limit exceeded');
+      } else if (response.status >= 500) {
+        throw new ServiceUnavailableError('Google Search API', { statusCode: response.status, details: errorText });
+      } else if (response.status === 403) {
+        throw new AuthorizationError('Google Search API key is invalid or lacks permissions');
+      } else {
+        throw new ExternalServiceError('Google Search API', { 
+          statusCode: response.status, 
+          message: response.statusText,
+          details: errorText
+        });
+      }
     }
 
     const data = await response.json() as GoogleSearchResult;
@@ -238,9 +275,28 @@ export async function searchGoogleApi(query: string, siteUrl?: string): Promise<
       resultText += "No relevant search results found.";
     }
 
+    // Cache the result
+    if (searchCache.size >= MAX_CACHE_ENTRIES) {
+      // Remove oldest entry if cache is full
+      const oldestKey = searchCache.keys().next().value;
+      searchCache.delete(oldestKey);
+    }
+    searchCache.set(cacheKey, { result: resultText, timestamp: Date.now() });
+    
     return resultText;
   } catch (error) {
     console.error('Error calling Google Search API:', error);
+    
+    // Return a friendly message for rate limiting issues instead of throwing
+    if (error instanceof RateLimitError) {
+      return "Search service is currently experiencing high demand. Using available information only.";
+    } else if (error instanceof ServiceUnavailableError) {
+      return "Search service is temporarily unavailable. Using available information only.";
+    } else if (error instanceof ConfigurationError) {
+      return "Search service is not properly configured. Using available information only.";
+    }
+    
+    // Rethrow for other handlers to catch
     throw error;
   }
 }
@@ -249,12 +305,12 @@ export async function searchGoogleApi(query: string, siteUrl?: string): Promise<
  * Call the Gemini API with a prompt
  */
 async function callGeminiApi(prompt: string): Promise<string> {
-  const geminiApiKey = getApiKey('gemini');
-  if (!geminiApiKey) {
-    throw new Error('No Gemini API key available');
-  }
-
   try {
+    const geminiApiKey = await getApiKey('gemini');
+    if (!geminiApiKey) {
+      throw new ConfigurationError('No Gemini API key available');
+    }
+
     const response = await fetch(`${GEMINI_API_URL}?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
@@ -272,17 +328,44 @@ async function callGeminiApi(prompt: string): Promise<string> {
           temperature: 0.7,
           maxOutputTokens: 4000
         }
-      })
+      }),
+      signal: AbortSignal.timeout(15000) // 15 second timeout
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`Gemini API error response: ${errorText}`);
+      
+      // Handle specific error cases
+      if (response.status === 429) {
+        throw new RateLimitError('Gemini API rate limit exceeded');
+      } else if (response.status >= 500) {
+        throw new ServiceUnavailableError('Gemini API', { statusCode: response.status, details: errorText });
+      } else if (response.status === 403) {
+        throw new AuthorizationError('Gemini API key is invalid or lacks permissions');
+      } else {
+        throw new ExternalServiceError('Gemini API', { 
+          statusCode: response.status, 
+          message: response.statusText,
+          details: errorText
+        });
+      }
     }
 
     const data = await response.json() as GeminiResponse;
     return data.candidates[0].content.parts[0].text;
   } catch (error) {
     console.error('Error calling Gemini API:', error);
+    
+    // Return friendly error messages for common issues
+    if (error instanceof RateLimitError) {
+      return "AI service is currently experiencing high demand. Using available information only.";
+    } else if (error instanceof ServiceUnavailableError) {
+      return "AI service is temporarily unavailable. Using available information only.";
+    } else if (error instanceof ConfigurationError) {
+      return "AI service is not properly configured. Using available information only.";
+    }
+    
     throw error;
   }
 }

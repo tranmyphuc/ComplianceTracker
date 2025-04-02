@@ -87,8 +87,9 @@ export async function fetchRegulatoryUpdates(): Promise<RegulatoryUpdate[]> {
 }
 
 /**
- * Search for recent updates using Google Search API
+ * Search for recent updates using Google Search API with enhanced error handling
  * This function retrieves real-time information about EU AI Act updates from official sources
+ * If Google Search API encounters rate limits or other issues, it continues with available data
  */
 async function searchForUpdates(query: string): Promise<string> {
   try {
@@ -102,12 +103,28 @@ async function searchForUpdates(query: string): Promise<string> {
     ];
     
     let results = '';
+    let limitErrors = 0;
     
     // Query official EU websites for the most reliable information
     for (const site of officialSites) {
       try {
         console.log(`Searching for regulatory updates on: ${site}`);
+        // If we've already hit rate limits 2 or more times, skip additional searches
+        if (limitErrors >= 2) {
+          console.log(`Skipping search for ${site} due to previous rate limits`);
+          continue;
+        }
+        
         const siteResult = await searchGoogleApi(`${query} site:${site.replace('https://', '')}`, site);
+        
+        // Check if we got a rate limit error message
+        if (siteResult.includes("service is currently experiencing high demand") || 
+            siteResult.includes("temporarily unavailable")) {
+          limitErrors++;
+          console.log(`Rate limit or service unavailable detected for ${site}`);
+          continue;
+        }
+        
         results += siteResult + "\n\n";
       } catch (error) {
         console.error(`Error searching ${site}:`, error);
@@ -115,16 +132,26 @@ async function searchForUpdates(query: string): Promise<string> {
       }
     }
     
-    // If we got no results from official sites, try a general search
-    if (!results.trim()) {
+    // If we got no results from official sites and haven't hit too many rate limits, try a general search
+    if (!results.trim() && limitErrors < 2) {
       console.log('No results from official sites, trying general search');
-      results = await searchGoogleApi(query);
+      try {
+        const generalResults = await searchGoogleApi(query);
+        results += generalResults;
+      } catch (error) {
+        console.error('Error in general search:', error);
+      }
     }
     
-    return results || 'No recent regulatory updates found.';
+    // If still no results, use a hardcoded message but mark it clearly
+    if (!results.trim()) {
+      return 'Unable to retrieve real-time regulatory updates at this moment. Please check official EU AI Act sources directly or try again later.';
+    }
+    
+    return results;
   } catch (error) {
     console.error('Error in searchForUpdates:', error);
-    return 'Unable to retrieve regulatory updates at this time.';
+    return 'Unable to retrieve regulatory updates at this time. Please check official EU AI Act sources directly.';
   }
 }
 
