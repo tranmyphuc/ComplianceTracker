@@ -28,11 +28,9 @@ interface FieldResult {
 interface ResultsPreviewProps {
   results: Record<string, FieldResult>;
   onApply: (fieldsToUse: 'all' | 'high_confidence' | string[]) => void;
-  webSearchUsed?: boolean;
-  sources?: Array<{title: string, url: string}>;
 }
 
-export function ResultsPreview({ results, onApply, webSearchUsed = false, sources = [] }: ResultsPreviewProps) {
+export function ResultsPreview({ results, onApply }: ResultsPreviewProps) {
   const [selectedFields, setSelectedFields] = useState<string[]>(Object.keys(results));
   const [viewMode, setViewMode] = useState<'all' | 'grouped'>('grouped');
   
@@ -410,31 +408,6 @@ export function ResultsPreview({ results, onApply, webSearchUsed = false, source
   
   return (
     <div className="space-y-4">
-      {/* Web search info */}
-      {webSearchUsed && sources.length > 0 && (
-        <Card className="border-blue-200 bg-blue-50">
-          <CardHeader className="py-3">
-            <CardTitle className="text-sm">Enhanced with latest information</CardTitle>
-            <CardDescription>
-              Results include data from web research to ensure compliance with current regulations
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="py-0">
-            <div className="text-xs text-neutral-500">
-              <h4 className="font-medium mb-1">Sources consulted:</h4>
-              <ul className="list-disc pl-4">
-                {sources.map((source, index) => (
-                  <li key={index}>
-                    <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      {source.title}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
-      )}
       
       {/* View mode selector */}
       <div className="flex space-x-2">

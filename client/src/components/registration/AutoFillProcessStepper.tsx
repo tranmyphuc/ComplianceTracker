@@ -3,7 +3,6 @@ import {
   BotIcon, PencilIcon, DatabaseIcon, 
   FilterIcon, Globe, InfoIcon, ShieldIcon
 } from 'lucide-react';
-import { Progress } from "../ui/progress";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 

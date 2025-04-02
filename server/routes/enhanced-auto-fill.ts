@@ -186,14 +186,7 @@ export async function enhancedAutoFillHandler(req: Request, res: Response) {
       },
       
       // Add average confidence score
-      confidenceScore: analysis.confidence || 65,
-      
-      // Web search information
-      webSearchUsed: analysis.webSearchUsed,
-      sources: analysis.sources || [],
-      
-      // Add model information
-      modelUsed: analysis.modelUsed || "AI model"
+      confidenceScore: analysis.confidence || 65
     };
     
     return res.json(suggestionsResponse);

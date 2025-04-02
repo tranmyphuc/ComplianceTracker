@@ -1197,7 +1197,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
                     />
                   </div>
                   {uploadedFile && (
-                    <div className="flex items-center gap-2 mt-2 p-2 bg-slate-50 rounded-md">
+                    <div className="flex items-center gap-2 mt-2 p-2 bg-slate-100 rounded-md border border-slate-200">
                       <FileTextIcon className="h-4 w-4 text-slate-700" />
                       <span className="text-sm truncate flex-1">{uploadedFile.name}</span>
                       <Button 

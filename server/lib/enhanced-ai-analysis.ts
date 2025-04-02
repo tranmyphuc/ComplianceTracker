@@ -445,6 +445,15 @@ export function smartRiskAnalysis(systemData: any): any {
     'voting',
     'medical device',
     'health',
+    'healthcare',
+    'medicine',
+    'diagnosis',
+    'diagnostic',
+    'patient',
+    'clinical',
+    'hospital',
+    'facial recognition',
+    'biometric',
     'safety component'
   ];
   
