@@ -166,44 +166,184 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
               </Link>
             ))}
 
-            {/* EU AI Act Compliance Dropdown */}
+            {/* EU AI Act Compliance Dropdown - Made more prominent */}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className={cn(
+                "h-8 px-2 text-xs rounded-md whitespace-nowrap flex items-center gap-1 border-primary/30 bg-primary/5",
+                complianceItems.some(item => isActive(item.path)) && "bg-primary/20 text-primary font-medium border-primary/40"
+              )}
+            >
+              <span className="flex items-center gap-1.5">
+                <ShieldIcon className="h-4 w-4 text-primary" />
+                <span className="font-medium">EU AI Act</span>
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">92%</Badge>
+              </span>
+            </Button>
+          
+            {/* AI Act Compliance Menu Items - Displayed individually for importance */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 px-2 text-xs rounded-md whitespace-nowrap"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <CpuIcon className="h-4 w-4" />
+                    <span>AI Systems</span>
+                    <ChevronDownIcon className="h-4 w-4" />
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel>AI System Management</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href="/inventory" onClick={handleItemClick}>
+                      <CpuIcon className="h-4 w-4 mr-2" />
+                      <span>AI Systems Inventory</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/register-system" onClick={handleItemClick}>
+                      <BrainIcon className="h-4 w-4 mr-2" />
+                      <span>Register New AI System</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/workflow" onClick={handleItemClick}>
+                      <NetworkIcon className="h-4 w-4 mr-2" />
+                      <span>AI Workflow Diagram</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 px-2 text-xs rounded-md whitespace-nowrap"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <ShieldIcon className="h-4 w-4" />
+                    <span>Risk Assessment</span>
+                    <ChevronDownIcon className="h-4 w-4" />
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel>Risk Assessment Tools</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href="/risk-assessment" onClick={handleItemClick}>
+                      <ShieldIcon className="h-4 w-4 mr-2" />
+                      <span>Risk Assessment Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/risk-assessment/wizard" onClick={handleItemClick}>
+                      <SparklesIcon className="h-4 w-4 mr-2" />
+                      <span>Risk Assessment Wizard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/risk-assessment/results" onClick={handleItemClick}>
+                      <BarChart3Icon className="h-4 w-4 mr-2" />
+                      <span>Assessment Results</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 px-2 text-xs rounded-md whitespace-nowrap"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <FileTextIcon className="h-4 w-4" />
+                    <span>Compliance</span>
+                    <ChevronDownIcon className="h-4 w-4" />
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel>Compliance Resources</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href="/documentation" onClick={handleItemClick}>
+                      <FileTextIcon className="h-4 w-4 mr-2" />
+                      <span>Documentation</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/knowledge-center" onClick={handleItemClick}>
+                      <BookOpenIcon className="h-4 w-4 mr-2" />
+                      <span>Knowledge Center</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/training" onClick={handleItemClick}>
+                      <AwardIcon className="h-4 w-4 mr-2" />
+                      <span>Training & Certification</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/reports" onClick={handleItemClick}>
+                      <BarChart3Icon className="h-4 w-4 mr-2" />
+                      <span>Compliance Reports</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    "h-8 px-2 text-xs rounded-md whitespace-nowrap flex items-center gap-1",
-                    complianceItems.some(item => isActive(item.path)) && "bg-primary/10 text-primary font-medium"
+                    "h-8 px-2 text-xs rounded-md whitespace-nowrap",
+                    isActive("/approval-workflow") && "bg-primary/10 text-primary font-medium"
                   )}
                 >
                   <span className="flex items-center gap-1.5">
-                    <ShieldIcon className="h-4 w-4" />
-                    <span>EU AI Act</span>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">92%</Badge>
+                    <CheckSquareIcon className="h-4 w-4" />
+                    <span>Workflows</span>
+                    <Badge variant="outline" className="ml-1 px-1.5 py-0.5 h-5 bg-green-100 border-green-200 text-green-700 text-[10px]">New</Badge>
                     <ChevronDownIcon className="h-4 w-4" />
                   </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>EU AI Act Compliance</DropdownMenuLabel>
+                <DropdownMenuLabel>Workflow Management</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  {complianceItems.map((item) => (
-                    <DropdownMenuItem key={item.name} asChild>
-                      <Link
-                        href={item.path}
-                        className={cn(
-                          "flex w-full cursor-pointer",
-                          isActive(item.path) && "bg-primary/10 text-primary font-medium"
-                        )}
-                        onClick={handleItemClick}
-                      >
-                        {item.icon}
-                        <span>{item.name}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
+                  <DropdownMenuItem asChild>
+                    <Link href="/approval-workflow" onClick={handleItemClick}>
+                      <CheckSquareIcon className="h-4 w-4 mr-2 text-green-600" />
+                      <span>Approval Workflow</span>
+                      <Badge variant="outline" className="ml-2 px-1.5 py-0.5 h-5 bg-green-100 border-green-200 text-green-700 text-[10px]">New</Badge>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/tasks" onClick={handleItemClick}>
+                      <CheckSquareIcon className="h-4 w-4 mr-2" />
+                      <span>Tasks & Assignments</span>
+                    </Link>
+                  </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
