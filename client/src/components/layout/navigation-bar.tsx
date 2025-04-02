@@ -70,7 +70,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
   ];
 
   // ===== CLUSTER 1: EU AI Act Compliance Suite =====
-  // Main compliance items - now including AI Inventory and Pricing & Plans
+  // Main compliance items - now including AI Inventory, Demo Scenarios and Pricing & Plans
   const complianceSuiteItems = [
     { 
       name: 'AI Inventory', 
@@ -84,6 +84,14 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       name: 'AI Registration', 
       path: '/register-system', 
       icon: <BrainIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'Demo Scenarios', 
+      path: '/demo-scenarios', 
+      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
       isPriority: true,
       isNew: false,
       badgeColor: ''
@@ -148,14 +156,6 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       name: 'Governance Dashboard', 
       path: '/governance', 
       icon: <TargetIcon className="h-4 w-4 mr-2" />,
-      isPriority: false,
-      isNew: false,
-      badgeColor: ''
-    },
-    { 
-      name: 'Risk Management', 
-      path: '/risk-management', 
-      icon: <ShieldIcon className="h-4 w-4 mr-2" />,
       isPriority: false,
       isNew: false,
       badgeColor: ''
@@ -506,44 +506,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Demo Scenarios Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={cn(
-                    "h-8 px-2 text-xs rounded-md whitespace-nowrap flex items-center gap-1",
-                    demoItems.some((item) => isActive(item.path)) && "bg-blue-50 text-blue-700 font-medium"
-                  )}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <SparklesIcon className="h-4 w-4" />
-                    <span>Demo Scenarios</span>
-                    <ChevronDownIcon className="h-4 w-4" />
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>Industry Demo Scenarios</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  {demoItems.map((item) => (
-                    <DropdownMenuItem
-                      key={item.name}
-                      asChild
-                      className={item.isPriority ? "bg-blue-50 font-medium mt-1" : "mt-1"}
-                    >
-                      <Link href={item.path} onClick={handleItemClick}>
-                        {item.icon}
-                        <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
-                        {item.isNew && renderBadge(item.badgeColor)}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Demo Scenarios Dropdown removed - now in Compliance Suite */}
             
             {/* Pricing Link removed from here and moved up next to AI Inventory */}
           </div>
