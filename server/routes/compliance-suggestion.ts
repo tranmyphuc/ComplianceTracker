@@ -8,7 +8,7 @@ import { enhancedAIAnalysis } from "../lib/enhanced-ai-analysis";
 import { determineRelevantArticles } from "../ai-analysis";
 import { db } from "../db";
 import { euAiActArticles } from "../../shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 /**
  * Generate compliance suggestions based on system information

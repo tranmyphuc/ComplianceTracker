@@ -69,63 +69,54 @@ export function AutoFillProcessStepper({
   return (
     <div className="w-full">
       {/* Overall progress indicator */}
-      <div className="mb-4">
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-sm font-medium text-slate-700">Auto-fill Progress</span>
-          <span className="text-sm font-medium text-slate-700">{progress}%</span>
-        </div>
-        <Progress value={progress} className="h-2" />
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-sm font-medium text-slate-700 whitespace-nowrap">Auto-fill Progress:</span>
+        <Progress value={progress} className="h-2 flex-1" />
+        <span className="text-sm font-medium text-slate-700 w-8 text-right">{progress}%</span>
       </div>
       
-      {/* Horizontal Stepper */}
-      <div className="flex items-center justify-between mb-6">
-        {steps.map((step, index) => (
-          <React.Fragment key={step.id}>
-            {/* Step indicator with status icon */}
-            <div 
-              className="flex flex-col items-center cursor-pointer" 
-              onClick={() => toggleStepDetails(step.id)}
-            >
-              <div className={`h-10 w-10 rounded-full flex items-center justify-center border-2 
-                ${step.status === 'complete' ? 'bg-green-50 border-green-500' : 
-                  step.status === 'processing' ? 'bg-blue-50 border-blue-500 animate-pulse' : 
-                  step.status === 'error' ? 'bg-red-50 border-red-500' : 
-                  'bg-neutral-50 border-neutral-300'}`}>
-                {step.status === 'complete' && <CheckIcon className="h-5 w-5 text-green-500" />}
-                {step.status === 'processing' && <LoaderIcon className="h-5 w-5 text-blue-500 animate-spin" />}
-                {step.status === 'error' && <XIcon className="h-5 w-5 text-red-500" />}
-                {step.status === 'pending' && getStepIcon(step)}
+      {/* Compact Horizontal Layout */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+        {/* Steps on the left */}
+        <div className="border rounded-md p-3 bg-slate-50">
+          <h4 className="text-xs text-slate-500 uppercase font-medium mb-2">Process Steps</h4>
+          <div className="space-y-1.5">
+            {steps.map((step) => (
+              <div 
+                key={step.id}
+                onClick={() => toggleStepDetails(step.id)}
+                className={`flex items-center cursor-pointer p-1.5 rounded-md
+                  ${step.id === currentStepId ? 'bg-blue-50 border-blue-100' : 'hover:bg-slate-100'}
+                  ${step.status === 'complete' ? 'text-green-700' : 
+                    step.status === 'processing' ? 'text-blue-700' : 
+                    step.status === 'error' ? 'text-red-700' : 
+                    'text-neutral-500'}`}
+              >
+                <div className={`h-6 w-6 rounded-full flex items-center justify-center mr-2
+                  ${step.status === 'complete' ? 'bg-green-100' : 
+                    step.status === 'processing' ? 'bg-blue-100 animate-pulse' : 
+                    step.status === 'error' ? 'bg-red-100' : 
+                    'bg-slate-200'}`}>
+                  {step.status === 'complete' && <CheckIcon className="h-3.5 w-3.5 text-green-600" />}
+                  {step.status === 'processing' && <LoaderIcon className="h-3.5 w-3.5 text-blue-600 animate-spin" />}
+                  {step.status === 'error' && <XIcon className="h-3.5 w-3.5 text-red-600" />}
+                  {step.status === 'pending' && getStepIcon(step)}
+                </div>
+                <span className="text-xs font-medium flex-1 truncate">{step.title}</span>
+                {step.status === 'processing' && (
+                  <Badge variant="outline" className="ml-1 p-0 h-4 px-1 bg-blue-50 text-blue-600 text-[9px]">
+                    Active
+                  </Badge>
+                )}
               </div>
-              
-              {/* Step name below the icon */}
-              <span className={`text-xs mt-1 text-center font-medium px-1
-                ${step.status === 'complete' ? 'text-green-700' : 
-                  step.status === 'processing' ? 'text-blue-700' : 
-                  step.status === 'error' ? 'text-red-700' : 
-                  'text-neutral-500'}`}>
-                {step.title.split(' ').slice(0, 2).join(' ')}
-              </span>
-            </div>
-            
-            {/* Connector line between steps */}
-            {index < steps.length - 1 && (
-              <div className={`h-0.5 flex-grow mx-1
-                ${step.status === 'complete' ? 'bg-green-500' : 
-                  step.status === 'processing' ? 'bg-blue-300' : 
-                  'bg-neutral-200'}`} />
-            )}
-          </React.Fragment>
-        ))}
-      </div>
-      
-      {/* Current step description */}
-      {currentStepId && (
-        <div className={`rounded-md p-4 mt-2 ${
-          steps.find(s => s.id === currentStepId)?.status === 'error' 
-            ? 'bg-red-50 border border-red-200'
-            : 'bg-blue-50 border border-blue-200'
-        }`}>
-          <div className="flex items-start justify-between">
+            ))}
+          </div>
+        </div>
+        
+        {/* Current step details on the right */}
+        <div className="border rounded-md p-3 bg-slate-50">
+          <h4 className="text-xs text-slate-500 uppercase font-medium mb-2">Current Activity</h4>
+          {currentStepId && (
             <div>
               <div className="flex items-center">
                 <h4 className="text-sm font-medium text-blue-800">
@@ -137,32 +128,21 @@ export function AutoFillProcessStepper({
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-blue-600 mt-1">
+              <p className="text-xs text-slate-600 mt-1 line-clamp-2">
                 {steps.find(s => s.id === currentStepId)?.description}
               </p>
             </div>
-            
-            {steps.find(s => s.id === currentStepId)?.details && showDetails && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-blue-600 hover:text-blue-800 p-0 h-6"
-                onClick={() => toggleStepDetails(currentStepId)}
-              >
-                <InfoIcon className="h-4 w-4 mr-1" />
-                Details
-              </Button>
-            )}
-          </div>
-          
-          {/* Expanded details section */}
-          {expandedStep === currentStepId && steps.find(s => s.id === currentStepId)?.details && (
-            <div className="mt-3 pt-3 border-t border-blue-200 text-xs text-blue-700">
-              {steps.find(s => s.id === currentStepId)?.details}
-            </div>
           )}
         </div>
-      )}
+        
+        {/* System details on the bottom row - spanning both columns */}
+        <div className="col-span-2 border rounded-md p-3 bg-slate-50 flex items-start gap-2">
+          <InfoIcon className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+          <div className="text-xs text-slate-600">
+            <span className="font-medium text-slate-700">AI auto-fill:</span> Uses advanced AI to analyze your system description and automatically extract information for EU AI Act compliance using deep semantic analysis.
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
