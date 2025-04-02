@@ -83,8 +83,8 @@ export function AutoFillProcessStepper(props: AutoFillProcessStepperProps) {
             bgColor = "bg-green-500";
           } else if (step.status === 'processing') {
             StepIcon = step.icon || <Circle className="h-4 w-4" />;
-            iconColor = "text-white";
-            bgColor = "bg-blue-500";
+            iconColor = "text-blue-500"; // Blue text for processing
+            bgColor = "bg-white"; // White background for processing
           } else if (step.status === 'error') {
             StepIcon = <CircleSlash className="h-4 w-4" />;
             iconColor = "text-white";
@@ -99,9 +99,10 @@ export function AutoFillProcessStepper(props: AutoFillProcessStepperProps) {
             <div key={step.id} className="flex flex-col items-center z-10">
               <div 
                 className={`h-8 w-8 rounded-full flex items-center justify-center
-                  ${bgColor} ${iconColor} border-2
+                  ${step.status === 'processing' ? 'bg-white' : bgColor} 
+                  ${iconColor} border-2
                   ${step.status === 'complete' ? 'border-green-500' : 
-                    step.status === 'processing' ? 'border-blue-500' : 
+                    step.status === 'processing' ? 'border-blue-500 text-blue-500' : 
                     step.status === 'error' ? 'border-red-500' : 
                     'border-gray-200'
                   }`}

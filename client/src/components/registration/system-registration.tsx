@@ -788,58 +788,96 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
       // Create a new copy of formData for the update
       const newFormData = { ...formData };
       
-      // Handle direct field mappings
-      if (field === 'name') newFormData.name = value;
-      else if (field === 'description') newFormData.description = value;
-      else if (field === 'purpose') newFormData.purpose = value;
-      else if (field === 'version') newFormData.version = value;
-      else if (field === 'department') newFormData.department = value;
-      else if (field === 'vendor') newFormData.vendor = value;
-      else if (field === 'internalOwner') newFormData.internalOwner = value;
-      else if (field === 'systemId') newFormData.systemId = value;
+      // Define a comprehensive field mapping to ensure all fields are properly mapped
+      const fieldMapping: Record<string, string> = {
+        // Direct field mappings (same name)
+        'name': 'name',
+        'description': 'description',
+        'purpose': 'purpose',
+        'version': 'version',
+        'department': 'department',
+        'vendor': 'vendor',
+        'internalOwner': 'internalOwner',
+        'systemId': 'systemId',
+        'outputTypes': 'outputTypes',
+        'usageContext': 'usageContext',
+        'potentialImpact': 'potentialImpact',
+        'aiCapabilities': 'aiCapabilities',
+        'trainingDatasets': 'trainingDatasets',
+        'riskLevel': 'riskLevel',
+        'thirdPartyComponents': 'thirdPartyComponents',
+        'humanOversight': 'humanOversight',
+        'dataProtectionMeasures': 'dataProtectionMeasures',
+        'accuracyMetrics': 'accuracyMetrics',
+        'mitigationMeasures': 'mitigationMeasures',
+        'maintenanceProcess': 'maintenanceProcess',
+        
+        // Field mappings with different names
+        'riskClassification': 'riskLevel',
+        'capabilities': 'aiCapabilities',
+        'dataSources': 'trainingDatasets',
+        'impactAssessment': 'potentialImpact',
+        'oversight': 'humanOversight',
+        'dataProtection': 'dataProtectionMeasures',
+        'security': 'securityMeasures',
+        'accuracy': 'accuracyMetrics',
+        'mitigation': 'mitigationMeasures',
+        'maintenance': 'maintenanceProcess',
+        'compliance': 'complianceMeasures',
+        'thirdParty': 'thirdPartyComponents'
+      };
       
-      // Handle field mappings with different names
-      else if (field === 'riskClassification') newFormData.riskLevel = value;
-      else if (field === 'capabilities') newFormData.aiCapabilities = value;
-      else if (field === 'dataSources') newFormData.trainingDatasets = value;
+      // Get the corresponding form field name from the mapping
+      const formField = fieldMapping[field] || field.charAt(0).toLowerCase() + field.slice(1);
       
-      // Handle same-name fields
-      else if (field === 'riskLevel') newFormData.riskLevel = value;
-      else if (field === 'aiCapabilities') newFormData.aiCapabilities = value;
-      else if (field === 'trainingDatasets') newFormData.trainingDatasets = value;
-      else if (field === 'outputTypes') newFormData.outputTypes = value;
-      else if (field === 'usageContext') newFormData.usageContext = value;
-      else if (field === 'potentialImpact') newFormData.potentialImpact = value;
-      
-      // For camelCase field names that match our form data structure
-      else {
-        try {
-          const formField = field.charAt(0).toLowerCase() + field.slice(1);
-          // Check if the property exists on the form data object
-          if (formField in newFormData) {
-            (newFormData as any)[formField] = value;
-          } else {
-            console.warn(`Field ${formField} does not exist in formData`);
-          }
-        } catch (e) {
-          console.error(`Failed to apply field ${field}:`, e);
+      // Update the field in the form data
+      if (formField in newFormData) {
+        (newFormData as any)[formField] = value;
+        console.log(`✅ Successfully updated ${formField} with value from ${field}`);
+      } else {
+        // If field doesn't exist in our direct mapping, try more variations
+        const alternateFieldName = field.replace(/([A-Z])/g, '_$1').toLowerCase();
+        const camelCaseField = field.charAt(0).toLowerCase() + field.slice(1);
+        
+        if (alternateFieldName in newFormData) {
+          (newFormData as any)[alternateFieldName] = value;
+          console.log(`✅ Successfully updated ${alternateFieldName} with value from ${field}`);
+        } else if (camelCaseField in newFormData) {
+          (newFormData as any)[camelCaseField] = value;
+          console.log(`✅ Successfully updated ${camelCaseField} with value from ${field}`);
+        } else {
+          console.warn(`⚠️ Field ${field} does not have a corresponding form field`);
         }
       }
       
-      // Update form data
+      // Update form data with all changes
       setFormData(newFormData);
-
-      // Clear validation errors and missing fields for this field
-      if (validationErrors[field]) {
-        setValidationErrors(prev => {
-          const newErrors = { ...prev };
-          delete newErrors[field];
-          return newErrors;
+      
+      // Clear any validation errors related to this field
+      const normalizedFieldName = fieldMapping[field] || field;
+      
+      // Create a list of potential validation error keys
+      const potentialErrorKeys = [
+        field, 
+        normalizedFieldName,
+        normalizedFieldName.charAt(0).toLowerCase() + normalizedFieldName.slice(1)
+      ];
+      
+      // Clear validation errors for any matching keys
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        potentialErrorKeys.forEach(key => {
+          if (newErrors[key]) {
+            delete newErrors[key];
+          }
         });
-
-        // Also update missingFields list
-        setMissingFields(prev => prev.filter(item => item !== field));
-      }
+        return newErrors;
+      });
+      
+      // Also update missingFields list
+      setMissingFields(prev => {
+        return prev.filter(item => !potentialErrorKeys.includes(item));
+      });
       
       // Show toast notification for confirmation
       toast({
