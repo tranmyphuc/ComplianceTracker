@@ -66,13 +66,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       isNew: false,
       badgeColor: '' 
     },
-    { 
-      name: 'Settings', 
-      path: '/settings', 
-      icon: <SettingsIcon className="w-4 h-4" />,
-      isNew: false,
-      badgeColor: '' 
-    },
+    // Settings moved to Cluster 2
   ];
 
   // ===== CLUSTER 1: EU AI Act Compliance Suite =====
@@ -263,6 +257,22 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       isNew: false,
       badgeColor: ''
     },
+    { 
+      name: 'Settings', 
+      path: '/settings', 
+      icon: <SettingsIcon className="h-4 w-4 mr-2" />,
+      isPriority: false,
+      isNew: false, 
+      badgeColor: ''
+    },
+    { 
+      name: 'Platform Tour', 
+      path: '/guides/platform-tour', 
+      icon: <HelpCircleIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: true,
+      badgeColor: 'green'
+    },
   ];
 
   // Demo Scenarios & Resources
@@ -358,6 +368,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
               </Link>
             ))}
 
+            {/* CLUSTER 1: Main Items - AI Inventory and Pricing & Plans */}
             {/* AI Inventory Link - Direct Access */}
             <Link 
               href="/inventory" 
@@ -370,6 +381,21 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
               <span className="flex items-center">
                 <CpuIcon className="w-4 h-4" />
                 <span className="ml-1.5">AI Inventory</span>
+              </span>
+            </Link>
+            
+            {/* Pricing Link - Direct Access - Moved up to be next to AI Inventory */}
+            <Link 
+              href="/pricing" 
+              onClick={handleItemClick} 
+              className={cn(
+                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-green-50 hover:text-green-700 whitespace-nowrap",
+                isActive('/pricing') && "bg-green-50 text-green-700 border border-green-200 font-medium"
+              )}
+            >
+              <span className="flex items-center">
+                <DollarSignIcon className="w-4 h-4 text-green-600" />
+                <span className="ml-1.5">Pricing & Plans</span>
               </span>
             </Link>
 
@@ -532,20 +558,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
               </DropdownMenuContent>
             </DropdownMenu>
             
-            {/* Pricing Link - Direct Access */}
-            <Link 
-              href="/pricing" 
-              onClick={handleItemClick} 
-              className={cn(
-                "flex items-center px-3 py-1.5 text-xs rounded-md hover:bg-green-50 hover:text-green-700 whitespace-nowrap",
-                isActive('/pricing') && "bg-green-50 text-green-700 border border-green-200 font-medium"
-              )}
-            >
-              <span className="flex items-center">
-                <DollarSignIcon className="w-4 h-4 text-green-600" />
-                <span className="ml-1.5">Pricing & Plans</span>
-              </span>
-            </Link>
+            {/* Pricing Link removed from here and moved up next to AI Inventory */}
           </div>
         </ScrollArea>
       </div>
