@@ -167,6 +167,36 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
             ))}
 
             {/* EU AI Act Compliance Dropdown - Made more prominent */}
+            <Link href="/inventory" onClick={handleItemClick} className={cn(
+              "flex items-center px-3 py-1.5 text-xs rounded-md bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 whitespace-nowrap font-medium",
+              isActive('/inventory') && "bg-blue-100 text-blue-800 font-medium"
+            )}>
+              <span className="flex items-center">
+                <CpuIcon className="w-4 h-4" />
+                <span className="ml-1.5">AI Inventory</span>
+              </span>
+            </Link>
+            
+            <Link href="/register-system" onClick={handleItemClick} className={cn(
+              "flex items-center px-3 py-1.5 text-xs rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 whitespace-nowrap font-medium",
+              isActive('/register-system') && "bg-emerald-100 text-emerald-800 font-medium"
+            )}>
+              <span className="flex items-center">
+                <BrainIcon className="w-4 h-4" />
+                <span className="ml-1.5">AI Register</span>
+              </span>
+            </Link>
+            
+            <Link href="/risk-assessment" onClick={handleItemClick} className={cn(
+              "flex items-center px-3 py-1.5 text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100 whitespace-nowrap font-medium",
+              isActive('/risk-assessment') && "bg-amber-100 text-amber-800 font-medium"
+            )}>
+              <span className="flex items-center">
+                <ShieldIcon className="w-4 h-4" />
+                <span className="ml-1.5">Risk Assessment</span>
+              </span>
+            </Link>
+            
             <Button 
               variant="outline" 
               size="sm" 
