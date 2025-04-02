@@ -119,20 +119,27 @@ export function AutoFillProcessStepper(props: AutoFillProcessStepperProps) {
       {/* Current step info box */}
       {activeStep && (
         <div className={cn(
-          "text-left p-2",
-          activeStep.status === 'processing' ? "bg-blue-50" : 
-          activeStep.status === 'complete' ? "bg-green-50" :
-          activeStep.status === 'error' ? "bg-red-50" : ""
+          "text-left p-2 border rounded-md",
+          activeStep.status === 'processing' ? "border-blue-200" : 
+          activeStep.status === 'complete' ? "border-green-200 bg-green-50" :
+          activeStep.status === 'error' ? "border-red-200 bg-red-50" : "border-gray-200"
         )}>
           <div className="flex items-start">
             <div className="flex-1">
               <h3 className={cn(
                 "text-sm font-medium",
-                activeStep.status === 'processing' ? "text-blue-800" : 
-                activeStep.status === 'complete' ? "text-green-800" :
-                activeStep.status === 'error' ? "text-red-800" : "text-gray-800"
+                activeStep.status === 'processing' ? "text-blue-700" : 
+                activeStep.status === 'complete' ? "text-green-700" :
+                activeStep.status === 'error' ? "text-red-700" : "text-gray-700"
               )}>
-                {activeStep.title} {activeStep.status === 'processing' && <Badge variant="outline" className="ml-2 text-xs">Active</Badge>}
+                {activeStep.title} {activeStep.status === 'processing' && 
+                  <Badge 
+                    variant="outline" 
+                    className="ml-2 text-xs border-blue-200 text-blue-700"
+                  >
+                    Active
+                  </Badge>
+                }
               </h3>
               <p className="text-xs text-gray-600 mt-0.5">
                 {activeStep.description}

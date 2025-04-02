@@ -782,83 +782,52 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
   // Apply a specific field from AI results
   const applyField = (field: string) => {
     if (aiResults && aiResults[field]) {
-      // Convert field name to camelCase if needed (to match the formData structure)
-      const formField = field.charAt(0).toLowerCase() + field.slice(1);
+      const value = aiResults[field];
+      console.log(`Applying field ${field} with value:`, value);
       
-      // Log the field being applied to help with debugging
-      console.log(`Applying field ${field} with value:`, aiResults[field]);
+      // Create a new copy of formData for the update
+      const newFormData = { ...formData };
       
-      // Update the form data with type safety
-      setFormData(prev => {
-        // Create a new form data object with type safety
-        const newData = { ...prev };
-        const value = aiResults[field];
-        
-        // Map AI result fields to form data fields using specific field mappings
-        switch (field) {
-          case 'name':
-            newData.name = value;
-            break;
-          case 'description':
-            newData.description = value;
-            break;
-          case 'purpose':
-            newData.purpose = value;
-            break;
-          case 'version':
-            newData.version = value;
-            break;
-          case 'department':
-            newData.department = value;
-            break;
-          case 'vendor':
-            newData.vendor = value;
-            break;
-          case 'internalOwner':
-            newData.internalOwner = value;
-            break;
-          case 'riskLevel':
-            newData.riskLevel = value;
-            break;
-          case 'systemId':
-            newData.systemId = value;
-            break;
-          case 'riskClassification':
-            newData.riskLevel = value;
-            break;
-          case 'capabilities':
-            newData.aiCapabilities = value;
-            break;
-          case 'dataSources':
-            newData.trainingDatasets = value;
-            break;
-          case 'aiCapabilities':
-            newData.aiCapabilities = value;
-            break;
-          case 'trainingDatasets':
-            newData.trainingDatasets = value;
-            break;
-          case 'outputTypes':
-            newData.outputTypes = value;
-            break;
-          case 'usageContext':
-            newData.usageContext = value;
-            break;
-          case 'potentialImpact':
-            newData.potentialImpact = value;
-            break;
-          default:
-            // For any other fields, use type assertion as a fallback
-            console.log(`Using fallback handling for field: ${field}`);
-            try {
-              (newData as any)[formField] = value;
-            } catch (e) {
-              console.error(`Failed to apply field ${field}:`, e);
-            }
+      // Handle direct field mappings
+      if (field === 'name') newFormData.name = value;
+      else if (field === 'description') newFormData.description = value;
+      else if (field === 'purpose') newFormData.purpose = value;
+      else if (field === 'version') newFormData.version = value;
+      else if (field === 'department') newFormData.department = value;
+      else if (field === 'vendor') newFormData.vendor = value;
+      else if (field === 'internalOwner') newFormData.internalOwner = value;
+      else if (field === 'systemId') newFormData.systemId = value;
+      
+      // Handle field mappings with different names
+      else if (field === 'riskClassification') newFormData.riskLevel = value;
+      else if (field === 'capabilities') newFormData.aiCapabilities = value;
+      else if (field === 'dataSources') newFormData.trainingDatasets = value;
+      
+      // Handle same-name fields
+      else if (field === 'riskLevel') newFormData.riskLevel = value;
+      else if (field === 'aiCapabilities') newFormData.aiCapabilities = value;
+      else if (field === 'trainingDatasets') newFormData.trainingDatasets = value;
+      else if (field === 'outputTypes') newFormData.outputTypes = value;
+      else if (field === 'usageContext') newFormData.usageContext = value;
+      else if (field === 'potentialImpact') newFormData.potentialImpact = value;
+      
+      // For camelCase field names that match our form data structure
+      else {
+        try {
+          const formField = field.charAt(0).toLowerCase() + field.slice(1);
+          // Check if the property exists on the form data object
+          if (formField in newFormData) {
+            (newFormData as any)[formField] = value;
+          } else {
+            console.warn(`Field ${formField} does not exist in formData`);
+          }
+        } catch (e) {
+          console.error(`Failed to apply field ${field}:`, e);
         }
-        
-        return newData;
-      });
+      }
+      
+      // Update form data
+      setFormData(newFormData);
 
       // Clear validation errors and missing fields for this field
       if (validationErrors[field]) {
