@@ -140,6 +140,7 @@ import { Router } from "express";
 // import { trainingRouter } from "./routes/training";
 // import { analyticsRouter } from "./routes/analytics"; // Added import
 import devModeRoutes from "./routes/dev-mode-routes";
+import { healthCheck, metricsReport } from "./routes/health-check";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -3452,6 +3453,10 @@ if (isDemoMode) {
       handleError(res, err as Error);
     }
   });
+
+  // Health check routes
+  app.get("/api/health", healthCheck);
+  app.get("/api/metrics", metricsReport);
 
   // Setup HTTP server
   const httpServer = createServer(app);

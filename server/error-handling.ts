@@ -14,6 +14,8 @@ export enum ErrorType {
   AI_MODEL = 'ai_model_error',
   BUSINESS_LOGIC = 'business_logic_error',
   RATE_LIMIT = 'rate_limit_error',
+  CONFIGURATION = 'configuration_error',
+  SERVICE_UNAVAILABLE = 'service_unavailable',
   UNKNOWN = 'unknown_error'
 }
 
@@ -121,6 +123,30 @@ export class BusinessLogicError extends AppError {
 export class RateLimitError extends AppError {
   constructor(message: string = 'Rate limit exceeded') {
     super(message, ErrorType.RATE_LIMIT, 429);
+  }
+}
+
+export class ConfigurationError extends AppError {
+  constructor(message: string, details?: any) {
+    super(
+      message,
+      ErrorType.CONFIGURATION,
+      500,
+      true,
+      details
+    );
+  }
+}
+
+export class ServiceUnavailableError extends AppError {
+  constructor(service: string, details?: any) {
+    super(
+      `Service unavailable: ${service}`,
+      ErrorType.SERVICE_UNAVAILABLE,
+      503,
+      true,
+      details
+    );
   }
 }
 
