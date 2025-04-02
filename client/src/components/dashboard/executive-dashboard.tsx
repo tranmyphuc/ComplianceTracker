@@ -266,18 +266,18 @@ const ExecutiveDashboard: React.FC = () => {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = "/risk-assessment/guides"}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.location.href = "/risk-assessment"}>
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
                   <div className="bg-blue-100 p-3 rounded-lg">
                     <AlertTriangle className="h-6 w-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">{currentLanguage === 'de' ? 'Risikobewertungsmethodik' : 'Risk Assessment Methodology'}</h3>
+                    <h3 className="font-semibold">{currentLanguage === 'de' ? 'Risikobewertung' : 'Risk Assessment'}</h3>
                     <p className="text-sm text-gray-600 mt-1">
                       {currentLanguage === 'de' 
-                        ? 'Schrittweiser Prozess zur Durchführung von Risikobewertungen' 
-                        : 'Step-by-step process for conducting risk assessments'}
+                        ? 'Bewerten Sie Ihre KI-Systeme nach EU-Vorschriften' 
+                        : 'Assess your AI systems according to EU regulations'}
                     </p>
                   </div>
                 </div>

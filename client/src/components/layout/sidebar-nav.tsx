@@ -4,27 +4,27 @@ const mainNavItems = [
     {
       title: 'Dashboard',
       href: '/',
-      icon: <HomeIcon className="h-5 w-5" />,
+      icon: <Home className="h-5 w-5" />,
     },
     {
       title: 'Demo Scenarios',
       href: '/demo-scenarios',
-      icon: <PresentationIcon className="h-5 w-5" />,
+      icon: <Presentation className="h-5 w-5" />,
     },
     {
       title: 'Risk Assessment',
       href: '/risk-assessment',
-      icon: <ShieldAlertIcon className="h-5 w-5" />,
+      icon: <ShieldAlert className="h-5 w-5" />,
       submenu: [
         {
-          title: 'Assessment Guides',
-          href: '/risk-assessment/guides',
-          icon: <BookIcon className="h-5 w-5" />,
+          title: 'Assessment',
+          href: '/risk-assessment',
+          icon: <Book className="h-5 w-5" />,
         },
         {
           title: 'Text Analyzer',
           href: '/risk-assessment/text-analyzer',
-          icon: <FileTextIcon className="h-5 w-5" />,
+          icon: <FileText className="h-5 w-5" />,
         },
       ]
     },

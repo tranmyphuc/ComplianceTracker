@@ -122,7 +122,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
     },
     { 
       name: 'Platform Tour', 
-      path: '/guides/platform-tour', 
+      path: '/onboarding', 
       icon: <HelpCircleIcon className="h-4 w-4 mr-2" />,
       isPriority: true,
       isNew: true,

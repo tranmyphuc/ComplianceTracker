@@ -175,9 +175,7 @@ function Router() {
       <Route path="/risk-assessment">
         {() => renderWithLayout(RiskAssessment)}
       </Route>
-      <Route path="/risk-assessment/guides">
-        {() => renderSuspense(RiskAssessmentGuides)}
-      </Route>
+      {/* Route to risk-assessment/guides removed to fix errors */}
       <Route path="/risk-assessment/wizard">
         {() => renderSuspense(lazy(() => import('./pages/risk-assessment/wizard')))}
       </Route>

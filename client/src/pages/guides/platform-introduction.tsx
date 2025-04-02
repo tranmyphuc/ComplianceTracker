@@ -162,7 +162,7 @@ export default function PlatformIntroduction() {
                           variant="link" 
                           size="sm" 
                           className="p-0 h-auto text-blue-600"
-                          onClick={() => navigate("/risk-assessment/guides")}
+                          onClick={() => navigate("/risk-assessment")}
                         >
                           Start Risk Assessment
                         </Button>
