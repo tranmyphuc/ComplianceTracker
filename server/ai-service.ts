@@ -199,20 +199,27 @@ async function callDeepSeek(
         // Success! Clear the timeout and return the response
         clearTimeout(timeoutId);
         
+        // Type assertion for data
+        const typedData = data as {
+          choices: Array<{message: {content: string}}>,
+          usage: {prompt_tokens: number, completion_tokens: number, total_tokens: number}
+        };
+        
         return {
-          text: data.choices[0].message.content,
+          text: typedData.choices[0].message.content,
           model: AIModel.DEEPSEEK,
           tokens: {
-            prompt: data.usage.prompt_tokens,
-            completion: data.usage.completion_tokens,
-            total: data.usage.total_tokens
+            prompt: typedData.usage.prompt_tokens,
+            completion: typedData.usage.completion_tokens,
+            total: typedData.usage.total_tokens
           }
         };
-      } catch (innerError) {
+      } catch (innerError: unknown) {
         // Only retry on network errors, not on validation or other errors
-        if (innerError.name === 'FetchError' || 
+        const error = innerError as Error;
+        if (error.name === 'FetchError' || 
             (innerError instanceof ExternalServiceError && 
-             innerError.message.includes('Rate Limit'))) {
+             error.message.includes('Rate Limit'))) {
           retries--;
           lastError = innerError;
           await new Promise(resolve => setTimeout(resolve, 1000));
@@ -294,7 +301,9 @@ async function callGemini(
       throw new ExternalServiceError('Gemini API', errorData);
     }
 
-    const data = await response.json();
+    const data = await response.json() as {
+      candidates: Array<{content: {parts: Array<{text: string}>}}> 
+    };
     
     // Extract the response text
     const responseText = data.candidates[0].content.parts[0].text;
@@ -371,7 +380,10 @@ async function callOpenAI(
       throw new ExternalServiceError('OpenAI API', errorData);
     }
 
-    const data = await response.json();
+    const data = await response.json() as {
+      choices: Array<{message: {content: string}}>,
+      usage: {prompt_tokens: number, completion_tokens: number, total_tokens: number}
+    };
     
     return {
       text: data.choices[0].message.content,

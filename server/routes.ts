@@ -739,7 +739,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check for specific AI systems first - this will prioritize certain keywords
       // to ensure correct identification even when the AI API fails
       let systemType = null;
-      const inputText = (name || '').toLowerCase();
+      // Make sure name is a string before calling toLowerCase()
+      const inputText = (typeof name === 'string' ? name : String(name || '')).toLowerCase();
 
       if (inputText.includes('gamma') || inputText.includes('gamma.app')) {
         // Special handling for Gamma.app
