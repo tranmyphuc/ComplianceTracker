@@ -45,18 +45,21 @@ const modelDefaults = {
   [AIModel.DEEPSEEK]: {
     temperature: 0.2,
     maxTokens: 1000,
-    endpointUrl: 'https://api.deepseek.com/v1/chat/completions'
+    endpointUrl: 'https://api.deepseek.com/v1/chat/completions',
+    timeout: 45000 // 45 seconds timeout
   },
   [AIModel.GEMINI]: {
     temperature: 0.3,
     maxTokens: 1000,
-    endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
+    endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+    timeout: 45000 // 45 seconds timeout
   },
   [AIModel.OPENAI]: {
     temperature: 0.1,
     maxTokens: 1000,
     endpointUrl: 'https://api.openai.com/v1/chat/completions',
-    model: 'gpt-4'
+    model: 'gpt-4',
+    timeout: 45000 // 45 seconds timeout
   }
 };
 
@@ -117,7 +120,7 @@ async function callSpecificModel(
 }
 
 /**
- * Call DeepSeek API
+ * Call DeepSeek API with enhanced error handling and safety mechanisms
  */
 async function callDeepSeek(
   prompt: string,
@@ -127,55 +130,104 @@ async function callDeepSeek(
   systemPrompt?: string
 ): Promise<AIResponse> {
   if (!DEEPSEEK_API_KEY) {
+    console.warn('DeepSeek API key not configured, using fallback mechanism');
     throw new Error('DeepSeek API key not configured');
   }
 
+  // Increased timeout to 45 seconds to accommodate slower responses
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+  const timeoutId = setTimeout(() => {
+    console.warn('DeepSeek API request timed out after 45 seconds');
+    controller.abort();
+  }, 45000); 
 
   try {
-    console.log('Calling DeepSeek API with prompt: \n', prompt);
+    console.log('Calling DeepSeek API with prompt length:', prompt.length);
     
     const systemMessage = systemPrompt || "You are an EU AI Act compliance expert that provides accurate, regulatory-focused guidance.";
     
-    const response = await fetch(modelDefaults[AIModel.DEEPSEEK].endpointUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: systemMessage },
-          { role: 'user', content: prompt }
-        ],
-        temperature: temperature,
-        max_tokens: maxTokens
-      }),
-      signal: controller.signal
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new ExternalServiceError('DeepSeek API', errorData);
-    }
-
-    const data = await response.json();
+    // Use a more robust approach with retries
+    let retries = 2;
+    let lastError = null;
     
-    return {
-      text: data.choices[0].message.content,
-      model: AIModel.DEEPSEEK,
-      tokens: {
-        prompt: data.usage.prompt_tokens,
-        completion: data.usage.completion_tokens,
-        total: data.usage.total_tokens
+    while (retries >= 0) {
+      try {
+        const response = await fetch(modelDefaults[AIModel.DEEPSEEK].endpointUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: [
+              { role: 'system', content: systemMessage },
+              { role: 'user', content: prompt }
+            ],
+            temperature: temperature,
+            max_tokens: maxTokens
+          }),
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          let errorData;
+          
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            errorData = { message: errorText };
+          }
+          
+          console.error(`DeepSeek API error (${response.status}):`, errorData);
+          
+          if (response.status === 429) {
+            console.log(`Rate limit hit, retries left: ${retries}`);
+            // Rate limit error - wait and retry
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            retries--;
+            lastError = new ExternalServiceError('DeepSeek API Rate Limit', errorData);
+            continue;
+          }
+          
+          throw new ExternalServiceError('DeepSeek API', errorData);
+        }
+
+        const data = await response.json();
+        
+        // Success! Clear the timeout and return the response
+        clearTimeout(timeoutId);
+        
+        return {
+          text: data.choices[0].message.content,
+          model: AIModel.DEEPSEEK,
+          tokens: {
+            prompt: data.usage.prompt_tokens,
+            completion: data.usage.completion_tokens,
+            total: data.usage.total_tokens
+          }
+        };
+      } catch (innerError) {
+        // Only retry on network errors, not on validation or other errors
+        if (innerError.name === 'FetchError' || 
+            (innerError instanceof ExternalServiceError && 
+             innerError.message.includes('Rate Limit'))) {
+          retries--;
+          lastError = innerError;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          continue;
+        }
+        throw innerError;
       }
-    };
+    }
+    
+    // If we get here, we've exhausted our retries
+    throw lastError || new Error('Maximum retries exceeded');
   } catch (error) {
     clearTimeout(timeoutId);
+    
+    console.error('DeepSeek API error:', error.message || error);
     
     if (error.name === 'AbortError') {
       throw new AIModelError('DeepSeek API timeout', { modelName: 'deepseek' });
@@ -201,7 +253,10 @@ async function callGemini(
   console.log('Calling Gemini API with prompt');
   
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+  const timeoutId = setTimeout(() => {
+    console.warn('Gemini API request timed out after 45 seconds');
+    controller.abort();
+  }, 45000); // 45 second timeout - increased to handle slower API responses
 
   try {
     const response = await fetch(
@@ -283,7 +338,10 @@ async function callOpenAI(
   console.log('Calling OpenAI API as final fallback');
   
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+  const timeoutId = setTimeout(() => {
+    console.warn('OpenAI API request timed out after 45 seconds');
+    controller.abort();
+  }, 45000); // 45 second timeout - increased to handle slower API responses
 
   try {
     const systemMessage = systemPrompt || "You are an EU AI Act compliance expert that provides accurate, regulatory-focused guidance.";
@@ -588,6 +646,7 @@ export async function processDocumentWithOCR(fileContent: string, fileName: stri
   // Try multiple AI models with decreasing specificity if needed
   async function tryProcessWithModel(model: AIModel, temp: number = 0.3, maxTokens: number = 2000) {
     try {
+      console.log(`Trying to process document with ${model} model`);
       const aiResponse = await callAI({
         prompt,
         model: model,
