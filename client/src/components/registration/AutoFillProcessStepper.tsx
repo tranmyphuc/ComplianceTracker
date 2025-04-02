@@ -40,17 +40,8 @@ export function AutoFillProcessStepper(props: AutoFillProcessStepperProps) {
   
   return (
     <div className="w-full">
-      {/* Progress bar */}
-      <div className="flex items-center mb-2">
-        <Progress 
-          value={progress} 
-          className="h-1.5 flex-1 mr-2" 
-        />
-        <span className="text-xs font-medium text-slate-600">{progress}%</span>
-      </div>
-      
       {/* Horizontal step indicators */}
-      <div className="flex justify-between mb-2 px-0.5">
+      <div className="flex justify-between px-0.5">
         {steps.map((step) => (
           <div key={step.id} className="flex flex-col items-center">
             <div 

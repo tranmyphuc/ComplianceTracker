@@ -1197,8 +1197,8 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
                     />
                   </div>
                   {uploadedFile && (
-                    <div className="flex items-center gap-2 mt-2 p-2 bg-primary/5 rounded-md">
-                      <FileTextIcon className="h-4 w-4 text-primary" />
+                    <div className="flex items-center gap-2 mt-2 p-2 bg-slate-50 rounded-md">
+                      <FileTextIcon className="h-4 w-4 text-slate-700" />
                       <span className="text-sm truncate flex-1">{uploadedFile.name}</span>
                       <Button 
                         variant="ghost" 
@@ -1264,10 +1264,9 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
           {extractionInProgress && (
             <div className="py-2">
-              <div className="flex items-center gap-3">
-                <Progress value={extractionProgress} className="h-2 flex-1" />
-                <span className="text-xs font-medium text-neutral-500 whitespace-nowrap w-10 text-right">
-                  {Math.round(extractionProgress)}%
+              <div className="flex items-center gap-3 justify-end">
+                <span className="text-xs font-medium text-neutral-500 whitespace-nowrap">
+                  {Math.round(extractionProgress)}% Complete
                 </span>
                 <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
                   {aiExtractionStatus === 'extracting' ? 'Processing...' : 'Completed'}
