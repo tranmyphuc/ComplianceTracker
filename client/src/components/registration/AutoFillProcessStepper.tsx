@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
-  CheckIcon, ClockIcon, SparklesIcon, LoaderIcon, XIcon, 
-  SearchIcon, BotIcon, PencilIcon, DatabaseIcon, FilterIcon,
-  Globe, InfoIcon, ShieldIcon, AlertCircleIcon
+  BotIcon, PencilIcon, DatabaseIcon, 
+  FilterIcon, Globe, InfoIcon, ShieldIcon
 } from 'lucide-react';
-import { Button } from "../ui/button";
 import { Progress } from "../ui/progress";
 import { Badge } from "../ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
-// Jack said: "Show progress visually to keep users engaged during processing"
 export type AutoFillStepStatus = 'pending' | 'processing' | 'complete' | 'error';
 
 export interface AutoFillStep {
@@ -21,19 +19,17 @@ export interface AutoFillStep {
   duration?: number; // Duration in ms for animation
 }
 
-interface AutoFillProcessStepperProps {
+export interface AutoFillProcessStepperProps {
   steps: AutoFillStep[];
   currentStepId?: string;
   showDetails?: boolean;
   onViewDetails?: (stepId: string) => void;
 }
 
-export function AutoFillProcessStepper({ 
-  steps, 
-  currentStepId, 
-  showDetails = false,
-  onViewDetails
-}: AutoFillProcessStepperProps) {
+// Create a compact, horizontally-oriented process stepper
+export function AutoFillProcessStepper(props: AutoFillProcessStepperProps) {
+  const { steps, currentStepId, showDetails = false, onViewDetails } = props;
+  
   // Calculate overall progress
   const completedSteps = steps.filter(s => s.status === 'complete').length;
   const totalSteps = steps.length;
@@ -42,56 +38,63 @@ export function AutoFillProcessStepper({
   // Get current step details
   const currentStep = steps.find(s => s.id === currentStepId);
   
-  // Ultra-minimal design 
   return (
     <div className="w-full">
-      <div className="flex items-center gap-1 mb-1">
-        <div className="flex-1 flex items-center h-1.5 bg-slate-200 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-blue-500 transition-all duration-300 ease-in-out"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <span className="text-xs text-slate-600">{progress}%</span>
+      {/* Progress bar */}
+      <div className="flex items-center mb-2">
+        <Progress 
+          value={progress} 
+          className="h-1.5 flex-1 mr-2" 
+        />
+        <span className="text-xs font-medium text-slate-600">{progress}%</span>
       </div>
       
-      {/* Inline steps with no vertical padding */}
-      <div className="flex items-center space-x-0.5 text-[9px] mb-1 overflow-x-auto pb-0.5">
-        {steps.map((step, index) => (
-          <div 
-            key={step.id} 
-            className={`flex items-center whitespace-nowrap px-1.5 py-0.5 rounded-sm
-              ${step.id === currentStepId ? 'bg-blue-100 text-blue-800' : 'text-slate-600'}
-              ${step.status === 'complete' ? 'text-green-700' : ''}
-            `}
-          >
-            <span className="mr-1">
-              {step.status === 'complete' ? 
-                <CheckIcon className="h-2 w-2 text-green-600" /> : 
-                step.status === 'processing' ? 
-                <LoaderIcon className="h-2 w-2 text-blue-600 animate-spin" /> :
-                <span className="inline-block h-2 w-2 rounded-full bg-slate-300" />
-              }
-            </span>
-            {step.title}
-            {index < steps.length - 1 && <span className="mx-1 text-slate-300">•</span>}
+      {/* Horizontal step indicators */}
+      <div className="flex justify-between mb-2 px-0.5">
+        {steps.map((step) => (
+          <div key={step.id} className="flex flex-col items-center">
+            <div 
+              className={`h-3 w-3 rounded-full 
+                ${step.status === 'complete' ? 'bg-green-500' : 
+                  step.status === 'processing' ? 'bg-blue-500 animate-pulse' : 
+                  step.status === 'error' ? 'bg-red-500' : 
+                  'bg-slate-300'
+                } ${step.id === currentStepId ? 'ring-1 ring-blue-300' : ''}`}
+            />
+            <div className="mt-1 text-[8px] text-center hidden sm:block">
+              {step.title.split(' ')[0]}
+            </div>
           </div>
         ))}
       </div>
       
+      {/* Current step info - ultra compact */}
       {currentStep && (
-        <div className="flex items-center border-t border-slate-200 pt-1">
+        <div className="flex items-center text-[10px] border-t border-slate-200 pt-1">
           <div className="flex-1">
             <div className="flex items-center">
-              <span className="text-[10px] font-medium text-blue-800">{currentStep.title}</span>
+              <span className="font-medium text-blue-800">{currentStep.title}</span>
               {currentStep.status === 'processing' && (
-                <span className="ml-1.5 px-1 py-0 text-[8px] bg-blue-50 text-blue-600 rounded">Processing</span>
+                <Badge variant="outline" className="ml-1 h-3.5 px-1 py-0 text-[8px]">
+                  Active
+                </Badge>
               )}
             </div>
-            <p className="text-[9px] text-slate-600 line-clamp-1">{currentStep.description}</p>
+            <p className="text-slate-600 line-clamp-1 pr-2">{currentStep.description}</p>
           </div>
-          <div className="flex-shrink-0 ml-2">
-            <InfoIcon className="h-2.5 w-2.5 text-slate-400" title="AI auto-fill extracts compliance data" />
+          <div className="flex-shrink-0">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <InfoIcon className="h-3 w-3 text-slate-400" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p className="text-xs max-w-[300px]">{currentStep.details}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       )}
@@ -99,8 +102,7 @@ export function AutoFillProcessStepper({
   );
 }
 
-// Default steps for the auto-fill process
-// Jack said: "Use more descriptive steps with detailed explanations"
+// Define default steps in a separate export
 export const defaultAutoFillSteps: AutoFillStep[] = [
   {
     id: 'input',
