@@ -1,414 +1,281 @@
 import React, { useState, useEffect } from "react";
+import { 
+  HoverCard, 
+  HoverCardContent, 
+  HoverCardTrigger 
+} from "@/components/ui/hover-card";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from "@/components/ui/tabs";
+import { AlertTriangle, Info, History, Lightbulb, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ExternalLink, AlertTriangle, FileText, Info, Clock, History } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Define the interface for article data
+interface ArticleData {
+  articleId: string;
+  title: string;
+  content: string;
+  riskLevel?: "prohibited" | "high" | "limited" | "minimal" | "unknown";
+  keyPoints?: string[];
+  officialUrl?: string;
+  version?: string;
+  lastUpdated?: string;
+  changeDescription?: string;
+  exampleSummary?: string;
+  exampleDetails?: string;
+  imageUrl?: string;
+}
 
 interface EnhancedArticleTooltipProps {
   articleId: string;
   children: React.ReactNode;
-  className?: string;
-}
-
-interface ArticleDetails {
-  id: string;
-  articleId: string;
-  number: number;
-  title: string;
-  content: string;
-  officialUrl?: string;
-  riskLevel?: 'high' | 'limited' | 'minimal' | 'prohibited';
-  keyPoints?: string[];
-  version: string;
-  lastUpdated: string;
-  isLatest: boolean;
-  changeDescription?: string;
-  exampleSummary?: string;
-  imageUrl?: string;
-  hasChanges?: boolean;
+  showExamples?: boolean;
+  showVersions?: boolean;
 }
 
 /**
- * Enhanced tooltip showing EU AI Act article details
- * Displays a tooltip with summary info and offers a dialog for more details
+ * Enhanced tooltip for EU AI Act articles with tabs for details, examples and version history
  */
-export function EnhancedArticleTooltip({ 
-  articleId, 
+export function EnhancedArticleTooltip({
+  articleId,
   children,
-  className
+  showExamples = true,
+  showVersions = true
 }: EnhancedArticleTooltipProps) {
-  const [showDialog, setShowDialog] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
-  
-  // Fetch article details from the API
-  const { data: articleData, isLoading, error } = useQuery<ArticleDetails>({
-    queryKey: [`/api/eu-ai-act/articles/by-article-id/${encodeURIComponent(articleId)}`],
-    enabled: !!articleId,
-  });
-  
-  // Handle version history - this would be a separate query
-  const { data: versionHistory, isLoading: isLoadingVersions } = useQuery<ArticleDetails[]>({
-    queryKey: [`/api/eu-ai-act/articles/${encodeURIComponent(articleId)}/versions`],
-    enabled: showDialog && !!articleId,
-  });
-  
-  // Use article data from API only, or show error states
-  // This is critical to avoid using synthetic data that doesn't match reality
-  const article = articleData;
-  
-  // Badge color based on risk level
-  const getBadgeVariant = (riskLevel?: string) => {
-    switch(riskLevel) {
-      case 'prohibited': return "destructive";
-      case 'high': return "default";
-      case 'limited': return "secondary";
-      case 'minimal': return "outline";
-      default: return "secondary";
-    }
+  const [articleData, setArticleData] = useState<ArticleData | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!articleId) return;
+
+    const fetchArticleData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const response = await fetch(`/api/knowledge/articles/by-article-id/${encodeURIComponent(articleId)}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch article data: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        setArticleData(data);
+      } catch (err) {
+        console.error("Error fetching article data:", err);
+        setError("Failed to load article information. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticleData();
+  }, [articleId]);
+
+  // Helper function to render risk level badge
+  const renderRiskLevelBadge = (riskLevel?: string) => {
+    if (!riskLevel) return null;
+    
+    const variants: Record<string, { color: string, icon: React.ReactNode }> = {
+      prohibited: { color: "bg-red-500 hover:bg-red-600", icon: <AlertTriangle className="h-3 w-3 mr-1" /> },
+      high: { color: "bg-orange-500 hover:bg-orange-600", icon: <AlertTriangle className="h-3 w-3 mr-1" /> },
+      limited: { color: "bg-yellow-500 hover:bg-yellow-600", icon: <Info className="h-3 w-3 mr-1" /> },
+      minimal: { color: "bg-green-500 hover:bg-green-600", icon: <Info className="h-3 w-3 mr-1" /> },
+      unknown: { color: "bg-gray-500 hover:bg-gray-600", icon: <Info className="h-3 w-3 mr-1" /> }
+    };
+    
+    const { color, icon } = variants[riskLevel.toLowerCase()] || variants.unknown;
+    
+    return (
+      <Badge className={`${color} text-white flex items-center text-xs font-medium ml-2`}>
+        {icon}
+        {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)} Risk
+      </Badge>
+    );
   };
 
-  // Handle loading and error states
-  if (isLoading) {
-    return <span className="text-gray-500">Loading article {articleId}...</span>;
-  }
-  
-  if (error || !article) {
-    return (
-      <span className="text-red-500">
-        Error loading article data. Please try again later.
-      </span>
-    );
-  }
-  
   return (
-    <>
-      <TooltipProvider>
-        <Tooltip delayDuration={300}>
-          <TooltipTrigger className={`font-medium text-blue-600 underline cursor-help ${className}`} onClick={() => setShowDialog(true)}>
-            {children}
-          </TooltipTrigger>
-          <TooltipContent className="max-w-md bg-white p-4 shadow-lg rounded-lg border">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-base">{article.articleId}</h4>
-                {article.riskLevel && (
-                  <Badge variant={getBadgeVariant(article.riskLevel)}>
-                    {article.riskLevel.charAt(0).toUpperCase() + article.riskLevel.slice(1)} Risk
-                  </Badge>
-                )}
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <span className="underline decoration-dotted cursor-help text-primary">
+          {children}
+        </span>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-[400px] p-0">
+        <Tabs defaultValue="overview">
+          <TabsList className="w-full grid grid-cols-3">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            {showExamples && <TabsTrigger value="examples">Examples</TabsTrigger>}
+            {showVersions && <TabsTrigger value="versions">Versions</TabsTrigger>}
+          </TabsList>
+          
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="p-4">
+            {loading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
               </div>
-              <h5 className="font-medium">{article.title}</h5>
-              <p className="text-sm text-gray-600 line-clamp-3">{article.exampleSummary || 'Click for more details about this article.'}</p>
-              <div className="text-xs text-gray-500 flex items-center gap-1">
-                <Clock className="h-3 w-3" /> 
-                Version {article.version}
-                {article.hasChanges && (
-                  <Badge variant="outline" className="ml-2 text-xs px-1">Updated</Badge>
-                )}
-              </div>
-              <div className="pt-1">
-                <Button 
-                  variant="link" 
-                  className="p-0 h-auto text-xs text-blue-600" 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowDialog(true);
-                  }}
-                >
-                  View Full Details
-                </Button>
-              </div>
-            </div>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-xl flex items-center gap-2">
-                {article.articleId}: {article.title}
-                {article.riskLevel && (
-                  <Badge variant={getBadgeVariant(article.riskLevel)} className="ml-2">
-                    {article.riskLevel.charAt(0).toUpperCase() + article.riskLevel.slice(1)} Risk
-                  </Badge>
-                )}
-              </DialogTitle>
-            </div>
-            <DialogDescription>
-              Detailed information about {article.articleId} from the EU AI Act
-            </DialogDescription>
-          </DialogHeader>
-
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-            <TabsList className="grid grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="details">Full Text</TabsTrigger>
-              <TabsTrigger value="examples">Examples</TabsTrigger>
-              <TabsTrigger value="versions">Versions</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg">Key Points</CardTitle>
-                      <CardDescription>
-                        Important requirements from {article.articleId}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="list-disc pl-5 space-y-1">
-                        {article.keyPoints ? 
-                          article.keyPoints.map((point, i) => (
-                            <li key={i} className="text-sm">{point}</li>
-                          )) :
-                          <li className="text-sm">This article requires comprehensive risk management for AI systems.</li>
-                        }
-                      </ul>
-                    </CardContent>
-                  </Card>
-
-                  <div className="mt-4">
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg flex items-center">
-                          <Info className="h-4 w-4 mr-2" />
-                          Summary
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm">{article.exampleSummary || 'This article defines requirements for AI system compliance with the EU AI Act.'}</p>
-                      </CardContent>
-                    </Card>
-                  </div>
+            ) : error ? (
+              <div className="text-red-500 p-4">{error}</div>
+            ) : articleData ? (
+              <div>
+                <div className="flex items-center mb-2">
+                  <h3 className="text-lg font-semibold">{articleData.title || articleData.articleId}</h3>
+                  {renderRiskLevelBadge(articleData.riskLevel)}
                 </div>
-
-                <div>
-                  {article.imageUrl ? (
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg">Official Excerpt</CardTitle>
-                      </CardHeader>
-                      <CardContent className="flex justify-center">
-                        <img 
-                          src={article.imageUrl} 
-                          alt={`Excerpt of ${article.articleId}`} 
-                          className="max-w-full border rounded-md"
-                        />
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg flex items-center">
-                          <AlertTriangle className="h-4 w-4 mr-2" />
-                          Compliance Note
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
-                          <p className="text-sm text-amber-800">
-                            This article may require significant organizational changes to ensure compliance.
-                            Please consult with legal experts to assess specific requirements.
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  <div className="mt-4">
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg flex items-center">
-                          <History className="h-4 w-4 mr-2" />
-                          Version Information
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-sm space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Current Version:</span>
-                            <span className="font-medium">{article.version}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Last Updated:</span>
-                            <span>{article.lastUpdated || 'April 01, 2024'}</span>
-                          </div>
-                          {article.hasChanges && (
-                            <div className="bg-blue-50 border border-blue-200 rounded-md p-2 mt-2">
-                              <p className="text-xs text-blue-800">
-                                <strong>Change Note:</strong> {article.changeDescription || 'This article has been updated from its previous version.'}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="details" className="pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Full Text of {article.articleId}
-                  </CardTitle>
-                  <CardDescription>
-                    Complete text from the EU AI Act
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose prose-sm max-w-none">
-                    {article.content ? (
-                      <div dangerouslySetInnerHTML={{ __html: article.content }} />
-                    ) : (
-                      <p>
-                        This article defines the requirements for AI systems under the EU AI Act,
-                        including risk management, data governance, and documentation requirements.
-                        For the full official text, please visit the EU's official legal website.
-                      </p>
-                    )}
-                    
-                    {article.officialUrl && (
-                      <div className="mt-4 pt-3 border-t border-gray-200">
-                        <a 
-                          href={article.officialUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center text-blue-600 hover:text-blue-800"
-                        >
-                          <ExternalLink className="h-4 w-4 mr-1" />
-                          View on Official EU AI Act Website
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="examples" className="pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Practical Examples</CardTitle>
-                  <CardDescription>
-                    Implementation examples for {article.articleId}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="border rounded-md p-4">
-                      <h4 className="font-medium mb-2">High-Risk AI System Example</h4>
-                      <p className="text-sm">
-                        For a recruitment AI system, compliance with {article.articleId} would require:
-                      </p>
-                      <ul className="list-disc pl-5 mt-2 text-sm space-y-1">
-                        <li>Continuous risk assessment documentation</li>
-                        <li>Regular testing and validation processes</li>
-                        <li>Human oversight implementation</li>
-                        <li>Transparent decision records</li>
-                      </ul>
-                    </div>
-                    
-                    <div className="border rounded-md p-4">
-                      <h4 className="font-medium mb-2">Limited-Risk AI System Example</h4>
-                      <p className="text-sm">
-                        For a customer service chatbot, compliance with {article.articleId} might require:
-                      </p>
-                      <ul className="list-disc pl-5 mt-2 text-sm space-y-1">
-                        <li>Transparency about AI interaction</li>
-                        <li>Documentation of training data</li>
-                        <li>Regular performance evaluations</li>
-                        <li>Appropriate security measures</li>
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="versions" className="pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <History className="h-4 w-4 mr-2" />
-                    Version History
-                  </CardTitle>
-                  <CardDescription>
-                    Changes to {article.articleId} over time
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {versionHistory && versionHistory.length > 0 ? (
-                    <div className="space-y-4">
-                      {versionHistory.map((version, i) => (
-                        <div key={i} className="border rounded-md p-3">
-                          <div className="flex justify-between">
-                            <h4 className="font-medium">Version {version.version}</h4>
-                            <span className="text-sm text-gray-500">{version.lastUpdated}</span>
-                          </div>
-                          <p className="text-sm mt-1">{version.changeDescription || 'No change description available.'}</p>
-                        </div>
+                
+                <div 
+                  className="prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: articleData.content }} 
+                />
+                
+                {articleData.keyPoints && articleData.keyPoints.length > 0 && (
+                  <div className="mt-3">
+                    <h4 className="font-medium text-sm mb-1">Key Points:</h4>
+                    <ul className="list-disc pl-5 text-sm space-y-1">
+                      {articleData.keyPoints.map((point, idx) => (
+                        <li key={idx}>{point}</li>
                       ))}
-                    </div>
+                    </ul>
+                  </div>
+                )}
+                
+                {articleData.officialUrl && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-3 text-xs"
+                    onClick={() => window.open(articleData.officialUrl, '_blank')}
+                  >
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    Official Text
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 text-muted-foreground">No article information available.</div>
+            )}
+          </TabsContent>
+          
+          {/* Examples Tab */}
+          {showExamples && (
+            <TabsContent value="examples" className="p-4">
+              {loading ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-6 w-1/2" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              ) : error ? (
+                <div className="text-red-500 p-4">{error}</div>
+              ) : articleData ? (
+                <div>
+                  {articleData.exampleSummary || articleData.exampleDetails ? (
+                    <>
+                      <div className="flex items-center mb-3">
+                        <Lightbulb className="h-4 w-4 mr-2 text-amber-500" />
+                        <h3 className="text-md font-semibold">Practical Examples</h3>
+                      </div>
+                      
+                      {articleData.exampleSummary && (
+                        <p className="text-sm mb-2">{articleData.exampleSummary}</p>
+                      )}
+                      
+                      {articleData.exampleDetails && (
+                        <Card className="mt-2">
+                          <CardHeader className="p-3 pb-1">
+                            <CardTitle className="text-sm">Detailed Example</CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-3 pt-0 text-sm">
+                            <div 
+                              className="prose prose-sm max-w-none"
+                              dangerouslySetInnerHTML={{ __html: articleData.exampleDetails }} 
+                            />
+                          </CardContent>
+                        </Card>
+                      )}
+                      
+                      {articleData.imageUrl && (
+                        <div className="mt-3">
+                          <img 
+                            src={articleData.imageUrl} 
+                            alt={`Example for ${articleData.articleId}`} 
+                            className="w-full rounded-md border border-border"
+                          />
+                        </div>
+                      )}
+                    </>
                   ) : (
-                    <div className="text-center py-6">
-                      <p className="text-gray-500">No version history available yet.</p>
-                      <p className="text-sm text-gray-400 mt-1">This is the first version of this article in our system.</p>
-                    </div>
+                    <div className="p-4 text-muted-foreground">No examples available for this article.</div>
                   )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-
-          <DialogFooter className="sm:justify-between mt-4 border-t pt-4">
-            <div className="flex items-center text-sm text-gray-500">
-              <Info className="h-4 w-4 mr-1" /> Data from EU AI Act (2024)
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowDialog(false)}>
-                Close
-              </Button>
-              {article.officialUrl && (
-                <Button 
-                  variant="default"
-                  onClick={() => window.open(article.officialUrl, '_blank', 'noopener,noreferrer')}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  View Official Source
-                </Button>
+                </div>
+              ) : (
+                <div className="p-4 text-muted-foreground">No examples available.</div>
               )}
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+            </TabsContent>
+          )}
+          
+          {/* Versions Tab */}
+          {showVersions && (
+            <TabsContent value="versions" className="p-4">
+              {loading ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-6 w-1/2" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              ) : error ? (
+                <div className="text-red-500 p-4">{error}</div>
+              ) : articleData ? (
+                <div>
+                  <div className="flex items-center mb-3">
+                    <History className="h-4 w-4 mr-2 text-blue-500" />
+                    <h3 className="text-md font-semibold">Version History</h3>
+                  </div>
+                  
+                  <div className="text-sm">
+                    <div className="border rounded-md p-3 mb-3">
+                      <div className="flex justify-between">
+                        <span className="font-medium">Current Version:</span>
+                        <span className="text-xs bg-blue-100 text-blue-800 rounded px-2 py-0.5">
+                          {articleData.version || '1.0'}
+                        </span>
+                      </div>
+                      {articleData.lastUpdated && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Last updated: {new Date(articleData.lastUpdated).toLocaleDateString()}
+                        </div>
+                      )}
+                      {articleData.changeDescription && (
+                        <div className="mt-2 text-xs border-t pt-2">
+                          <div className="font-medium mb-1">Changes:</div>
+                          <p>{articleData.changeDescription}</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <p className="text-xs text-muted-foreground">
+                      The EU AI Act is a living document and may be updated. Always refer to the official 
+                      source for the most current information.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 text-muted-foreground">No version history available.</div>
+              )}
+            </TabsContent>
+          )}
+        </Tabs>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
-
-// Function removed - using only API data now
