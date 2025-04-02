@@ -56,7 +56,6 @@ import { LegalValidationStep } from './legal-validation-step';
 import { ReviewSubmitStep } from './review-submit-step';
 import { AutoFillGuidanceModal } from './AutoFillGuidanceModal';
 import { AutoFillProcessStepper, getDefaultAutoFillSteps } from './AutoFillProcessStepper';
-import { AttachmentDropdown } from './attachment-dropdown';
 
 const initialFormData = {
   name: '',
@@ -1234,31 +1233,6 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
   return (
     <div className="max-w-4xl mx-auto pb-16">
-      {/* Header with title and attachment dropdown */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Register AI System</h1>
-        <div className="flex items-center gap-3">
-          <AttachmentDropdown 
-            systemId={formData.systemId}
-            onUploadComplete={(files: Array<{id: string, name: string, url: string, type: string}>) => {
-              toast({
-                title: "Files attached",
-                description: `${files.length} file(s) attached to this system registration.`
-              });
-            }}
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={showAutoFillGuidance}
-            className="flex items-center gap-1.5"
-          >
-            <SparklesIcon className="h-4 w-4 text-primary" />
-            <span>AI Auto-fill</span>
-          </Button>
-        </div>
-      </div>
-      
       {guidanceVisible && (
         <div className="mb-8">
           <RegistrationGuide />
