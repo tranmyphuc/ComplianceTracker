@@ -70,12 +70,20 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
   ];
 
   // ===== CLUSTER 1: EU AI Act Compliance Suite =====
-  // Main AI inventory items - Added to first cụm/group
-  const aiInventoryItems = [
+  // Main compliance items - now including AI Inventory and Pricing & Plans
+  const complianceSuiteItems = [
     { 
       name: 'AI Inventory', 
       path: '/inventory', 
       icon: <CpuIcon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: false,
+      badgeColor: ''
+    },
+    { 
+      name: 'AI Registration', 
+      path: '/register-system', 
+      icon: <BrainIcon className="h-4 w-4 mr-2" />,
       isPriority: true,
       isNew: false,
       badgeColor: ''
@@ -88,17 +96,13 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       isNew: false,
       badgeColor: ''
     },
-  ];
-  
-  // Main compliance items
-  const complianceSuiteItems = [
     { 
-      name: 'AI Registration', 
-      path: '/register-system', 
-      icon: <BrainIcon className="h-4 w-4 mr-2" />,
+      name: 'Platform Tour', 
+      path: '/guides/platform-guide', 
+      icon: <HelpCircleIcon className="h-4 w-4 mr-2" />,
       isPriority: true,
-      isNew: false,
-      badgeColor: ''
+      isNew: true,
+      badgeColor: 'green'
     },
     { 
       name: 'Risk Assessment', 
@@ -285,14 +289,6 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       isNew: false, 
       badgeColor: ''
     },
-    { 
-      name: 'Platform Tour', 
-      path: '/guides/platform-tour', 
-      icon: <HelpCircleIcon className="h-4 w-4 mr-2" />,
-      isPriority: true,
-      isNew: true,
-      badgeColor: 'green'
-    },
   ];
 
   // Demo Scenarios & Resources
@@ -388,44 +384,7 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
               </Link>
             ))}
 
-            {/* CLUSTER 1: AI Inventory Dropdown Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className={cn(
-                    "h-8 px-3 text-sm rounded-md whitespace-nowrap flex items-center gap-1.5 border-blue-300 bg-blue-50 font-medium",
-                    aiInventoryItems.some((item) => isActive(item.path)) && "bg-blue-100 text-blue-700 font-medium border-blue-400"
-                  )}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <CpuIcon className="h-4 w-4 text-blue-600" />
-                    <span className="font-medium">AI Systems</span>
-                    <ChevronDownIcon className="h-4 w-4" />
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48">
-                <DropdownMenuLabel>AI Inventory & Plans</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  {aiInventoryItems.map((item) => (
-                    <DropdownMenuItem 
-                      key={item.name} 
-                      asChild 
-                      className={item.isPriority ? "bg-blue-50 font-medium mt-1" : "mt-1"}
-                    >
-                      <Link href={item.path} onClick={handleItemClick}>
-                        {item.icon}
-                        <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
-                        {item.isNew && renderBadge(item.badgeColor)}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Removed separate AI Inventory dropdown menu - now part of Compliance Suite */}
 
             {/* EU AI Act Compliance Suite Dropdown */}
             <DropdownMenu>
