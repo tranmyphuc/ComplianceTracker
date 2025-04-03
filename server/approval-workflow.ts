@@ -367,14 +367,17 @@ export const createApprovalWorkflow = async (req: Request, res: Response) => {
     // Generate a unique workflow ID
     const workflowId = `WF-${validatedData.moduleType.substring(0, 3)}-${uuidv4().substring(0, 8)}`;
     
-    // Create the approval item
+    // For development mode, ensure we don't cause foreign key issues
+    const isDev = process.env.NODE_ENV === 'development';
+        
+    // Create the approval item - in dev mode, we null the submittedBy to avoid foreign key constraints
     const newApprovalItem: InsertApprovalItem = {
       workflowId,
       moduleType: validatedData.moduleType,
       moduleId: validatedData.moduleId,
       name: validatedData.name,
       description: validatedData.description || '',
-      submittedBy: userId,
+      submittedBy: isDev ? null : userId, // In development mode, set to null to avoid FK constraint
       submitterName: userName,
       department: req.user?.department || 'Unknown Department',
       dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
@@ -391,7 +394,7 @@ export const createApprovalWorkflow = async (req: Request, res: Response) => {
     await db.insert(approvalHistory).values({
       workflowId,
       actionType: 'submitted',
-      actionBy: userId,
+      actionBy: isDev ? null : userId, // In development mode, set to null to avoid FK constraint
       actionByName: userName,
       details: { moduleType: validatedData.moduleType, moduleId: validatedData.moduleId },
       newStatus: ApprovalStatus.PENDING,
@@ -401,7 +404,7 @@ export const createApprovalWorkflow = async (req: Request, res: Response) => {
     const isAutoAssigned = await autoAssignApproval(
       workflowId, 
       validatedData.moduleType as ModuleType,
-      req.user?.department
+      isDev ? 'Development Department' : req.user?.department // Use default department in dev mode
     );
     
     // Find admin users to notify about the new submission

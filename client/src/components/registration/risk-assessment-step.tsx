@@ -98,10 +98,11 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
       // Check for specific high-risk use cases in department or purpose
       const highRiskDomains = ['healthcare', 'medical', 'legal', 'judicial', 'law enforcement', 
                              'education', 'employment', 'critical infrastructure', 'banking',
-                             'financial', 'insurance', 'credit'];
+                             'financial', 'insurance', 'credit', 'pneumonia', 'diagnostic', 'radiology',
+                             'hospital', 'clinic', 'x-ray', 'xray', 'chest', 'computer vision', 'image analysis'];
       
       // Check if purpose or department includes high-risk domains
-      const combinedText = `${formData.purpose || ''} ${formData.department || ''} ${formData.aiCapabilities || ''}`.toLowerCase();
+      const combinedText = `${formData.purpose || ''} ${formData.department || ''} ${formData.aiCapabilities || ''} ${formData.name || ''} ${formData.description || ''}`.toLowerCase();
       
       for (const domain of highRiskDomains) {
         if (combinedText.includes(domain)) {
