@@ -42,6 +42,29 @@ interface PricingPackage {
   recommended?: boolean;
 }
 
+// Investment details interface
+interface InvestmentDetail {
+  category: string;
+  amount: number;
+  description: string;
+  percentage: number;
+}
+
+// Resource allocation interface
+interface ResourceAllocation {
+  category: string;
+  percentage: number;
+  description: string;
+}
+
+// Risk mitigation interface
+interface RiskMitigation {
+  risk: string;
+  impact: string;
+  likelihood: string;
+  mitigation: string;
+}
+
 export default function BusinessPlanPage() {
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -97,6 +120,108 @@ export default function BusinessPlanPage() {
       isExpanded: false
     }
   ]);
+  
+  // Initial investment details
+  const investmentDetails: InvestmentDetail[] = [
+    { 
+      category: "Technical Development", 
+      amount: 650000, 
+      description: "Software development, cloud infrastructure, DevOps, and QA testing", 
+      percentage: 43
+    },
+    { 
+      category: "AI & Data Science", 
+      amount: 350000, 
+      description: "AI model development, training, and validation services", 
+      percentage: 23
+    },
+    { 
+      category: "Compliance Research", 
+      amount: 180000, 
+      description: "Legal expertise, regulatory analysis, and compliance framework development", 
+      percentage: 12
+    },
+    { 
+      category: "Sales & Marketing", 
+      amount: 220000, 
+      description: "Market launch, client acquisition, and brand development", 
+      percentage: 15
+    },
+    { 
+      category: "Operations & Admin", 
+      amount: 100000, 
+      description: "General operational costs and administrative overhead", 
+      percentage: 7
+    }
+  ];
+
+  // Resource allocation data
+  const resourceAllocation: ResourceAllocation[] = [
+    { 
+      category: "Engineering", 
+      percentage: 40, 
+      description: "Software engineers, DevOps, QA specialists"
+    },
+    { 
+      category: "AI/ML Specialists", 
+      percentage: 20, 
+      description: "Data scientists, ML engineers, prompt engineers"
+    },
+    { 
+      category: "Compliance & Legal", 
+      percentage: 15, 
+      description: "Compliance experts, legal advisors, regulatory specialists"
+    },
+    { 
+      category: "Product & UX", 
+      percentage: 10, 
+      description: "Product managers, designers, UX researchers"
+    },
+    { 
+      category: "Sales & Marketing", 
+      percentage: 10, 
+      description: "Sales team, marketing specialists, customer success"
+    },
+    { 
+      category: "Administration", 
+      percentage: 5, 
+      description: "General administrative and management"
+    }
+  ];
+
+  // Risk mitigation strategies
+  const riskMitigationStrategies: RiskMitigation[] = [
+    {
+      risk: "Regulatory changes",
+      impact: "High",
+      likelihood: "Medium",
+      mitigation: "Maintain close monitoring of regulatory developments with dedicated legal team; implement modular architecture for rapid adaptation"
+    },
+    {
+      risk: "Market adoption delays",
+      impact: "Medium",
+      likelihood: "Medium",
+      mitigation: "Early adopter program with incentives; phased rollout strategy; robust customer feedback loops"
+    },
+    {
+      risk: "Technical integration challenges",
+      impact: "Medium",
+      likelihood: "High",
+      mitigation: "Standardized API development; pre-built connectors for major enterprise systems; dedicated integration support team"
+    },
+    {
+      risk: "Competitive pressure",
+      impact: "Medium",
+      likelihood: "High",
+      mitigation: "Continuous innovation; focus on differentiated AI capabilities; strategic partnerships with consultancies"
+    },
+    {
+      risk: "Resource constraints",
+      impact: "High",
+      likelihood: "Medium",
+      mitigation: "Staged funding approach; flexible resourcing model with core team and expert contractors; prioritization framework"
+    }
+  ];
   
   // Financial projections data
   const financialProjections: FinancialProjection[] = [
@@ -511,6 +636,180 @@ export default function BusinessPlanPage() {
                       <Progress value={25} className="h-2" />
                     </div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Investment Requirements Card */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>Investment Breakdown</CardTitle>
+                <CardDescription>
+                  Detailed allocation of initial €1.5M investment requirement
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="bg-muted">
+                          <th className="border px-4 py-2 text-left">Investment Category</th>
+                          <th className="border px-4 py-2 text-left">Amount (€)</th>
+                          <th className="border px-4 py-2 text-left">Description</th>
+                          <th className="border px-4 py-2 text-left">Percentage</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {investmentDetails.map((item, index) => (
+                          <tr key={index} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
+                            <td className="border px-4 py-2 font-medium">{item.category}</td>
+                            <td className="border px-4 py-2">€{item.amount.toLocaleString()}</td>
+                            <td className="border px-4 py-2 text-muted-foreground">{item.description}</td>
+                            <td className="border px-4 py-2">{item.percentage}%</td>
+                          </tr>
+                        ))}
+                        <tr className="bg-primary/10 font-medium">
+                          <td className="border px-4 py-2">Total Investment</td>
+                          <td className="border px-4 py-2">€{investmentDetails.reduce((total, item) => total + item.amount, 0).toLocaleString()}</td>
+                          <td className="border px-4 py-2"></td>
+                          <td className="border px-4 py-2">100%</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Investment Strategy</h3>
+                      <div className="bg-muted p-4 rounded-lg">
+                        <ul className="space-y-2">
+                          <li className="flex items-start">
+                            <span className="text-primary mr-2">✓</span>
+                            <div>
+                              <span className="font-medium">Staged Investment Approach</span>
+                              <p className="text-sm text-muted-foreground">Initial seed of €1.5M with Series A of €4M targeted for Q3 2025 based on MVP traction</p>
+                            </div>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-primary mr-2">✓</span>
+                            <div>
+                              <span className="font-medium">Revenue Reinvestment</span>
+                              <p className="text-sm text-muted-foreground">60% of early revenue directed to R&D and platform enhancement through 2026</p>
+                            </div>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-primary mr-2">✓</span>
+                            <div>
+                              <span className="font-medium">Strategic Partnerships</span>
+                              <p className="text-sm text-muted-foreground">Co-investment opportunities with legal and consulting partners to extend platform capabilities</p>
+                            </div>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-primary mr-2">✓</span>
+                            <div>
+                              <span className="font-medium">EU Grant Applications</span>
+                              <p className="text-sm text-muted-foreground">Applications for Horizon Europe and Digital Europe Programme funding for AI governance innovations</p>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Resource Allocation</h3>
+                      <ul className="space-y-3">
+                        {resourceAllocation.map((resource, index) => (
+                          <li key={index} className="flex items-center">
+                            <div className="w-full">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm font-medium">{resource.category}</span>
+                                <span className="text-sm">{resource.percentage}%</span>
+                              </div>
+                              <Progress value={resource.percentage} className="h-2" />
+                              <p className="text-xs text-muted-foreground mt-1">{resource.description}</p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Risk Mitigation Strategy Card */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>Implementation Risk Mitigation</CardTitle>
+                <CardDescription>
+                  Strategies to manage and mitigate key implementation risks
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-muted">
+                        <th className="border px-4 py-2 text-left">Risk Factor</th>
+                        <th className="border px-4 py-2 text-left">Impact</th>
+                        <th className="border px-4 py-2 text-left">Likelihood</th>
+                        <th className="border px-4 py-2 text-left">Mitigation Strategy</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {riskMitigationStrategies.map((strategy, index) => (
+                        <tr key={index} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
+                          <td className="border px-4 py-2 font-medium">{strategy.risk}</td>
+                          <td className="border px-4 py-2">
+                            <Badge className={`${
+                              strategy.impact === 'High' ? 'bg-red-100 text-red-800 hover:bg-red-100' : 
+                              strategy.impact === 'Medium' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100' : 
+                              'bg-green-100 text-green-800 hover:bg-green-100'
+                            }`}>
+                              {strategy.impact}
+                            </Badge>
+                          </td>
+                          <td className="border px-4 py-2">
+                            <Badge className={`${
+                              strategy.likelihood === 'High' ? 'bg-red-100 text-red-800 hover:bg-red-100' : 
+                              strategy.likelihood === 'Medium' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100' : 
+                              'bg-green-100 text-green-800 hover:bg-green-100'
+                            }`}>
+                              {strategy.likelihood}
+                            </Badge>
+                          </td>
+                          <td className="border px-4 py-2 text-muted-foreground">{strategy.mitigation}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="mt-8 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+                  <h3 className="font-medium text-blue-800 mb-2">Implementation Success Factors</h3>
+                  <ul className="space-y-2">
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">✓</span>
+                      <span className="text-blue-700">Strong technical leadership team with experience in regulatory technology</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">✓</span>
+                      <span className="text-blue-700">Partnerships with legal experts specializing in EU AI regulation</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">✓</span>
+                      <span className="text-blue-700">Agile development methodology with biweekly release cycles</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">✓</span>
+                      <span className="text-blue-700">Early adopter program with initial client pilots established</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-600 mr-2">✓</span>
+                      <span className="text-blue-700">Continuous regulatory monitoring and advisory board of EU AI experts</span>
+                    </li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>

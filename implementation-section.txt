@@ -1,0 +1,88 @@
+        {/* Implementation Tab */}
+        <TabsContent value="implementation" className="space-y-4 py-4">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={cardVariants}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>Implementation Timeline</CardTitle>
+                <CardDescription>
+                  Phased approach to platform development and market launch
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {phases.map((phase, index) => (
+                    <div key={index} className="border rounded-lg">
+                      <div 
+                        className="flex justify-between items-center p-4 cursor-pointer bg-muted/50"
+                        onClick={() => togglePhaseExpansion(index)}
+                      >
+                        <div>
+                          <h3 className="font-medium text-primary">{phase.title}</h3>
+                          <p className="text-sm text-muted-foreground">{phase.timeline}</p>
+                        </div>
+                        <Button variant="ghost" size="sm">
+                          {phase.isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      
+                      {phase.isExpanded && (
+                        <div className="p-4 border-t">
+                          <ul className="space-y-2">
+                            {phase.tasks.map((task, taskIndex) => (
+                              <li key={taskIndex} className="flex items-start">
+                                <span className="text-primary mr-2">✓</span>
+                                <span className="text-muted-foreground">{task}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-8">
+                  <h3 className="text-lg font-semibold mb-4">Implementation Progress</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm font-medium">MVP Development</span>
+                        <span className="text-sm">75%</span>
+                      </div>
+                      <Progress value={75} className="h-2" />
+                    </div>
+                    
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm font-medium">Compliance Framework</span>
+                        <span className="text-sm">60%</span>
+                      </div>
+                      <Progress value={60} className="h-2" />
+                    </div>
+                    
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm font-medium">Early Adopter Program</span>
+                        <span className="text-sm">40%</span>
+                      </div>
+                      <Progress value={40} className="h-2" />
+                    </div>
+                    
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm font-medium">Market Launch Preparation</span>
+                        <span className="text-sm">25%</span>
+                      </div>
+                      <Progress value={25} className="h-2" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </TabsContent>
