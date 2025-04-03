@@ -113,6 +113,14 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       badgeColor: ''
     },
     { 
+      name: 'Business Plan', 
+      path: '/business-plan', 
+      icon: <BarChart3Icon className="h-4 w-4 mr-2" />,
+      isPriority: true,
+      isNew: true,
+      badgeColor: 'blue'
+    },
+    { 
       name: 'Demo Scenarios', 
       path: '/demo-scenarios', 
       icon: <FileTextIcon className="h-4 w-4 mr-2" />,
