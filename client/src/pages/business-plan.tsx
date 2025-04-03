@@ -48,6 +48,8 @@ interface InvestmentDetail {
   amount: number;
   description: string;
   percentage: number;
+  subItems?: InvestmentDetail[];
+  isExpanded?: boolean;
 }
 
 // Resource allocation interface
@@ -121,39 +123,66 @@ export default function BusinessPlanPage() {
     }
   ]);
   
-  // Initial investment details
-  const investmentDetails: InvestmentDetail[] = [
+  // State for investment details
+  const [investmentDetails, setInvestmentDetails] = useState<InvestmentDetail[]>([
     { 
       category: "Technical Development", 
       amount: 650000, 
       description: "Software development, cloud infrastructure, DevOps, and QA testing", 
-      percentage: 43
+      percentage: 43,
+      subItems: [
+        { category: "Frontend Development", amount: 200000, description: "UI components, responsive design, client-side features", percentage: 13 },
+        { category: "Backend Development", amount: 180000, description: "API services, database optimization, authentication", percentage: 12 },
+        { category: "DevOps & Infrastructure", amount: 150000, description: "CI/CD pipeline, cloud services, monitoring systems", percentage: 10 },
+        { category: "QA & Testing", amount: 120000, description: "Automated testing, manual testing, security audits", percentage: 8 }
+      ]
     },
     { 
       category: "AI & Data Science", 
       amount: 350000, 
       description: "AI model development, training, and validation services", 
-      percentage: 23
+      percentage: 23,
+      subItems: [
+        { category: "LLM Integration", amount: 120000, description: "AI APIs integration, prompt engineering, context handling", percentage: 8 },
+        { category: "Training Data Preparation", amount: 90000, description: "Dataset curation, labeling, enhancement for EU AI Act specifics", percentage: 6 },
+        { category: "Model Validation", amount: 80000, description: "Testing, validation against compliance benchmarks", percentage: 5 },
+        { category: "AI Explainability Tools", amount: 60000, description: "Transparency mechanisms, decision explanations", percentage: 4 }
+      ]
     },
     { 
       category: "Compliance Research", 
       amount: 180000, 
       description: "Legal expertise, regulatory analysis, and compliance framework development", 
-      percentage: 12
+      percentage: 12,
+      subItems: [
+        { category: "Regulatory Analysis", amount: 70000, description: "Deep legal research on EU AI Act requirements", percentage: 5 },
+        { category: "Framework Development", amount: 60000, description: "Creating compliance methodologies and assessment tools", percentage: 4 },
+        { category: "Legal Content Creation", amount: 50000, description: "Documentation templates, guidance materials", percentage: 3 }
+      ]
     },
     { 
       category: "Sales & Marketing", 
       amount: 220000, 
       description: "Market launch, client acquisition, and brand development", 
-      percentage: 15
+      percentage: 15,
+      subItems: [
+        { category: "Go-to-Market Strategy", amount: 80000, description: "Market positioning, pricing strategy, launch plan", percentage: 5 },
+        { category: "Digital Marketing", amount: 70000, description: "Content marketing, SEO, paid acquisition", percentage: 5 },
+        { category: "Sales Team", amount: 70000, description: "Sales personnel, training, CRM setup", percentage: 5 }
+      ]
     },
     { 
       category: "Operations & Admin", 
       amount: 100000, 
       description: "General operational costs and administrative overhead", 
-      percentage: 7
+      percentage: 7,
+      subItems: [
+        { category: "Project Management", amount: 40000, description: "Program coordination, timeline management", percentage: 3 },
+        { category: "Administrative Support", amount: 35000, description: "Administrative staff, operational expenses", percentage: 2 },
+        { category: "Business Tools", amount: 25000, description: "Software subscriptions, productivity tools", percentage: 2 }
+      ]
     }
-  ];
+  ]);
 
   // Resource allocation data
   const resourceAllocation: ResourceAllocation[] = [
@@ -301,6 +330,35 @@ export default function BusinessPlanPage() {
         description: "The PDF download feature will be available in the next update.",
       });
     }, 2000);
+  };
+  
+  // State for customization mode
+  const [isCustomizeMode, setIsCustomizeMode] = useState(false);
+  const [customInvestmentFocus, setCustomInvestmentFocus] = useState("balanced");
+  
+  // Toggle customization mode
+  const toggleCustomizeMode = () => {
+    setIsCustomizeMode(!isCustomizeMode);
+    if (!isCustomizeMode) {
+      toast({
+        title: "Customize Mode Enabled",
+        description: "You can now adjust implementation parameters to fit your organization's needs.",
+      });
+    } else {
+      toast({
+        title: "Changes Saved",
+        description: "Your customized implementation plan has been saved.",
+      });
+    }
+  };
+  
+  // Function to customize implementation plan based on focus area
+  const customizeImplementationPlan = (focusArea: string) => {
+    setCustomInvestmentFocus(focusArea);
+    toast({
+      title: "Plan Updated",
+      description: `Implementation plan adjusted with focus on ${focusArea} priorities.`,
+    });
   };
   
   // Animation variants for motion elements
@@ -555,6 +613,61 @@ export default function BusinessPlanPage() {
         
         {/* Implementation Tab */}
         <TabsContent value="implementation" className="space-y-4 py-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+            <h2 className="text-xl font-semibold">Implementation Plan</h2>
+            <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
+              <Button
+                variant={isCustomizeMode ? "default" : "outline"}
+                size="sm"
+                onClick={toggleCustomizeMode}
+              >
+                {isCustomizeMode ? "Save Changes" : "Customize Plan"}
+              </Button>
+              
+              {isCustomizeMode && (
+                <div className="flex flex-wrap gap-2">
+                  <Button 
+                    variant={customInvestmentFocus === "speed" ? "secondary" : "outline"} 
+                    size="sm"
+                    onClick={() => customizeImplementationPlan("speed")}
+                  >
+                    Speed-focused
+                  </Button>
+                  <Button 
+                    variant={customInvestmentFocus === "balanced" ? "secondary" : "outline"} 
+                    size="sm"
+                    onClick={() => customizeImplementationPlan("balanced")}
+                  >
+                    Balanced
+                  </Button>
+                  <Button 
+                    variant={customInvestmentFocus === "cost" ? "secondary" : "outline"} 
+                    size="sm"
+                    onClick={() => customizeImplementationPlan("cost")}
+                  >
+                    Cost-focused
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {isCustomizeMode && (
+            <Card className="mb-4 bg-blue-50 border-blue-200">
+              <CardContent className="p-4">
+                <h3 className="font-medium text-blue-800 mb-2">Customization Mode</h3>
+                <p className="text-sm text-blue-700 mb-2">
+                  Adjust your implementation plan based on organizational priorities:
+                </p>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li><strong>Speed-focused:</strong> Prioritizes faster time-to-market with more AI automation but higher initial costs</li>
+                  <li><strong>Balanced:</strong> Default approach with even distribution of resources and timelines</li>
+                  <li><strong>Cost-focused:</strong> Optimizes for lower initial investment but extends implementation timeline</li>
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+          
           <motion.div
             initial="hidden"
             animate="visible"
@@ -662,12 +775,47 @@ export default function BusinessPlanPage() {
                       </thead>
                       <tbody>
                         {investmentDetails.map((item, index) => (
-                          <tr key={index} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
-                            <td className="border px-4 py-2 font-medium">{item.category}</td>
-                            <td className="border px-4 py-2">€{item.amount.toLocaleString()}</td>
-                            <td className="border px-4 py-2 text-muted-foreground">{item.description}</td>
-                            <td className="border px-4 py-2">{item.percentage}%</td>
-                          </tr>
+                          <React.Fragment key={index}>
+                            <tr className={index % 2 === 0 ? 'bg-muted/30' : ''}>
+                              <td className="border px-4 py-2 font-medium">
+                                <button 
+                                  onClick={() => {
+                                    setInvestmentDetails(prevDetails => 
+                                      prevDetails.map((detail, i) => 
+                                        i === index 
+                                          ? { ...detail, isExpanded: !detail.isExpanded } 
+                                          : detail
+                                      )
+                                    );
+                                  }}
+                                  className="flex items-center text-left"
+                                >
+                                  {item.category}
+                                  {item.subItems && (
+                                    <span className="ml-2">
+                                      {item.isExpanded ? 
+                                        <ChevronUp className="h-4 w-4" /> : 
+                                        <ChevronDown className="h-4 w-4" />
+                                      }
+                                    </span>
+                                  )}
+                                </button>
+                              </td>
+                              <td className="border px-4 py-2">€{item.amount.toLocaleString()}</td>
+                              <td className="border px-4 py-2 text-muted-foreground">{item.description}</td>
+                              <td className="border px-4 py-2">{item.percentage}%</td>
+                            </tr>
+                            
+                            {/* Render sub-items if expanded and they exist */}
+                            {item.isExpanded && item.subItems && item.subItems.map((subItem, subIndex) => (
+                              <tr key={`${index}-${subIndex}`} className="bg-blue-50">
+                                <td className="border px-4 py-2 pl-8 text-sm">└ {subItem.category}</td>
+                                <td className="border px-4 py-2 text-sm">€{subItem.amount.toLocaleString()}</td>
+                                <td className="border px-4 py-2 text-sm text-muted-foreground">{subItem.description}</td>
+                                <td className="border px-4 py-2 text-sm">{subItem.percentage}%</td>
+                              </tr>
+                            ))}
+                          </React.Fragment>
                         ))}
                         <tr className="bg-primary/10 font-medium">
                           <td className="border px-4 py-2">Total Investment</td>
@@ -733,6 +881,158 @@ export default function BusinessPlanPage() {
                         ))}
                       </ul>
                     </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Implementation Approach Comparison Card */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>Implementation Approach Comparison</CardTitle>
+                <CardDescription>
+                  Traditional Development vs. AI Agent Implementation
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-muted">
+                        <th className="border px-4 py-2 text-left">Aspect</th>
+                        <th className="border px-4 py-2 text-left">Traditional Development</th>
+                        <th className="border px-4 py-2 text-left">AI Agent Implementation</th>
+                        <th className="border px-4 py-2 text-left">Advantage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="bg-muted/30">
+                        <td className="border px-4 py-2 font-medium">Development Time</td>
+                        <td className="border px-4 py-2 text-muted-foreground">12-18 months for full functionality</td>
+                        <td className="border px-4 py-2 text-muted-foreground">6-9 months with AI-accelerated development</td>
+                        <td className="border px-4 py-2">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            AI Approach
+                          </Badge>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="border px-4 py-2 font-medium">Development Cost</td>
+                        <td className="border px-4 py-2 text-muted-foreground">€1.8-2.2M for complete platform</td>
+                        <td className="border px-4 py-2 text-muted-foreground">€1.2-1.5M with AI efficiencies</td>
+                        <td className="border px-4 py-2">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            AI Approach
+                          </Badge>
+                        </td>
+                      </tr>
+                      <tr className="bg-muted/30">
+                        <td className="border px-4 py-2 font-medium">Team Size</td>
+                        <td className="border px-4 py-2 text-muted-foreground">15-20 full-time specialists</td>
+                        <td className="border px-4 py-2 text-muted-foreground">8-12 specialists with AI assistance</td>
+                        <td className="border px-4 py-2">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            AI Approach
+                          </Badge>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="border px-4 py-2 font-medium">Regulatory Updates</td>
+                        <td className="border px-4 py-2 text-muted-foreground">Manual monitoring and code updates</td>
+                        <td className="border px-4 py-2 text-muted-foreground">Automated monitoring with AI-suggested updates</td>
+                        <td className="border px-4 py-2">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            AI Approach
+                          </Badge>
+                        </td>
+                      </tr>
+                      <tr className="bg-muted/30">
+                        <td className="border px-4 py-2 font-medium">Knowledge Base Development</td>
+                        <td className="border px-4 py-2 text-muted-foreground">Content from legal experts (€180-220/hour)</td>
+                        <td className="border px-4 py-2 text-muted-foreground">AI-assisted content generation with expert review</td>
+                        <td className="border px-4 py-2">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            AI Approach
+                          </Badge>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="border px-4 py-2 font-medium">Documentation Quality</td>
+                        <td className="border px-4 py-2 text-muted-foreground">High quality but standardized templates</td>
+                        <td className="border px-4 py-2 text-muted-foreground">High quality with intelligent context adaptation</td>
+                        <td className="border px-4 py-2">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            AI Approach
+                          </Badge>
+                        </td>
+                      </tr>
+                      <tr className="bg-muted/30">
+                        <td className="border px-4 py-2 font-medium">Integration Complexity</td>
+                        <td className="border px-4 py-2 text-muted-foreground">Custom code for each integration point</td>
+                        <td className="border px-4 py-2 text-muted-foreground">AI-assisted adaptors and intelligent mapping</td>
+                        <td className="border px-4 py-2">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            AI Approach
+                          </Badge>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="border px-4 py-2 font-medium">Stakeholder Alignment</td>
+                        <td className="border px-4 py-2 text-muted-foreground">Multiple review cycles and document versions</td>
+                        <td className="border px-4 py-2 text-muted-foreground">AI-assisted translation of requirements to specifications</td>
+                        <td className="border px-4 py-2">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            AI Approach
+                          </Badge>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <h3 className="font-medium text-blue-800 mb-3">AI Implementation Benefits</h3>
+                    <ul className="space-y-2">
+                      <li className="flex items-start">
+                        <span className="text-blue-600 mr-2">✓</span>
+                        <span className="text-blue-700">47% faster time-to-market with AI-accelerated development</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-blue-600 mr-2">✓</span>
+                        <span className="text-blue-700">32% reduction in total development costs</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-blue-600 mr-2">✓</span>
+                        <span className="text-blue-700">60% reduction in regulatory update implementation time</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-blue-600 mr-2">✓</span>
+                        <span className="text-blue-700">75% reduction in knowledge base content creation costs</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                    <h3 className="font-medium text-amber-800 mb-3">AI Implementation Challenges</h3>
+                    <ul className="space-y-2">
+                      <li className="flex items-start">
+                        <span className="text-amber-600 mr-2">⚠</span>
+                        <span className="text-amber-700">Requires specialized AI engineering expertise</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-amber-600 mr-2">⚠</span>
+                        <span className="text-amber-700">Need for robust AI/human collaboration workflows</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-amber-600 mr-2">⚠</span>
+                        <span className="text-amber-700">Close attention to AI-generated content quality control</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-amber-600 mr-2">⚠</span>
+                        <span className="text-amber-700">Additional testing required for AI-powered components</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </CardContent>
