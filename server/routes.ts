@@ -24,6 +24,9 @@ import {
   searchGoogleApi
 } from "./ai-analysis";
 
+// Import enhanced AI analysis service
+import enhancedAiAnalysis from "./lib/enhanced-ai-analysis";
+
 // Import the safeJsonParse from ai-service
 import { safeJsonParse } from "./ai-service";
 
@@ -552,6 +555,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Analysis routes
+  // Enhanced AI Risk Analysis endpoint
+  app.post("/api/analyze/enhanced-risk", async (req: Request, res: Response) => {
+    try {
+      const systemData = req.body;
+      
+      console.log("Enhanced risk analysis request received for:", systemData.name);
+      
+      // Call the enhanced AI analysis service
+      const analysisResults = await enhancedAiAnalysis.analyzeSystemRisk(systemData);
+      
+      // Return the enhanced analysis results
+      res.json(analysisResults);
+    } catch (error) {
+      console.error("Enhanced risk analysis failed:", error);
+      res.status(500).json({ 
+        error: "Enhanced risk analysis failed", 
+        message: error.message || "Unknown error",
+        fallbackToStandard: true 
+      });
+    }
+  });
+
   app.post("/api/analyze/system", async (req: Request, res: Response) => {
     try {
       const systemData = req.body;

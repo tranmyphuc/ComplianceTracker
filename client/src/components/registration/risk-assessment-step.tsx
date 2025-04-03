@@ -63,6 +63,39 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
     setFormData((prev: any) => ({ ...prev, [name]: checked }));
   };
 
+  // Perform local risk analysis function as a fallback if server-side AI fails
+  const performLocalRiskAnalysis = () => {
+    // Determine risk level based on existing form data
+    let determinedRiskLevel = "limited"; // Default to limited risk
+    
+    // Check key factors that typically indicate high risk
+    if (formData.impactsVulnerableGroups || 
+        (formData.usesDeepLearning && !formData.isTransparent) ||
+        (formData.usesPersonalData && formData.usesSensitiveData) ||
+        (formData.impactsAutonomous && !formData.humansInLoop)) {
+      determinedRiskLevel = "high";
+    }
+    
+    // Check for specific high-risk use cases in department or purpose
+    const highRiskDomains = ['healthcare', 'medical', 'legal', 'judicial', 'law enforcement', 
+                           'education', 'employment', 'critical infrastructure', 'banking',
+                           'financial', 'insurance', 'credit', 'pneumonia', 'diagnostic', 'radiology',
+                           'hospital', 'clinic', 'x-ray', 'xray', 'chest', 'computer vision', 'image analysis'];
+    
+    // Check if purpose or department includes high-risk domains
+    const combinedText = `${formData.purpose || ''} ${formData.department || ''} ${formData.aiCapabilities || ''} ${formData.name || ''} ${formData.description || ''}`.toLowerCase();
+    
+    for (const domain of highRiskDomains) {
+      if (combinedText.includes(domain)) {
+        determinedRiskLevel = "high";
+        break;
+      }
+    }
+    
+    console.log('Performing local risk analysis. Result:', determinedRiskLevel);
+    return determinedRiskLevel;
+  };
+
   // Handle AI Risk Analysis
   const analyzeRiskWithAI = async () => {
     if (isAnalyzing) return;
@@ -82,33 +115,45 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
         setSghAsiaAiInProgress(false);
         return;
       }
-      
-      // SIMPLIFIED APPROACH: Analyze based on form data directly
-      // Determine risk level based on existing form data
-      let determinedRiskLevel = "limited"; // Default to limited risk
-      
-      // Check key factors that typically indicate high risk
-      if (formData.impactsVulnerableGroups || 
-          (formData.usesDeepLearning && !formData.isTransparent) ||
-          (formData.usesPersonalData && formData.usesSensitiveData) ||
-          (formData.impactsAutonomous && !formData.humansInLoop)) {
-        determinedRiskLevel = "high";
+
+      // Send data to the enhanced AI analysis service
+      const response = await fetch('/api/analyze/enhanced-risk', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        // If server-side AI fails, fall back to local analysis
+        console.warn('Server AI analysis failed, falling back to local risk analysis');
+        return performLocalRiskAnalysis();
       }
+
+      // Process the enhanced AI analysis response
+      const aiAnalysisResult = await response.json();
+      console.log('AI Risk Analysis Result:', aiAnalysisResult);
+
+      // Set the risk level from AI analysis
+      let determinedRiskLevel = "limited"; // Default fallback
       
-      // Check for specific high-risk use cases in department or purpose
-      const highRiskDomains = ['healthcare', 'medical', 'legal', 'judicial', 'law enforcement', 
-                             'education', 'employment', 'critical infrastructure', 'banking',
-                             'financial', 'insurance', 'credit', 'pneumonia', 'diagnostic', 'radiology',
-                             'hospital', 'clinic', 'x-ray', 'xray', 'chest', 'computer vision', 'image analysis'];
-      
-      // Check if purpose or department includes high-risk domains
-      const combinedText = `${formData.purpose || ''} ${formData.department || ''} ${formData.aiCapabilities || ''} ${formData.name || ''} ${formData.description || ''}`.toLowerCase();
-      
-      for (const domain of highRiskDomains) {
-        if (combinedText.includes(domain)) {
+      if (aiAnalysisResult && aiAnalysisResult.riskLevel) {
+        // Convert riskLevel to lowercase and standardize
+        const riskLevelRaw = aiAnalysisResult.riskLevel.toLowerCase();
+        
+        if (riskLevelRaw.includes('high')) {
           determinedRiskLevel = "high";
-          break;
+        } else if (riskLevelRaw.includes('unacceptable')) {
+          determinedRiskLevel = "unacceptable";
+        } else if (riskLevelRaw.includes('limited')) {
+          determinedRiskLevel = "limited";
+        } else if (riskLevelRaw.includes('minimal')) {
+          determinedRiskLevel = "minimal";
         }
+      } else {
+        // If AI didn't return a risk level, fall back to local analysis
+        return performLocalRiskAnalysis();
       }
       
       // Create a more detailed set of results based on our analysis
@@ -159,14 +204,14 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
       setSghAsiaAiResults(processedResults);
       
       // Set the risk level in the form
-      setFormData(prev => ({
+      setFormData((prev: any) => ({
         ...prev,
         riskLevel: processedResults.riskLevel
       }));
       
       // If potential impact is empty in form, populate from results
       if (!formData.potentialImpact && processedResults.potentialImpact) {
-        setFormData(prev => ({
+        setFormData((prev: any) => ({
           ...prev,
           potentialImpact: processedResults.potentialImpact
         }));
@@ -174,7 +219,7 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
       
       // If vulnerabilities field is empty in form, populate from results
       if (!formData.vulnerabilities && processedResults.vulnerabilities) {
-        setFormData(prev => ({
+        setFormData((prev: any) => ({
           ...prev,
           vulnerabilities: processedResults.vulnerabilities
         }));
@@ -373,7 +418,7 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
     
     // Update risk level in form if available
     if (results.riskLevel && typeof results.riskLevel === 'string') {
-      setFormData(prev => ({
+      setFormData((prev: any) => ({
         ...prev,
         riskLevel: results.riskLevel.toLowerCase()
       }));
@@ -388,7 +433,7 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
           : '';
           
       if (impact) {
-        setFormData(prev => ({
+        setFormData((prev: any) => ({
           ...prev,
           potentialImpact: impact
         }));
@@ -404,7 +449,7 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
           : '';
           
       if (vulnerabilities) {
-        setFormData(prev => ({
+        setFormData((prev: any) => ({
           ...prev,
           vulnerabilities: vulnerabilities
         }));
@@ -475,7 +520,7 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
     }
     
     // Ensure all items are strings
-    return articles.map(article => {
+    return articles.map((article: any) => {
       if (typeof article === 'string') {
         return article;
       } else if (article && typeof article === 'object') {
@@ -508,7 +553,7 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
     }
     
     // Ensure all items are strings
-    return improvements.map(improvement => {
+    return improvements.map((improvement: any) => {
       if (typeof improvement === 'string') {
         return improvement;
       } else if (improvement && typeof improvement === 'object') {
