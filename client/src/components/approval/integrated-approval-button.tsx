@@ -140,15 +140,15 @@ export function IntegratedApprovalButton({
   };
   
   const submitApproval = () => {
-    const title = moduleName || `${moduleType.replace('_', ' ')} approval - ${moduleId}`;
+    const displayName = moduleName || `${moduleType.replace('_', ' ')} approval - ${moduleId}`;
     
     createApprovalMutation.mutate({
       moduleType,
       moduleId,
-      title,
-      comments,
+      name: displayName,
+      description: comments,
       priority: 'medium',
-      metadata: moduleData || {}
+      details: moduleData || {}
     });
   };
   
