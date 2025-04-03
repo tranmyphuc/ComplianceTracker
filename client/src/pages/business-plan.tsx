@@ -627,6 +627,23 @@ export default function BusinessPlanPage() {
   // Function to customize implementation plan based on focus area
   const customizeImplementationPlan = (focusArea: string) => {
     setCustomInvestmentFocus(focusArea);
+    
+    // Map focus area to approach
+    const approach = focusArea === "speed" ? "ai" : 
+                     focusArea === "cost" ? "traditional" : "balanced";
+                     
+    // Update current approach
+    setCurrentApproach(approach);
+    
+    // Update investment details based on selected approach
+    if (approach === 'traditional') {
+      setInvestmentDetails(traditionalInvestmentDetails);
+    } else if (approach === 'ai') {
+      setInvestmentDetails(aiImplementationInvestmentDetails);
+    } else {
+      setInvestmentDetails(balancedInvestmentDetails);
+    }
+    
     toast({
       title: "Plan Updated",
       description: `Implementation plan adjusted with focus on ${focusArea} priorities.`,
