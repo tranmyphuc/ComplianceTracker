@@ -1197,16 +1197,35 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
       newFormData.trainingDatasets = aiResults.dataSources;
     }
     
-    // Risk level handling
-    if (aiResults.riskLevel) {
-      newFormData.riskLevel = aiResults.riskLevel;
-      filledRequiredFields.push('riskLevel');
-    }
+    // Risk level handling - try multiple possible field names
+    const riskFieldNames = ['riskLevel', 'riskClassification', 'risk_level', 'risk', 'euRiskLevel'];
     
-    if (aiResults.riskClassification) {
-      newFormData.riskLevel = aiResults.riskClassification;
-      if (!filledRequiredFields.includes('riskLevel')) {
-        filledRequiredFields.push('riskLevel');
+    for (const fieldName of riskFieldNames) {
+      if (aiResults[fieldName]) {
+        let riskValue = aiResults[fieldName];
+        
+        // Normalize the risk level value
+        if (typeof riskValue === 'string') {
+          riskValue = riskValue.toLowerCase();
+          
+          // Map different formats to our expected values
+          if (riskValue.includes('high')) {
+            newFormData.riskLevel = 'High';
+          } else if (riskValue.includes('limit')) {
+            newFormData.riskLevel = 'Limited';
+          } else if (riskValue.includes('minimal') || riskValue.includes('low')) {
+            newFormData.riskLevel = 'Minimal';
+          } else if (riskValue.includes('unaccept') || riskValue.includes('prohibit')) {
+            newFormData.riskLevel = 'Unacceptable';
+          } else {
+            // Direct assignment if no pattern match
+            newFormData.riskLevel = aiResults[fieldName];
+          }
+          
+          console.log(`✅ Applied Risk Level from ${fieldName}:`, newFormData.riskLevel);
+          filledRequiredFields.push('riskLevel');
+          break; // Stop after first successful match
+        }
       }
     }
 
@@ -1220,6 +1239,12 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     } else if (aiResults.oversight) {
       newFormData.humanOversight = aiResults.oversight;
       console.log('✅ Applied Human Oversight from oversight:', aiResults.oversight);
+    } else if (aiResults.oversightMeasures) {
+      newFormData.humanOversight = aiResults.oversightMeasures;
+      console.log('✅ Applied Human Oversight from oversightMeasures:', aiResults.oversightMeasures);
+    } else if (aiResults.humanInTheLoop) {
+      newFormData.humanOversight = aiResults.humanInTheLoop;
+      console.log('✅ Applied Human Oversight from humanInTheLoop:', aiResults.humanInTheLoop);
     }
     
     // Data Protection handling - check all possible field names from API
@@ -1232,6 +1257,9 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     } else if (aiResults.dataProtection) {
       newFormData.dataProtectionMeasures = aiResults.dataProtection;
       console.log('✅ Applied Data Protection from dataProtection:', aiResults.dataProtection);
+    } else if (aiResults.privacyMeasures) {
+      newFormData.dataProtectionMeasures = aiResults.privacyMeasures;
+      console.log('✅ Applied Data Protection from privacyMeasures:', aiResults.privacyMeasures);
     }
 
     setFormData(newFormData);
