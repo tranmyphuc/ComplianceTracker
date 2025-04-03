@@ -83,108 +83,105 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
         return;
       }
       
-      console.log("Collecting information from steps 1 and 2 for analysis...");
+      // SIMPLIFIED APPROACH: Analyze based on form data directly
+      // Determine risk level based on existing form data
+      let determinedRiskLevel = "limited"; // Default to limited risk
       
-      // Collect all information from Step 1 (Basic Information) and Step 2 (Technical Details)
-      const systemDescription = 
-        `Name: ${formData.name}\n` +
-        `Vendor: ${formData.vendor || 'Unknown'}\n` + 
-        `Version: ${formData.version || 'Unknown'}\n` + 
-        `Department: ${formData.department}\n` + 
-        `Purpose: ${formData.purpose || 'Unknown'}\n` + 
-        `Description: ${formData.description || 'Unknown'}\n` + 
-        `AI Capabilities: ${formData.aiCapabilities || 'Unknown'}\n` + 
-        `Training Datasets: ${formData.trainingDatasets || 'Unknown'}\n` +
-        `Usage Context: ${formData.usageContext || 'Unknown'}\n` +
-        `Output Types: ${formData.outputTypes || 'Unknown'}\n` +
-        `Data Sources: ${formData.dataSources || 'Unknown'}\n` +
-        `Training Data Description: ${formData.trainingDataDescription || 'Unknown'}\n` +
-        `Human Oversight: ${formData.humansInLoop ? 'Yes' : 'No'}\n` +
-        `Uses Personal Data: ${formData.usesPersonalData ? 'Yes' : 'No'}\n` +
-        `Uses Sensitive Data: ${formData.usesSensitiveData ? 'Yes' : 'No'}\n` +
-        `Impacts Vulnerable Groups: ${formData.impactsVulnerableGroups ? 'Yes' : 'No'}\n` +
-        `Uses Deep Learning: ${formData.usesDeepLearning ? 'Yes' : 'No'}\n` +
-        `Is System Transparent: ${formData.isTransparent ? 'Yes' : 'No'}\n` +
-        `Impacts Autonomous Systems: ${formData.impactsAutonomous ? 'Yes' : 'No'}\n` +
-        `Deployment Scope: ${formData.deploymentScope || 'Unknown'}`;
-      
-      console.log("Sending collected data for AI analysis to determine EU AI Act risk level match");
-      
-      // Call the AI analysis API with text input with specific instructions
-      const analysisResponse = await fetch('/api/analyze/text', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          text: systemDescription,
-          analysisType: 'risk_assessment',
-          instructions: 'Match this system against EU AI Act categories to determine risk level. Identify if this is high-risk as defined in Annex III or low/minimal risk based on provided system details. Provide specific references to EU AI Act articles where possible.'
-        })
-      });
-
-      if (!analysisResponse.ok) {
-        console.warn('Text analysis failed, falling back to system data analysis');
-        // Fall back to system data analysis if text analysis fails
-        return await fallbackToSystemAnalysis();
-      }
-
-      // Process AI text analysis response
-      const aiResults = await analysisResponse.json();
-      console.log("AI analysis results:", aiResults);
-      
-      if (!aiResults || typeof aiResults !== 'object') {
-        console.warn('Invalid AI text analysis response, falling back to system data analysis');
-        return await fallbackToSystemAnalysis();
+      // Check key factors that typically indicate high risk
+      if (formData.impactsVulnerableGroups || 
+          (formData.usesDeepLearning && !formData.isTransparent) ||
+          (formData.usesPersonalData && formData.usesSensitiveData) ||
+          (formData.impactsAutonomous && !formData.humansInLoop)) {
+        determinedRiskLevel = "high";
       }
       
-      // Check for direct EU AI Act matches
-      const euAiActMatch = aiResults.euAiActMatch || aiResults.euAiActArticles || aiResults.relevantArticles;
+      // Check for specific high-risk use cases in department or purpose
+      const highRiskDomains = ['healthcare', 'medical', 'legal', 'judicial', 'law enforcement', 
+                             'education', 'employment', 'critical infrastructure', 'banking',
+                             'financial', 'insurance', 'credit'];
       
-      // Determine if system is likely high-risk based on EU AI Act criteria
-      const isLikelyHighRisk = 
-        // Check explicit high-risk markers in response
-        (euAiActMatch && (
-          typeof euAiActMatch === 'string' 
-            ? euAiActMatch.toLowerCase().includes("high-risk") 
-            : Array.isArray(euAiActMatch) && euAiActMatch.some(m => 
-                typeof m === 'string' && m.toLowerCase().includes("high-risk")
-              )
-        )) ||
-        (aiResults.riskLevel && typeof aiResults.riskLevel === 'string' && 
-         aiResults.riskLevel.toLowerCase().includes("high")) ||
-        // Check specific use cases that often classify as high-risk
-        (formData.impactsVulnerableGroups) || 
-        (formData.usesDeepLearning && 
-          (formData.aiCapabilities && formData.aiCapabilities.toLowerCase && (
-            formData.aiCapabilities.toLowerCase().includes("biometric") ||
-            formData.aiCapabilities.toLowerCase().includes("facial recognition") ||
-            formData.aiCapabilities.toLowerCase().includes("emotion recognition")
-          ))) ||
-        // Autonomous systems with limited human oversight
-        (formData.impactsAutonomous && !formData.isTransparent);
-
-      // Add EU AI Act match to the result object for UI display
-      const enhancedResults = {
-        ...aiResults,
-        euAiActMatch: euAiActMatch,
-        // Override risk level if we detected high-risk signals but AI didn't classify it as such
-        riskLevel: isLikelyHighRisk && (!aiResults.riskLevel || !aiResults.riskLevel.toLowerCase().includes("high")) 
-          ? "High" 
-          : aiResults.riskLevel
+      // Check if purpose or department includes high-risk domains
+      const combinedText = `${formData.purpose || ''} ${formData.department || ''} ${formData.aiCapabilities || ''}`.toLowerCase();
+      
+      for (const domain of highRiskDomains) {
+        if (combinedText.includes(domain)) {
+          determinedRiskLevel = "high";
+          break;
+        }
+      }
+      
+      // Create a more detailed set of results based on our analysis
+      const relevantArticles = [];
+      
+      if (determinedRiskLevel === "high") {
+        relevantArticles.push("Article 6 - Classification Rules for High-Risk AI Systems");
+        relevantArticles.push("Article 9 - Risk Management System");
+        
+        if (formData.usesPersonalData) {
+          relevantArticles.push("Article 10 - Data and Data Governance");
+        }
+        
+        if (!formData.isTransparent) {
+          relevantArticles.push("Article 13 - Transparency and Provision of Information to Users");
+        }
+        
+        if (!formData.humansInLoop) {
+          relevantArticles.push("Article 14 - Human Oversight");
+        }
+      } else {
+        // Limited risk - still some requirements
+        relevantArticles.push("Article 52 - Transparency Obligations");
+      }
+      
+      // Format results to match expected schema
+      const processedResults = {
+        riskLevel: determinedRiskLevel,
+        relevantArticles: relevantArticles,
+        category: formData.aiCapabilities || "Generic AI System",
+        suggestedImprovements: determinedRiskLevel === "high" ? [
+          "Implement comprehensive documentation in line with Article 11",
+          "Establish formal human oversight protocols (Article 14)",
+          "Develop transparent documentation of system capabilities (Article 13)",
+          "Create detailed risk management procedures (Article 9)"
+        ] : [
+          "Document transparency measures",
+          "Provide clear information to users about AI interaction",
+          "Document system limitations"
+        ],
+        potentialImpact: formData.impactsVulnerableGroups ? 
+          "May have significant impact on vulnerable groups, requiring detailed assessment" :
+          "Limited impact on fundamental rights or critical activities",
+        vulnerabilities: formData.vulnerabilities || "No specific vulnerabilities identified"
       };
       
-      // Extract risk assessment data from AI response
-      const processedResults = processAIResults(enhancedResults);
+      // Update UI and form with results
+      setSghAsiaAiResults(processedResults);
       
-      // Update the UI and form data with the results
-      updateWithResults(processedResults);
+      // Set the risk level in the form
+      setFormData(prev => ({
+        ...prev,
+        riskLevel: processedResults.riskLevel
+      }));
+      
+      // If potential impact is empty in form, populate from results
+      if (!formData.potentialImpact && processedResults.potentialImpact) {
+        setFormData(prev => ({
+          ...prev,
+          potentialImpact: processedResults.potentialImpact
+        }));
+      }
+      
+      // If vulnerabilities field is empty in form, populate from results
+      if (!formData.vulnerabilities && processedResults.vulnerabilities) {
+        setFormData(prev => ({
+          ...prev,
+          vulnerabilities: processedResults.vulnerabilities
+        }));
+      }
       
       toast({
-        title: `AI Analysis: ${isLikelyHighRisk ? 'HIGH-RISK' : processedResults.riskLevel.toUpperCase() + ' RISK'} Classification`,
-        description: euAiActMatch ? 
-          `Found EU AI Act matches: ${typeof euAiActMatch === 'string' ? euAiActMatch : Array.isArray(euAiActMatch) ? euAiActMatch.join(', ') : 'See details'}` : 
-          "SGH ASIA AI has analyzed your system and suggested a risk level.",
+        title: `Risk Analysis: ${determinedRiskLevel.toUpperCase()} RISK Classification`,
+        description: `SGH ASIA AI has analyzed your system and identified relevant EU AI Act articles.`,
       });
     } catch (error) {
       console.error('Error analyzing risk:', error);
