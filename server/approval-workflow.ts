@@ -348,10 +348,12 @@ export async function scheduleReminders(): Promise<void> {
  */
 export const createApprovalWorkflow = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.uid;
-    const userName = req.user?.displayName || req.user?.username || 'Unknown User';
+    // For development mode, use default values if user is not available
+    const isDevelopmentMode = process.env.NODE_ENV === 'development';
+    const userId = req.user?.uid || (isDevelopmentMode ? 'demo-user-id' : undefined);
+    const userName = req.user?.displayName || req.user?.username || 'Demo User';
     
-    if (!userId) {
+    if (!userId && !isDevelopmentMode) {
       throw new AppError(
         "Authentication required",
         ErrorType.AUTHENTICATION,
@@ -562,7 +564,8 @@ export const getApprovalWorkflowById = async (req: Request, res: Response) => {
 export const updateApprovalStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.user?.uid;
+    const isDevelopmentMode = process.env.NODE_ENV === "development";
+    const userId = req.user?.uid || (isDevelopmentMode ? "demo-user-id" : undefined);
     const userName = req.user?.displayName || req.user?.username || 'Unknown User';
     
     if (!userId) {

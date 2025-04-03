@@ -52,7 +52,7 @@ import { RegistrationGuide } from "./registration-guide";
 import { BasicInformationStep } from './basic-information-step';
 import { TechnicalDetailsStep } from './technical-details-step';
 import { RiskAssessmentStep } from './risk-assessment-step';
-import { LegalValidationStep } from './legal-validation-step';
+import { DocumentationStep } from './documentation-step';
 import { ReviewSubmitStep } from './review-submit-step';
 import { AutoFillGuidanceModal } from './AutoFillGuidanceModal';
 import { AutoFillProcessStepper, getDefaultAutoFillSteps } from './AutoFillProcessStepper';
@@ -601,7 +601,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
       case 4:
         return (
-          <LegalValidationStep 
+          <DocumentationStep 
             formData={formData}
             errors={validationErrors}
           />
@@ -1658,7 +1658,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
             )}
 
             {currentStep === 4 && (
-              <LegalValidationStep 
+              <DocumentationStep 
                 formData={formData}
                 errors={validationErrors}
               />
