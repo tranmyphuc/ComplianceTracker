@@ -47,7 +47,13 @@ import {
   Gauge as GaugeIcon,
   Puzzle as PuzzleIcon,
   Compass,
-  CircleDollarSign as CircleDollarSignIcon
+  CircleDollarSign as CircleDollarSignIcon,
+  FileText as FileTextIcon,
+  BookOpen as BookOpenIcon,
+  Scale as ScaleIcon,
+  GanttChart as GanttChartIcon,
+  Unplug as UnplugIcon,
+  Scale as BalanceIcon
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -1060,7 +1066,7 @@ export default function BusinessPlanPage() {
                           </li>
                           <li className="flex items-start">
                             <div className="rounded-full bg-green-100 p-1 mr-2 mt-0.5">
-                              <BarChartIcon className="h-3.5 w-3.5 text-green-700" />
+                              <BarChart3Icon className="h-3.5 w-3.5 text-green-700" />
                             </div>
                             <div>
                               <span className="text-sm font-medium">Breakeven Analysis</span>
@@ -1150,7 +1156,7 @@ export default function BusinessPlanPage() {
                           console.log("Cost focused implementation selected");
                         }}
                       >
-                        <EuroIcon className="h-4 w-4 inline mr-1" />
+                        <Euro className="h-4 w-4 inline mr-1" />
                         Cost-Optimized
                       </button>
                     </div>
@@ -1202,7 +1208,7 @@ export default function BusinessPlanPage() {
                             <td className="border px-4 py-3 font-medium">Development Cost</td>
                             <td className="border px-4 py-3 text-muted-foreground">
                               <div className="flex items-center">
-                                <EuroIcon className="h-4 w-4 mr-2 text-red-500" />
+                                <Euro className="h-4 w-4 mr-2 text-red-500" />
                                 <span>€1.8-2.2M for complete platform</span>
                               </div>
                             </td>
@@ -1470,11 +1476,11 @@ export default function BusinessPlanPage() {
                               <div className="flex flex-col">
                                 <span>Content from legal experts (€180-220/hour)</span>
                                 <div className="mt-1 flex items-center">
-                                  <EuroIcon className="h-3 w-3 text-red-500 mr-1" />
-                                  <EuroIcon className="h-3 w-3 text-red-500 mr-1" />
-                                  <EuroIcon className="h-3 w-3 text-red-500 mr-1" />
-                                  <EuroIcon className="h-3 w-3 text-red-500 mr-1" />
-                                  <EuroIcon className="h-3 w-3 text-red-500" />
+                                  <Euro className="h-3 w-3 text-red-500 mr-1" />
+                                  <Euro className="h-3 w-3 text-red-500 mr-1" />
+                                  <Euro className="h-3 w-3 text-red-500 mr-1" />
+                                  <Euro className="h-3 w-3 text-red-500 mr-1" />
+                                  <Euro className="h-3 w-3 text-red-500" />
                                 </div>
                               </div>
                             </td>
@@ -1482,11 +1488,11 @@ export default function BusinessPlanPage() {
                               <div className="flex flex-col">
                                 <span>AI-assisted content generation with expert review</span>
                                 <div className="mt-1 flex items-center">
-                                  <EuroIcon className="h-3 w-3 text-green-500 mr-1" />
-                                  <EuroIcon className="h-3 w-3 text-gray-300 mr-1" />
-                                  <EuroIcon className="h-3 w-3 text-gray-300 mr-1" />
-                                  <EuroIcon className="h-3 w-3 text-gray-300 mr-1" />
-                                  <EuroIcon className="h-3 w-3 text-gray-300" />
+                                  <Euro className="h-3 w-3 text-green-500 mr-1" />
+                                  <Euro className="h-3 w-3 text-gray-300 mr-1" />
+                                  <Euro className="h-3 w-3 text-gray-300 mr-1" />
+                                  <Euro className="h-3 w-3 text-gray-300 mr-1" />
+                                  <Euro className="h-3 w-3 text-gray-300" />
                                 </div>
                               </div>
                             </td>
@@ -1780,7 +1786,7 @@ export default function BusinessPlanPage() {
                       <div className="border rounded-lg overflow-hidden shadow-sm transition-all hover:shadow-md">
                         <div className="bg-gradient-to-r from-green-100 to-green-200 px-4 py-3 border-b">
                           <h3 className="font-medium text-green-800 flex items-center">
-                            <EuroIcon className="h-5 w-5 mr-2" />
+                            <Euro className="h-5 w-5 mr-2" />
                             Cost-Focused Approach
                           </h3>
                         </div>
