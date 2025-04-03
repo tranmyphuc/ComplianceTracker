@@ -1,0 +1,1506 @@
+Copy
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGH ASIA - EU AI Act Compliance Platform Business Plan</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        .section {
+            margin-bottom: 2rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        .section-header {
+            background-color: #0a2463;
+            color: white;
+            padding: 1rem;
+            font-weight: bold;
+        }
+        .section-content {
+            padding: 1.5rem;
+        }
+        .phase-card {
+            border-left: 4px solid #0a2463;
+            margin-bottom: 1rem;
+        }
+        .phase-header {
+            background-color: #f1f5f9;
+            padding: 0.75rem;
+            font-weight: bold;
+            color: #0a2463;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .phase-content {
+            padding: 1rem;
+            background-color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f5f9;
+            font-weight: bold;
+        }
+        .chart {
+            height: 300px;
+            margin: 2rem 0;
+        }
+        .package-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            height: 100%;
+        }
+        .package-header {
+            background-color: #0a2463;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        .package-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 1rem;
+            background-color: #f1f5f9;
+        }
+        .package-features {
+            padding: 1rem;
+        }
+        .package-features ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .package-features li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .package-features li:last-child {
+            border-bottom: none;
+        }
+        .highlight {
+            background-color: #fef3c7;
+            padding: 0 0.25rem;
+        }
+        .kpi-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            text-align: center;
+            height: 100%;
+        }
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0a2463;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 1rem;
+            border-radius: 0.5rem;
+            background-color: #e2e8f0;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        .progress-value {
+            height: 100%;
+            background-color: #0a2463;
+        }
+        .logo {
+            max-width: 200px;
+        }
+    </style>
+</head>
+<body class="px-4 py-6 mx-auto max-w-7xl">
+    <!-- Header -->
+    <header class="mb-8 text-center">
+        <div class="flex justify-center">
+            <h1 class="text-3xl font-bold text-center my-6">
+                <span class="text-[#0a2463]">SGH ASIA</span> - EU AI Act Compliance Platform
+            </h1>
+        </div>
+        <h2 class="text-2xl text-gray-600">Business Plan & Implementation Strategy</h2>
+        <p class="mt-2 text-gray-500">Prepared for: SGH ASIA Management</p>
+        <p class="text-gray-500">Date: April 2025</p>
+    </header>
+
+    <!-- Executive Summary -->
+    <div class="section mb-8">
+        <div class="section-header">
+            <h2 class="text-xl">Executive Summary</h2>
+        </div>
+        <div class="section-content">
+            <p class="mb-4">
+                This business plan outlines the market opportunity, implementation strategy, and financial projections for SGH ASIA's EU AI Act Compliance Platform. The platform will help organizations navigate the complex requirements of the European Union's Artificial Intelligence Act, ensuring compliance while minimizing costs and operational disruptions.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div class="kpi-card">
+                    <i class="fas fa-chart-line text-4xl text-[#0a2463]"></i>
+                    <h3 class="font-bold mt-2">Market Size</h3>
+                    <div class="kpi-value">€66.4B</div>
+                    <p class="text-gray-600">European AI market in 2025</p>
+                </div>
+                <div class="kpi-card">
+                    <i class="fas fa-exclamation-triangle text-4xl text-[#0a2463]"></i>
+                    <h3 class="font-bold mt-2">Non-Compliance Penalty</h3>
+                    <div class="kpi-value">€35M</div>
+                    <p class="text-gray-600">or 7% of annual turnover</p>
+                </div>
+                <div class="kpi-card">
+                    <i class="fas fa-euro-sign text-4xl text-[#0a2463]"></i>
+                    <h3 class="font-bold mt-2">Projected 3-Year ROI</h3>
+                    <div class="kpi-value">523%</div>
+                    <p class="text-gray-600">For SGH ASIA's investment</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. Market Analysis -->
+    <div class="section mb-8">
+        <div class="section-header">
+            <h2 class="text-xl">1. Market Analysis for EU AI Act Compliance</h2>
+        </div>
+        <div class="section-content">
+            <h3 class="text-lg font-bold mb-4">1.1 Market Size & Opportunity</h3>
+            <p class="mb-4">
+                The European artificial intelligence market is valued at <span class="highlight">€66.4 billion in 2025</span> and is projected to grow at a CAGR of 33.2% through 2030. With the EU AI Act now in force, every organization developing or deploying AI systems within the EU must comply with its requirements, creating a substantial market for compliance solutions.
+            </p>
+            <p class="mb-4">
+                Key market drivers include:
+            </p>
+            <ul class="list-disc ml-6 mb-6">
+                <li class="mb-2">The EU AI Act entered into force on August 1, 2024, with full applicability by August 2, 2026</li>
+                <li class="mb-2">An estimated 72% of organizations now use AI for at least one business function, all requiring compliance</li>
+                <li class="mb-2">Compliance with the EU AI Act costs organizations between €29,000 and €400,000 per AI system</li>
+                <li class="mb-2">Total industry compliance costs are estimated between €1.6 billion and €3.3 billion annually</li>
+            </ul>
+
+            <h3 class="text-lg font-bold mb-4">1.2 Compliance Requirements & Pain Points</h3>
+            <p class="mb-4">
+                The EU AI Act imposes a risk-based regulatory framework with four levels of AI systems:
+            </p>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Risk Level</th>
+                            <th>Examples</th>
+                            <th>Key Requirements</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Unacceptable Risk</strong><br>(Prohibited)</td>
+                            <td>Social scoring, manipulation, exploitation of vulnerabilities</td>
+                            <td>Prohibited from development or deployment</td>
+                        </tr>
+                        <tr>
+                            <td><strong>High Risk</strong></td>
+                            <td>Critical infrastructure, education, employment, law enforcement</td>
+                            <td>
+                                Risk management, data governance, documentation, human oversight, transparency, technical robustness
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Limited Risk</strong></td>
+                            <td>Chatbots, emotion recognition systems, deepfakes</td>
+                            <td>Transparency obligations, disclosure requirements</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Minimal Risk</strong></td>
+                            <td>Simple AI video games, spam filters, inventory systems</td>
+                            <td>Voluntary codes of conduct</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">1.3 Compliance Costs & Penalties</h3>
+            <p class="mb-4">
+                Organizations face significant costs and risks related to EU AI Act compliance:
+            </p>
+            <ul class="list-disc ml-6 mb-6">
+                <li class="mb-2"><strong>Compliance Costs:</strong> €29,000 per AI model on average, up to €400,000 for high-risk systems</li>
+                <li class="mb-2"><strong>Penalties for Non-Compliance:</strong>
+                    <ul class="list-circle ml-6 mb-2">
+                        <li>Up to <span class="highlight">€35 million or 7% of annual worldwide turnover</span> for prohibited practices</li>
+                        <li>Up to €15 million or 3% of annual worldwide turnover for most violations</li>
+                        <li>Up to €7.5 million or 1.5% of annual worldwide turnover for providing incorrect information</li>
+                    </ul>
+                </li>
+                <li class="mb-2"><strong>Business Disruption:</strong> Non-compliant AI systems cannot be deployed in the EU market</li>
+                <li class="mb-2"><strong>Reputational Damage:</strong> Public notification of non-compliance</li>
+            </ul>
+
+            <h3 class="text-lg font-bold mb-4">1.4 Competitive Landscape</h3>
+            <p class="mb-4">
+                The EU AI Act compliance solution market is still emerging, with several key players:
+            </p>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Provider</th>
+                            <th>Solution Type</th>
+                            <th>Target Market</th>
+                            <th>Pricing</th>
+                            <th>Market Position</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>OneTrust</td>
+                            <td>Comprehensive governance platform</td>
+                            <td>Enterprise</td>
+                            <td>€50,000+ annually</td>
+                            <td>Market leader; expensive</td>
+                        </tr>
+                        <tr>
+                            <td>Holistic AI</td>
+                            <td>AI governance and audit solution</td>
+                            <td>Mid-market</td>
+                            <td>€15,000-40,000 annually</td>
+                            <td>Strong technical focus</td>
+                        </tr>
+                        <tr>
+                            <td>Dataiku</td>
+                            <td>Data platform with compliance modules</td>
+                            <td>Data-centric companies</td>
+                            <td>€20,000-60,000 annually</td>
+                            <td>Integration with data science workflows</td>
+                        </tr>
+                        <tr>
+                            <td>ComplyCloud</td>
+                            <td>Focused compliance software</td>
+                            <td>SMEs</td>
+                            <td>€5,000-20,000 annually</td>
+                            <td>Newer entrant; growing</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="mb-4">
+                <strong>SGH ASIA's Opportunity:</strong> Create a more affordable, accessible, and intuitive compliance platform that democratizes EU AI Act compliance for small to mid-sized businesses while offering enterprise capabilities at a competitive price point.
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. Implementation Strategy -->
+    <div class="section mb-8">
+        <div class="section-header">
+            <h2 class="text-xl">2. Phased Implementation Strategy</h2>
+        </div>
+        <div class="section-content">
+            <p class="mb-6">
+                SGH ASIA will develop the EU AI Act Compliance Platform using an incremental, phased approach. This strategy allows for:
+            </p>
+            <ul class="list-disc ml-6 mb-6">
+                <li class="mb-2">Market entry with a minimally viable product within 2 months</li>
+                <li class="mb-2">Continuous revenue generation during development</li>
+                <li class="mb-2">Feedback-driven feature enhancement</li>
+                <li class="mb-2">Controlled investment with clear ROI metrics at each phase</li>
+            </ul>
+
+            <h3 class="text-lg font-bold mb-4">Implementation Timeline Overview</h3>
+
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+                <div class="h-4 rounded-full" style="width: 100%; background: linear-gradient(to right, #0a2463 0%, #0a2463 20%, #3e92cc 20%, #3e92cc 40%, #2a628f 40%, #2a628f 60%, #16324c 60%, #16324c 80%, #0a2463 80%, #0a2463 100%);"></div>
+            </div>
+            <div class="flex justify-between text-xs mb-8">
+                <div class="text-center">
+                    <div>Phase 1</div>
+                    <div>2 months</div>
+                </div>
+                <div class="text-center">
+                    <div>Phase 2</div>
+                    <div>3 months</div>
+                </div>
+                <div class="text-center">
+                    <div>Phase 3</div>
+                    <div>4 months</div>
+                </div>
+                <div class="text-center">
+                    <div>Phase 4</div>
+                    <div>3 months</div>
+                </div>
+                <div class="text-center">
+                    <div>Phase 5</div>
+                    <div>4 months</div>
+                </div>
+            </div>
+
+            <div class="phase-card">
+                <div class="phase-header">
+                    <div>Phase 1: Assessment Tool (MVP)</div>
+                    <div>2 months</div>
+                </div>
+                <div class="phase-content">
+                    <p class="mb-4">
+                        <strong>Core Deliverable:</strong> Basic EU AI Act compliance assessment tool deployed on Replit
+                    </p>
+                    <p class="mb-2"><strong>Features:</strong></p>
+                    <ul class="list-disc ml-6 mb-4">
+                        <li>AI system classification questionnaire</li>
+                        <li>Risk categorization based on EU AI Act criteria</li>
+                        <li>Basic compliance requirement checklist generation</li>
+                        <li>Simple user account management</li>
+                        <li>PDF report export functionality</li>
+                    </ul>
+                    <p class="mb-2"><strong>Development Focus:</strong></p>
+                    <ul class="list-disc ml-6 mb-4">
+                        <li>Frontend development using React.js</li>
+                        <li>Backend API using Node.js/Express</li>
+                        <li>MongoDB database integration</li>
+                        <li>Authentication system</li>
+                        <li>Regulatory content database</li>
+                    </ul>
+                    <p class="mb-2"><strong>Business Outcome:</strong></p>
+                    <ul class="list-disc ml-6">
+                        <li>Market entry product that generates initial revenue</li>
+                        <li>Lead generation for later phases</li>
+                        <li>Proof of concept to secure additional investment if needed</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="phase-card">
+                <div class="phase-header">
+                    <div>Phase 2: Documentation Generator & Dashboard</div>
+                    <div>3 months</div>
+                </div>
+                <div class="phase-content">
+                    <p class="mb-4">
+                        <strong>Core Deliverable:</strong> Automated documentation generation and compliance dashboard
+                    </p>
+                    <p class="mb-2"><strong>Features:</strong></p>
+                    <ul class="list-disc ml-6 mb-4">
+                        <li>Compliance documentation templates aligned with Annex IV requirements</li>
+                        <li>Interactive documentation editor with AI assistance</li>
+                        <li>Multi-AI system management</li>
+                        <li>Compliance status dashboard</li>
+                        <li>Basic task tracking and assignment</li>
+                        <li>Version control for documentation</li>
+                    </ul>
+                    <p class="mb-2"><strong>Development Focus:</strong></p>
+                    <ul class="list-disc ml-6 mb-4">
+                        <li>Document generation engine</li>
+                        <li>Rich text editing capabilities</li>
+                        <li>Dashboard visualization components</li>
+                        <li>AI assistance integration for content generation</li>
+                        <li>Multi-user collaboration features</li>
+                    </ul>
+                    <p class="mb-2"><strong>Business Outcome:</strong></p>
+                    <ul class="list-disc ml-6">
+                        <li>Introduction of Standard Compliance Package</li>
+                        <li>Significant value enhancement for existing customers</li>
+                        <li>Address primary pain point of documentation burden</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="phase-card">
+                <div class="phase-header">
+                    <div>Phase 3: Risk Management & Monitoring System</div>
+                    <div>4 months</div>
+                </div>
+                <div class="phase-content">
+                    <p class="mb-4">
+                        <strong>Core Deliverable:</strong> Comprehensive risk management and compliance monitoring system
+                    </p>
+                    <p class="mb-2"><strong>Features:</strong></p>
+                    <ul class="list-disc ml-6 mb-4">
+                        <li>Detailed risk assessment framework</li>
+                        <li>Risk mitigation planning tools</li>
+                        <li>Automated compliance monitoring</li>
+                        <li>Regulatory change tracking and notifications</li>
+                        <li>Compliance evidence repository</li>
+                        <li>Audit trail and logging system</li>
+                        <li>Testing and validation tools</li>
+                    </ul>
+                    <p class="mb-2"><strong>Development Focus:</strong></p>
+                    <ul class="list-disc ml-6 mb-4">
+                        <li>Risk assessment engine with scoring algorithms</li>
+                        <li>Regulatory update monitoring service</li>
+                        <li>Evidence collection and management system</li>
+                        <li>Notification and alerting system</li>
+                        <li>Audit tracking database and reporting</li>
+                    </ul>
+                    <p class="mb-2"><strong>Business Outcome:</strong></p>
+                    <ul class="list-disc ml-6">
+                        <li>Launch of Enterprise Governance Package</li>
+                        <li>Ability to target larger enterprises with complex AI deployments</li>
+                        <li>Recurring revenue from monitoring subscriptions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="phase-card">
+                <div class="phase-header">
+                    <div>Phase 4: Advanced Features & Integration</div>
+                    <div>3 months</div>
+                </div>
+                <div class="phase-content">
+                    <p class="mb-4">
+                        <strong>Core Deliverable:</strong> API ecosystem and advanced compliance features
+                    </p>
+                    <p class="mb-2"><strong>Features:</strong></p>
+                    <ul class="list-disc ml-6 mb-4">
+                        <li>Comprehensive API for third-party integration</li>
+                        <li>Integration with DevOps and CI/CD pipelines</li>
+                        <li>Integration with data governance platforms</li>
+                        <li>Advanced analytics and reporting</li>
+                        <li>Custom workflow automation</li>
+                        <li>Multi-language support</li>
+                    </ul>
+                    <p class="mb-2"><strong>Development Focus:</strong></p>
+                    <ul class="list-disc ml-6 mb-4">
+                        <li>API development and documentation</li>
+                        <li>Integration connectors for popular tools (GitHub, GitLab, JIRA, etc.)</li>
+                        <li>Analytics engine development</li>
+                        <li>Custom workflow builder interface</li>
+                        <li>Localization infrastructure</li>
+                    </ul>
+                    <p class="mb-2"><strong>Business Outcome:</strong></p>
+                    <ul class="list-disc ml-6">
+                        <li>Introduction of Custom Integration Package</li>
+                        <li>Expansion of enterprise customer base</li>
+                        <li>Ecosystem development with partners</li>
+                        <li>Deeper integration into customer development workflows</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="phase-card">
+                <div class="phase-header">
+                    <div>Phase 5: Enterprise Platform & AI Governance</div>
+                    <div>4 months</div>
+                </div>
+                <div class="phase-content">
+                    <p class="mb-4">
+                        <strong>Core Deliverable:</strong> Comprehensive enterprise-grade AI governance platform
+                    </p>
+                    <p class="mb-2"><strong>Features:</strong></p>
+                    <ul class="list-disc ml-6 mb-4">
+                        <li>Advanced AI model governance</li>
+                        <li>Model performance monitoring</li>
+                        <li>Bias detection and fairness assessment</li>
+                        <li>Enterprise organization management</li>
+                        <li>Multi-jurisdiction compliance support</li>
+                        <li>Advanced security and access controls</li>
+                        <li>On-premises deployment option</li>
+                    </ul>
+                    <p class="mb-2"><strong>Development Focus:</strong></p>
+                    <ul class="list-disc ml-6 mb-4">
+                        <li>AI model governance framework</li>
+                        <li>Bias and fairness assessment tools</li>
+                        <li>Multi-jurisdiction compliance database</li>
+                        <li>Enterprise security enhancements</li>
+                        <li>On-premises deployment containerization</li>
+                    </ul>
+                    <p class="mb-2"><strong>Business Outcome:</strong></p>
+                    <ul class="list-disc ml-6">
+                        <li>Positioning as a market leader in AI governance</li>
+                        <li>Ability to compete with well-established enterprise vendors</li>
+                        <li>Higher-value enterprise contracts and consulting opportunities</li>
+                        <li>Complete portfolio of AI governance solutions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold mt-8 mb-4">Development Approach with Replit</h3>
+            <p class="mb-4">
+                The platform will be built using Replit's collaborative development environment, providing several advantages:
+            </p>
+            <ul class="list-disc ml-6 mb-6">
+                <li class="mb-2"><strong>Rapid Development:</strong> Replit's integrated environment accelerates development cycles</li>
+                <li class="mb-2"><strong>Cost Efficiency:</strong> Reduced infrastructure overhead during development</li>
+                <li class="mb-2"><strong>Collaborative Workflow:</strong> Team members can collaborate in real-time</li>
+                <li class="mb-2"><strong>Progressive Scaling:</strong> Easy transition to dedicated infrastructure as the platform grows</li>
+                <li class="mb-2"><strong>Demo Environment:</strong> Immediate access for stakeholders to review progress</li>
+            </ul>
+            <p class="mb-4">
+                The platform architecture on Replit will use:
+            </p>
+            <ul class="list-disc ml-6">
+                <li class="mb-2"><strong>Frontend:</strong> React.js with Tailwind CSS</li>
+                <li class="mb-2"><strong>Backend:</strong> Node.js/Express API services</li>
+                <li class="mb-2"><strong>Database:</strong> MongoDB for data storage</li>
+                <li class="mb-2"><strong>Authentication:</strong> JWT-based authentication with role-based access control</li>
+                <li class="mb-2"><strong>API:</strong> RESTful architecture with OpenAPI documentation</li>
+                <li class="mb-2"><strong>AI Services:</strong> Integration with OpenAI and other AI services for assistance features</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 3. Project Costs -->
+    <div class="section mb-8">
+        <div class="section-header">
+            <h2 class="text-xl">3. Detailed Project Costs</h2>
+        </div>
+        <div class="section-content">
+            <h3 class="text-lg font-bold mb-4">3.1 Development Cost Breakdown by Phase</h3>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Phase</th>
+                            <th>Timeline</th>
+                            <th>Development Cost</th>
+                            <th>Key Cost Components</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Phase 1:</strong><br>Assessment Tool (MVP)</td>
+                            <td>2 months</td>
+                            <td>$35,000</td>
+                            <td>
+                                <ul class="list-disc ml-4">
+                                    <li>Frontend development: $12,000</li>
+                                    <li>Backend API development: $10,000</li>
+                                    <li>Database setup: $3,000</li>
+                                    <li>Regulatory content creation: $5,000</li>
+                                    <li>Testing & deployment: $5,000</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 2:</strong><br>Documentation Generator & Dashboard</td>
+                            <td>3 months</td>
+                            <td>$65,000</td>
+                            <td>
+                                <ul class="list-disc ml-4">
+                                    <li>Document generation engine: $20,000</li>
+                                    <li>Dashboard development: $15,000</li>
+                                    <li>Content templates creation: $10,000</li>
+                                    <li>AI assistance integration: $12,000</li>
+                                    <li>Testing & quality assurance: $8,000</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 3:</strong><br>Risk Management & Monitoring</td>
+                            <td>4 months</td>
+                            <td>$85,000</td>
+                            <td>
+                                <ul class="list-disc ml-4">
+                                    <li>Risk assessment engine: $25,000</li>
+                                    <li>Monitoring system: $20,000</li>
+                                    <li>Regulatory tracking service: $15,000</li>
+                                    <li>Evidence repository: $10,000</li>
+                                    <li>Audit system: $8,000</li>
+                                    <li>Testing & security: $7,000</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 4:</strong><br>Advanced Features & Integration</td>
+                            <td>3 months</td>
+                            <td>$70,000</td>
+                            <td>
+                                <ul class="list-disc ml-4">
+                                    <li>API development: $18,000</li>
+                                    <li>Integration connectors: $20,000</li>
+                                    <li>Analytics engine: $15,000</li>
+                                    <li>Workflow automation: $10,000</li>
+                                    <li>Testing & documentation: $7,000</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 5:</strong><br>Enterprise Platform & AI Governance</td>
+                            <td>4 months</td>
+                            <td>$95,000</td>
+                            <td>
+                                <ul class="list-disc ml-4">
+                                    <li>AI governance framework: $25,000</li>
+                                    <li>Bias detection tools: $20,000</li>
+                                    <li>Enterprise security: $15,000</li>
+                                    <li>Multi-jurisdiction compliance: $18,000</li>
+                                    <li>On-premises deployment: $10,000</li>
+                                    <li>Testing & certification: $7,000</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="bg-gray-50 font-bold">
+                            <td>TOTAL DEVELOPMENT</td>
+                            <td>16 months</td>
+                            <td>$350,000</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">3.2 Operational & Ongoing Costs (Annual)</h3>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cost Category</th>
+                            <th>Year 1</th>
+                            <th>Year 2</th>
+                            <th>Year 3</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Cloud Infrastructure</td>
+                            <td>$18,000</td>
+                            <td>$36,000</td>
+                            <td>$60,000</td>
+                            <td>Replit Pro accounts, additional AWS/Azure services, database hosting, CDN</td>
+                        </tr>
+                        <tr>
+                            <td>Maintenance & Support</td>
+                            <td>$30,000</td>
+                            <td>$60,000</td>
+                            <td>$90,000</td>
+                            <td>Bug fixes, updates, customer support, technical support</td>
+                        </tr>
+                        <tr>
+                            <td>Content & Regulatory Updates</td>
+                            <td>$25,000</td>
+                            <td>$40,000</td>
+                            <td>$50,000</td>
+                            <td>Monitoring regulatory changes, updating compliance requirements, content creation</td>
+                        </tr>
+                        <tr>
+                            <td>Software Licenses</td>
+                            <td>$12,000</td>
+                            <td>$20,000</td>
+                            <td>$25,000</td>
+                            <td>Third-party software licenses, API services, AI service costs</td>
+                        </tr>
+                        <tr>
+                            <td>Security & Compliance</td>
+                            <td>$15,000</td>
+                            <td>$25,000</td>
+                            <td>$35,000</td>
+                            <td>Security audits, penetration testing, compliance certifications</td>
+                        </tr>
+                        <tr class="bg-gray-50 font-bold">
+                            <td>TOTAL OPERATIONAL</td>
+                            <td>$100,000</td>
+                            <td>$181,000</td>
+                            <td>$260,000</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">3.3 Marketing & Sales Costs (Annual)</h3>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cost Category</th>
+                            <th>Year 1</th>
+                            <th>Year 2</th>
+                            <th>Year 3</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Digital Marketing</td>
+                            <td>$30,000</td>
+                            <td>$60,000</td>
+                            <td>$90,000</td>
+                            <td>SEO, SEM, content marketing, social media, email campaigns</td>
+                        </tr>
+                        <tr>
+                            <td>Sales Team</td>
+                            <td>$50,000</td>
+                            <td>$150,000</td>
+                            <td>$250,000</td>
+                            <td>Sales representatives, commissions, CRM, training</td>
+                        </tr>
+                        <tr>
+                            <td>Events & Conferences</td>
+                            <td>$20,000</td>
+                            <td>$35,000</td>
+                            <td>$50,000</td>
+                            <td>Industry events, webinars, speaking engagements, sponsorships</td>
+                        </tr>
+                        <tr>
+                            <td>Partnerships & Alliances</td>
+                            <td>$10,000</td>
+                            <td>$25,000</td>
+                            <td>$40,000</td>
+                            <td>Partner programs, referral fees, co-marketing initiatives</td>
+                        </tr>
+                        <tr>
+                            <td>Market Research</td>
+                            <td>$15,000</td>
+                            <td>$20,000</td>
+                            <td>$25,000</td>
+                            <td>Competitive analysis, customer research, product-market fit studies</td>
+                        </tr>
+                        <tr class="bg-gray-50 font-bold">
+                            <td>TOTAL MARKETING & SALES</td>
+                            <td>$125,000</td>
+                            <td>$290,000</td>
+                            <td>$455,000</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">3.4 Total Project Investment</h3>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cost Category</th>
+                            <th>Year 1</th>
+                            <th>Year 2</th>
+                            <th>Year 3</th>
+                            <th>3-Year Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Development Costs</td>
+                            <td>$255,000</td>
+                            <td>$95,000</td>
+                            <td>$0</td>
+                            <td>$350,000</td>
+                        </tr>
+                        <tr>
+                            <td>Operational Costs</td>
+                            <td>$100,000</td>
+                            <td>$181,000</td>
+                            <td>$260,000</td>
+                            <td>$541,000</td>
+                        </tr>
+                        <tr>
+                            <td>Marketing & Sales</td>
+                            <td>$125,000</td>
+                            <td>$290,000</td>
+                            <td>$455,000</td>
+                            <td>$870,000</td>
+                        </tr>
+                        <tr class="bg-gray-50 font-bold">
+                            <td>TOTAL INVESTMENT</td>
+                            <td>$480,000</td>
+                            <td>$566,000</td>
+                            <td>$715,000</td>
+                            <td>$1,761,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">3.5 Investment Requirements by Phase</h3>
+            <p class="mb-4">
+                The implementation strategy allows for phased investment with clear revenue milestones:
+            </p>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Phase</th>
+                            <th>Initial Investment</th>
+                            <th>Expected Revenue</th>
+                            <th>Decision Point</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Phase 1:</strong><br>Assessment Tool (MVP)</td>
+                            <td>$75,000</td>
+                            <td>$120,000<br>(first 6 months)</td>
+                            <td>Proceed if achieving 80% of revenue target</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 2:</strong><br>Documentation Generator</td>
+                            <td>$120,000</td>
+                            <td>$280,000<br>(next 6 months)</td>
+                            <td>Proceed if achieving 75% of revenue target</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 3:</strong><br>Risk Management</td>
+                            <td>$150,000</td>
+                            <td>$450,000<br>(next 6 months)</td>
+                            <td>Proceed if achieving 70% of revenue target</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 4:</strong><br>Advanced Features</td>
+                            <td>$130,000</td>
+                            <td>$650,000<br>(next 6 months)</td>
+                            <td>Proceed if achieving 70% of revenue target</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 5:</strong><br>Enterprise Platform</td>
+                            <td>$180,000</td>
+                            <td>$1,200,000<br>(next 6 months)</td>
+                            <td>Complete platform, begin expansion</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="mb-4">
+                This phased investment approach allows SGH ASIA to:
+            </p>
+            <ul class="list-disc ml-6">
+                <li class="mb-2">Test market reception before full investment</li>
+                <li class="mb-2">Generate revenue to partially fund ongoing development</li>
+                <li class="mb-2">Pivot or adjust strategy based on market feedback</li>
+                <li class="mb-2">Limit financial exposure while validating business model</li>
+                <li class="mb-2">Establish clear success metrics for each phase</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 4. ROI Calculation -->
+    <div class="section mb-8">
+        <div class="section-header">
+            <h2 class="text-xl">4. ROI Calculation for SGH ASIA</h2>
+        </div>
+        <div class="section-content">
+            <h3 class="text-lg font-bold mb-4">4.1 Revenue Projections</h3>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Revenue Stream</th>
+                            <th>Year 1</th>
+                            <th>Year 2</th>
+                            <th>Year 3</th>
+                            <th>3-Year Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Basic Assessment Package</td>
+                            <td>$280,000</td>
+                            <td>$420,000</td>
+                            <td>$560,000</td>
+                            <td>$1,260,000</td>
+                        </tr>
+                        <tr>
+                            <td>Standard Compliance Package</td>
+                            <td>$450,000</td>
+                            <td>$1,125,000</td>
+                            <td>$1,687,500</td>
+                            <td>$3,262,500</td>
+                        </tr>
+                        <tr>
+                            <td>Enterprise Governance Package</td>
+                            <td>$200,000</td>
+                            <td>$1,000,000</td>
+                            <td>$2,500,000</td>
+                            <td>$3,700,000</td>
+                        </tr>
+                        <tr>
+                            <td>Custom Integration Package</td>
+                            <td>$0</td>
+                            <td>$300,000</td>
+                            <td>$900,000</td>
+                            <td>$1,200,000</td>
+                        </tr>
+                        <tr>
+                            <td>Professional Services</td>
+                            <td>$50,000</td>
+                            <td>$200,000</td>
+                            <td>$500,000</td>
+                            <td>$750,000</td>
+                        </tr>
+                        <tr class="bg-gray-50 font-bold">
+                            <td>TOTAL REVENUE</td>
+                            <td>$980,000</td>
+                            <td>$3,045,000</td>
+                            <td>$6,147,500</td>
+                            <td>$10,172,500</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">4.2 Customer Acquisition Projections</h3>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Package</th>
+                            <th>Year 1</th>
+                            <th>Year 2</th>
+                            <th>Year 3</th>
+                            <th>Annual Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Basic Assessment Package</td>
+                            <td>140 customers</td>
+                            <td>210 customers</td>
+                            <td>280 customers</td>
+                            <td>$2,000/year</td>
+                        </tr>
+                        <tr>
+                            <td>Standard Compliance Package</td>
+                            <td>90 customers</td>
+                            <td>225 customers</td>
+                            <td>337 customers</td>
+                            <td>$5,000/year</td>
+                        </tr>
+                        <tr>
+                            <td>Enterprise Governance Package</td>
+                            <td>10 customers</td>
+                            <td>50 customers</td>
+                            <td>125 customers</td>
+                            <td>$20,000/year</td>
+                        </tr>
+                        <tr>
+                            <td>Custom Integration Package</td>
+                            <td>0 customers</td>
+                            <td>12 customers</td>
+                            <td>36 customers</td>
+                            <td>$25,000/year</td>
+                        </tr>
+                        <tr class="bg-gray-50 font-bold">
+                            <td>TOTAL CUSTOMERS</td>
+                            <td>240 customers</td>
+                            <td>497 customers</td>
+                            <td>778 customers</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">4.3 Profit & Loss Projection</h3>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Financial Metric</th>
+                            <th>Year 1</th>
+                            <th>Year 2</th>
+                            <th>Year 3</th>
+                            <th>3-Year Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Total Revenue</td>
+                            <td>$980,000</td>
+                            <td>$3,045,000</td>
+                            <td>$6,147,500</td>
+                            <td>$10,172,500</td>
+                        </tr>
+                        <tr>
+                            <td>Development Costs</td>
+                            <td>($255,000)</td>
+                            <td>($95,000)</td>
+                            <td>$0</td>
+                            <td>($350,000)</td>
+                        </tr>
+                        <tr>
+                            <td>Operational Costs</td>
+                            <td>($100,000)</td>
+                            <td>($181,000)</td>
+                            <td>($260,000)</td>
+                            <td>($541,000)</td>
+                        </tr>
+                        <tr>
+                            <td>Marketing & Sales</td>
+                            <td>($125,000)</td>
+                            <td>($290,000)</td>
+                            <td>($455,000)</td>
+                            <td>($870,000)</td>
+                        </tr>
+                        <tr>
+                            <td>Total Costs</td>
+                            <td>($480,000)</td>
+                            <td>($566,000)</td>
+                            <td>($715,000)</td>
+                            <td>($1,761,000)</td>
+                        </tr>
+                        <tr class="bg-gray-50 font-bold">
+                            <td>Net Profit / (Loss)</td>
+                            <td>$500,000</td>
+                            <td>$2,479,000</td>
+                            <td>$5,432,500</td>
+                            <td>$8,411,500</td>
+                        </tr>
+                        <tr>
+                            <td>Profit Margin</td>
+                            <td>51.0%</td>
+                            <td>81.4%</td>
+                            <td>88.4%</td>
+                            <td>82.7%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">4.4 Return on Investment Analysis</h3>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ROI Metric</th>
+                            <th>Year 1</th>
+                            <th>Year 2</th>
+                            <th>Year 3</th>
+                            <th>3-Year Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Initial Investment</td>
+                            <td>$480,000</td>
+                            <td>$566,000</td>
+                            <td>$715,000</td>
+                            <td>$1,761,000</td>
+                        </tr>
+                        <tr>
+                            <td>Net Profit</td>
+                            <td>$500,000</td>
+                            <td>$2,479,000</td>
+                            <td>$5,432,500</td>
+                            <td>$8,411,500</td>
+                        </tr>
+                        <tr>
+                            <td>Simple ROI (Annual)</td>
+                            <td>104.2%</td>
+                            <td>437.9%</td>
+                            <td>759.8%</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td>Cumulative ROI</td>
+                            <td>104.2%</td>
+                            <td>285.0%</td>
+                            <td>477.6%</td>
+                            <td>477.6%</td>
+                        </tr>
+                        <tr>
+                            <td>Payback Period</td>
+                            <td colspan="3">11.5 months</td>
+                            <td>N/A</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">4.5 Market Share Analysis</h3>
+            <p class="mb-4">
+                Based on market size estimates for EU AI Act compliance solutions:
+            </p>
+            <ul class="list-disc ml-6 mb-6">
+                <li class="mb-2">Total addressable market: €1.6-3.3 billion annually</li>
+                <li class="mb-2">Accessible market (SMEs and mid-market): €800 million - €1.5 billion</li>
+                <li class="mb-2">SGH ASIA Year 3 revenue: €5.7 million (approximately)</li>
+                <li class="mb-2">Expected market share by Year 3: 0.6% of total market, 0.7% of accessible market</li>
+            </ul>
+            <p class="mb-4">
+                This conservative market share projection demonstrates significant room for growth beyond the initial 3-year period, while still delivering strong ROI.
+            </p>
+
+            <h3 class="text-lg font-bold mb-4">4.6 Key Success Factors & Risk Mitigation</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <h4 class="font-bold text-[#0a2463] mb-2">Key Success Factors</h4>
+                    <ul class="list-disc ml-6">
+                        <li class="mb-2">Rapid time-to-market with MVP to establish early presence</li>
+                        <li class="mb-2">Competitive pricing compared to enterprise solutions</li>
+                        <li class="mb-2">Ease of use and intuitive interface for non-technical users</li>
+                        <li class="mb-2">Accurate interpretation of EU AI Act requirements</li>
+                        <li class="mb-2">Effective marketing to raise awareness among target audience</li>
+                        <li class="mb-2">Strong customer support and implementation assistance</li>
+                        <li class="mb-2">Partnerships with AI vendors and consultancies</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-[#0a2463] mb-2">Risk Mitigation Strategies</h4>
+                    <ul class="list-disc ml-6">
+                        <li class="mb-2">Phased investment approach to limit financial exposure</li>
+                        <li class="mb-2">Continuous monitoring of regulatory changes and interpretations</li>
+                        <li class="mb-2">Diverse revenue streams across multiple packages</li>
+                        <li class="mb-2">Legal review of compliance advice and documentation</li>
+                        <li class="mb-2">Regular customer feedback collection and implementation</li>
+                        <li class="mb-2">Flexible architecture to accommodate regulatory evolution</li>
+                        <li class="mb-2">Contingency budget for unexpected development needs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Service Packages -->
+    <div class="section mb-8">
+        <div class="section-header">
+            <h2 class="text-xl">5. Service Packages</h2>
+        </div>
+        <div class="section-content">
+            <p class="mb-6">
+                SGH ASIA will offer a tiered approach to EU AI Act compliance, allowing organizations to select the package that best matches their needs and budget:
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="package-card">
+                    <div class="package-header">
+                        Basic Assessment
+                    </div>
+                    <div class="package-price">
+                        €2,000<span class="text-sm font-normal">/year</span>
+                    </div>
+                    <div class="package-features">
+                        <ul>
+                            <li>✅ AI system risk classification</li>
+                            <li>✅ Compliance requirement identification</li>
+                            <li>✅ Basic compliance checklists</li>
+                            <li>✅ PDF report generation</li>
+                            <li>✅ Single user account</li>
+                            <li>✅ Up to 3 AI systems</li>
+                            <li>✅ Email support</li>
+                            <li>❌ Documentation generation</li>
+                            <li>❌ Compliance dashboard</li>
+                            <li>❌ Risk management tools</li>
+                            <li>❌ Regulatory monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="package-card">
+                    <div class="package-header">
+                        Standard Compliance
+                    </div>
+                    <div class="package-price">
+                        €5,000<span class="text-sm font-normal">/year</span>
+                    </div>
+                    <div class="package-features">
+                        <ul>
+                            <li>✅ Everything in Basic, plus:</li>
+                            <li>✅ Technical documentation generation</li>
+                            <li>✅ Compliance dashboard</li>
+                            <li>✅ Version control for documentation</li>
+                            <li>✅ Task tracking and assignment</li>
+                            <li>✅ Up to 10 AI systems</li>
+                            <li>✅ 5 user accounts</li>
+                            <li>✅ Basic regulatory updates</li>
+                            <li>✅ Email & chat support</li>
+                            <li>❌ Risk management tools</li>
+                            <li>❌ Integration capabilities</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="package-card">
+                    <div class="package-header">
+                        Enterprise Governance
+                    </div>
+                    <div class="package-price">
+                        €20,000<span class="text-sm font-normal">/year</span>
+                    </div>
+                    <div class="package-features">
+                        <ul>
+                            <li>✅ Everything in Standard, plus:</li>
+                            <li>✅ Full risk management system</li>
+                            <li>✅ Real-time regulatory monitoring</li>
+                            <li>✅ Compliance evidence repository</li>
+                            <li>✅ Audit trail and logging</li>
+                            <li>✅ Testing and validation tools</li>
+                            <li>✅ Advanced analytics and reporting</li>
+                            <li>✅ Unlimited AI systems</li>
+                            <li>✅ 20 user accounts</li>
+                            <li>✅ Priority support with SLAs</li>
+                            <li>❌ Custom integrations</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="package-card">
+                    <div class="package-header">
+                        Custom Integration
+                    </div>
+                    <div class="package-price">
+                        €25,000+<span class="text-sm font-normal">/year</span>
+                    </div>
+                    <div class="package-features">
+                        <ul>
+                            <li>✅ Everything in Enterprise, plus:</li>
+                            <li>✅ Custom API integration</li>
+                            <li>✅ DevOps pipeline integration</li>
+                            <li>✅ Data governance platform integration</li>
+                            <li>✅ Custom workflow automation</li>
+                            <li>✅ Multi-language support</li>
+                            <li>✅ Advanced AI model governance</li>
+                            <li>✅ Bias detection and fairness assessment</li>
+                            <li>✅ Multi-jurisdiction compliance</li>
+                            <li>✅ Unlimited users</li>
+                            <li>✅ Dedicated account manager</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">5.1 Professional Services</h3>
+            <p class="mb-4">
+                In addition to the platform packages, SGH ASIA will offer professional services to assist organizations with implementation and ongoing compliance:
+            </p>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Description</th>
+                            <th>Pricing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Implementation Support</td>
+                            <td>Assistance with platform setup, configuration, and initial compliance assessment</td>
+                            <td>From €3,000</td>
+                        </tr>
+                        <tr>
+                            <td>Compliance Consultation</td>
+                            <td>Expert guidance on EU AI Act requirements and compliance strategies</td>
+                            <td>€250/hour</td>
+                        </tr>
+                        <tr>
+                            <td>Documentation Review</td>
+                            <td>Expert review and validation of compliance documentation</td>
+                            <td>From €2,500</td>
+                        </tr>
+                        <tr>
+                            <td>Risk Assessment Workshop</td>
+                            <td>Guided workshop to identify and evaluate AI risks within the organization</td>
+                            <td>From €5,000</td>
+                        </tr>
+                        <tr>
+                            <td>Compliance Training</td>
+                            <td>Training sessions for staff on EU AI Act requirements and compliance practices</td>
+                            <td>From €1,500</td>
+                        </tr>
+                        <tr>
+                            <td>Custom Integration Services</td>
+                            <td>Technical integration with existing systems and workflows</td>
+                            <td>Custom quote</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">5.2 Target Customer Segments</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="border p-4 rounded-lg">
+                    <h4 class="font-bold text-[#0a2463] mb-2">Small Businesses & Startups</h4>
+                    <p class="mb-2"><strong>Target Package:</strong> Basic Assessment</p>
+                    <p class="mb-2"><strong>Key Benefits:</strong></p>
+                    <ul class="list-disc ml-6">
+                        <li>Affordable entry point</li>
+                        <li>Simple compliance guidance</li>
+                        <li>Minimal setup required</li>
+                        <li>Low learning curve</li>
+                    </ul>
+                </div>
+                <div class="border p-4 rounded-lg">
+                    <h4 class="font-bold text-[#0a2463] mb-2">Mid-sized Organizations</h4>
+                    <p class="mb-2"><strong>Target Package:</strong> Standard Compliance</p>
+                    <p class="mb-2"><strong>Key Benefits:</strong></p>
+                    <ul class="list-disc ml-6">
+                        <li>Comprehensive documentation</li>
+                        <li>Team collaboration features</li>
+                        <li>Streamlined compliance processes</li>
+                        <li>Cost-effective for multiple systems</li>
+                    </ul>
+                </div>
+                <div class="border p-4 rounded-lg">
+                    <h4 class="font-bold text-[#0a2463] mb-2">Enterprise Organizations</h4>
+                    <p class="mb-2"><strong>Target Package:</strong> Enterprise Governance / Custom Integration</p>
+                    <p class="mb-2"><strong>Key Benefits:</strong></p>
+                    <ul class="list-disc ml-6">
+                        <li>Comprehensive risk management</li>
+                        <li>Integration with existing processes</li>
+                        <li>Advanced governance capabilities</li>
+                        <li>Multi-team coordination</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">5.3 Customer Success Journey</h3>
+            <div class="mb-6">
+                <div class="flex flex-nowrap overflow-x-auto mb-4 pb-2">
+                    <div class="flex-shrink-0 w-40 p-3 border-r border-blue-200 text-center">
+                        <div class="rounded-full bg-[#0a2463] text-white w-10 h-10 flex items-center justify-center mx-auto mb-2">1</div>
+                        <h4 class="font-bold">Discover</h4>
+                        <p class="text-sm">Identify EU AI Act obligations</p>
+                    </div>
+                    <div class="flex-shrink-0 w-40 p-3 border-r border-blue-200 text-center">
+                        <div class="rounded-full bg-[#0a2463] text-white w-10 h-10 flex items-center justify-center mx-auto mb-2">2</div>
+                        <h4 class="font-bold">Onboard</h4>
+                        <p class="text-sm">Register AI systems and assess risks</p>
+                    </div>
+                    <div class="flex-shrink-0 w-40 p-3 border-r border-blue-200 text-center">
+                        <div class="rounded-full bg-[#0a2463] text-white w-10 h-10 flex items-center justify-center mx-auto mb-2">3</div>
+                        <h4 class="font-bold">Document</h4>
+                        <p class="text-sm">Generate required documentation</p>
+                    </div>
+                    <div class="flex-shrink-0 w-40 p-3 border-r border-blue-200 text-center">
+                        <div class="rounded-full bg-[#0a2463] text-white w-10 h-10 flex items-center justify-center mx-auto mb-2">4</div>
+                        <h4 class="font-bold">Implement</h4>
+                        <p class="text-sm">Apply compliance measures to systems</p>
+                    </div>
+                    <div class="flex-shrink-0 w-40 p-3 border-r border-blue-200 text-center">
+                        <div class="rounded-full bg-[#0a2463] text-white w-10 h-10 flex items-center justify-center mx-auto mb-2">5</div>
+                        <h4 class="font-bold">Monitor</h4>
+                        <p class="text-sm">Track compliance status continuously</p>
+                    </div>
+                    <div class="flex-shrink-0 w-40 p-3 text-center">
+                        <div class="rounded-full bg-[#0a2463] text-white w-10 h-10 flex items-center justify-center mx-auto mb-2">6</div>
+                        <h4 class="font-bold">Evolve</h4>
+                        <p class="text-sm">Adapt to regulatory changes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Demo System -->
+    <div class="section mb-8">
+        <div class="section-header">
+            <h2 class="text-xl">6. Demo System & Next Steps</h2>
+        </div>
+        <div class="section-content">
+            <h3 class="text-lg font-bold mb-4">6.1 Demo System</h3>
+            <div class="mb-6 flex flex-col md:flex-row gap-6">
+                <div class="md:w-2/3">
+                    <p class="mb-4">
+                        A proof-of-concept demo system has been developed to showcase the key functionality of the EU AI Act Compliance Platform. The demo is available at:
+                    </p>
+                    <p class="text-center mb-4">
+                        <a href="https://sgh-eu-ai.sgh-international.com/" target="_blank" class="inline-block bg-[#0a2463] text-white px-4 py-2 rounded-lg hover:bg-blue-800">
+                            https://sgh-eu-ai.sgh-international.com/
+                        </a>
+                    </p>
+                    <p class="mb-4">
+                        The demo system demonstrates:
+                    </p>
+                    <ul class="list-disc ml-6 mb-4">
+                        <li class="mb-2">User registration and authentication</li>
+                        <li class="mb-2">AI system registration interface</li>
+                        <li class="mb-2">Basic risk assessment questionnaire</li>
+                        <li class="mb-2">Compliance requirement generation</li>
+                        <li class="mb-2">Simple dashboard visualization</li>
+                    </ul>
+                    <p>
+                        Login credentials for the demo:
+                    </p>
+                    <ul class="list-disc ml-6">
+                        <li><strong>Username:</strong> demo@sgh-asia.com</li>
+                        <li><strong>Password:</strong> SGHdemo2025!</li>
+                    </ul>
+                </div>
+                <div class="md:w-1/3">
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <h4 class="font-bold text-center mb-3">Demo System Preview</h4>
+                        <div class="bg-white p-2 rounded border mb-4">
+                            <img src="https://cdn.jsdelivr.net/gh/tailwindcss/tailwindcss/src/img/card-top.jpg" alt="Demo System Preview" class="w-full rounded">
+                        </div>
+                        <p class="text-sm text-center text-gray-600">
+                            The demo system provides a glimpse of the future platform's capabilities.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">6.2 Requested Approval</h3>
+            <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                <h4 class="font-bold mb-3">Project Approval Request</h4>
+                <p class="mb-4">
+                    We are requesting approval for:
+                </p>
+                <ul class="list-disc ml-6 mb-4">
+                    <li class="mb-2"><strong>Initial Investment:</strong> $75,000 for Phase 1 development (MVP)</li>
+                    <li class="mb-2"><strong>Development Timeline:</strong> 2 months for Phase 1 completion</li>
+                    <li class="mb-2"><strong>Team Allocation:</strong> 3 developers, 1 designer, 1 regulatory expert</li>
+                    <li class="mb-2"><strong>Go-to-Market Strategy:</strong> Initial marketing and customer acquisition funds</li>
+                </ul>
+                <p class="mb-4">
+                    Upon successful completion of Phase 1 and achievement of revenue targets, we will request approval for Phase 2.
+                </p>
+                <div class="border-t border-blue-200 pt-4 mt-4">
+                    <p class="font-bold">Decision Requested By: April 15, 2025</p>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold mb-4">6.3 Next Steps</h3>
+            <div class="overflow-x-auto mb-6">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Owner</th>
+                            <th>Timeline</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Executive Review & Approval</td>
+                            <td>SGH ASIA Management</td>
+                            <td>By April 15, 2025</td>
+                        </tr>
+                        <tr>
+                            <td>Development Team Assembly</td>
+                            <td>CTO</td>
+                            <td>By April 20, 2025</td>
+                        </tr>
+                        <tr>
+                            <td>Phase 1 Development Kickoff</td>
+                            <td>Project Manager</td>
+                            <td>April 25, 2025</td>
+                        </tr>
+                        <tr>
+                            <td>MVP Launch</td>
+                            <td>Development Team</td>
+                            <td>June 25, 2025</td>
+                        </tr>
+                        <tr>
+                            <td>Initial Marketing Campaign</td>
+                            <td>Marketing Team</td>
+                            <td>June 15-30, 2025</td>
+                        </tr>
+                        <tr>
+                            <td>Phase 1 Review & Phase 2 Planning</td>
+                            <td>Project Team</td>
+                            <td>July 15, 2025</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center mt-12 mb-6 text-gray-500 text-sm">
+        <p>Confidential Business Plan - SGH ASIA EU AI Act Compliance Platform</p>
+        <p>Copyright © 2025 SGH ASIA. All rights reserved.</p>
+    </footer>
+</body>
+</html>

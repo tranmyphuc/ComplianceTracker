@@ -937,6 +937,36 @@ export default function BusinessPlanPage() {
                         </td>
                       </tr>
                       <tr>
+                        <td className="border px-4 py-2 font-medium">Adaptability</td>
+                        <td className="border px-4 py-2 text-muted-foreground">Limited ability to adapt to changing requirements</td>
+                        <td className="border px-4 py-2 text-muted-foreground">High adaptability with AI-driven dynamic components</td>
+                        <td className="border px-4 py-2">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            AI Approach
+                          </Badge>
+                        </td>
+                      </tr>
+                      <tr className="bg-muted/30">
+                        <td className="border px-4 py-2 font-medium">Maintenance Cost</td>
+                        <td className="border px-4 py-2 text-muted-foreground">25-30% of initial development cost annually</td>
+                        <td className="border px-4 py-2 text-muted-foreground">15-20% of initial cost with self-improving AI</td>
+                        <td className="border px-4 py-2">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            AI Approach
+                          </Badge>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="border px-4 py-2 font-medium">Technical Complexity</td>
+                        <td className="border px-4 py-2 text-muted-foreground">Higher initial complexity requiring specialized expertise</td>
+                        <td className="border px-4 py-2 text-muted-foreground">Reduced complexity through AI-powered abstractions</td>
+                        <td className="border px-4 py-2">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            AI Approach
+                          </Badge>
+                        </td>
+                      </tr>
+                      <tr className="bg-muted/30">
                         <td className="border px-4 py-2 font-medium">Regulatory Updates</td>
                         <td className="border px-4 py-2 text-muted-foreground">Manual monitoring and code updates</td>
                         <td className="border px-4 py-2 text-muted-foreground">Automated monitoring with AI-suggested updates</td>
