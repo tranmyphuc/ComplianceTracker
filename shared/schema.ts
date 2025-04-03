@@ -211,6 +211,7 @@ export enum ModuleType {
   COMPLIANCE = 'compliance',
   DOCUMENTATION = 'documentation',
   POLICY = 'policy',
+  SYSTEM_REGISTRATION = 'system_registration',
 }
 
 export enum NotificationFrequency {
