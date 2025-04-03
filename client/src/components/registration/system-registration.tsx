@@ -78,6 +78,8 @@ const initialFormData = {
   expectedLifetime: '',
   maintenanceSchedule: '',
   owner: '',
+  humanOversight: '',  // Added for human oversight measures
+  dataProtectionMeasures: '',  // Added for data protection measures
   deploymentScope: '',
   integrations: [],
   changeHistory: [],
@@ -818,7 +820,11 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         'dataSources': 'trainingDatasets',
         'impactAssessment': 'potentialImpact',
         'oversight': 'humanOversight',
+        'humanOversightMeasures': 'humanOversight', // Add mapping for humanOversightMeasures
+        'oversightMeasures': 'humanOversight', // Add mapping for oversightMeasures
         'dataProtection': 'dataProtectionMeasures',
+        'dataPrivacyMeasures': 'dataProtectionMeasures', // Add mapping for dataPrivacyMeasures
+        'privacyMeasures': 'dataProtectionMeasures', // Add mapping for privacyMeasures
         'security': 'securityMeasures',
         'accuracy': 'accuracyMetrics',
         'mitigation': 'mitigationMeasures',
@@ -1202,6 +1208,30 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
       if (!filledRequiredFields.includes('riskLevel')) {
         filledRequiredFields.push('riskLevel');
       }
+    }
+
+    // Human Oversight handling - check all possible field names from API
+    if (aiResults.humanOversight) {
+      newFormData.humanOversight = aiResults.humanOversight;
+      console.log('✅ Applied Human Oversight:', aiResults.humanOversight);
+    } else if (aiResults.humanOversightMeasures) {
+      newFormData.humanOversight = aiResults.humanOversightMeasures;
+      console.log('✅ Applied Human Oversight from humanOversightMeasures:', aiResults.humanOversightMeasures);
+    } else if (aiResults.oversight) {
+      newFormData.humanOversight = aiResults.oversight;
+      console.log('✅ Applied Human Oversight from oversight:', aiResults.oversight);
+    }
+    
+    // Data Protection handling - check all possible field names from API
+    if (aiResults.dataProtectionMeasures) {
+      newFormData.dataProtectionMeasures = aiResults.dataProtectionMeasures;
+      console.log('✅ Applied Data Protection Measures:', aiResults.dataProtectionMeasures);
+    } else if (aiResults.dataPrivacyMeasures) {
+      newFormData.dataProtectionMeasures = aiResults.dataPrivacyMeasures;
+      console.log('✅ Applied Data Protection from dataPrivacyMeasures:', aiResults.dataPrivacyMeasures);
+    } else if (aiResults.dataProtection) {
+      newFormData.dataProtectionMeasures = aiResults.dataProtection;
+      console.log('✅ Applied Data Protection from dataProtection:', aiResults.dataProtection);
     }
 
     setFormData(newFormData);
