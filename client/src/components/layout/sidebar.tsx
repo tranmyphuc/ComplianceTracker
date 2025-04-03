@@ -30,6 +30,8 @@ import {
   SparklesIcon,
   TagIcon,
   DollarSignIcon,
+  EuroIcon,
+  LineChartIcon,
   TrendingUpIcon as TrendingUpIconLucide, // Added Lucide version
   BriefcaseIcon as BriefcaseIconLucide, // Added Lucide version
   PieChartIcon as PieChartIconLucide, // Added Lucide version
@@ -221,6 +223,20 @@ export function Sidebar({ className, isOpen = true, onClose }: SidebarProps) {
           >
             <BarChart3Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
             <span>Reports</span>
+          </Link>
+          
+          <Link 
+            href="/business-plan"
+            className={cn(
+              "flex items-center px-3 py-2 text-xs sm:text-sm rounded-md text-neutral-700 hover:bg-neutral-100",
+              isActive("/business-plan") && "bg-primary/10 text-primary font-medium",
+              "bg-blue-50"
+            )}
+            onClick={handleItemClick}
+          >
+            <LineChartIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0 text-blue-600" />
+            <span>Business Plan</span>
+            <Badge variant="outline" className="ml-2 px-1.5 py-0.5 h-5 bg-blue-100 border-blue-200 text-blue-700 text-[10px]">New</Badge>
           </Link>
 
           {/* Additional Links */}

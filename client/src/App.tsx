@@ -26,6 +26,7 @@ import GrowthInnovation from "@/pages/growth-innovation";
 import TextRiskAnalyzerPage from "@/pages/risk-assessment/text-analyzer";
 import ExecutiveDashboardPage from "@/pages/executive-dashboard";
 import LegalReviewsPage from "@/pages/legal-reviews";
+import BusinessPlanPage from "@/pages/business-plan";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -96,6 +97,7 @@ function Router() {
     "/knowledge-center/iso42001",
     "/compliance",
     "/compliance-wizard", // New compliance wizard page
+    "/business-plan", // SGH ASIA Business Plan page
     "/governance",
     "/reports",
     "/training",
@@ -211,6 +213,9 @@ function Router() {
       </Route>
       <Route path="/compliance-wizard">
         {() => renderWithLayout(ComplianceWizardPage)}
+      </Route>
+      <Route path="/business-plan">
+        {() => renderWithLayout(BusinessPlanPage)}
       </Route>
       <Route path="/governance">
         {() => renderWithLayout(Dashboard)}
