@@ -14,6 +14,8 @@ interface TechnicalDetailsStepProps {
     humansInLoop: boolean;
     dataSources: string;
     dataProtection: string;
+    dataProtectionMeasures: string;
+    humanOversight: string;
     usesPersonalData: boolean;
     usesSensitiveData: boolean;
     [key: string]: any;
@@ -147,7 +149,26 @@ export const TechnicalDetailsStep: React.FC<TechnicalDetailsStepProps> = ({
             id="dataProtection"
             name="dataProtection"
             placeholder="What measures are in place to protect data?"
-            value={formData.dataProtection}
+            value={formData.dataProtection || formData.dataProtectionMeasures}
+            onChange={(e) => {
+              const { value } = e.target;
+              setFormData((prev: any) => ({ 
+                ...prev, 
+                dataProtection: value,
+                dataProtectionMeasures: value 
+              }));
+            }}
+            rows={2}
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="humanOversight">Human Oversight Measures</Label>
+          <Textarea
+            id="humanOversight"
+            name="humanOversight"
+            placeholder="Describe the human oversight measures for this system"
+            value={formData.humanOversight}
             onChange={handleInputChange}
             rows={2}
           />

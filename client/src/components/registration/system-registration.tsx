@@ -113,10 +113,10 @@ const departments = [
 ];
 
 const riskLevels = [
-  { id: "unacceptable", name: "Unacceptable", description: "Prohibited under Article 5" },
-  { id: "high", name: "High", description: "Systems in Annex III areas" },
-  { id: "limited", name: "Limited", description: "Systems with transparency obligations" },
-  { id: "minimal", name: "Minimal", description: "All other AI systems" }
+  { id: "Unacceptable", name: "Unacceptable", description: "Prohibited under Article 5" },
+  { id: "High", name: "High", description: "Systems in Annex III areas" },
+  { id: "Limited", name: "Limited", description: "Systems with transparency obligations" },
+  { id: "Minimal", name: "Minimal", description: "All other AI systems" }
 ];
 
 const sampleAiSystems = [
@@ -1206,20 +1206,30 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
         
         // Normalize the risk level value
         if (typeof riskValue === 'string') {
-          riskValue = riskValue.toLowerCase();
+          const riskValueLower = riskValue.toLowerCase();
           
           // Map different formats to our expected values
-          if (riskValue.includes('high')) {
+          if (riskValueLower.includes('high')) {
             newFormData.riskLevel = 'High';
-          } else if (riskValue.includes('limit')) {
+          } else if (riskValueLower.includes('limit')) {
             newFormData.riskLevel = 'Limited';
-          } else if (riskValue.includes('minimal') || riskValue.includes('low')) {
+          } else if (riskValueLower.includes('minimal') || riskValueLower.includes('low')) {
             newFormData.riskLevel = 'Minimal';
-          } else if (riskValue.includes('unaccept') || riskValue.includes('prohibit')) {
+          } else if (riskValueLower.includes('unaccept') || riskValueLower.includes('prohibit')) {
             newFormData.riskLevel = 'Unacceptable';
           } else {
-            // Direct assignment if no pattern match
-            newFormData.riskLevel = aiResults[fieldName];
+            // First try to match with our riskLevel ids directly
+            const matchingRiskLevel = riskLevels.find(rl => 
+              rl.id.toLowerCase() === riskValueLower || 
+              rl.name.toLowerCase() === riskValueLower
+            );
+            
+            if (matchingRiskLevel) {
+              newFormData.riskLevel = matchingRiskLevel.id;
+            } else {
+              // Direct assignment if no pattern match
+              newFormData.riskLevel = riskValue;
+            }
           }
           
           console.log(`✅ Applied Risk Level from ${fieldName}:`, newFormData.riskLevel);
@@ -1250,15 +1260,19 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
     // Data Protection handling - check all possible field names from API
     if (aiResults.dataProtectionMeasures) {
       newFormData.dataProtectionMeasures = aiResults.dataProtectionMeasures;
+      newFormData.dataProtection = aiResults.dataProtectionMeasures;
       console.log('✅ Applied Data Protection Measures:', aiResults.dataProtectionMeasures);
     } else if (aiResults.dataPrivacyMeasures) {
       newFormData.dataProtectionMeasures = aiResults.dataPrivacyMeasures;
+      newFormData.dataProtection = aiResults.dataPrivacyMeasures;
       console.log('✅ Applied Data Protection from dataPrivacyMeasures:', aiResults.dataPrivacyMeasures);
     } else if (aiResults.dataProtection) {
       newFormData.dataProtectionMeasures = aiResults.dataProtection;
+      newFormData.dataProtection = aiResults.dataProtection;
       console.log('✅ Applied Data Protection from dataProtection:', aiResults.dataProtection);
     } else if (aiResults.privacyMeasures) {
       newFormData.dataProtectionMeasures = aiResults.privacyMeasures;
+      newFormData.dataProtection = aiResults.privacyMeasures;
       console.log('✅ Applied Data Protection from privacyMeasures:', aiResults.privacyMeasures);
     }
 
