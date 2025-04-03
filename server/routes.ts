@@ -403,11 +403,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create activity for system creation
       await storage.createActivity({
-        type: "system_created",
+        activityType: "system_created", // Fixed field name
         description: `New system "${newSystem.name}" was registered`,
         userId: newSystem.createdBy,
+        // Use the correct fields from the activity schema
+        targetId: newSystem.systemId,
+        targetType: "system",
+        details: { systemName: newSystem.name },
+        // Legacy fields for backward compatibility
+        type: "system_created",
         systemId: newSystem.systemId,
-        timestamp: new Date(),
         metadata: { systemName: newSystem.name }
       });
 
@@ -484,11 +489,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create activity for system update
       await storage.createActivity({
-        type: "system_updated",
+        activityType: "system_updated", // Fixed field name
         description: `System "${updatedSystem.name}" was updated`,
         userId: requestData.updatedBy || updatedSystem.createdBy,
+        // Use the correct fields from the activity schema
+        targetId: updatedSystem.systemId,
+        targetType: "system",
+        details: { systemName: updatedSystem.name },
+        // Legacy fields for backward compatibility
+        type: "system_updated",
         systemId: updatedSystem.systemId,
-        timestamp: new Date(),
         metadata: { systemName: updatedSystem.name }
       });
 
@@ -1568,10 +1578,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create activity record for the assessment
       try {
         await storage.createActivity({
-          type: "risk_assessment",
+          activityType: "risk_assessment", // Fixed field name
           description: `Risk assessment completed for ${system.name}`,
-          systemId: assessmentData.systemId,
+          // Use the correct fields from the activity schema
+          targetId: assessmentData.systemId,
+          targetType: "system",
           userId: assessmentData.createdBy || "system",
+          details: { assessmentId: newAssessment.assessmentId },
+          // Legacy fields for backward compatibility
+          type: "risk_assessment",
+          systemId: assessmentData.systemId,
           metadata: { assessmentId: newAssessment.assessmentId }
         });
       } catch (activityError) {
@@ -1599,11 +1615,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Log the update activity
       await storage.createActivity({
-        type: 'risk_assessment_updated',
+        activityType: 'risk_assessment_updated', // Fixed field name
         description: `Risk assessment updated for ID ${id}`,
         userId: assessmentData.userId || 'system',
+        // Use the correct fields from the activity schema
+        targetId: assessmentData.systemId || '',
+        targetType: "system",
+        details: { assessmentId: updatedAssessment.assessmentId },
+        // Legacy fields for backward compatibility
+        type: 'risk_assessment_updated',
         systemId: assessmentData.systemId || '',
-        timestamp: new Date(),
         metadata: { assessmentId: updatedAssessment.assessmentId }
       });
 
@@ -1636,11 +1657,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Log the deletion activity
       await storage.createActivity({
-        type: 'risk_assessment_deleted',
+        activityType: 'risk_assessment_deleted', // Fixed field name
         description: `Risk assessment deleted: ${id}`,
         userId: req.body.userId || 'system',
+        // Use the correct fields from the activity schema
+        targetId: req.body.systemId || '',
+        targetType: "system",
+        details: { assessmentId: id },
+        // Legacy fields for backward compatibility
+        type: 'risk_assessment_deleted',
         systemId: req.body.systemId || '',
-        timestamp: new Date(),
         metadata: { assessmentId: id }
       });
 

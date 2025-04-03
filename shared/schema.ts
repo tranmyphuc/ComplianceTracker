@@ -224,22 +224,28 @@ export enum NotificationFrequency {
 // Tables for approval workflow
 export const approvalItems = pgTable('approval_items', {
   id: serial('id').primaryKey(),
-  itemId: text('item_id').notNull().unique(),
-  title: text('title').notNull(),
+  workflowId: text('item_id').notNull().unique(), // Maps to item_id in the database
+  name: text('title').notNull(), // Maps to title in the database
   description: text('description'),
   moduleType: text('module_type').notNull(),
-  contentId: text('content_id').notNull(),
+  moduleId: text('content_id').notNull(), // Maps to content_id in the database
   status: text('status').default('pending'),
   priority: text('priority').default('medium'),
   createdAt: timestamp('created_at').defaultNow(),
-  createdBy: text('created_by').references(() => users.uid),
+  submittedBy: text('created_by').references(() => users.uid), // Maps to created_by in the database
   updatedAt: timestamp('updated_at'),
+  // Additional fields needed by the implementation
+  submitterName: text('submitter_name'),
+  department: text('department'),
+  dueDate: timestamp('due_date'),
+  details: jsonb('details'),
+  language: text('language'),
 });
 
 export const approvalAssignments = pgTable('approval_assignments', {
   id: serial('id').primaryKey(),
   assignmentId: text('assignment_id').notNull().unique(),
-  itemId: text('item_id').references(() => approvalItems.itemId),
+  itemId: text('item_id'), // Removed constraint for now to avoid db migration issues
   assignedTo: text('assigned_to').references(() => users.uid),
   assignedBy: text('assigned_by').references(() => users.uid),
   assignedAt: timestamp('assigned_at').defaultNow(),
@@ -251,7 +257,7 @@ export const approvalAssignments = pgTable('approval_assignments', {
 export const approvalHistory = pgTable('approval_history', {
   id: serial('id').primaryKey(),
   historyId: text('history_id').notNull().unique(),
-  itemId: text('item_id').references(() => approvalItems.itemId),
+  itemId: text('item_id'), // Removed constraint for now to avoid db migration issues
   action: text('action').notNull(),
   actionBy: text('action_by').references(() => users.uid),
   actionAt: timestamp('action_at').defaultNow(),
@@ -264,7 +270,7 @@ export const approvalNotifications = pgTable('approval_notifications', {
   id: serial('id').primaryKey(),
   notificationId: text('notification_id').notNull().unique(),
   userId: text('user_id').references(() => users.uid),
-  itemId: text('item_id').references(() => approvalItems.itemId),
+  itemId: text('item_id'), // Removed constraint for now to avoid db migration issues
   message: text('message').notNull(),
   isRead: boolean('is_read').default(false),
   createdAt: timestamp('created_at').defaultNow(),
@@ -327,4 +333,25 @@ export type FeatureFlag = typeof featureFlags.$inferSelect;
 
 export const insertSystemSettingSchema = createInsertSchema(systemSettings).omit({ id: true, created_at: true, updated_at: true });
 export type InsertSystemSetting = z.infer<typeof insertSystemSettingSchema>;
+
+// User activity logging
+export const activities = pgTable('activities', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id').references(() => users.uid),
+  activityType: text('activity_type').notNull(),
+  description: text('description').notNull(),
+  details: jsonb('details'),
+  timestamp: timestamp('timestamp').defaultNow(),
+  targetId: text('target_id'),
+  targetType: text('target_type'),
+  ip: text('ip'),
+  // Support for legacy fields
+  type: text('type'),
+  systemId: text('system_id'),
+  metadata: jsonb('metadata')
+});
+
+export const insertActivitySchema = createInsertSchema(activities).omit({ id: true, timestamp: true });
+export type InsertActivity = z.infer<typeof insertActivitySchema>;
+export type Activity = typeof activities.$inferSelect;
 export type SystemSetting = typeof systemSettings.$inferSelect;
