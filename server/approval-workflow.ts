@@ -203,6 +203,7 @@ async function autoAssignApproval(
     
     // Create history entry
     await db.insert(approvalHistory).values({
+      historyId: `HIST-${uuidv4().substring(0, 8)}`, // Generate unique history ID
       workflowId,
       actionType: 'assigned',
       actionBy: null, // System-generated
@@ -392,6 +393,7 @@ export const createApprovalWorkflow = async (req: Request, res: Response) => {
     
     // Create approval history entry for submission
     await db.insert(approvalHistory).values({
+      historyId: `HIST-${uuidv4().substring(0, 8)}`, // Generate unique history ID
       workflowId,
       actionType: 'submitted',
       actionBy: isDev ? null : userId, // In development mode, set to null to avoid FK constraint
@@ -626,6 +628,7 @@ export const updateApprovalStatus = async (req: Request, res: Response) => {
     
     // Create approval history entry
     await db.insert(approvalHistory).values({
+      historyId: `HIST-${uuidv4().substring(0, 8)}`, // Generate unique history ID
       workflowId: id,
       actionType: validatedData.status === ApprovalStatus.APPROVED ? 'approved' : 'rejected',
       actionBy: userId,
@@ -779,6 +782,7 @@ export const assignApprovalWorkflow = async (req: Request, res: Response) => {
     
     // Create approval history entry
     await db.insert(approvalHistory).values({
+      historyId: `HIST-${uuidv4().substring(0, 8)}`, // Generate unique history ID
       workflowId: id,
       actionType: 'assigned',
       actionBy: userId,
