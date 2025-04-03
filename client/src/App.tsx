@@ -27,6 +27,7 @@ import TextRiskAnalyzerPage from "@/pages/risk-assessment/text-analyzer";
 import ExecutiveDashboardPage from "@/pages/executive-dashboard";
 import LegalReviewsPage from "@/pages/legal-reviews";
 import BusinessPlanPage from "@/pages/business-plan";
+import ImplementationComparisonPage from "@/pages/implementation-comparison";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -98,6 +99,7 @@ function Router() {
     "/compliance",
     "/compliance-wizard", // New compliance wizard page
     "/business-plan", // SGH ASIA Business Plan page
+    "/implementation-comparison", // Implementation comparison page
     "/governance",
     "/reports",
     "/training",
@@ -216,6 +218,9 @@ function Router() {
       </Route>
       <Route path="/business-plan">
         {() => renderWithLayout(BusinessPlanPage)}
+      </Route>
+      <Route path="/implementation-comparison">
+        {() => renderWithLayout(ImplementationComparisonPage)}
       </Route>
       <Route path="/governance">
         {() => renderWithLayout(Dashboard)}

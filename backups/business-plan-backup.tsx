@@ -1051,7 +1051,7 @@ export default function BusinessPlanPage() {
                         <ul className="space-y-3">
                           <li className="flex items-start">
                             <div className="rounded-full bg-green-100 p-1 mr-2 mt-0.5">
-                              <Euro className="h-3.5 w-3.5 text-green-700" />
+                              <EuroIcon className="h-3.5 w-3.5 text-green-700" />
                             </div>
                             <div>
                               <span className="text-sm font-medium">ROI Projection</span>
