@@ -6,7 +6,6 @@ import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { AlertCircle } from "lucide-react";
 import { Button } from "../ui/button";
-import { IntegratedApprovalButton } from "../approval/integrated-approval-button";
 
 interface ReviewSubmitStepProps {
   formData: {
@@ -248,22 +247,11 @@ export const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
         </div>
       </div>
       
-      {/* Add approval button */}
-      <div className="mt-6 flex justify-between">
-        <IntegratedApprovalButton 
-          moduleId={formData.systemId || `AI-SYS-${Math.floor(1000 + Math.random() * 9000)}`}
-          moduleType="system_registration"
-          moduleName={`System Registration: ${formData.name || 'Unnamed System'}`}
-          moduleData={{
-            systemName: formData.name || 'Unnamed System',
-            riskLevel: formData.riskLevel || 'Unknown',
-            department: formData.department || '',
-            description: formData.description || '',
-          }}
-          buttonText={`Request Approval for ${formData.name || 'This System'}`}
-          buttonVariant="outline"
-          className="w-full"
-        />
+      {/* Approval note - approval functionality moved to inventory */}
+      <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+        <p className="text-sm text-blue-700">
+          After registration, you can manage approval status for this AI system in the AI Inventory section.
+        </p>
       </div>
     </div>
   );
