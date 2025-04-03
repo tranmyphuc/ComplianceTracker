@@ -28,6 +28,8 @@ import ExecutiveDashboardPage from "@/pages/executive-dashboard";
 import LegalReviewsPage from "@/pages/legal-reviews";
 import BusinessPlanPage from "@/pages/business-plan";
 import ImplementationComparisonPage from "@/pages/implementation-comparison";
+import LandingPage from "@/pages/landing-page";
+import { LandingLayout } from "@/components/layout/landing-layout";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
 import { useLocation } from "wouter";
@@ -84,6 +86,7 @@ function Router() {
 
   const allRoutes = [
     "/",
+    "/landing",
     "/inventory",
     "/risk-assessment",
     "/risk-assessment/guides",
@@ -167,9 +170,16 @@ function Router() {
       </AppLayout>
     );
   };
+  
+  const renderLandingPage = () => {
+    return <LandingPage />;
+  };
 
   return (
     <Switch>
+      <Route path="/landing">
+        {() => renderLandingPage()}
+      </Route>
       <Route path="/">
         {() => renderWithLayout(Dashboard)}
       </Route>

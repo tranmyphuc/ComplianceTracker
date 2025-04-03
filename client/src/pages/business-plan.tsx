@@ -918,39 +918,30 @@ export default function BusinessPlanPage() {
               </div>
               <div className="flex flex-wrap gap-3 mb-5">
                 <button 
-                  className="px-5 py-2.5 rounded-lg bg-blue-100 text-blue-800 font-medium text-sm hover:bg-blue-200 transition-colors flex items-center"
+                  className={`px-5 py-2.5 rounded-lg ${currentApproach === 'ai' ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-800'} font-medium text-sm hover:bg-blue-200 hover:text-blue-800 transition-colors flex items-center`}
                   onClick={() => {
                     // Update view to AI-first approach
-                    toast({
-                      title: "Speed-focused approach selected",
-                      description: "Implementation details updated to show the AI-first approach with fastest timeline.",
-                    });
+                    changeInvestmentApproach('ai');
                   }}
                 >
                   <ZapIcon className="h-4 w-4 mr-2" />
                   Speed-Focused (6-7 months)
                 </button>
                 <button 
-                  className="px-5 py-2.5 rounded-lg bg-purple-100 text-purple-800 font-medium text-sm hover:bg-purple-200 transition-colors flex items-center"
+                  className={`px-5 py-2.5 rounded-lg ${currentApproach === 'balanced' ? 'bg-purple-500 text-white' : 'bg-purple-100 text-purple-800'} font-medium text-sm hover:bg-purple-200 hover:text-purple-800 transition-colors flex items-center`}
                   onClick={() => {
                     // Update view to balanced approach
-                    toast({
-                      title: "Balanced approach selected",
-                      description: "Implementation details updated to show the hybrid approach with balanced timeline and costs.",
-                    });
+                    changeInvestmentApproach('balanced');
                   }}
                 >
                   <ScalesIcon className="h-4 w-4 mr-2" />
                   Balanced Approach (9-10 months)
                 </button>
                 <button 
-                  className="px-5 py-2.5 rounded-lg bg-green-100 text-green-800 font-medium text-sm hover:bg-green-200 transition-colors flex items-center"
+                  className={`px-5 py-2.5 rounded-lg ${currentApproach === 'traditional' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-800'} font-medium text-sm hover:bg-green-200 hover:text-green-800 transition-colors flex items-center`}
                   onClick={() => {
                     // Update view to cost-optimized approach
-                    toast({
-                      title: "Cost-optimized approach selected",
-                      description: "Implementation details updated to show the traditional approach with lower monthly costs.",
-                    });
+                    changeInvestmentApproach('traditional');
                   }}
                 >
                   <BalanceIcon className="h-4 w-4 mr-2" />
@@ -1300,7 +1291,8 @@ export default function BusinessPlanPage() {
                 <CardDescription>
                   Detailed Work Breakdown Structure (WBS) for {
                     currentApproach === 'traditional' ? 'Traditional Development (€1.5M)' : 
-                    currentApproach === 'ai' ? 'AI Agent Implementation (€1.2M)' : 'Balanced Approach (€1.3M)'
+                    currentApproach === 'ai' ? 'AI-First Implementation (€1.2M)' : 
+                    'Balanced Approach (€1.3M)'
                   }
                 </CardDescription>
               </CardHeader>
