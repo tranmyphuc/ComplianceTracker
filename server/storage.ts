@@ -10,6 +10,7 @@ import {
   approvalHistory, type ApprovalHistory, type InsertApprovalHistory,
   approvalNotifications, type ApprovalNotification, type InsertApprovalNotification,
   approvalSettings, type ApprovalSettings, type InsertApprovalSettings,
+  activities, type Activity, type InsertActivity,
   ApprovalPriority, ApprovalStatus, ModuleType, NotificationFrequency
 } from "@shared/schema";
 import { documentFiles, type DocumentFile, type InsertDocumentFile } from "@shared/schemas/document";
