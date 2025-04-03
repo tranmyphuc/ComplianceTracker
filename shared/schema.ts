@@ -6,6 +6,17 @@ import { z } from "zod";
 // User role enum
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin', 'operator', 'developer', 'decision_maker']);
 
+// API Keys table
+export const apiKeys = pgTable('api_keys', {
+  id: serial('id').primaryKey(),
+  provider: text('provider').notNull(),
+  key: text('key').notNull(),
+  description: text('description'),
+  active: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  lastUsed: timestamp('last_used')
+});
+
 // User table
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -333,6 +344,11 @@ export type FeatureFlag = typeof featureFlags.$inferSelect;
 
 export const insertSystemSettingSchema = createInsertSchema(systemSettings).omit({ id: true, created_at: true, updated_at: true });
 export type InsertSystemSetting = z.infer<typeof insertSystemSettingSchema>;
+
+// API Keys schema
+export const insertApiKeySchema = createInsertSchema(apiKeys).omit({ id: true, createdAt: true, lastUsed: true });
+export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
+export type ApiKey = typeof apiKeys.$inferSelect;
 
 // User activity logging
 export const activities = pgTable('activities', {

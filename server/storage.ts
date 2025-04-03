@@ -11,6 +11,7 @@ import {
   approvalNotifications, type ApprovalNotification, type InsertApprovalNotification,
   approvalSettings, type ApprovalSettings, type InsertApprovalSettings,
   activities, type Activity, type InsertActivity,
+  apiKeys, type ApiKey, type InsertApiKey,
   ApprovalPriority, ApprovalStatus, ModuleType, NotificationFrequency
 } from "@shared/schema";
 import { documentFiles, type DocumentFile, type InsertDocumentFile } from "@shared/schemas/document";
@@ -62,6 +63,13 @@ export interface IStorage {
   createDocumentFile(document: InsertDocumentFile): Promise<DocumentFile>;
   getDocumentFileById(documentId: string): Promise<DocumentFile | null>;
   getDocumentFilesByAssessment(assessmentId: string): Promise<DocumentFile[]>;
+  
+  // API Key operations
+  getApiKeys(provider?: string): Promise<ApiKey[]>;
+  getApiKey(id: number): Promise<ApiKey | undefined>;
+  createApiKey(apiKey: InsertApiKey): Promise<ApiKey>;
+  updateApiKey(id: number, apiKey: Partial<ApiKey>): Promise<ApiKey | undefined>;
+  deleteApiKey(id: number): Promise<boolean>;
   getDocumentFilesBySystem(systemId: string): Promise<DocumentFile[]>;
   deleteDocumentFile(documentId: string): Promise<boolean>;
 
@@ -370,6 +378,7 @@ export class MemStorage implements IStorage {
     this.expertReviews = new Map();
     this.euAiActArticles = new Map();
     this.articleVersions = new Map();
+    this.apiKeys = new Map();
 
     this.userIdCounter = 1;
     this.systemIdCounter = 1;
@@ -382,6 +391,7 @@ export class MemStorage implements IStorage {
     this.expertReviewIdCounter = 1;
     this.euAiActArticleIdCounter = 1;
     this.articleVersionIdCounter = 1;
+    this.apiKeyIdCounter = 1;
 
     // Initialize with some sample departments
     this.initializeDepartments();
@@ -758,6 +768,47 @@ export class MemStorage implements IStorage {
     const versions = await this.getArticleVersions(articleId);
     return versions.length > 0 ? versions[0] : undefined;
   }
+  
+  // API Key operations
+  private apiKeys: Map<number, ApiKey>;
+  private apiKeyIdCounter: number;
+  
+  async getApiKeys(provider?: string): Promise<ApiKey[]> {
+    if (provider) {
+      return Array.from(this.apiKeys.values()).filter(key => key.provider === provider);
+    }
+    return Array.from(this.apiKeys.values());
+  }
+  
+  async getApiKey(id: number): Promise<ApiKey | undefined> {
+    return this.apiKeys.get(id);
+  }
+  
+  async createApiKey(apiKey: InsertApiKey): Promise<ApiKey> {
+    const id = this.apiKeyIdCounter++;
+    const now = new Date();
+    const newApiKey: ApiKey = { 
+      ...apiKey, 
+      id, 
+      createdAt: now, 
+      lastUsed: null
+    };
+    this.apiKeys.set(id, newApiKey);
+    return newApiKey;
+  }
+  
+  async updateApiKey(id: number, apiKey: Partial<ApiKey>): Promise<ApiKey | undefined> {
+    const existingApiKey = this.apiKeys.get(id);
+    if (!existingApiKey) return undefined;
+    
+    const updatedApiKey = { ...existingApiKey, ...apiKey };
+    this.apiKeys.set(id, updatedApiKey);
+    return updatedApiKey;
+  }
+  
+  async deleteApiKey(id: number): Promise<boolean> {
+    return this.apiKeys.delete(id);
+  }
 
   createRiskManagementSystem(rms: any): Promise<any> { throw new Error("Method not implemented."); }
   getRiskManagementSystemBySystemId(systemId: string): Promise<any> { throw new Error("Method not implemented."); }
@@ -871,6 +922,47 @@ export class MemStorage implements IStorage {
     }
     
     return this.expertReviews.delete(review.id);
+  }
+  
+  // API Key operations
+  async getApiKeys(provider?: string): Promise<ApiKey[]> {
+    let keys = Array.from(this.apiKeys.values());
+    
+    if (provider) {
+      keys = keys.filter(key => key.provider === provider);
+    }
+    
+    return keys;
+  }
+  
+  async getApiKey(id: number): Promise<ApiKey | undefined> {
+    return this.apiKeys.get(id);
+  }
+  
+  async createApiKey(apiKey: InsertApiKey): Promise<ApiKey> {
+    const id = this.apiKeyIdCounter++;
+    const now = new Date();
+    const newApiKey: ApiKey = {
+      ...apiKey,
+      id,
+      createdAt: now,
+      lastUsed: null
+    };
+    this.apiKeys.set(id, newApiKey);
+    return newApiKey;
+  }
+  
+  async updateApiKey(id: number, apiKey: Partial<ApiKey>): Promise<ApiKey | undefined> {
+    const existingApiKey = this.apiKeys.get(id);
+    if (!existingApiKey) return undefined;
+    
+    const updatedApiKey = { ...existingApiKey, ...apiKey };
+    this.apiKeys.set(id, updatedApiKey);
+    return updatedApiKey;
+  }
+  
+  async deleteApiKey(id: number): Promise<boolean> {
+    return this.apiKeys.delete(id);
   }
 }
 
@@ -2010,6 +2102,77 @@ export class DatabaseStorage implements IStorage {
       return undefined;
     }
   }
+  
+  // API Key operations
+  async getApiKeys(provider?: string): Promise<ApiKey[]> {
+    try {
+      let query = db.select().from(apiKeys);
+      
+      if (provider) {
+        query = query.where(eq(apiKeys.provider, provider));
+      }
+      
+      return await query;
+    } catch (error) {
+      console.error("Error in getApiKeys:", error);
+      return [];
+    }
+  }
+  
+  async getApiKey(id: number): Promise<ApiKey | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(apiKeys)
+        .where(eq(apiKeys.id, id))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error in getApiKey:", error);
+      return undefined;
+    }
+  }
+  
+  async createApiKey(apiKey: InsertApiKey): Promise<ApiKey> {
+    try {
+      const newApiKey = {
+        ...apiKey,
+        createdAt: new Date()
+      };
+      const result = await db.insert(apiKeys).values(newApiKey).returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error in createApiKey:", error);
+      throw error;
+    }
+  }
+  
+  async updateApiKey(id: number, apiKey: Partial<ApiKey>): Promise<ApiKey | undefined> {
+    try {
+      const result = await db
+        .update(apiKeys)
+        .set(apiKey)
+        .where(eq(apiKeys.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error in updateApiKey:", error);
+      return undefined;
+    }
+  }
+  
+  async deleteApiKey(id: number): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(apiKeys)
+        .where(eq(apiKeys.id, id))
+        .returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error("Error in deleteApiKey:", error);
+      return false;
+    }
+  }
 }
 
 /**
@@ -2508,6 +2671,57 @@ export class HybridStorage implements IStorage {
       console.error("Error in getLatestArticleVersion, falling back to memory storage:", error);
       this.useDatabase = false;
       return this.memStorage.getLatestArticleVersion(articleId);
+    }
+  }
+  
+  // API Key operations
+  async getApiKeys(provider?: string): Promise<ApiKey[]> {
+    try {
+      return await this.storage.getApiKeys(provider);
+    } catch (error) {
+      console.error("Error in getApiKeys, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getApiKeys(provider);
+    }
+  }
+  
+  async getApiKey(id: number): Promise<ApiKey | undefined> {
+    try {
+      return await this.storage.getApiKey(id);
+    } catch (error) {
+      console.error("Error in getApiKey, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getApiKey(id);
+    }
+  }
+  
+  async createApiKey(apiKey: InsertApiKey): Promise<ApiKey> {
+    try {
+      return await this.storage.createApiKey(apiKey);
+    } catch (error) {
+      console.error("Error in createApiKey, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.createApiKey(apiKey);
+    }
+  }
+  
+  async updateApiKey(id: number, apiKey: Partial<ApiKey>): Promise<ApiKey | undefined> {
+    try {
+      return await this.storage.updateApiKey(id, apiKey);
+    } catch (error) {
+      console.error("Error in updateApiKey, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.updateApiKey(id, apiKey);
+    }
+  }
+  
+  async deleteApiKey(id: number): Promise<boolean> {
+    try {
+      return await this.storage.deleteApiKey(id);
+    } catch (error) {
+      console.error("Error in deleteApiKey, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.deleteApiKey(id);
     }
   }
 }
