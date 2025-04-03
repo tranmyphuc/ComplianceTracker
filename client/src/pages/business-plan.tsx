@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   ChevronDown, 
   ChevronUp, 
+  ChevronRight,
   Download, 
   ExternalLink, 
   FileText, 
@@ -17,7 +18,7 @@ import {
   Euro,
   Info as InfoIcon,
   GitMerge as GitMergeIcon,
-  BarChart3 as BarChart3Icon,
+  BarChart3,
   Check as CheckIcon,
   PieChart as PieChartIcon,
   Calendar as CalendarIcon,
@@ -36,24 +37,25 @@ import {
   Code as CodeIcon,
   Lock as LockIcon,
   Unlock as UnlockIcon,
-  ArrowRight as ArrowRightIcon,
+  ArrowRight,
+  Compass,
+  Lightbulb,
+  Scale as BalanceIcon,
   Building as BuildingIcon,
   Star as StarIcon,
   Banknote as BanknoteIcon,
   RefreshCw as RefreshCwIcon,
   UserCog as UserCogIcon,
   CheckCheck as CheckCheckIcon,
-  Shield as ShieldIcon,
+  Shield,
   Gauge as GaugeIcon,
   Puzzle as PuzzleIcon,
-  Compass,
   CircleDollarSign as CircleDollarSignIcon,
   FileText as FileTextIcon,
   BookOpen as BookOpenIcon,
-  Scale as ScaleIcon,
   GanttChart as GanttChartIcon,
   Unplug as UnplugIcon,
-  Scale as BalanceIcon
+  Cpu
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -173,8 +175,8 @@ export default function BusinessPlanPage() {
     }
   ]);
   
-  // State for investment details
-  const [investmentDetails, setInvestmentDetails] = useState<InvestmentDetail[]>([
+  // Investment models for different approaches
+  const traditionalInvestmentDetails: InvestmentDetail[] = [
     { 
       category: "Technical Development", 
       amount: 650000, 
@@ -232,7 +234,227 @@ export default function BusinessPlanPage() {
         { category: "Business Tools", amount: 25000, description: "Software subscriptions, productivity tools", percentage: 2 }
       ]
     }
-  ]);
+  ];
+
+  // Enhanced AI Agent Implementation Approach - Detailed WBS
+  const aiImplementationInvestmentDetails: InvestmentDetail[] = [
+    { 
+      category: "Technical Development", 
+      amount: 420000, 
+      description: "AI-accelerated development with reduced traditional coding effort", 
+      percentage: 35,
+      subItems: [
+        { category: "AI-Assisted Frontend Development", amount: 120000, description: "Component generation with LLM coding assistants, automated UI/UX testing", percentage: 10 },
+        { category: "AI-Enhanced Backend Services", amount: 110000, description: "Service scaffolding, API design automation, intelligent data pipelines", percentage: 9 },
+        { category: "AI DevOps Optimization", amount: 95000, description: "Self-healing infrastructure, automated monitoring, intelligent CI/CD", percentage: 8 },
+        { category: "Autonomous Testing & QA", amount: 95000, description: "AI-driven test generation, adaptive test suites, vulnerability scanning", percentage: 8 }
+      ]
+    },
+    { 
+      category: "AI & Data Science", 
+      amount: 480000, 
+      description: "Enhanced AI capabilities with specialized models for regulatory compliance", 
+      percentage: 40,
+      subItems: [
+        { category: "Advanced LLM Integration", amount: 160000, description: "Fine-tuned LLMs for regulatory context, complex prompt systems, domain adaptation", percentage: 13 },
+        { category: "Synthetic Data Generation", amount: 90000, description: "Training data augmentation, synthetic regulatory examples, edge case simulation", percentage: 8 },
+        { category: "AI Verification Framework", amount: 120000, description: "Advanced validation systems, compliance accuracy metrics, trust mechanisms", percentage: 10 },
+        { category: "AI Governance & Explainability", amount: 110000, description: "Comprehensive explainability tools, auditability functions, decision proofs", percentage: 9 }
+      ]
+    },
+    { 
+      category: "Compliance Research", 
+      amount: 85000, 
+      description: "AI-assisted legal research with expert validation", 
+      percentage: 7,
+      subItems: [
+        { category: "AI-Augmented Regulatory Analysis", amount: 35000, description: "Automated regulation tracking, change detection, impact assessment", percentage: 3 },
+        { category: "Intelligent Framework Development", amount: 30000, description: "AI-generated compliance methodologies with expert refinement", percentage: 2.5 },
+        { category: "Automated Documentation Generation", amount: 20000, description: "Template automation, intelligent adaptation to specific use cases", percentage: 1.5 }
+      ]
+    },
+    { 
+      category: "Sales & Marketing", 
+      amount: 150000, 
+      description: "Data-driven marketing with intelligent analytics", 
+      percentage: 12.5,
+      subItems: [
+        { category: "AI-Optimized Market Strategy", amount: 55000, description: "Market trend analysis, competitive positioning, automated segment targeting", percentage: 4.5 },
+        { category: "Intelligent Content Marketing", amount: 50000, description: "AI-generated specialized content, personalized marketing assets", percentage: 4 },
+        { category: "Predictive Sales Intelligence", amount: 45000, description: "Lead scoring, conversion prediction, engagement optimization", percentage: 4 }
+      ]
+    },
+    { 
+      category: "Operations & Admin", 
+      amount: 65000, 
+      description: "Streamlined operations with intelligent workflow automation", 
+      percentage: 5.5,
+      subItems: [
+        { category: "AI Project Management", amount: 25000, description: "Intelligent project scheduling, resource optimization, risk prediction", percentage: 2 },
+        { category: "Workflow Automation", amount: 23000, description: "Administrative task automation, intelligent document processing", percentage: 2 },
+        { category: "Optimization Tools", amount: 17000, description: "AI-enhanced productivity suite, intelligent knowledge management", percentage: 1.5 }
+      ]
+    }
+  ];
+
+  // Balanced Approach - Detailed WBS
+  const balancedInvestmentDetails: InvestmentDetail[] = [
+    { 
+      category: "Technical Development", 
+      amount: 510000, 
+      description: "Hybrid development combining traditional and AI-assisted approaches", 
+      percentage: 39,
+      subItems: [
+        { category: "Hybrid Frontend Development", amount: 150000, description: "Traditional development for critical components, AI assistance for standard elements", percentage: 11.5 },
+        { category: "Semi-Automated Backend Services", amount: 140000, description: "Framework-based development with AI enhancements for routine code", percentage: 10.5 },
+        { category: "Enhanced DevOps Pipeline", amount: 120000, description: "Traditional infrastructure with AI-powered monitoring and optimization", percentage: 9 },
+        { category: "Comprehensive Testing Strategy", amount: 100000, description: "Manual testing for critical paths, AI-assisted for regression and edge cases", percentage: 8 }
+      ]
+    },
+    { 
+      category: "AI & Data Science", 
+      amount: 400000, 
+      description: "Strategic AI implementation focused on high-impact areas", 
+      percentage: 30,
+      subItems: [
+        { category: "Selective LLM Integration", amount: 130000, description: "Focused AI implementation in compliance assessment and documentation generation", percentage: 10 },
+        { category: "Hybrid Data Management", amount: 90000, description: "Traditional data processing with AI enhancement for complex patterns", percentage: 7 },
+        { category: "Validation Framework", amount: 100000, description: "Combined traditional testing methods with AI verification for critical components", percentage: 7.5 },
+        { category: "Explainability Solution", amount: 80000, description: "Balanced approach to transparent AI decisions with human oversight", percentage: 5.5 }
+      ]
+    },
+    { 
+      category: "Compliance Research", 
+      amount: 130000, 
+      description: "Expert-led research with AI-assisted analysis", 
+      percentage: 10,
+      subItems: [
+        { category: "Expert Regulatory Analysis", amount: 55000, description: "Legal expert analysis supplemented with AI research assistance", percentage: 4 },
+        { category: "Collaborative Framework Development", amount: 45000, description: "Expert-designed frameworks with AI-generated components", percentage: 3.5 },
+        { category: "Semi-Automated Documentation", amount: 30000, description: "Template-based approach with intelligent content generation", percentage: 2.5 }
+      ]
+    },
+    { 
+      category: "Sales & Marketing", 
+      amount: 180000, 
+      description: "Traditional marketing strategies enhanced with data analytics", 
+      percentage: 14,
+      subItems: [
+        { category: "Research-Based Market Strategy", amount: 65000, description: "Traditional market analysis supplemented with AI insights", percentage: 5 },
+        { category: "Enhanced Content Marketing", amount: 60000, description: "Expert-created core content with AI-assisted variants and optimization", percentage: 4.5 },
+        { category: "Data-Enhanced Sales", amount: 55000, description: "Traditional sales approach with data-driven insights and targeting", percentage: 4.5 }
+      ]
+    },
+    { 
+      category: "Operations & Admin", 
+      amount: 80000, 
+      description: "Traditional operations with process automation", 
+      percentage: 7,
+      subItems: [
+        { category: "Hybrid Project Management", amount: 30000, description: "Traditional PM methodologies with AI tools for optimization", percentage: 2.5 },
+        { category: "Selective Process Automation", amount: 28000, description: "Automation of routine tasks while maintaining traditional oversight", percentage: 2 },
+        { category: "Integrated Business Tools", amount: 22000, description: "Standard business tools with AI enhancements for productivity", percentage: 2.5 }
+      ]
+    }
+  ];
+
+  // SWOT Analysis for different approaches
+  const swotAnalysis = {
+    ai: {
+      strengths: [
+        "Accelerated development speed with AI assistance (6-7 months timeframe)",
+        "Reduced resource requirements with smaller, specialized teams",
+        "Highly adaptable platform with automated regulatory monitoring",
+        "Lower long-term maintenance costs with self-improving components",
+        "Rapid scalability for multiple jurisdictions and regulations"
+      ],
+      weaknesses: [
+        "Higher API service costs for AI model access and usage",
+        "Dependency on third-party AI service providers",
+        "Requires specialized AI expertise and integration knowledge",
+        "Potential variability in AI-generated content quality",
+        "Increased complexity in debugging hybrid AI/traditional systems"
+      ],
+      opportunities: [
+        "Market leadership through early compliance platform launch",
+        "Continuous improvement through AI learning capabilities",
+        "Ability to rapidly adapt to EU AI Act amendments",
+        "Expanded service offerings through AI partnerships",
+        "Higher competitive advantage with advanced compliance features"
+      ],
+      threats: [
+        "AI service provider policy or pricing changes",
+        "Reliability concerns from potential customers",
+        "Evolving data privacy regulations affecting AI usage",
+        "Competition from well-funded AI regulation platforms",
+        "Security vulnerabilities in AI model integration"
+      ]
+    },
+    balanced: {
+      strengths: [
+        "Optimized speed-to-market (9-10 months) with reasonable costs",
+        "Selective AI implementation in high-impact compliance areas",
+        "Greater control over critical platform components",
+        "Balanced expertise requirements with mixed team skills",
+        "Flexibility to adjust AI vs. traditional approach during development"
+      ],
+      weaknesses: [
+        "More complex project management with hybrid development model",
+        "Moderate API costs for selective AI implementation",
+        "Integration challenges between AI and traditional components",
+        "Additional verification needed for AI-human handoff points",
+        "Longer timeline than full AI implementation approach"
+      ],
+      opportunities: [
+        "Competitive positioning with optimal quality/cost ratio",
+        "Broader market appeal with proven hybrid approach",
+        "Gradual AI integration allowing for careful validation",
+        "Lower perceived risk profile for enterprise customers",
+        "Ability to leverage both AI and traditional strengths"
+      ],
+      threats: [
+        "Market may favor either full AI or traditional approaches",
+        "Coordination challenges between traditional and AI components",
+        "Internal resistance to hybrid methodology",
+        "Difficulty in establishing clear competitive differentiation",
+        "Increased complexity in compliance validation"
+      ]
+    },
+    traditional: {
+      strengths: [
+        "Well-established methodologies with predictable outcomes",
+        "Lower complexity in project management and accountability",
+        "Greater control over all aspects of development",
+        "No dependency on third-party AI services or APIs",
+        "Familiar approaches that teams already understand"
+      ],
+      weaknesses: [
+        "Higher development costs requiring larger teams",
+        "Significantly longer time-to-market (12-18 months)",
+        "Limited ability to scale quickly with changing regulations",
+        "Higher maintenance costs over time",
+        "Greater resource requirements for documentation"
+      ],
+      opportunities: [
+        "Building deep institutional knowledge through the development process",
+        "Creating proprietary solutions that could become competitive advantages",
+        "Developing specialized expertise that could be marketed to clients",
+        "Potential for licensing custom-built components to other solutions",
+        "Greater control over intellectual property"
+      ],
+      threats: [
+        "Emerging AI-based competitors may reach market significantly faster",
+        "Rapid regulatory changes could outpace development capabilities",
+        "Talent acquisition challenges for specialized compliance expertise",
+        "Higher risk of cost overruns due to regulatory complexity",
+        "Extended development timeline increases market timing risks"
+      ]
+    }
+  };
+
+  // State for investment details with different approaches
+  const [currentApproach, setCurrentApproach] = useState<'traditional' | 'ai' | 'balanced'>('traditional');
+  const [investmentDetails, setInvestmentDetails] = useState<InvestmentDetail[]>(traditionalInvestmentDetails);
 
   // Resource allocation data
   const resourceAllocation: ResourceAllocation[] = [
@@ -408,6 +630,25 @@ export default function BusinessPlanPage() {
     toast({
       title: "Plan Updated",
       description: `Implementation plan adjusted with focus on ${focusArea} priorities.`,
+    });
+  };
+  
+  // Function to change the investment approach
+  const changeInvestmentApproach = (approach: 'traditional' | 'ai' | 'balanced') => {
+    setCurrentApproach(approach);
+    
+    // Update investment details based on the selected approach
+    if (approach === 'traditional') {
+      setInvestmentDetails(traditionalInvestmentDetails);
+    } else if (approach === 'ai') {
+      setInvestmentDetails(aiImplementationInvestmentDetails);
+    } else {
+      setInvestmentDetails(balancedInvestmentDetails);
+    }
+    
+    toast({
+      title: "Investment Plan Updated",
+      description: `Showing ${approach === 'traditional' ? 'Traditional Development' : approach === 'ai' ? 'AI Agent Implementation' : 'Balanced Approach'} investment breakdown.`,
     });
   };
   
@@ -663,6 +904,255 @@ export default function BusinessPlanPage() {
         
         {/* Implementation Tab */}
         <TabsContent value="implementation" className="space-y-4 py-4">
+          {/* Implementation Approach Selector Card */}
+          <Card className="border-blue-100 shadow-sm">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+              <CardTitle className="text-blue-800">Implementation Approach Selector</CardTitle>
+              <CardDescription>
+                Choose the best implementation strategy based on your organization's priorities
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-5">
+              <div className="mb-4 text-sm text-muted-foreground">
+                <p>Select your preferred implementation approach below to view detailed timelines, resource requirements, and investment breakdowns.</p>
+              </div>
+              <div className="flex flex-wrap gap-3 mb-5">
+                <button 
+                  className="px-5 py-2.5 rounded-lg bg-blue-100 text-blue-800 font-medium text-sm hover:bg-blue-200 transition-colors flex items-center"
+                  onClick={() => {
+                    // Update view to AI-first approach
+                    toast({
+                      title: "Speed-focused approach selected",
+                      description: "Implementation details updated to show the AI-first approach with fastest timeline.",
+                    });
+                  }}
+                >
+                  <ZapIcon className="h-4 w-4 mr-2" />
+                  Speed-Focused (6-7 months)
+                </button>
+                <button 
+                  className="px-5 py-2.5 rounded-lg bg-purple-100 text-purple-800 font-medium text-sm hover:bg-purple-200 transition-colors flex items-center"
+                  onClick={() => {
+                    // Update view to balanced approach
+                    toast({
+                      title: "Balanced approach selected",
+                      description: "Implementation details updated to show the hybrid approach with balanced timeline and costs.",
+                    });
+                  }}
+                >
+                  <ScalesIcon className="h-4 w-4 mr-2" />
+                  Balanced Approach (9-10 months)
+                </button>
+                <button 
+                  className="px-5 py-2.5 rounded-lg bg-green-100 text-green-800 font-medium text-sm hover:bg-green-200 transition-colors flex items-center"
+                  onClick={() => {
+                    // Update view to cost-optimized approach
+                    toast({
+                      title: "Cost-optimized approach selected",
+                      description: "Implementation details updated to show the traditional approach with lower monthly costs.",
+                    });
+                  }}
+                >
+                  <BalanceIcon className="h-4 w-4 mr-2" />
+                  Cost-Optimized (12-14 months)
+                </button>
+              </div>
+              
+              {/* SWOT Analysis Tabs */}
+              <div className="mt-6">
+                <Tabs defaultValue="ai" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="ai" className="text-sm">AI-First Approach</TabsTrigger>
+                    <TabsTrigger value="balanced" className="text-sm">Balanced Approach</TabsTrigger>
+                    <TabsTrigger value="traditional" className="text-sm">Traditional Approach</TabsTrigger>
+                  </TabsList>
+                  <div className="mt-4 rounded-md border p-4">
+                    <TabsContent value="ai" className="mt-0">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-blue-50 rounded-md p-4">
+                          <h4 className="font-medium text-blue-800 mb-2 flex items-center">
+                            <CheckCircle2 className="h-4 w-4 mr-2" />
+                            Strengths
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.ai.strengths.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <CheckIcon className="h-3.5 w-3.5 text-blue-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-red-50 rounded-md p-4">
+                          <h4 className="font-medium text-red-800 mb-2 flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-2" />
+                            Weaknesses
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.ai.weaknesses.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <AlertCircle className="h-3.5 w-3.5 text-red-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-green-50 rounded-md p-4">
+                          <h4 className="font-medium text-green-800 mb-2 flex items-center">
+                            <Lightbulb className="h-4 w-4 mr-2" />
+                            Opportunities
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.ai.opportunities.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <Lightbulb className="h-3.5 w-3.5 text-green-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-amber-50 rounded-md p-4">
+                          <h4 className="font-medium text-amber-800 mb-2 flex items-center">
+                            <Shield className="h-4 w-4 mr-2" />
+                            Threats
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.ai.threats.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <Shield className="h-3.5 w-3.5 text-amber-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="balanced" className="mt-0">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-blue-50 rounded-md p-4">
+                          <h4 className="font-medium text-blue-800 mb-2 flex items-center">
+                            <CheckCircle2 className="h-4 w-4 mr-2" />
+                            Strengths
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.balanced.strengths.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <CheckIcon className="h-3.5 w-3.5 text-blue-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-red-50 rounded-md p-4">
+                          <h4 className="font-medium text-red-800 mb-2 flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-2" />
+                            Weaknesses
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.balanced.weaknesses.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <AlertCircle className="h-3.5 w-3.5 text-red-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-green-50 rounded-md p-4">
+                          <h4 className="font-medium text-green-800 mb-2 flex items-center">
+                            <Lightbulb className="h-4 w-4 mr-2" />
+                            Opportunities
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.balanced.opportunities.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <Lightbulb className="h-3.5 w-3.5 text-green-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-amber-50 rounded-md p-4">
+                          <h4 className="font-medium text-amber-800 mb-2 flex items-center">
+                            <Shield className="h-4 w-4 mr-2" />
+                            Threats
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.balanced.threats.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <Shield className="h-3.5 w-3.5 text-amber-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="traditional" className="mt-0">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-blue-50 rounded-md p-4">
+                          <h4 className="font-medium text-blue-800 mb-2 flex items-center">
+                            <CheckCircle2 className="h-4 w-4 mr-2" />
+                            Strengths
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.traditional.strengths.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <CheckIcon className="h-3.5 w-3.5 text-blue-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-red-50 rounded-md p-4">
+                          <h4 className="font-medium text-red-800 mb-2 flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-2" />
+                            Weaknesses
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.traditional.weaknesses.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <AlertCircle className="h-3.5 w-3.5 text-red-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-green-50 rounded-md p-4">
+                          <h4 className="font-medium text-green-800 mb-2 flex items-center">
+                            <Lightbulb className="h-4 w-4 mr-2" />
+                            Opportunities
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.traditional.opportunities.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <Lightbulb className="h-3.5 w-3.5 text-green-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="bg-amber-50 rounded-md p-4">
+                          <h4 className="font-medium text-amber-800 mb-2 flex items-center">
+                            <Shield className="h-4 w-4 mr-2" />
+                            Threats
+                          </h4>
+                          <ul className="space-y-1.5 text-sm">
+                            {swotAnalysis.traditional.threats.map((item, index) => (
+                              <li key={index} className="flex items-start">
+                                <Shield className="h-3.5 w-3.5 text-amber-600 mt-0.5 mr-1.5 flex-shrink-0" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </div>
+                </Tabs>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
             <h2 className="text-xl font-semibold">Implementation Plan</h2>
             <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
@@ -808,7 +1298,10 @@ export default function BusinessPlanPage() {
               <CardHeader>
                 <CardTitle>Investment Breakdown</CardTitle>
                 <CardDescription>
-                  Detailed Work Breakdown Structure (WBS) of initial €1.5M investment requirement
+                  Detailed Work Breakdown Structure (WBS) for {
+                    currentApproach === 'traditional' ? 'Traditional Development (€1.5M)' : 
+                    currentApproach === 'ai' ? 'AI Agent Implementation (€1.2M)' : 'Balanced Approach (€1.3M)'
+                  }
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -933,7 +1426,7 @@ export default function BusinessPlanPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h3 className="text-lg font-semibold mb-4 flex items-center">
-                        <BarChart3Icon className="h-5 w-5 mr-2 text-primary" />
+                        <BarChart3 className="h-5 w-5 mr-2 text-primary" />
                         Investment Strategy
                       </h3>
                       <div className="bg-muted/30 p-4 rounded-lg border">
@@ -1066,7 +1559,7 @@ export default function BusinessPlanPage() {
                           </li>
                           <li className="flex items-start">
                             <div className="rounded-full bg-green-100 p-1 mr-2 mt-0.5">
-                              <BarChart3Icon className="h-3.5 w-3.5 text-green-700" />
+                              <BarChart3 className="h-3.5 w-3.5 text-green-700" />
                             </div>
                             <div>
                               <span className="text-sm font-medium">Breakeven Analysis</span>
@@ -1106,7 +1599,7 @@ export default function BusinessPlanPage() {
                       <div className="w-24 h-24 relative">
                         <div className="absolute inset-0 bg-blue-100 rounded-full opacity-20 animate-ping"></div>
                         <div className="relative flex items-center justify-center h-full w-full bg-blue-100 rounded-full">
-                          <BarChart3Icon className="h-10 w-10 text-blue-600" />
+                          <BarChart3 className="h-10 w-10 text-blue-600" />
                         </div>
                       </div>
                     </div>
@@ -1371,7 +1864,7 @@ export default function BusinessPlanPage() {
                             <td className="border px-4 py-3 font-medium">Scalability</td>
                             <td className="border px-4 py-3 text-muted-foreground">
                               <div className="flex items-start">
-                                <ArrowRightIcon className="h-4 w-4 mr-2 text-amber-500 mt-0.5" />
+                                <ArrowRight className="h-4 w-4 mr-2 text-amber-500 mt-0.5" />
                                 <span>Linear scaling requiring proportional resource increase</span>
                               </div>
                             </td>
@@ -1590,7 +2083,7 @@ export default function BusinessPlanPage() {
                         </li>
                         <li className="flex items-start">
                           <div className="rounded-full bg-blue-200 p-1 mr-2 mt-0.5">
-                            <ScaleIcon className="h-3.5 w-3.5 text-blue-700" />
+                            <ScalesIcon className="h-3.5 w-3.5 text-blue-700" />
                           </div>
                           <div>
                             <span className="font-medium text-blue-800">Enhanced ability to scale with changing regulations</span>
@@ -1641,7 +2134,7 @@ export default function BusinessPlanPage() {
                         </li>
                         <li className="flex items-start">
                           <div className="rounded-full bg-amber-200 p-1 mr-2 mt-0.5">
-                            <ShieldIcon className="h-3.5 w-3.5 text-amber-700" />
+                            <Shield className="h-3.5 w-3.5 text-amber-700" />
                           </div>
                           <div>
                             <span className="font-medium text-amber-800">Data privacy concerns</span>
