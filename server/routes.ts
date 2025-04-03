@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { db, sql } from "./db";
@@ -27,7 +27,8 @@ import {
 // Import enhanced AI analysis service
 import enhancedAiAnalysis from "./lib/enhanced-ai-analysis";
 
-// Import the safeJsonParse from ai-service
+// Import auth routes
+import authRoutes from "./routes/auth-routes";
 import { safeJsonParse } from "./ai-service";
 
 import {
@@ -158,14 +159,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return res.status(500).json({ message: errorMessage || "Internal server error" });
   };
 
+  // Register auth routes
+  app.use("/api/auth", authRoutes);
+
   // API routes
   // User routes
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
-      // const userData = registerSchema.parse(req.body);
+      // Get user data from request
       const userData = req.body;
+      
+      // Check if user already exists
       const existingUser = await storage.getUserByEmail(userData.email);
-
+      
       if (existingUser) {
         return res.status(409).json({ message: "User already exists" });
       }

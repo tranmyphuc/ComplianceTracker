@@ -1,17 +1,33 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { developmentAuth } from "./dev-auth-middleware";
 import { devMode, enableDevAuth } from "./config";
+import { authMiddleware } from "./middleware/auth-middleware";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Configure session middleware
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'test-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 1 day
+  }
+}));
+
+// Apply authentication middleware for all routes
+app.use(authMiddleware);
+
 // Add development authentication middleware in development mode
-// This will automatically add an admin user to all requests
+// This will automatically add an admin user to all requests if no user is already authenticated
 if (devMode && enableDevAuth) {
-  console.log('🔑 Development authentication enabled - all requests will have admin privileges');
+  console.log('🔑 Development authentication enabled - requests without auth will have admin privileges');
   app.use(developmentAuth);
 } else {
   console.log('💂 Authentication required for protected routes');
