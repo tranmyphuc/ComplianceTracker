@@ -36,7 +36,8 @@ import { useState } from "react";
 import { AiAssistantDialog } from "@/components/ai-assistant/assistant-dialog";
 import { useAuth } from "@/components/auth/auth-context";
 import { Badge } from "@/components/ui/badge";
-import { useLanguage, LanguageCode } from "@/contexts/LanguageContext";
+// Temporarily commenting out language context
+// import { useLanguage, LanguageCode } from "@/contexts/LanguageContext";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -49,8 +50,19 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   
-  // Now we can properly use the language context
-  const { currentLanguage, setLanguage, languages } = useLanguage();
+  // Temporarily use static language data
+  const currentLanguage = 'en';
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇬🇧' },
+    { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
+    { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
+  ];
+  const setLanguage = (code: string) => {
+    console.log('Language would change to:', code);
+  };
+  
+  // Define LanguageCode type locally if it's not available from the context
+  type LanguageCode = string;
 
   const handleSignOut = async () => {
     try {
@@ -98,10 +110,6 @@ export function Header({ onMenuClick }: HeaderProps) {
       <div className="bg-gradient-to-r from-[#1976D2] to-[#1565C0] text-white shadow-sm">
         <div className="flex items-center justify-between px-4 py-2 lg:px-6">
           <div className="flex items-center">
-            <Button variant="ghost" size="icon" onClick={onMenuClick} className="lg:hidden text-white hover:bg-white/20">
-              <MenuIcon className="h-5 w-5" />
-            </Button>
-
             <div className="flex items-center ml-2 lg:ml-0">
               <div className="font-bold text-lg mr-1">SGH ASIA</div>
               <span className="font-medium text-xs xs:text-sm sm:text-base hidden xs:inline">
