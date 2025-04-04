@@ -412,14 +412,15 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
                   {complianceSuiteItems.map((item) => (
                     <DropdownMenuItem 
                       key={item.name} 
-                      asChild 
                       className={item.isPriority ? "bg-blue-50 font-medium mt-1" : "mt-1"}
+                      onClick={() => {
+                        window.location.href = item.path;
+                        handleItemClick();
+                      }}
                     >
-                      <Link href={item.path} onClick={handleItemClick}>
-                        {item.icon}
-                        <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
-                        {item.isNew && renderBadge(item.badgeColor)}
-                      </Link>
+                      {item.icon}
+                      <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
+                      {item.isNew && renderBadge(item.badgeColor)}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuGroup>
@@ -451,14 +452,15 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
                   {knowledgeResourcesItems.map((item) => (
                     <DropdownMenuItem 
                       key={item.name} 
-                      asChild 
                       className={item.isPriority ? "bg-purple-50 font-medium mt-1" : "mt-1"}
+                      onClick={() => {
+                        window.location.href = item.path;
+                        handleItemClick();
+                      }}
                     >
-                      <Link href={item.path} onClick={handleItemClick}>
-                        {item.icon}
-                        <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
-                        {item.isNew && renderBadge(item.badgeColor)}
-                      </Link>
+                      {item.icon}
+                      <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
+                      {item.isNew && renderBadge(item.badgeColor)}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuGroup>
@@ -490,14 +492,15 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
                   {businessIntelligenceItems.map((item) => (
                     <DropdownMenuItem
                       key={item.name}
-                      asChild
                       className={item.isPriority ? "bg-amber-50 font-medium mt-1" : "mt-1"}
+                      onClick={() => {
+                        window.location.href = item.path;
+                        handleItemClick();
+                      }}
                     >
-                      <Link href={item.path} onClick={handleItemClick}>
-                        {item.icon}
-                        <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
-                        {item.isNew && renderBadge(item.badgeColor)}
-                      </Link>
+                      {item.icon}
+                      <span className={item.isPriority ? "font-medium" : ""}>{item.name}</span>
+                      {item.isNew && renderBadge(item.badgeColor)}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuGroup>
