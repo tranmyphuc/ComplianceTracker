@@ -103,15 +103,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             </Button>
 
             <div className="flex items-center ml-2 lg:ml-0">
-              <img 
-                src="/assets/sgh-logo-white.png" 
-                alt="SGH ASIA" 
-                className="h-7 mr-2"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = "https://placehold.co/80x30/ffffff/ffffff?text=SGH";
-                }}
-              />
+              <div className="font-bold text-lg mr-1">SGH ASIA</div>
               <span className="font-medium text-xs xs:text-sm sm:text-base hidden xs:inline">
                 Enterprise AI <span className="hidden sm:inline">Decision Platform</span>
               </span>
