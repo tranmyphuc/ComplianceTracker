@@ -345,6 +345,42 @@ export type FeatureFlag = typeof featureFlags.$inferSelect;
 export const insertSystemSettingSchema = createInsertSchema(systemSettings).omit({ id: true, created_at: true, updated_at: true });
 export type InsertSystemSetting = z.infer<typeof insertSystemSettingSchema>;
 
+// Expert Reviews table
+export const expertReviews = pgTable('expert_reviews', {
+  id: serial('id').primaryKey(),
+  reviewId: text('review_id').notNull().unique(),
+  assessmentId: text('assessment_id'),
+  systemId: text('system_id'),
+  text: text('text').notNull(),
+  type: text('type').notNull(),
+  status: text('status').notNull().default('pending'),
+  validationResult: jsonb('validation_result'),
+  requestedAt: timestamp('requested_at').defaultNow(),
+  updatedAt: timestamp('updated_at'),
+  assignedTo: text('assigned_to').references(() => users.uid),
+  completedAt: timestamp('completed_at'),
+  expertFeedback: text('expert_feedback'),
+});
+
+export const expertReviewsRelations = relations(expertReviews, ({ one }) => ({
+  system: one(aiSystems, {
+    fields: [expertReviews.systemId],
+    references: [aiSystems.systemId],
+  }),
+  assessment: one(riskAssessments, {
+    fields: [expertReviews.assessmentId],
+    references: [riskAssessments.assessmentId],
+  }),
+  assignedExpert: one(users, {
+    fields: [expertReviews.assignedTo],
+    references: [users.uid],
+  }),
+}));
+
+export const expertReviewSchema = createInsertSchema(expertReviews).omit({ id: true });
+export type InsertExpertReview = z.infer<typeof expertReviewSchema>;
+export type ExpertReview = typeof expertReviews.$inferSelect;
+
 // API Keys schema
 export const insertApiKeySchema = createInsertSchema(apiKeys).omit({ id: true, createdAt: true, lastUsed: true });
 export type InsertApiKey = z.infer<typeof insertApiKeySchema>;

@@ -12,6 +12,7 @@ import {
   approvalSettings, type ApprovalSettings, type InsertApprovalSettings,
   activities, type Activity, type InsertActivity,
   apiKeys, type ApiKey, type InsertApiKey,
+  expertReviews, type ExpertReview, type InsertExpertReview,
   ApprovalPriority, ApprovalStatus, ModuleType, NotificationFrequency
 } from "@shared/schema";
 import { documentFiles, type DocumentFile, type InsertDocumentFile } from "@shared/schemas/document";
