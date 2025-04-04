@@ -1159,6 +1159,24 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
       filledRequiredFields.push('department');
     }
     
+    // Handle the new fields specifically for the technical details step
+    if (aiResults.dataSources) {
+      newFormData.dataSources = aiResults.dataSources;
+    }
+    
+    // Handle boolean fields correctly
+    if (aiResults.humansInLoop !== undefined) {
+      newFormData.humansInLoop = !!aiResults.humansInLoop; // Convert to boolean
+    }
+    
+    if (aiResults.usesPersonalData !== undefined) {
+      newFormData.usesPersonalData = !!aiResults.usesPersonalData; // Convert to boolean
+    }
+    
+    if (aiResults.usesSensitiveData !== undefined) {
+      newFormData.usesSensitiveData = !!aiResults.usesSensitiveData; // Convert to boolean
+    }
+    
     if (aiResults.internalOwner) {
       newFormData.internalOwner = aiResults.internalOwner;
     }

@@ -125,6 +125,7 @@ export async function enhancedAutoFillHandler(req: Request, res: Response) {
     - purpose: Detailed purpose of the system
     - aiCapabilities: Technical capabilities (NLP, Computer Vision, etc.)
     - trainingDatasets: Types of data used to train this system
+    - dataSources: Specific sources of data used by this system
     - outputTypes: What outputs this system produces
     - usageContext: Where and how this system is used
     - potentialImpact: Potential impacts on individuals or society
@@ -133,6 +134,9 @@ export async function enhancedAutoFillHandler(req: Request, res: Response) {
     - euAiActArticles: Relevant EU AI Act articles that apply
     - dataPrivacyMeasures: Measures for data privacy
     - humanOversightMeasures: Measures for human oversight
+    - humansInLoop: Boolean (true/false) whether the system includes human oversight
+    - usesPersonalData: Boolean (true/false) whether the system processes personal data
+    - usesSensitiveData: Boolean (true/false) whether the system processes sensitive data like health or biometric data
     
     For each field, provide a confidence score (0-100) and justification.
     Structure your response in JSON format with this structure for each field:
@@ -247,8 +251,9 @@ export async function enhancedAutoFillHandler(req: Request, res: Response) {
       // Check some critical fields and add defaults if missing
       const criticalFields = [
         "vendor", "version", "department", "purpose", "aiCapabilities", 
-        "trainingDatasets", "outputTypes", "usageContext", "potentialImpact", 
-        "riskLevel", "dataPrivacyMeasures", "humanOversightMeasures"
+        "trainingDatasets", "dataSources", "outputTypes", "usageContext", "potentialImpact", 
+        "riskLevel", "dataPrivacyMeasures", "humanOversightMeasures", 
+        "humansInLoop", "usesPersonalData", "usesSensitiveData"
       ];
       
       criticalFields.forEach(field => {
@@ -268,7 +273,18 @@ export async function enhancedAutoFillHandler(req: Request, res: Response) {
           version: { value: "1.0", confidence: 50 },
           department: { value: "", confidence: 50 },
           purpose: { value: description || "", confidence: 60 },
-          riskLevel: { value: "Limited", confidence: 60 }
+          riskLevel: { value: "Limited", confidence: 60 },
+          // Add defaults for the missing fields
+          dataSources: { value: "", confidence: 50 },
+          humansInLoop: { value: description?.toLowerCase().includes("oversight") || 
+                                description?.toLowerCase().includes("human") || false,
+                        confidence: 60 },
+          usesPersonalData: { value: description?.toLowerCase().includes("personal data") || false, 
+                            confidence: 60 },
+          usesSensitiveData: { value: description?.toLowerCase().includes("sensitive") || 
+                                     description?.toLowerCase().includes("biometric") ||
+                                     description?.toLowerCase().includes("health") || false,
+                             confidence: 60 }
         },
         confidence: 60
       };
@@ -405,6 +421,19 @@ export async function enhancedAutoFillHandler(req: Request, res: Response) {
       dataPrivacyMeasures: results.dataPrivacyMeasures?.value || "Not specified",
       humanOversightMeasures: results.humanOversightMeasures?.value || "Not specified",
       
+      // Add missing fields that were requested in the technical details step
+      dataSources: results.dataSources?.value || results.trainingDatasets?.value || "Not specified",
+      humansInLoop: results.humansInLoop?.value === true || 
+                   results.humanOversight?.value === true || 
+                   results.humanOversightMeasures?.value?.toLowerCase().includes("oversight") || false,
+      usesPersonalData: results.usesPersonalData?.value === true || 
+                       description?.toLowerCase().includes("personal data") ||
+                       results.dataPrivacyMeasures?.value?.toLowerCase().includes("personal data") || false,
+      usesSensitiveData: results.usesSensitiveData?.value === true || 
+                        description?.toLowerCase().includes("sensitive data") || 
+                        description?.toLowerCase().includes("biometric") || 
+                        description?.toLowerCase().includes("health") || false,
+      
       // Add confidence information
       fieldConfidence: {
         name: results.name?.confidence || 70,
@@ -421,7 +450,12 @@ export async function enhancedAutoFillHandler(req: Request, res: Response) {
         specificRisks: results.specificRisks?.confidence || 60,
         euAiActArticles: results.euAiActArticles?.confidence || 70,
         dataPrivacyMeasures: results.dataPrivacyMeasures?.confidence || 60,
-        humanOversightMeasures: results.humanOversightMeasures?.confidence || 60
+        humanOversightMeasures: results.humanOversightMeasures?.confidence || 60,
+        // Add confidence for new fields
+        dataSources: results.dataSources?.confidence || results.trainingDatasets?.confidence || 60,
+        humansInLoop: results.humansInLoop?.confidence || 70,
+        usesPersonalData: results.usesPersonalData?.confidence || 70,
+        usesSensitiveData: results.usesSensitiveData?.confidence || 70
       },
       
       // Add average confidence score
