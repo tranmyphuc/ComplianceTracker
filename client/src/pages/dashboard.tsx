@@ -248,35 +248,7 @@ export default function Dashboard() {
             </Card>
           )}
           
-          {/* Role-specific recommendations if we have user profile data */}
-          {userProfile && userProfile.role && (
-            <Card className="border-purple-200 shadow-md mb-6">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center text-purple-700">
-                  <User className="w-5 h-5 mr-2" />
-                  {userProfile.role} Resources
-                </CardTitle>
-                <CardDescription>
-                  Personalized resources for your role
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-1 mt-1">
-                  {userProfile.role === "Decision Maker" && (
-                    <Badge variant="outline" className="mr-1 bg-purple-50">Strategic Planning</Badge>
-                  )}
-                  {userProfile.role === "Technical Team" && (
-                    <Badge variant="outline" className="mr-1 bg-purple-50">Implementation Guide</Badge>
-                  )}
-                  {userProfile.role === "Legal/Compliance" && (
-                    <Badge variant="outline" className="mr-1 bg-purple-50">Regulatory Analysis</Badge>
-                  )}
-                  <Badge variant="outline" className="mr-1 bg-purple-50">EU AI Act Compliance</Badge>
-                  <Badge variant="outline" className="mr-1 bg-purple-50">Risk Management</Badge>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* Role-specific recommendations removed as requested */}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Standard dashboard components */}
