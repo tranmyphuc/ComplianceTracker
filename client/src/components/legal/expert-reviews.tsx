@@ -19,10 +19,33 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Spinner } from '@/components/ui/spinner';
-import { CheckCircle, Clock, XCircle, AlertCircle, ExternalLink, FileText } from 'lucide-react';
+import { 
+  CheckCircle, 
+  Clock, 
+  XCircle, 
+  AlertCircle, 
+  ExternalLink, 
+  FileText,
+  PieChart,
+  BarChart,
+  BarChart2 
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { 
+  Chart as ChartJS, 
+  ArcElement, 
+  Tooltip, 
+  Legend, 
+  CategoryScale, 
+  LinearScale, 
+  BarElement 
+} from 'chart.js';
+import { Pie, Bar } from 'react-chartjs-2';
+
+// Register ChartJS components
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 interface RiskAssessmentDetail {
   assessmentId: string;
@@ -470,7 +493,7 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
           </div>
         )}
 
-        {/* Risk Assessment Information Section */}
+        {/* Risk Assessment Information Section with Visualizations */}
         {riskAssessment && (
           <div className="border rounded-md p-4 bg-slate-50">
             <h3 className="text-md font-semibold text-primary mb-3">Risk Assessment Information</h3>
@@ -478,22 +501,22 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
               <div>
                 <h4 className="text-sm font-semibold mb-1">Risk Level</h4>
                 <div>
-                  {riskAssessment.riskLevel === 'high' && (
+                  {riskAssessment.riskLevel === 'High' && (
                     <Badge className="bg-red-100 text-red-800 border-red-200">
                       High Risk
                     </Badge>
                   )}
-                  {riskAssessment.riskLevel === 'limited' && (
+                  {riskAssessment.riskLevel === 'Limited' && (
                     <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
                       Limited Risk
                     </Badge>
                   )}
-                  {riskAssessment.riskLevel === 'minimal' && (
+                  {riskAssessment.riskLevel === 'Minimal' && (
                     <Badge className="bg-green-100 text-green-800 border-green-200">
                       Minimal Risk
                     </Badge>
                   )}
-                  {riskAssessment.riskLevel === 'unacceptable' && (
+                  {riskAssessment.riskLevel === 'Unacceptable' && (
                     <Badge className="bg-red-100 text-red-800 border-red-200">
                       Unacceptable Risk
                     </Badge>

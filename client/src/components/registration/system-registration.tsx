@@ -53,6 +53,7 @@ import { BasicInformationStep } from './basic-information-step';
 import { TechnicalDetailsStep } from './technical-details-step';
 import { RiskAssessmentStep } from './risk-assessment-step';
 import { DocumentationStep } from './documentation-step';
+import { LegalValidationStep } from './legal-validation-step';
 import { ReviewSubmitStep } from './review-submit-step';
 import { AutoFillGuidanceModal } from './AutoFillGuidanceModal';
 import { AutoFillProcessStepper, getDefaultAutoFillSteps } from './AutoFillProcessStepper';
@@ -601,7 +602,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
       case 4:
         return (
-          <DocumentationStep 
+          <LegalValidationStep 
             formData={formData}
             errors={validationErrors}
           />
@@ -1624,7 +1625,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
           {/* Steps indicator */}
           <div className="mb-6">
             <div className="flex justify-between mb-2">
-              {['Basic Information', 'AI Details', 'Risk Assessment', 'Legal Validation', 'Review & Submit'].map((step, index) => (
+              {['Basic Information', 'AI Details', 'Risk Assessment', 'Documentation Preparation', 'Review & Submit'].map((step, index) => (
                 <div 
                   key={index} 
                   className={`text-xs font-medium ${currentStep > index + 1 ? 'text-primary' : 

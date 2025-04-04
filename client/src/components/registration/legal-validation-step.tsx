@@ -351,7 +351,7 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
     }, 500);
     
     toast({
-      title: "Legal Validation Complete",
+      title: "Documentation Preparation Complete",
       description: "The system has been analyzed for legal compliance.",
     });
   };
@@ -425,9 +425,9 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
-        <h3 className="text-xl font-semibold">Legal Validation</h3>
+        <h3 className="text-xl font-semibold">Documentation Preparation</h3>
         <p className="text-muted-foreground">
-          Validate your AI system details against EU AI Act legal requirements.
+          Prepare your AI system documentation to comply with EU AI Act requirements.
         </p>
       </div>
       
@@ -534,7 +534,7 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
                     onClick={runValidation} 
                     className="w-full"
                   >
-                    Start Legal Validation
+                    Start Documentation Preparation
                   </Button>
                 )}
               </div>
@@ -651,7 +651,7 @@ export const LegalValidationStep: React.FC<LegalValidationStepProps> = ({ formDa
                 onClick={runValidation} 
                 className="mt-4"
               >
-                Start Validation
+                Start Documentation Preparation
               </Button>
             </div>
           )}
