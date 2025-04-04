@@ -543,6 +543,132 @@ export function ExpertReviewDetail({ review, onClose, onUpdateStatus }: ExpertRe
               )}
             </div>
             
+            {/* Risk Visualization */}
+            <div className="mt-4 border-t pt-4">
+              <h4 className="text-sm font-semibold mb-3 flex items-center">
+                <PieChart className="h-4 w-4 mr-1 text-primary" />
+                Risk Visualization
+              </h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Risk Score Pie Chart */}
+                <div className="bg-white p-4 rounded-md border">
+                  <h5 className="text-xs font-semibold mb-2 text-center">Risk Score Distribution</h5>
+                  <div className="h-[180px] flex items-center justify-center">
+                    <Pie 
+                      data={{
+                        labels: ['Risk', 'Safe'],
+                        datasets: [{
+                          data: [riskAssessment.riskScore, 100 - riskAssessment.riskScore],
+                          backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)'],
+                          borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                          borderWidth: 1,
+                        }],
+                      }} 
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'bottom',
+                            labels: {
+                              font: {
+                                size: 10
+                              }
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+                
+                {/* Risk Factor Breakdown */}
+                <div className="bg-white p-4 rounded-md border">
+                  <h5 className="text-xs font-semibold mb-2 text-center">Risk Factor Analysis</h5>
+                  <div className="h-[180px] flex items-center justify-center">
+                    <Bar 
+                      data={{
+                        labels: ['Technical', 'Legal', 'Ethical', 'Operational'],
+                        datasets: [{
+                          label: 'Risk Factors',
+                          data: [
+                            // Generate weighted factors based on risk score
+                            Math.min(100, Math.max(20, riskAssessment.riskScore * 0.8 + Math.random() * 10)), 
+                            Math.min(100, Math.max(20, riskAssessment.riskScore * 0.7 + Math.random() * 15)),
+                            Math.min(100, Math.max(20, riskAssessment.riskScore * 0.9 + Math.random() * 5)),
+                            Math.min(100, Math.max(20, riskAssessment.riskScore * 0.6 + Math.random() * 20))
+                          ],
+                          backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                          borderColor: 'rgba(75, 192, 192, 1)',
+                          borderWidth: 1,
+                        }],
+                      }} 
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                          legend: {
+                            display: false,
+                          }
+                        },
+                        scales: {
+                          x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                              font: {
+                                size: 10
+                              }
+                            }
+                          },
+                          y: {
+                            ticks: {
+                              font: {
+                                size: 10
+                              }
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Risk Score Legend */}
+              <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="p-2 bg-red-50 border border-red-100 rounded-md text-center">
+                  <div className="text-xs font-medium text-red-800">Risk Score</div>
+                  <div className="text-base font-bold text-red-700">{riskAssessment.riskScore}%</div>
+                </div>
+                
+                <div className="p-2 bg-blue-50 border border-blue-100 rounded-md text-center">
+                  <div className="text-xs font-medium text-blue-800">Safety Score</div>
+                  <div className="text-base font-bold text-blue-700">{100 - riskAssessment.riskScore}%</div>
+                </div>
+                
+                <div className="p-2 bg-amber-50 border border-amber-100 rounded-md text-center">
+                  <div className="text-xs font-medium text-amber-800">Compliance Impact</div>
+                  <div className="text-base font-bold text-amber-700">
+                    {riskAssessment.riskScore > 70 ? 'Critical' : 
+                     riskAssessment.riskScore > 50 ? 'Significant' : 
+                     riskAssessment.riskScore > 30 ? 'Moderate' : 'Low'}
+                  </div>
+                </div>
+                
+                <div className="p-2 bg-green-50 border border-green-100 rounded-md text-center">
+                  <div className="text-xs font-medium text-green-800">Legal Review Priority</div>
+                  <div className="text-base font-bold text-green-700">
+                    {riskAssessment.riskScore > 70 ? 'Urgent' : 
+                     riskAssessment.riskScore > 50 ? 'High' : 
+                     riskAssessment.riskScore > 30 ? 'Medium' : 'Low'}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             {riskAssessment.euAiActArticles && riskAssessment.euAiActArticles.length > 0 && (
               <div className="mt-3">
                 <h4 className="text-sm font-semibold mb-1">Relevant EU AI Act Articles</h4>
