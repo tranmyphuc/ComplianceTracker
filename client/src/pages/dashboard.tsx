@@ -84,15 +84,7 @@ export default function Dashboard() {
           {/* Industry-specific recommendations if we have user profile data */}
           {userProfile && industryFocus && (
             <Card className="border-blue-200 shadow-md mb-6">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center text-blue-700">
-                  <Building className="w-5 h-5 mr-2" />
-                  {industryFocus} Industry Focus
-                </CardTitle>
-                <CardDescription>
-                  Recommendations tailored to your industry needs
-                </CardDescription>
-              </CardHeader>
+              
               <CardContent>
                 <div className="space-y-4">
                   {/* Industry-specific recommendations */}
@@ -250,22 +242,7 @@ export default function Dashboard() {
           
           {/* Role-specific recommendations removed as requested */}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Standard dashboard components */}
-            <TrainingInsights data={{
-              totalModules: 6,
-              completedModules: 2,
-              inProgressModules: 1,
-              roleCompletionPercentage: 40,
-              recentCertificates: [
-                {
-                  id: "cert-1",
-                  title: "EU AI Act Introduction",
-                  date: "2 days ago"
-                }
-              ]
-            }} />
-          </div>
+          {/* Training & Compliance section removed as requested */}
         </div>
       )}
 
