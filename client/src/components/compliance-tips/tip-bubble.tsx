@@ -119,6 +119,18 @@ export function TipBubble({
       return () => clearTimeout(timer);
     }
   }, [secondsLeft, minimized, onDismiss, tip.id, tip.autoCloseTimeout]);
+  
+  // Force auto-close after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (visible && onDismiss) {
+        setVisible(false);
+        onDismiss(tip.id);
+      }
+    }, 3000); // 3 seconds
+    
+    return () => clearTimeout(timer);
+  }, [visible, onDismiss, tip.id]);
 
   const handleDismiss = () => {
     setVisible(false);

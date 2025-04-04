@@ -15,6 +15,11 @@ import {
   expertReviews, type ExpertReview, type InsertExpertReview,
   ApprovalPriority, ApprovalStatus, ModuleType, NotificationFrequency
 } from "@shared/schema";
+import { 
+  userFeedback, feedbackVotes, 
+  type UserFeedback, type InsertUserFeedback,
+  type FeedbackVote, type InsertFeedbackVote
+} from "@shared/schemas/feedback";
 import { documentFiles, type DocumentFile, type InsertDocumentFile } from "@shared/schemas/document";
 import { eq, desc, or, like, sql } from "drizzle-orm";
 import { db } from "./db";
@@ -25,7 +30,19 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUid(uid: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  
+  // Feedback operations
+  getAllFeedback(options?: { status?: string; category?: string; search?: string; page?: number; limit?: number; }): Promise<UserFeedback[]>;
+  getFeedbackById(feedbackId: string): Promise<UserFeedback | null>;
+  createFeedback(feedback: InsertUserFeedback): Promise<UserFeedback>;
+  updateFeedback(feedbackId: string, updates: Partial<UserFeedback>): Promise<UserFeedback | null>;
+  getUserVote(feedbackId: string, userId: string): Promise<FeedbackVote | null>;
+  createVote(vote: InsertFeedbackVote): Promise<FeedbackVote>;
+  updateVote(voteId: number, vote: Partial<FeedbackVote>): Promise<FeedbackVote | null>;
+  deleteVote(voteId: number): Promise<boolean>;
+  updateFeedbackVoteCount(feedbackId: string): Promise<UserFeedback | null>;
 
   // AI System operations
   getAiSystem(id: number): Promise<AiSystem | undefined>;
@@ -170,6 +187,23 @@ export interface IStorage {
   getArticleVersions(articleId: string): Promise<ArticleVersion[]>;
   createArticleVersion(version: InsertArticleVersion): Promise<ArticleVersion>;
   getLatestArticleVersion(articleId: string): Promise<ArticleVersion | undefined>;
+  
+  // Feedback operations
+  getAllFeedback(options?: { 
+    systemId?: string; 
+    assessmentId?: string; 
+    status?: string; 
+    category?: string; 
+    isPublic?: boolean 
+  }): Promise<UserFeedback[]>;
+  getFeedbackById(feedbackId: string): Promise<UserFeedback | undefined>;
+  createFeedback(feedback: InsertUserFeedback): Promise<UserFeedback>;
+  updateFeedback(feedbackId: string, updates: Partial<UserFeedback>): Promise<UserFeedback | undefined>;
+  getUserVote(feedbackId: string, userId: string): Promise<FeedbackVote | undefined>;
+  createVote(vote: InsertFeedbackVote): Promise<FeedbackVote>;
+  updateVote(id: number, updates: Partial<FeedbackVote>): Promise<FeedbackVote | undefined>;
+  deleteVote(id: number): Promise<boolean>;
+  updateFeedbackVoteCount(feedbackId: string, change: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -353,6 +387,8 @@ export class MemStorage implements IStorage {
   private documentFiles: Map<string, DocumentFile>;
   private riskAssessments: Map<number, RiskAssessment>;
   private expertReviews: Map<number, ExpertReview>;
+  private userFeedback: Map<string, UserFeedback>;
+  private feedbackVotes: Map<number, FeedbackVote>;
 
   private userIdCounter: number;
   private systemIdCounter: number;
@@ -365,6 +401,7 @@ export class MemStorage implements IStorage {
   private expertReviewIdCounter: number;
   private euAiActArticleIdCounter: number;
   private articleVersionIdCounter: number;
+  private feedbackVoteIdCounter: number;
 
   constructor() {
     this.users = new Map();
@@ -380,6 +417,8 @@ export class MemStorage implements IStorage {
     this.euAiActArticles = new Map();
     this.articleVersions = new Map();
     this.apiKeys = new Map();
+    this.userFeedback = new Map();
+    this.feedbackVotes = new Map();
 
     this.userIdCounter = 1;
     this.systemIdCounter = 1;
@@ -393,6 +432,7 @@ export class MemStorage implements IStorage {
     this.euAiActArticleIdCounter = 1;
     this.articleVersionIdCounter = 1;
     this.apiKeyIdCounter = 1;
+    this.feedbackVoteIdCounter = 1;
 
     // Initialize with some sample departments
     this.initializeDepartments();
@@ -423,6 +463,10 @@ export class MemStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(user => user.email === email);
+  }
+  
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.username === username);
   }
 
   async createUser(user: InsertUser): Promise<User> {
@@ -809,6 +853,151 @@ export class MemStorage implements IStorage {
   
   async deleteApiKey(id: number): Promise<boolean> {
     return this.apiKeys.delete(id);
+  }
+  
+  // Feedback operations
+  async getAllFeedback(options: { status?: string; category?: string; search?: string; page?: number; limit?: number; } = {}): Promise<UserFeedback[]> {
+    let feedbackList = Array.from(this.userFeedback.values());
+    
+    // Apply filters
+    if (options.status) {
+      feedbackList = feedbackList.filter(f => f.status === options.status);
+    }
+    
+    if (options.category) {
+      feedbackList = feedbackList.filter(f => f.category === options.category);
+    }
+    
+    if (options.search) {
+      const searchLower = options.search.toLowerCase();
+      feedbackList = feedbackList.filter(f => 
+        f.title.toLowerCase().includes(searchLower) || 
+        f.description.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Sort by most recent
+    feedbackList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    // Apply pagination
+    const page = options.page || 1;
+    const limit = options.limit || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    
+    return feedbackList.slice(startIndex, endIndex);
+  }
+  
+  async getFeedbackById(feedbackId: string): Promise<UserFeedback | null> {
+    const feedback = this.userFeedback.get(feedbackId);
+    return feedback || null;
+  }
+  
+  async createFeedback(feedback: InsertUserFeedback): Promise<UserFeedback> {
+    const feedbackId = `feedback-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const now = new Date();
+    
+    const newFeedback: UserFeedback = {
+      id: feedbackId,
+      ...feedback,
+      status: feedback.status || 'pending',
+      votes: 0,
+      createdAt: now,
+      updatedAt: now
+    };
+    
+    this.userFeedback.set(feedbackId, newFeedback);
+    return newFeedback;
+  }
+  
+  async updateFeedback(feedbackId: string, updates: Partial<UserFeedback>): Promise<UserFeedback | null> {
+    const existingFeedback = this.userFeedback.get(feedbackId);
+    if (!existingFeedback) return null;
+    
+    const updatedFeedback = {
+      ...existingFeedback,
+      ...updates,
+      updatedAt: new Date()
+    };
+    
+    this.userFeedback.set(feedbackId, updatedFeedback);
+    return updatedFeedback;
+  }
+  
+  async getUserVote(feedbackId: string, userId: string): Promise<FeedbackVote | null> {
+    const vote = Array.from(this.feedbackVotes.values())
+      .find(v => v.feedbackId === feedbackId && v.userId === userId);
+    
+    return vote || null;
+  }
+  
+  async createVote(vote: InsertFeedbackVote): Promise<FeedbackVote> {
+    const id = this.feedbackVoteIdCounter++;
+    const now = new Date();
+    
+    const newVote: FeedbackVote = {
+      id,
+      ...vote,
+      createdAt: now
+    };
+    
+    this.feedbackVotes.set(id, newVote);
+    
+    // Update vote count on the feedback
+    await this.updateFeedbackVoteCount(vote.feedbackId);
+    
+    return newVote;
+  }
+  
+  async updateVote(voteId: number, updates: Partial<FeedbackVote>): Promise<FeedbackVote | null> {
+    const existingVote = this.feedbackVotes.get(voteId);
+    if (!existingVote) return null;
+    
+    const updatedVote = {
+      ...existingVote,
+      ...updates,
+    };
+    
+    this.feedbackVotes.set(voteId, updatedVote);
+    
+    // Update vote count on the feedback
+    await this.updateFeedbackVoteCount(existingVote.feedbackId);
+    
+    return updatedVote;
+  }
+  
+  async deleteVote(voteId: number): Promise<boolean> {
+    const vote = this.feedbackVotes.get(voteId);
+    if (!vote) return false;
+    
+    const deleted = this.feedbackVotes.delete(voteId);
+    
+    // Update vote count on the feedback
+    if (deleted) {
+      await this.updateFeedbackVoteCount(vote.feedbackId);
+    }
+    
+    return deleted;
+  }
+  
+  async updateFeedbackVoteCount(feedbackId: string): Promise<UserFeedback | null> {
+    const feedback = this.userFeedback.get(feedbackId);
+    if (!feedback) return null;
+    
+    // Count all votes for this feedback
+    const votes = Array.from(this.feedbackVotes.values())
+      .filter(v => v.feedbackId === feedbackId)
+      .length;
+    
+    // Update the feedback vote count
+    const updatedFeedback = {
+      ...feedback,
+      votes,
+      updatedAt: new Date()
+    };
+    
+    this.userFeedback.set(feedbackId, updatedFeedback);
+    return updatedFeedback;
   }
 
   createRiskManagementSystem(rms: any): Promise<any> { throw new Error("Method not implemented."); }
@@ -2174,6 +2363,235 @@ export class DatabaseStorage implements IStorage {
       return false;
     }
   }
+
+  // Feedback operations
+  async getAllFeedback(options: { status?: string; category?: string; search?: string; systemId?: string; assessmentId?: string; isPublic?: boolean; page?: number; limit?: number; } = {}): Promise<UserFeedback[]> {
+    try {
+      let query = db.select().from(userFeedback);
+      
+      // Apply filters
+      if (options.status) {
+        query = query.where(eq(userFeedback.status, options.status));
+      }
+      
+      if (options.category) {
+        query = query.where(eq(userFeedback.category, options.category));
+      }
+      
+      if (options.systemId) {
+        query = query.where(eq(userFeedback.systemId, options.systemId));
+      }
+      
+      if (options.assessmentId) {
+        query = query.where(eq(userFeedback.assessmentId, options.assessmentId));
+      }
+      
+      if (options.isPublic !== undefined) {
+        query = query.where(eq(userFeedback.isPublic, options.isPublic));
+      }
+      
+      if (options.search) {
+        query = query.where(
+          or(
+            like(userFeedback.title, `%${options.search}%`),
+            like(userFeedback.description, `%${options.search}%`)
+          )
+        );
+      }
+      
+      // Apply pagination
+      if (options.page !== undefined && options.limit !== undefined) {
+        const offset = (options.page - 1) * options.limit;
+        query = query.limit(options.limit).offset(offset);
+      }
+      
+      return await query.orderBy(desc(userFeedback.submittedAt));
+    } catch (error) {
+      console.error("Error in getAllFeedback:", error);
+      return [];
+    }
+  }
+  
+  async getFeedbackById(feedbackId: string): Promise<UserFeedback | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(userFeedback)
+        .where(eq(userFeedback.feedbackId, feedbackId))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error in getFeedbackById:", error);
+      return undefined;
+    }
+  }
+  
+  async createFeedback(feedback: InsertUserFeedback): Promise<UserFeedback> {
+    try {
+      // Ensure feedbackId is set if not provided
+      const feedbackToInsert = {
+        ...feedback,
+        feedbackId: feedback.feedbackId || `feedback-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+        submittedAt: new Date()
+      };
+      
+      const result = await db
+        .insert(userFeedback)
+        .values(feedbackToInsert)
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error in createFeedback:", error);
+      throw error;
+    }
+  }
+  
+  async updateFeedback(feedbackId: string, updates: Partial<UserFeedback>): Promise<UserFeedback | undefined> {
+    try {
+      // If updating with a response, set the respondedAt time
+      if (updates.response && !updates.respondedAt) {
+        updates.respondedAt = new Date();
+      }
+      
+      const result = await db
+        .update(userFeedback)
+        .set(updates)
+        .where(eq(userFeedback.feedbackId, feedbackId))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error in updateFeedback:", error);
+      return undefined;
+    }
+  }
+  
+  async getUserVote(feedbackId: string, userId: string): Promise<FeedbackVote | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(feedbackVotes)
+        .where(
+          and(
+            eq(feedbackVotes.feedbackId, feedbackId),
+            eq(feedbackVotes.userId, userId)
+          )
+        )
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error("Error in getUserVote:", error);
+      return undefined;
+    }
+  }
+  
+  async createVote(vote: InsertFeedbackVote): Promise<FeedbackVote> {
+    try {
+      const result = await db
+        .insert(feedbackVotes)
+        .values({
+          ...vote,
+          votedAt: new Date()
+        })
+        .returning();
+      
+      // Update vote count on the feedback
+      await this.updateFeedbackVoteCount(vote.feedbackId);
+      
+      return result[0];
+    } catch (error) {
+      console.error("Error in createVote:", error);
+      throw error;
+    }
+  }
+  
+  async updateVote(voteId: number, updates: Partial<FeedbackVote>): Promise<FeedbackVote | undefined> {
+    try {
+      const result = await db
+        .update(feedbackVotes)
+        .set(updates)
+        .where(eq(feedbackVotes.id, voteId))
+        .returning();
+      
+      // Get the updated vote to access its feedbackId
+      if (result[0]) {
+        await this.updateFeedbackVoteCount(result[0].feedbackId);
+      }
+      
+      return result[0];
+    } catch (error) {
+      console.error("Error in updateVote:", error);
+      return undefined;
+    }
+  }
+  
+  async deleteVote(voteId: number): Promise<boolean> {
+    try {
+      // Get the vote first to access its feedbackId
+      const vote = await db
+        .select()
+        .from(feedbackVotes)
+        .where(eq(feedbackVotes.id, voteId))
+        .limit(1);
+      
+      if (!vote[0]) {
+        return false;
+      }
+      
+      const result = await db
+        .delete(feedbackVotes)
+        .where(eq(feedbackVotes.id, voteId))
+        .returning();
+      
+      // Update vote count on the feedback
+      if (result.length > 0 && vote[0].feedbackId) {
+        await this.updateFeedbackVoteCount(vote[0].feedbackId);
+      }
+      
+      return result.length > 0;
+    } catch (error) {
+      console.error("Error in deleteVote:", error);
+      return false;
+    }
+  }
+  
+  async updateFeedbackVoteCount(feedbackId: string): Promise<void> {
+    try {
+      // Count upvotes
+      const voteCountResult = await db
+        .select({ count: count() })
+        .from(feedbackVotes)
+        .where(
+          and(
+            eq(feedbackVotes.feedbackId, feedbackId),
+            eq(feedbackVotes.isUpvote, true)
+          )
+        );
+      
+      // Count downvotes
+      const downvoteCountResult = await db
+        .select({ count: count() })
+        .from(feedbackVotes)
+        .where(
+          and(
+            eq(feedbackVotes.feedbackId, feedbackId),
+            eq(feedbackVotes.isUpvote, false)
+          )
+        );
+      
+      // Calculate net votes
+      const upvotes = voteCountResult[0]?.count || 0;
+      const downvotes = downvoteCountResult[0]?.count || 0;
+      const netVotes = upvotes - downvotes;
+      
+      // Update the feedback record with the new vote count
+      await db
+        .update(userFeedback)
+        .set({ votes: netVotes })
+        .where(eq(userFeedback.feedbackId, feedbackId));
+    } catch (error) {
+      console.error("Error in updateFeedbackVoteCount:", error);
+    }
+  }
 }
 
 /**
@@ -2723,6 +3141,97 @@ export class HybridStorage implements IStorage {
       console.error("Error in deleteApiKey, falling back to memory storage:", error);
       this.useDatabase = false;
       return this.memStorage.deleteApiKey(id);
+    }
+  }
+
+  // Feedback operations
+  async getAllFeedback(options: { status?: string; category?: string; search?: string; systemId?: string; assessmentId?: string; isPublic?: boolean; page?: number; limit?: number; } = {}): Promise<UserFeedback[]> {
+    try {
+      return await this.storage.getAllFeedback(options);
+    } catch (error) {
+      console.error("Error in getAllFeedback, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getAllFeedback(options);
+    }
+  }
+
+  async getFeedbackById(feedbackId: string): Promise<UserFeedback | undefined> {
+    try {
+      return await this.storage.getFeedbackById(feedbackId);
+    } catch (error) {
+      console.error("Error in getFeedbackById, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getFeedbackById(feedbackId);
+    }
+  }
+
+  async createFeedback(feedback: InsertUserFeedback): Promise<UserFeedback> {
+    try {
+      return await this.storage.createFeedback(feedback);
+    } catch (error) {
+      console.error("Error in createFeedback, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.createFeedback(feedback);
+    }
+  }
+
+  async updateFeedback(feedbackId: string, updates: Partial<UserFeedback>): Promise<UserFeedback | undefined> {
+    try {
+      return await this.storage.updateFeedback(feedbackId, updates);
+    } catch (error) {
+      console.error("Error in updateFeedback, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.updateFeedback(feedbackId, updates);
+    }
+  }
+
+  async getUserVote(feedbackId: string, userId: string): Promise<FeedbackVote | undefined> {
+    try {
+      return await this.storage.getUserVote(feedbackId, userId);
+    } catch (error) {
+      console.error("Error in getUserVote, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.getUserVote(feedbackId, userId);
+    }
+  }
+
+  async createVote(vote: InsertFeedbackVote): Promise<FeedbackVote> {
+    try {
+      return await this.storage.createVote(vote);
+    } catch (error) {
+      console.error("Error in createVote, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.createVote(vote);
+    }
+  }
+
+  async updateVote(voteId: number, updates: Partial<FeedbackVote>): Promise<FeedbackVote | undefined> {
+    try {
+      return await this.storage.updateVote(voteId, updates);
+    } catch (error) {
+      console.error("Error in updateVote, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.updateVote(voteId, updates);
+    }
+  }
+
+  async deleteVote(voteId: number): Promise<boolean> {
+    try {
+      return await this.storage.deleteVote(voteId);
+    } catch (error) {
+      console.error("Error in deleteVote, falling back to memory storage:", error);
+      this.useDatabase = false;
+      return this.memStorage.deleteVote(voteId);
+    }
+  }
+
+  async updateFeedbackVoteCount(feedbackId: string): Promise<void> {
+    try {
+      return await this.storage.updateFeedbackVoteCount(feedbackId);
+    } catch (error) {
+      console.error("Error in updateFeedbackVoteCount, falling back to memory storage:", error);
+      this.useDatabase = false;
+      await this.memStorage.updateFeedbackVoteCount(feedbackId);
     }
   }
 }

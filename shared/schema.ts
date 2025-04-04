@@ -3,6 +3,9 @@ import { text, integer, timestamp, pgTable, serial, boolean, jsonb, pgEnum } fro
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Import feedback schema
+import { userFeedback, feedbackVotes } from "./schemas/feedback";
+
 // User role enum
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin', 'operator', 'developer', 'decision_maker']);
 
@@ -33,6 +36,8 @@ export const users = pgTable('users', {
 export const usersRelations = relations(users, ({ many }) => ({
   systems: many(aiSystems),
   assessments: many(riskAssessments),
+  feedback: many(userFeedback, { relationName: 'user_feedback' }),
+  feedbackVotes: many(feedbackVotes, { relationName: 'feedback_votes' }),
 }));
 
 // AI System table
@@ -71,6 +76,7 @@ export const aiSystemsRelations = relations(aiSystems, ({ many, one }) => ({
     fields: [aiSystems.createdBy],
     references: [users.uid],
   }),
+  feedback: many(userFeedback, { relationName: 'system_feedback' }),
 }));
 
 // Risk Assessment table
@@ -93,7 +99,7 @@ export const riskAssessments = pgTable('risk_assessments', {
   summaryNotes: text('summary_notes'),
 });
 
-export const riskAssessmentsRelations = relations(riskAssessments, ({ one }) => ({
+export const riskAssessmentsRelations = relations(riskAssessments, ({ one, many }) => ({
   system: one(aiSystems, {
     fields: [riskAssessments.systemId],
     references: [aiSystems.systemId],
@@ -102,6 +108,7 @@ export const riskAssessmentsRelations = relations(riskAssessments, ({ one }) => 
     fields: [riskAssessments.createdBy],
     references: [users.uid],
   }),
+  feedback: many(userFeedback, { relationName: 'assessment_feedback' }),
 }));
 
 // EU AI Act Articles table
