@@ -400,7 +400,6 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
                   <span className="flex items-center gap-1.5">
                     <ShieldIcon className="h-4 w-4 text-primary" />
                     <span className="font-medium">Compliance Suite</span>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">92%</Badge>
                     <ChevronDownIcon className="h-4 w-4" />
                   </span>
                 </Button>
