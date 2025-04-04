@@ -197,20 +197,6 @@ export function Header({ onMenuClick }: HeaderProps) {
         </div>
       </div>
 
-      {/* Optional: New Feature Announcement Banner */}
-      <div className="bg-[#7B1FA2]/10 border-b border-[#7B1FA2]/20 px-4 py-1.5 flex items-center justify-between">
-        <div className="flex items-center text-xs sm:text-sm">
-          <Badge variant="outline" className="bg-[#7B1FA2] text-white border-none mr-2 text-[10px] sm:text-xs">New</Badge>
-          <span className="font-medium text-[#7B1FA2] line-clamp-1">
-            AI-powered strategic recommendations <span className="hidden xs:inline">now available</span>
-          </span>
-        </div>
-        <Button variant="ghost" className="text-[10px] sm:text-xs h-6 px-2 sm:px-3 text-[#7B1FA2] hover:bg-[#7B1FA2]/10 ml-1">
-          <span className="hidden xs:inline">Learn More</span>
-          <span className="inline xs:hidden">More</span>
-        </Button>
-      </div>
-
       <AiAssistantDialog 
         open={isAssistantOpen} 
         onOpenChange={setIsAssistantOpen} 
