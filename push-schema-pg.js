@@ -1,7 +1,6 @@
 import { config } from 'dotenv';
-import postgres from 'postgres';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { sql } from 'drizzle-orm';
+import pkg from 'pg';
+const { Client } = pkg;
 
 config();
 
@@ -16,16 +15,20 @@ async function main() {
   console.log('PGHOST exists:', !!process.env.PGHOST);
   console.log('PGDATABASE exists:', !!process.env.PGDATABASE);
   
-  const connectionString = process.env.DATABASE_URL;
-  const migrationClient = postgres(connectionString, { ssl: { rejectUnauthorized: false } });
-  const db = drizzle(migrationClient);
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
   
   console.log('Creating database schema...');
   
   try {
+    // Connect to the database
+    await client.connect();
+    
     // First check connection
     console.log('Testing database connection...');
-    await db.execute(sql`SELECT 1`);
+    await client.query('SELECT 1');
     console.log('Database connection successful!');
     
     // Define the tables to create
@@ -50,16 +53,15 @@ async function main() {
       'regulatory_updates',
       'regulatory_impacts',
       'feature_flags',
-      'system_settings'
+      'system_settings',
     ];
     
-    // Push the schema - try a SQL approach
     for (const tableName of tables) {
       console.log(`Creating table ${tableName}`);
       
       try {
-        // Try to create the table using migrationClient directly
-        await migrationClient`CREATE TABLE IF NOT EXISTS "${tableName}" (id SERIAL PRIMARY KEY)`;
+        // Try to create the table using direct SQL query
+        await client.query(`CREATE TABLE IF NOT EXISTS "${tableName}" (id SERIAL PRIMARY KEY)`);
         console.log(`Table ${tableName} created or already exists`);
       } catch (err) {
         console.error(`Error creating table ${tableName}:`, err.message);
@@ -70,7 +72,7 @@ async function main() {
   } catch (err) {
     console.error('Failed to create schema:', err);
   } finally {
-    await migrationClient.end();
+    await client.end();
   }
 }
 

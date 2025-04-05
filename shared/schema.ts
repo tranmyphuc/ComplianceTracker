@@ -356,8 +356,10 @@ export type SystemSetting = typeof systemSettings.$inferSelect;
 // Regulatory Terms table for tooltip explanations
 export const regulatoryTerms = pgTable('regulatory_terms', {
   id: serial('id').primaryKey(),
-  term: text('term').notNull().unique(),
+  termId: text('term_id').notNull().unique(),
+  term: text('term').notNull(),
   definition: text('definition').notNull(),
+  language: text('language').notNull().default('en'), // 'en' or 'de'
   category: text('category'),
   importance: text('importance').default('medium'), // high, medium, low
   source: text('source'),
@@ -497,7 +499,6 @@ export const activities = pgTable('activities', {
 export const insertActivitySchema = createInsertSchema(activities).omit({ id: true, timestamp: true });
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type Activity = typeof activities.$inferSelect;
-export type SystemSetting = typeof systemSettings.$inferSelect;
 
 // Document Templates schema
 export const insertDocumentTemplateSchema = createInsertSchema(documentTemplates).omit({ id: true, createdAt: true, updatedAt: true });

@@ -1,140 +1,279 @@
-import {
-  users, type User, type InsertUser,
-  aiSystems, type AiSystem, type InsertAiSystem,
-  riskAssessments, type RiskAssessment, type InsertRiskAssessment,
-  euAiActArticles, type EuAiActArticle, type InsertEuAiActArticle,
-  articleVersions, type ArticleVersion, type InsertArticleVersion,
-  trainingModules, type TrainingModule, type InsertTrainingModule,
-  approvalItems, type ApprovalItem, type InsertApprovalItem,
-  approvalAssignments, type ApprovalAssignment, type InsertApprovalAssignment,
-  approvalHistory, type ApprovalHistory, type InsertApprovalHistory,
-  approvalNotifications, type ApprovalNotification, type InsertApprovalNotification,
-  approvalSettings, type ApprovalSettings, type InsertApprovalSettings,
-  activities, type Activity, type InsertActivity,
-  apiKeys, type ApiKey, type InsertApiKey,
-  expertReviews, type ExpertReview, type InsertExpertReview,
-  ApprovalPriority, ApprovalStatus, ModuleType, NotificationFrequency
-} from "@shared/schema";
-import { 
-  userFeedback, feedbackVotes, 
-  type UserFeedback, type InsertUserFeedback,
-  type FeedbackVote, type InsertFeedbackVote
-} from "@shared/schemas/feedback";
-import { documentFiles, type DocumentFile, type InsertDocumentFile } from "@shared/schemas/document";
-import { eq, desc, or, like, sql } from "drizzle-orm";
-import { db } from "./db";
+/**
+ * Storage module
+ * 
+ * Handles database operations for the EU AI Act Compliance Platform.
+ * Uses DatabaseStorage from db-storage.ts to ensure application functionality.
+ */
 
-import { DatabaseStorage } from "./db-storage";
+// Import and re-export the database storage from db-storage.ts
+import { dbStorage } from "./db-storage";
 
-// Implement storage interface with CRUD operations
-export interface IStorage {
+// Export the database storage as the primary storage interface
+export const storage = dbStorage;
+
+// Re-export the IStorage interface for type checking
+export { IStorage } from "./storage-interface";
   // User operations
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUid(uid: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  
-  // Feedback operations
-  getAllFeedback(options?: { status?: string; category?: string; search?: string; page?: number; limit?: number; }): Promise<UserFeedback[]>;
-  getFeedbackById(feedbackId: string): Promise<UserFeedback | null>;
-  createFeedback(feedback: InsertUserFeedback): Promise<UserFeedback>;
-  updateFeedback(feedbackId: string, updates: Partial<UserFeedback>): Promise<UserFeedback | null>;
-  getUserVote(feedbackId: string, userId: string): Promise<FeedbackVote | null>;
-  createVote(vote: InsertFeedbackVote): Promise<FeedbackVote>;
-  updateVote(voteId: number, vote: Partial<FeedbackVote>): Promise<FeedbackVote | null>;
-  deleteVote(voteId: number): Promise<boolean>;
-  updateFeedbackVoteCount(feedbackId: string): Promise<UserFeedback | null>;
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUid(uid: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.uid, uid));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
 
   // AI System operations
-  getAiSystem(id: number): Promise<AiSystem | undefined>;
-  getAiSystemBySystemId(systemId: string): Promise<AiSystem | undefined>;
-  getAllAiSystems(): Promise<AiSystem[]>;
-  getHighRiskAiSystems(limit?: number): Promise<AiSystem[]>;
-  createAiSystem(system: InsertAiSystem): Promise<AiSystem>;
-  updateAiSystem(id: number, system: Partial<AiSystem>): Promise<AiSystem | undefined>;
-  deleteAiSystem(id: number): Promise<boolean>;
+  async getAiSystem(id: number): Promise<AiSystem | undefined> {
+    const [system] = await db.select().from(aiSystems).where(eq(aiSystems.id, id));
+    return system || undefined;
+  }
 
-  // Department operations
-  getDepartment(id: number): Promise<Department | undefined>;
-  getAllDepartments(): Promise<Department[]>;
-  createDepartment(department: InsertDepartment): Promise<Department>;
-  updateDepartment(id: number, department: Partial<Department>): Promise<Department | undefined>;
+  async getAiSystemBySystemId(systemId: string): Promise<AiSystem | undefined> {
+    const [system] = await db.select().from(aiSystems).where(eq(aiSystems.systemId, systemId));
+    return system || undefined;
+  }
+
+  async getAllAiSystems(): Promise<AiSystem[]> {
+    return await db.select().from(aiSystems).orderBy(desc(aiSystems.createdAt));
+  }
+
+  async getHighRiskAiSystems(limit: number = 10): Promise<AiSystem[]> {
+    return await db.select().from(aiSystems)
+      .where(eq(aiSystems.riskLevel, 'high_risk'))
+      .orderBy(desc(aiSystems.createdAt))
+      .limit(limit);
+  }
+
+  async createAiSystem(system: InsertAiSystem): Promise<AiSystem> {
+    const [newSystem] = await db.insert(aiSystems).values(system).returning();
+    return newSystem;
+  }
+
+  async updateAiSystem(id: number, system: Partial<AiSystem>): Promise<AiSystem | undefined> {
+    const [updatedSystem] = await db
+      .update(aiSystems)
+      .set(system)
+      .where(eq(aiSystems.id, id))
+      .returning();
+    return updatedSystem || undefined;
+  }
+
+  async deleteAiSystem(id: number): Promise<boolean> {
+    const result = await db.delete(aiSystems).where(eq(aiSystems.id, id));
+    return result.rowCount > 0;
+  }
 
   // Activity operations
-  getRecentActivities(limit: number): Promise<Activity[]>;
-  createActivity(activity: InsertActivity): Promise<Activity>;
+  async getRecentActivities(limit: number): Promise<Activity[]> {
+    return await db.select().from(activities)
+      .orderBy(desc(activities.timestamp))
+      .limit(limit);
+  }
 
-  // Alert operations
-  getCriticalAlerts(limit: number): Promise<Alert[]>;
-  createAlert(alert: InsertAlert): Promise<Alert>;
-  resolveAlert(id: number): Promise<Alert | undefined>;
-
-  // Deadline operations
-  getUpcomingDeadlines(limit: number): Promise<Deadline[]>;
-  createDeadline(deadline: InsertDeadline): Promise<Deadline>;
-
-  // Document operations
-  getDocumentsForSystem(systemId: string): Promise<Document[]>;
-  createDocument(document: InsertDocument): Promise<Document>;
-  updateDocument(id: number, document: Partial<Document>): Promise<Document | undefined>;
-  
-  // Document File operations
-  createDocumentFile(document: InsertDocumentFile): Promise<DocumentFile>;
-  getDocumentFileById(documentId: string): Promise<DocumentFile | null>;
-  getDocumentFilesByAssessment(assessmentId: string): Promise<DocumentFile[]>;
-  
-  // API Key operations
-  getApiKeys(provider?: string): Promise<ApiKey[]>;
-  getApiKey(id: number): Promise<ApiKey | undefined>;
-  createApiKey(apiKey: InsertApiKey): Promise<ApiKey>;
-  updateApiKey(id: number, apiKey: Partial<ApiKey>): Promise<ApiKey | undefined>;
-  deleteApiKey(id: number): Promise<boolean>;
-  getDocumentFilesBySystem(systemId: string): Promise<DocumentFile[]>;
-  deleteDocumentFile(documentId: string): Promise<boolean>;
+  async createActivity(activity: InsertActivity): Promise<Activity> {
+    const [newActivity] = await db.insert(activities).values(activity).returning();
+    return newActivity;
+  }
 
   // Risk Assessment operations
-  getRiskAssessment(id: number): Promise<RiskAssessment | undefined>;
-  getRiskAssessmentByAssessmentId(assessmentId: string): Promise<RiskAssessment | undefined>;
-  getRiskAssessmentsForSystem(systemId: string): Promise<RiskAssessment[]>;
-  getAllRiskAssessments(): Promise<RiskAssessment[]>;
-  createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment>;
-  updateRiskAssessment(id: number, assessment: Partial<RiskAssessment>): Promise<RiskAssessment | undefined>;
-  deleteRiskAssessment(id: number): Promise<boolean>;
+  async getRiskAssessment(id: number): Promise<RiskAssessment | undefined> {
+    const [assessment] = await db.select().from(riskAssessments).where(eq(riskAssessments.id, id));
+    return assessment || undefined;
+  }
 
-  /**
-   * Risk Management System operations
-   */
-  createRiskManagementSystem(rms: any): Promise<any>;
-  getRiskManagementSystemBySystemId(systemId: string): Promise<any>;
-  updateRiskManagementSystem(rmsId: string, updates: any): Promise<any>;
+  async getRiskAssessmentByAssessmentId(assessmentId: string): Promise<RiskAssessment | undefined> {
+    const [assessment] = await db.select().from(riskAssessments).where(eq(riskAssessments.assessmentId, assessmentId));
+    return assessment || undefined;
+  }
 
+  async getRiskAssessmentsForSystem(systemId: string): Promise<RiskAssessment[]> {
+    return await db.select().from(riskAssessments)
+      .where(eq(riskAssessments.systemId, systemId))
+      .orderBy(desc(riskAssessments.createdAt));
+  }
 
-  /**
-   * Risk Control operations
-   */
-  createRiskControl(control: any): Promise<any>;
-  getRiskControlByControlId(controlId: string): Promise<any>;
-  getRiskControlsBySystemId(systemId: string): Promise<any[]>;
-  getRiskControlsByGapId(gapId: string): Promise<any[]>;
-  updateRiskControl(controlId: string, updates: any): Promise<any>;
+  async getAllRiskAssessments(): Promise<RiskAssessment[]> {
+    return await db.select().from(riskAssessments).orderBy(desc(riskAssessments.createdAt));
+  }
 
-  /**
-   * Risk Event operations
-   */
-  createRiskEvent(event: any): Promise<any>;
-  getRiskEventByEventId(eventId: string): Promise<any>;
-  getRiskEventsBySystemId(systemId: string): Promise<any[]>;
-  updateRiskEvent(eventId: string, updates: any): Promise<any>;
+  async createRiskAssessment(assessment: InsertRiskAssessment): Promise<RiskAssessment> {
+    const [newAssessment] = await db.insert(riskAssessments).values(assessment).returning();
+    return newAssessment;
+  }
 
-  /**
-   * Approval Workflow operations
-   */
+  async updateRiskAssessment(id: number, assessment: Partial<RiskAssessment>): Promise<RiskAssessment | undefined> {
+    const [updatedAssessment] = await db
+      .update(riskAssessments)
+      .set(assessment)
+      .where(eq(riskAssessments.id, id))
+      .returning();
+    return updatedAssessment || undefined;
+  }
+
+  async deleteRiskAssessment(id: number): Promise<boolean> {
+    const result = await db.delete(riskAssessments).where(eq(riskAssessments.id, id));
+    return result.rowCount > 0;
+  }
+
+  // API Key operations
+  async getApiKeys(provider?: string): Promise<ApiKey[]> {
+    if (provider) {
+      return await db.select().from(apiKeys).where(eq(apiKeys.provider, provider));
+    }
+    return await db.select().from(apiKeys);
+  }
+
+  async getApiKey(id: number): Promise<ApiKey | undefined> {
+    const [key] = await db.select().from(apiKeys).where(eq(apiKeys.id, id));
+    return key || undefined;
+  }
+
+  async createApiKey(apiKey: InsertApiKey): Promise<ApiKey> {
+    const [newKey] = await db.insert(apiKeys).values(apiKey).returning();
+    return newKey;
+  }
+
+  async updateApiKey(id: number, apiKey: Partial<ApiKey>): Promise<ApiKey | undefined> {
+    const [updatedKey] = await db
+      .update(apiKeys)
+      .set(apiKey)
+      .where(eq(apiKeys.id, id))
+      .returning();
+    return updatedKey || undefined;
+  }
+
+  async deleteApiKey(id: number): Promise<boolean> {
+    const result = await db.delete(apiKeys).where(eq(apiKeys.id, id));
+    return result.rowCount > 0;
+  }
+
+  // EU AI Act Article operations
+  async getEuAiActArticle(id: number): Promise<EuAiActArticle | undefined> {
+    const [article] = await db.select().from(euAiActArticles).where(eq(euAiActArticles.id, id));
+    return article || undefined;
+  }
+
+  async getEuAiActArticleByArticleId(articleId: string): Promise<EuAiActArticle | undefined> {
+    const [article] = await db.select().from(euAiActArticles).where(eq(euAiActArticles.articleId, articleId));
+    return article || undefined;
+  }
+
+  async getAllEuAiActArticles(options?: { riskLevel?: string; version?: string }): Promise<EuAiActArticle[]> {
+    let query = db.select().from(euAiActArticles);
+
+    if (options?.riskLevel) {
+      // For this, we need to check JSON data as risk levels are stored in JSON format
+      // This would depend on DB implementation
+      query = query.where(sql`risk_levels::jsonb ? ${options.riskLevel}`);
+    }
+
+    if (options?.version) {
+      query = query.where(eq(euAiActArticles.version, options.version));
+    }
+
+    return await query.orderBy(euAiActArticles.articleNumber);
+  }
+
+  async createEuAiActArticle(article: InsertEuAiActArticle): Promise<EuAiActArticle> {
+    const [newArticle] = await db.insert(euAiActArticles).values(article).returning();
+    return newArticle;
+  }
+
+  async updateEuAiActArticle(id: number, article: Partial<EuAiActArticle>): Promise<EuAiActArticle | undefined> {
+    const [updatedArticle] = await db
+      .update(euAiActArticles)
+      .set(article)
+      .where(eq(euAiActArticles.id, id))
+      .returning();
+    return updatedArticle || undefined;
+  }
+
+  // Article Version operations
+  async getArticleVersions(articleId: string): Promise<ArticleVersion[]> {
+    return await db.select().from(articleVersions)
+      .where(eq(articleVersions.articleId, articleId))
+      .orderBy(desc(articleVersions.changedAt));
+  }
+
+  async createArticleVersion(version: InsertArticleVersion): Promise<ArticleVersion> {
+    const [newVersion] = await db.insert(articleVersions).values(version).returning();
+    return newVersion;
+  }
+
+  async getLatestArticleVersion(articleId: string): Promise<ArticleVersion | undefined> {
+    const [version] = await db.select().from(articleVersions)
+      .where(eq(articleVersions.articleId, articleId))
+      .orderBy(desc(articleVersions.changedAt))
+      .limit(1);
+    return version || undefined;
+  }
+
+  // Document File operations
+  async createDocumentFile(document: InsertDocumentFile): Promise<DocumentFile> {
+    const [newDocument] = await db.insert(documentFiles).values(document).returning();
+    return newDocument;
+  }
+
+  async getDocumentFileById(documentId: string): Promise<DocumentFile | null> {
+    const [document] = await db.select().from(documentFiles).where(eq(documentFiles.documentId, documentId));
+    return document || null;
+  }
+
+  async getDocumentFilesByAssessment(assessmentId: string): Promise<DocumentFile[]> {
+    return await db.select().from(documentFiles)
+      .where(eq(documentFiles.assessmentId, assessmentId))
+      .orderBy(desc(documentFiles.createdAt));
+  }
+
+  async getDocumentFilesBySystem(systemId: string): Promise<DocumentFile[]> {
+    return await db.select().from(documentFiles)
+      .where(eq(documentFiles.systemId, systemId))
+      .orderBy(desc(documentFiles.createdAt));
+  }
+
+  async deleteDocumentFile(documentId: string): Promise<boolean> {
+    const result = await db.delete(documentFiles).where(eq(documentFiles.documentId, documentId));
+    return result.rowCount > 0;
+  }
+
+  // Approval Workflow operations
   // Approval Item operations
-  createApprovalItem(item: InsertApprovalItem): Promise<ApprovalItem>;
-  getApprovalItem(id: number): Promise<ApprovalItem | undefined>;
-  getApprovalItemByWorkflowId(workflowId: string): Promise<ApprovalItem | undefined>;
-  getAllApprovalItems(options?: { 
+  async createApprovalItem(item: InsertApprovalItem): Promise<ApprovalItem> {
+    const [newItem] = await db.insert(approvalItems).values(item).returning();
+    return newItem;
+  }
+
+  async getApprovalItem(id: number): Promise<ApprovalItem | undefined> {
+    const [item] = await db.select().from(approvalItems).where(eq(approvalItems.id, id));
+    return item || undefined;
+  }
+
+  async getApprovalItemByWorkflowId(workflowId: string): Promise<ApprovalItem | undefined> {
+    const [item] = await db.select().from(approvalItems).where(eq(approvalItems.workflowId, workflowId));
+    return item || undefined;
+  }
+
+  async getAllApprovalItems(options?: { 
     status?: string;
     moduleType?: string;
     priority?: string;
@@ -143,69 +282,357 @@ export interface IStorage {
     limit?: number;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
-  }): Promise<ApprovalItem[]>;
-  updateApprovalItem(workflowId: string, updates: Partial<ApprovalItem>): Promise<ApprovalItem | undefined>;
+  }): Promise<ApprovalItem[]> {
+    let query = db.select().from(approvalItems);
+    
+    if (options?.status) {
+      query = query.where(eq(approvalItems.status, options.status as ApprovalStatus));
+    }
+    
+    if (options?.moduleType) {
+      query = query.where(eq(approvalItems.moduleType, options.moduleType as ModuleType));
+    }
+    
+    if (options?.priority) {
+      query = query.where(eq(approvalItems.priority, options.priority as ApprovalPriority));
+    }
+    
+    if (options?.search) {
+      query = query.where(
+        or(
+          like(approvalItems.title, `%${options.search}%`),
+          like(approvalItems.description, `%${options.search}%`)
+        )
+      );
+    }
+    
+    // Add sorting
+    if (options?.sortBy) {
+      const sortOrder = options.sortOrder === 'asc' ? asc : desc;
+      switch (options.sortBy) {
+        case 'title':
+          query = query.orderBy(sortOrder(approvalItems.title));
+          break;
+        case 'createdAt':
+          query = query.orderBy(sortOrder(approvalItems.createdAt));
+          break;
+        case 'updatedAt':
+          query = query.orderBy(sortOrder(approvalItems.updatedAt));
+          break;
+        case 'priority':
+          query = query.orderBy(sortOrder(approvalItems.priority));
+          break;
+        default:
+          query = query.orderBy(desc(approvalItems.createdAt));
+      }
+    } else {
+      query = query.orderBy(desc(approvalItems.createdAt));
+    }
+    
+    // Add pagination
+    if (options?.page && options?.limit) {
+      const offset = (options.page - 1) * options.limit;
+      query = query.limit(options.limit).offset(offset);
+    }
+    
+    return await query;
+  }
+
+  async updateApprovalItem(workflowId: string, updates: Partial<ApprovalItem>): Promise<ApprovalItem | undefined> {
+    const [updatedItem] = await db
+      .update(approvalItems)
+      .set(updates)
+      .where(eq(approvalItems.workflowId, workflowId))
+      .returning();
+    return updatedItem || undefined;
+  }
   
   // Approval Assignment operations
-  createApprovalAssignment(assignment: InsertApprovalAssignment): Promise<ApprovalAssignment>;
-  getApprovalAssignment(id: number): Promise<ApprovalAssignment | undefined>;
-  getApprovalAssignmentsByWorkflowId(workflowId: string): Promise<ApprovalAssignment[]>;
-  getApprovalAssignmentsByUserId(userId: string): Promise<ApprovalAssignment[]>;
-  updateApprovalAssignment(id: number, updates: Partial<ApprovalAssignment>): Promise<ApprovalAssignment | undefined>;
+  async createApprovalAssignment(assignment: InsertApprovalAssignment): Promise<ApprovalAssignment> {
+    const [newAssignment] = await db.insert(approvalAssignments).values(assignment).returning();
+    return newAssignment;
+  }
+
+  async getApprovalAssignment(id: number): Promise<ApprovalAssignment | undefined> {
+    const [assignment] = await db.select().from(approvalAssignments).where(eq(approvalAssignments.id, id));
+    return assignment || undefined;
+  }
+
+  async getApprovalAssignmentsByWorkflowId(workflowId: string): Promise<ApprovalAssignment[]> {
+    return await db.select().from(approvalAssignments)
+      .where(eq(approvalAssignments.workflowId, workflowId))
+      .orderBy(desc(approvalAssignments.assignedAt));
+  }
+
+  async getApprovalAssignmentsByUserId(userId: string): Promise<ApprovalAssignment[]> {
+    return await db.select().from(approvalAssignments)
+      .where(eq(approvalAssignments.userId, userId))
+      .orderBy(desc(approvalAssignments.assignedAt));
+  }
+
+  async updateApprovalAssignment(id: number, updates: Partial<ApprovalAssignment>): Promise<ApprovalAssignment | undefined> {
+    const [updatedAssignment] = await db
+      .update(approvalAssignments)
+      .set(updates)
+      .where(eq(approvalAssignments.id, id))
+      .returning();
+    return updatedAssignment || undefined;
+  }
   
   // Approval History operations
-  createApprovalHistory(history: InsertApprovalHistory): Promise<ApprovalHistory>;
-  getApprovalHistoryByWorkflowId(workflowId: string): Promise<ApprovalHistory[]>;
+  async createApprovalHistory(history: InsertApprovalHistory): Promise<ApprovalHistory> {
+    const [newHistory] = await db.insert(approvalHistory).values(history).returning();
+    return newHistory;
+  }
+
+  async getApprovalHistoryByWorkflowId(workflowId: string): Promise<ApprovalHistory[]> {
+    return await db.select().from(approvalHistory)
+      .where(eq(approvalHistory.workflowId, workflowId))
+      .orderBy(desc(approvalHistory.actionAt));
+  }
   
   // Approval Notification operations
-  createApprovalNotification(notification: InsertApprovalNotification): Promise<ApprovalNotification>;
-  getApprovalNotificationsByUserId(userId: string, options?: {
+  async createApprovalNotification(notification: InsertApprovalNotification): Promise<ApprovalNotification> {
+    const [newNotification] = await db.insert(approvalNotifications).values(notification).returning();
+    return newNotification;
+  }
+
+  async getApprovalNotificationsByUserId(userId: string, options?: {
     isRead?: boolean;
     page?: number;
     limit?: number;
-  }): Promise<ApprovalNotification[]>;
-  markNotificationsAsRead(notificationIds: number[]): Promise<void>;
+  }): Promise<ApprovalNotification[]> {
+    let query = db.select().from(approvalNotifications)
+      .where(eq(approvalNotifications.userId, userId));
+    
+    if (options?.isRead !== undefined) {
+      query = query.where(eq(approvalNotifications.isRead, options.isRead));
+    }
+    
+    query = query.orderBy(desc(approvalNotifications.createdAt));
+    
+    if (options?.page !== undefined && options?.limit !== undefined) {
+      const offset = (options.page - 1) * options.limit;
+      query = query.limit(options.limit).offset(offset);
+    }
+    
+    return await query;
+  }
+
+  async markNotificationsAsRead(notificationIds: number[]): Promise<void> {
+    await db.update(approvalNotifications)
+      .set({ isRead: true })
+      .where(sql`id = ANY(${notificationIds})`);
+  }
   
   // Approval Settings operations
-  getApprovalSettings(userId: string): Promise<ApprovalSettings | undefined>;
-  createApprovalSettings(settings: InsertApprovalSettings): Promise<ApprovalSettings>;
-  updateApprovalSettings(userId: string, updates: Partial<ApprovalSettings>): Promise<ApprovalSettings | undefined>;
+  async getApprovalSettings(userId: string): Promise<ApprovalSettings | undefined> {
+    const [settings] = await db.select().from(approvalSettings).where(eq(approvalSettings.userId, userId));
+    return settings || undefined;
+  }
+
+  async createApprovalSettings(settings: InsertApprovalSettings): Promise<ApprovalSettings> {
+    const [newSettings] = await db.insert(approvalSettings).values(settings).returning();
+    return newSettings;
+  }
+
+  async updateApprovalSettings(userId: string, updates: Partial<ApprovalSettings>): Promise<ApprovalSettings | undefined> {
+    const [updatedSettings] = await db
+      .update(approvalSettings)
+      .set(updates)
+      .where(eq(approvalSettings.userId, userId))
+      .returning();
+    return updatedSettings || undefined;
+  }
 
   // Expert Review operations
-  getExpertReviews(options?: { status?: string; type?: string }): Promise<ExpertReview[]>;
-  getExpertReviewById(reviewId: string): Promise<ExpertReview | null>;
-  createExpertReview(review: InsertExpertReview): Promise<ExpertReview>;
-  updateExpertReview(reviewId: string, updates: Partial<InsertExpertReview>): Promise<ExpertReview>;
-  deleteExpertReview(reviewId: string): Promise<boolean>;
+  async getExpertReviews(options?: { status?: string; type?: string }): Promise<ExpertReview[]> {
+    let query = db.select().from(expertReviews);
+    
+    if (options?.status) {
+      query = query.where(eq(expertReviews.status, options.status));
+    }
+    
+    if (options?.type) {
+      query = query.where(eq(expertReviews.reviewType, options.type));
+    }
+    
+    return await query.orderBy(desc(expertReviews.createdAt));
+  }
+
+  async getExpertReviewById(reviewId: string): Promise<ExpertReview | null> {
+    const [review] = await db.select().from(expertReviews).where(eq(expertReviews.reviewId, reviewId));
+    return review || null;
+  }
+
+  async createExpertReview(review: InsertExpertReview): Promise<ExpertReview> {
+    const [newReview] = await db.insert(expertReviews).values(review).returning();
+    return newReview;
+  }
+
+  async updateExpertReview(reviewId: string, updates: Partial<InsertExpertReview>): Promise<ExpertReview> {
+    const [updatedReview] = await db
+      .update(expertReviews)
+      .set(updates)
+      .where(eq(expertReviews.reviewId, reviewId))
+      .returning();
+    
+    if (!updatedReview) {
+      throw new Error(`Expert review with ID ${reviewId} not found`);
+    }
+    
+    return updatedReview;
+  }
+
+  async deleteExpertReview(reviewId: string): Promise<boolean> {
+    const result = await db.delete(expertReviews).where(eq(expertReviews.reviewId, reviewId));
+    return result.rowCount > 0;
+  }
+
+  // These methods need to be implemented with actual schemas
+  // For now they'll return empty or throw errors
   
-  // EU AI Act Article operations
-  getEuAiActArticle(id: number): Promise<EuAiActArticle | undefined>;
-  getEuAiActArticleByArticleId(articleId: string): Promise<EuAiActArticle | undefined>;
-  getAllEuAiActArticles(options?: { riskLevel?: string; version?: string }): Promise<EuAiActArticle[]>;
-  createEuAiActArticle(article: InsertEuAiActArticle): Promise<EuAiActArticle>;
-  updateEuAiActArticle(id: number, article: Partial<EuAiActArticle>): Promise<EuAiActArticle | undefined>;
-  
-  // Article Version operations
-  getArticleVersions(articleId: string): Promise<ArticleVersion[]>;
-  createArticleVersion(version: InsertArticleVersion): Promise<ArticleVersion>;
-  getLatestArticleVersion(articleId: string): Promise<ArticleVersion | undefined>;
-  
-  // Feedback operations
-  getAllFeedback(options?: { 
-    systemId?: string; 
-    assessmentId?: string; 
-    status?: string; 
-    category?: string; 
-    isPublic?: boolean 
-  }): Promise<UserFeedback[]>;
-  getFeedbackById(feedbackId: string): Promise<UserFeedback | undefined>;
-  createFeedback(feedback: InsertUserFeedback): Promise<UserFeedback>;
-  updateFeedback(feedbackId: string, updates: Partial<UserFeedback>): Promise<UserFeedback | undefined>;
-  getUserVote(feedbackId: string, userId: string): Promise<FeedbackVote | undefined>;
-  createVote(vote: InsertFeedbackVote): Promise<FeedbackVote>;
-  updateVote(id: number, updates: Partial<FeedbackVote>): Promise<FeedbackVote | undefined>;
-  deleteVote(id: number): Promise<boolean>;
-  updateFeedbackVoteCount(feedbackId: string, change: number): Promise<void>;
+  // Department operations (not in schema)
+  async getDepartment(id: number): Promise<any> {
+    throw new Error("Department operations not implemented - missing schema");
+  }
+
+  async getAllDepartments(): Promise<any[]> {
+    return [];
+  }
+
+  async createDepartment(department: any): Promise<any> {
+    throw new Error("Department operations not implemented - missing schema");
+  }
+
+  async updateDepartment(id: number, department: any): Promise<any> {
+    throw new Error("Department operations not implemented - missing schema");
+  }
+
+  // Alert operations (not in schema)
+  async getCriticalAlerts(limit: number): Promise<any[]> {
+    return [];
+  }
+
+  async createAlert(alert: any): Promise<any> {
+    throw new Error("Alert operations not implemented - missing schema");
+  }
+
+  async resolveAlert(id: number): Promise<any> {
+    throw new Error("Alert operations not implemented - missing schema");
+  }
+
+  // Deadline operations (not in schema)
+  async getUpcomingDeadlines(limit: number): Promise<any[]> {
+    return [];
+  }
+
+  async createDeadline(deadline: any): Promise<any> {
+    throw new Error("Deadline operations not implemented - missing schema");
+  }
+
+  // Document operations (not in schema)
+  async getDocumentsForSystem(systemId: string): Promise<any[]> {
+    return [];
+  }
+
+  async createDocument(document: any): Promise<any> {
+    throw new Error("Document operations not implemented - missing schema");
+  }
+
+  async updateDocument(id: number, document: any): Promise<any> {
+    throw new Error("Document operations not implemented - missing schema");
+  }
+
+  // Risk Management System operations (not in schema)
+  async createRiskManagementSystem(rms: any): Promise<any> {
+    throw new Error("Risk Management System operations not implemented - missing schema");
+  }
+
+  async getRiskManagementSystemBySystemId(systemId: string): Promise<any> {
+    throw new Error("Risk Management System operations not implemented - missing schema");
+  }
+
+  async updateRiskManagementSystem(rmsId: string, updates: any): Promise<any> {
+    throw new Error("Risk Management System operations not implemented - missing schema");
+  }
+
+  // Risk Control operations (not in schema)
+  async createRiskControl(control: any): Promise<any> {
+    throw new Error("Risk Control operations not implemented - missing schema");
+  }
+
+  async getRiskControlByControlId(controlId: string): Promise<any> {
+    throw new Error("Risk Control operations not implemented - missing schema");
+  }
+
+  async getRiskControlsBySystemId(systemId: string): Promise<any[]> {
+    return [];
+  }
+
+  async getRiskControlsByGapId(gapId: string): Promise<any[]> {
+    return [];
+  }
+
+  async updateRiskControl(controlId: string, updates: any): Promise<any> {
+    throw new Error("Risk Control operations not implemented - missing schema");
+  }
+
+  // Risk Event operations (not in schema)
+  async createRiskEvent(event: any): Promise<any> {
+    throw new Error("Risk Event operations not implemented - missing schema");
+  }
+
+  async getRiskEventByEventId(eventId: string): Promise<any> {
+    throw new Error("Risk Event operations not implemented - missing schema");
+  }
+
+  async getRiskEventsBySystemId(systemId: string): Promise<any[]> {
+    return [];
+  }
+
+  async updateRiskEvent(eventId: string, updates: any): Promise<any> {
+    throw new Error("Risk Event operations not implemented - missing schema");
+  }
+
+  // Feedback operations have duplicates in the interface
+  // Implementing here generically
+  async getAllFeedback(options?: any): Promise<any[]> {
+    return [];
+  }
+
+  async getFeedbackById(feedbackId: string): Promise<any> {
+    return null;
+  }
+
+  async createFeedback(feedback: any): Promise<any> {
+    throw new Error("Feedback operations not implemented - missing schema");
+  }
+
+  async updateFeedback(feedbackId: string, updates: any): Promise<any> {
+    return null;
+  }
+
+  async getUserVote(feedbackId: string, userId: string): Promise<any> {
+    return null;
+  }
+
+  async createVote(vote: any): Promise<any> {
+    throw new Error("Vote operations not implemented - missing schema");
+  }
+
+  async updateVote(id: number, updates: any): Promise<any> {
+    return null;
+  }
+
+  async deleteVote(id: number): Promise<boolean> {
+    return false;
+  }
+
+  async updateFeedbackVoteCount(feedbackId: string, change?: number): Promise<any> {
+    // Implementation depends on the actual schema
+    return null;
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -3246,7 +3673,10 @@ export class HybridStorage implements IStorage {
  */
 // Using the memory storage for now since there are typing issues with the database implementation
 // We will gradually migrate to database storage for each entity
-export const storage = new MemStorage();
+import { dbStorage } from "./db-storage";
+
+// Export the database storage as the primary storage interface
+export const storage = dbStorage;
 
 // Once we fix all type issues, we can switch to this:
 // export const storage = new DatabaseStorage();
