@@ -26,6 +26,19 @@ import { IStorage } from "./storage-interface";
  * Serves as a primary storage interface using Drizzle ORM with PostgreSQL
  */
 export class DatabaseStorage implements IStorage {
+  // Document Template operations required by IStorage interface
+  async getDocumentTemplate(id: number): Promise<DocumentTemplate | undefined> {
+    return this.getDocumentTemplateById(id);
+  }
+
+  async getAllDocumentTemplates(options?: { 
+    category?: string; 
+    type?: string;
+    language?: string;
+    isDefault?: boolean;
+  }): Promise<DocumentTemplate[]> {
+    return this.getDocumentTemplates();
+  }
   // User operations
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -704,14 +717,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Regulatory Terms operations
-  async getRegulatoryTerms(language: string = 'en'): Promise<RegulatoryTerm[]> {
-    return await db.select().from(regulatoryTerms)
-      .where(eq(regulatoryTerms.language, language))
-      .orderBy(asc(regulatoryTerms.term));
+  async getRegulatoryTerm(id: number): Promise<RegulatoryTerm | undefined> {
+    const [term] = await db.select().from(regulatoryTerms).where(eq(regulatoryTerms.id, id));
+    return term || undefined;
   }
 
-  async getRegulatoryTermById(id: number): Promise<RegulatoryTerm | undefined> {
-    const [term] = await db.select().from(regulatoryTerms).where(eq(regulatoryTerms.id, id));
+  async getRegulatoryTermByTermId(termId: string): Promise<RegulatoryTerm | undefined> {
+    const [term] = await db.select().from(regulatoryTerms).where(eq(regulatoryTerms.termId, termId));
     return term || undefined;
   }
 
@@ -722,6 +734,33 @@ export class DatabaseStorage implements IStorage {
         eq(regulatoryTerms.language, language)
       ));
     return regulatoryTerm || undefined;
+  }
+
+  async getRegulatoryTermsByLanguage(language: string): Promise<RegulatoryTerm[]> {
+    return await db.select().from(regulatoryTerms)
+      .where(eq(regulatoryTerms.language, language))
+      .orderBy(asc(regulatoryTerms.term));
+  }
+
+  async getRegulatoryTermsByCategory(category: string, language: string = 'en'): Promise<RegulatoryTerm[]> {
+    return await db.select().from(regulatoryTerms)
+      .where(and(
+        eq(regulatoryTerms.category, category),
+        eq(regulatoryTerms.language, language)
+      ))
+      .orderBy(asc(regulatoryTerms.term));
+  }
+
+  async searchRegulatoryTerms(searchText: string, language: string = 'en'): Promise<RegulatoryTerm[]> {
+    return await db.select().from(regulatoryTerms)
+      .where(and(
+        eq(regulatoryTerms.language, language),
+        or(
+          like(regulatoryTerms.term, `%${searchText}%`),
+          like(regulatoryTerms.definition, `%${searchText}%`)
+        )
+      ))
+      .orderBy(asc(regulatoryTerms.term));
   }
 
   async createRegulatoryTerm(term: InsertRegulatoryTerm): Promise<RegulatoryTerm> {

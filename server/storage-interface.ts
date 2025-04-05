@@ -1,6 +1,7 @@
 /**
  * IStorage Interface
  * Defines the storage operations interface for the EU AI Act Compliance Platform.
+ * @packageDocumentation
  */
 import {
   User, InsertUser,
@@ -23,6 +24,7 @@ import {
 } from "@shared/schema";
 
 // Storage interface definition
+// Export the interface
 export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
