@@ -351,6 +351,29 @@ export type FeatureFlag = typeof featureFlags.$inferSelect;
 
 export const insertSystemSettingSchema = createInsertSchema(systemSettings).omit({ id: true, created_at: true, updated_at: true });
 export type InsertSystemSetting = z.infer<typeof insertSystemSettingSchema>;
+export type SystemSetting = typeof systemSettings.$inferSelect;
+
+// Regulatory Terms table for tooltip explanations
+export const regulatoryTerms = pgTable('regulatory_terms', {
+  id: serial('id').primaryKey(),
+  term: text('term').notNull().unique(),
+  definition: text('definition').notNull(),
+  category: text('category'),
+  importance: text('importance').default('medium'), // high, medium, low
+  source: text('source'),
+  articleReference: text('article_reference'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at'),
+  createdBy: text('created_by').references(() => users.uid),
+  isVerified: boolean('is_verified').default(false),
+  contextExample: text('context_example'),
+  relatedTerms: text('related_terms').array(),
+  metadata: jsonb('metadata')
+});
+
+export const insertRegulatoryTermSchema = createInsertSchema(regulatoryTerms).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertRegulatoryTerm = z.infer<typeof insertRegulatoryTermSchema>;
+export type RegulatoryTerm = typeof regulatoryTerms.$inferSelect;
 
 // Document Templates table
 export const documentTemplates = pgTable('document_templates', {
