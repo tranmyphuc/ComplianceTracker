@@ -1351,7 +1351,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
 
       {/* AI Auto-fill Dialog */}
       <Dialog open={aiModalOpen} onOpenChange={setAiModalOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[900px] max-h-[70vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>SGH ASIA AI Auto-fill</DialogTitle>
             <DialogDescription>
@@ -1366,92 +1366,136 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
               <TabsTrigger value="process">Process</TabsTrigger>
             </TabsList>
             <TabsContent value="input" className="space-y-4 py-4">
-              <div className="space-y-4">
-                <div className="grid gap-3">
-                  <Label htmlFor="aiTextInput">Enter AI System Description</Label>
-                  <Textarea
-                    id="aiTextInput"
-                    className="min-h-[120px]"
-                    placeholder="Enter a detailed description of the AI system you want to register..."
-                    value={aiTextInput}
-                    onChange={(e) => setAiTextInput(e.target.value)}
-                  />
+              <div className="grid grid-cols-3 gap-6">
+                <div className="col-span-2 space-y-4">
+                  <div className="grid gap-3">
+                    <Label htmlFor="aiTextInput">Enter AI System Description</Label>
+                    <Textarea
+                      id="aiTextInput"
+                      className="min-h-[200px]"
+                      placeholder="Enter a detailed description of the AI system you want to register..."
+                      value={aiTextInput}
+                      onChange={(e) => setAiTextInput(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        getAiSuggestions();
+                      }} 
+                      disabled={extractionInProgress || aiTextInput.length < 5}
+                      className="px-6"
+                    >
+                      {extractionInProgress ? (
+                        <>
+                          <SparklesIcon className="mr-2 h-4 w-4 animate-pulse" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <SparklesIcon className="mr-2 h-4 w-4" />
+                          Generate Suggestions
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex justify-end">
-                  <Button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      getAiSuggestions();
-                    }} 
-                    disabled={extractionInProgress || aiTextInput.length < 5}
-                  >
-                    {extractionInProgress ? (
-                      <>
-                        <SparklesIcon className="mr-2 h-4 w-4 animate-pulse" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <SparklesIcon className="mr-2 h-4 w-4" />
-                        Generate Suggestions
-                      </>
-                    )}
-                  </Button>
+                <div className="space-y-4 p-4 border rounded-md bg-slate-50">
+                  <h3 className="text-sm font-medium text-slate-700">Tips for Better Results</h3>
+                  <ul className="text-xs text-slate-600 space-y-2 list-disc pl-4">
+                    <li>Include the purpose and functionality of the AI system</li>
+                    <li>Mention the technology stack being used</li>
+                    <li>Describe who will use the system</li>
+                    <li>Include any risk considerations</li>
+                    <li>Specify data sources and security protocols</li>
+                  </ul>
+                  <div className="text-xs text-slate-600 mt-4 p-3 bg-blue-50 rounded-md border border-blue-100">
+                    <p className="font-medium text-blue-700">Example description:</p>
+                    <p className="mt-1 italic text-blue-600">
+                      "Our image recognition system uses convolutional neural networks to detect objects in photos for retail inventory management. It processes customer-uploaded images with consent, storing only anonymized data. The system is used by store managers to automate inventory counts."
+                    </p>
+                  </div>
                 </div>
               </div>
             </TabsContent>
             <TabsContent value="upload" className="space-y-4 py-4">
-              <div className="space-y-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="fileUpload">Upload System Documentation</Label>
-                  <div 
-                    className="border-2 border-dashed rounded-md p-6 text-center cursor-pointer hover:bg-neutral-50"
-                    onClick={() => document.getElementById('fileUpload')?.click()}
-                  >
-                    <UploadIcon className="h-8 w-8 mx-auto mb-2 text-neutral-400" />
-                    <p className="text-sm text-neutral-600">Click to upload or drag and drop</p>
-                    <p className="text-xs text-neutral-400 mt-1">PDF, DOC, TXT (max 5MB)</p>
-                    <input 
-                      type="file" 
-                      id="fileUpload" 
-                      className="hidden"
-                      accept=".pdf,.doc,.docx,.txt"
-                      onChange={handleFileUpload}
-                    />
-                  </div>
-                  {uploadedFile && (
-                    <div className="flex items-center gap-2 mt-2 p-2 bg-slate-100 rounded-md border border-slate-200">
-                      <FileTextIcon className="h-4 w-4 text-slate-700" />
-                      <span className="text-sm truncate flex-1">{uploadedFile.name}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => setUploadedFile(null)}
-                        className="h-6 w-6 p-0"
-                      >
-                        <XIcon className="h-4 w-4" />
-                        <span className="sr-only">Remove</span>
-                      </Button>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="fileUpload">Upload System Documentation</Label>
+                    <div 
+                      className="border-2 border-dashed rounded-md p-6 text-center cursor-pointer hover:bg-neutral-50 h-[180px] flex flex-col items-center justify-center"
+                      onClick={() => document.getElementById('fileUpload')?.click()}
+                    >
+                      <UploadIcon className="h-10 w-10 mx-auto mb-3 text-neutral-400" />
+                      <p className="text-sm text-neutral-600">Click to upload or drag and drop</p>
+                      <p className="text-xs text-neutral-400 mt-1">PDF, DOC, TXT (max 5MB)</p>
+                      <input 
+                        type="file" 
+                        id="fileUpload" 
+                        className="hidden"
+                        accept=".pdf,.doc,.docx,.txt"
+                        onChange={handleFileUpload}
+                      />
                     </div>
-                  )}
-                </div>
-                <div className="flex justify-end">
-                  <Button 
-                    onClick={extractFromFile}
-                    disabled={!uploadedFile || extractionInProgress}
-                  >
-                    {extractionInProgress ? (
-                      <>
-                        <SparklesIcon className="mr-2 h-4 w-4 animate-pulse" />
-                        Extracting...
-                      </>
-                    ) : (
-                      <>
-                        <SparklesIcon className="mr-2 h-4 w-4" />
-                        Extract From File
-                      </>
+                    {uploadedFile && (
+                      <div className="flex items-center gap-2 mt-2 p-3 bg-slate-100 rounded-md border border-slate-200">
+                        <FileTextIcon className="h-5 w-5 text-slate-700" />
+                        <span className="text-sm truncate flex-1">{uploadedFile.name}</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setUploadedFile(null)}
+                          className="h-7 w-7 p-0"
+                        >
+                          <XIcon className="h-4 w-4" />
+                          <span className="sr-only">Remove</span>
+                        </Button>
+                      </div>
                     )}
-                  </Button>
+                  </div>
+                </div>
+                
+                <div className="space-y-4 p-4 border rounded-md bg-slate-50">
+                  <h3 className="text-sm font-medium text-slate-700">Accepted File Types</h3>
+                  <ul className="text-xs text-slate-600 space-y-2">
+                    <li className="flex items-center gap-2">
+                      <FileTextIcon className="h-4 w-4 text-blue-500" />
+                      <span>PDF Documents (.pdf)</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <FileTextIcon className="h-4 w-4 text-green-500" />
+                      <span>Word Documents (.doc, .docx)</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <FileTextIcon className="h-4 w-4 text-gray-500" />
+                      <span>Text Files (.txt)</span>
+                    </li>
+                  </ul>
+                  <div className="text-xs text-slate-600 mt-4">
+                    <p className="font-medium">File size limit: 5MB</p>
+                    <p className="mt-1">For larger files, please split into multiple documents or use the text input option instead.</p>
+                  </div>
+                  <div className="mt-6">
+                    <Button 
+                      onClick={extractFromFile}
+                      disabled={!uploadedFile || extractionInProgress}
+                      className="w-full"
+                    >
+                      {extractionInProgress ? (
+                        <>
+                          <SparklesIcon className="mr-2 h-4 w-4 animate-pulse" />
+                          Extracting...
+                        </>
+                      ) : (
+                        <>
+                          <SparklesIcon className="mr-2 h-4 w-4" />
+                          Extract From File
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </TabsContent>
@@ -1500,26 +1544,28 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
               </div>
 
               <div className="border rounded-md divide-y">
-                {Object.entries(aiResults)
-                  .filter(([key]) => key !== 'confidenceScore' && typeof aiResults[key] !== 'object')
-                  .map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between p-2 hover:bg-neutral-50">
-                      <div>
-                        <span className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                        <p className="text-xs text-neutral-500 mt-1 truncate max-w-[300px]">
-                          {typeof value === 'string' ? value : JSON.stringify(value)}
-                        </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(aiResults)
+                    .filter(([key]) => key !== 'confidenceScore' && typeof aiResults[key] !== 'object')
+                    .map(([key, value]) => (
+                      <div key={key} className="flex items-center justify-between p-2 hover:bg-neutral-50 border rounded-md">
+                        <div className="flex-1 mr-2">
+                          <span className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                          <p className="text-xs text-neutral-500 mt-1 truncate max-w-[350px]">
+                            {typeof value === 'string' ? value : JSON.stringify(value)}
+                          </p>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 shrink-0"
+                          onClick={() => applyField(key)}
+                        >
+                          Apply
+                        </Button>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8"
-                        onClick={() => applyField(key)}
-                      >
-                        Apply
-                      </Button>
-                    </div>
-                  ))}
+                    ))}
+                </div>
               </div>
             </div>
           )}
