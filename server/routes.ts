@@ -42,6 +42,7 @@ import {
 import { createComplianceWizardRoutes } from "./routes/compliance-wizard";
 import { enhancedAutoFillHandler } from "./routes/enhanced-auto-fill";
 import { complianceSuggestionHandler } from "./routes/compliance-suggestion";
+import { documentTemplatesRoutes } from "./routes/document-templates";
 
 /**
  * Helper function to extract values from unstructured AI text responses
@@ -3388,6 +3389,9 @@ if (isDemoMode) {
   
   // Register Document Generation API routes
   app.use('/api/document-generation', documentGenerationRoutes);
+  
+  // Register Document Templates API routes
+  app.use('/api/document-templates', documentTemplatesRoutes);
   
   // Register EU AI Act routes
   app.use('/api/eu-ai-act', createEuAiActRoutes(storage));

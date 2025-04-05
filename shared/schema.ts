@@ -352,6 +352,31 @@ export type FeatureFlag = typeof featureFlags.$inferSelect;
 export const insertSystemSettingSchema = createInsertSchema(systemSettings).omit({ id: true, created_at: true, updated_at: true });
 export type InsertSystemSetting = z.infer<typeof insertSystemSettingSchema>;
 
+// Document Templates table
+export const documentTemplates = pgTable('document_templates', {
+  id: serial('id').primaryKey(),
+  templateId: text('template_id').notNull().unique(),
+  name: text('name').notNull(),
+  description: text('description'),
+  type: text('type').notNull(), // technical_documentation, risk_assessment, etc.
+  content: text('content').notNull(), // Markdown template content
+  isDefault: boolean('is_default').default(false),
+  isPublic: boolean('is_public').default(true),
+  createdBy: text('created_by').references(() => users.uid),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at'),
+  version: text('version').default('1.0'),
+  tags: text('tags').array(),
+  metadata: jsonb('metadata'), // For additional configuration
+});
+
+export const documentTemplatesRelations = relations(documentTemplates, ({ one }) => ({
+  creator: one(users, {
+    fields: [documentTemplates.createdBy],
+    references: [users.uid],
+  }),
+}));
+
 // Expert Reviews table
 export const expertReviews = pgTable('expert_reviews', {
   id: serial('id').primaryKey(),
@@ -414,3 +439,8 @@ export const insertActivitySchema = createInsertSchema(activities).omit({ id: tr
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type Activity = typeof activities.$inferSelect;
 export type SystemSetting = typeof systemSettings.$inferSelect;
+
+// Document Templates schema
+export const insertDocumentTemplateSchema = createInsertSchema(documentTemplates).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertDocumentTemplate = z.infer<typeof insertDocumentTemplateSchema>;
+export type DocumentTemplate = typeof documentTemplates.$inferSelect;

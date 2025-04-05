@@ -177,3 +177,65 @@ export interface ComplianceTimelineData {
   complianceScore: number;
   targetScore: number;
 }
+
+/**
+ * Document Template types
+ */
+export enum DocumentTemplateType {
+  TECHNICAL_DOCUMENTATION = 'technical_documentation',
+  RISK_ASSESSMENT = 'risk_assessment',
+  COMPLIANCE_REPORT = 'compliance_report',
+  DATA_GOVERNANCE = 'data_governance',
+  EXECUTIVE_SUMMARY = 'executive_summary',
+  CONFORMITY_DECLARATION = 'conformity_declaration',
+  PRODUCT_INSTRUCTIONS = 'product_instructions',
+  CUSTOM = 'custom'
+}
+
+/**
+ * Document Template
+ */
+export interface DocumentTemplateData {
+  id: number;
+  templateId: string;
+  name: string;
+  description: string;
+  type: DocumentTemplateType;
+  content: string;
+  isDefault: boolean;
+  isPublic: boolean;
+  createdBy: string;
+  createdAt: string;
+  updatedAt?: string;
+  version: string;
+  tags?: string[];
+  metadata?: Record<string, any>;
+}
+
+/**
+ * Template Customization Request
+ */
+export interface TemplateCustomizationRequest {
+  templateId: string;
+  name: string;
+  content: string;
+  description?: string;
+  tags?: string[];
+  isPublic?: boolean;
+  metadata?: Record<string, any>;
+}
+
+/**
+ * Template Generation Options
+ */
+export interface TemplateGenerationOptions {
+  companyName?: string;
+  includeArticles?: boolean;
+  relevantArticles?: any[];
+  evidenceDocuments?: any[];
+  includeHumanOversight?: boolean;
+  includeDataGovernance?: boolean;
+  includeRiskAssessment?: boolean;
+  includePerformanceMetrics?: boolean;
+  customSections?: string[];
+}

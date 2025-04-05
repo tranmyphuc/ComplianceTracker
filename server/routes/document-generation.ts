@@ -7,6 +7,9 @@ import fs from 'fs';
 import { marked } from 'marked';
 import PDFDocument from 'pdfkit';
 import { storage } from '../storage';
+import { db } from '../db';
+import { documentTemplates } from '@shared/schema';
+import { eq } from 'drizzle-orm';
 // Importing error handling functions
 import { AppError } from "../error-handling";
 import { 
@@ -14,6 +17,7 @@ import {
   generateDocument,
   generateDocumentTemplate
 } from '../document-generator';
+import { DocumentTemplateType } from '@shared/types';
 
 const router = Router();
 
@@ -22,6 +26,15 @@ export enum DocumentFormat {
   MARKDOWN = 'markdown',
   HTML = 'html'
 }
+
+// Extended document types for compatibility
+const DocumentTypeExtended = {
+  ...DocumentType,
+  COMPLIANCE_REPORT: 'compliance_report',
+  DATA_GOVERNANCE: 'data_governance',
+  EXECUTIVE_SUMMARY: 'executive_summary',
+  PRODUCT_INSTRUCTIONS: 'product_instructions'
+};
 
 /**
  * POST /api/document-generation/generate
@@ -110,7 +123,7 @@ router.post('/generate', async (req: Request, res: Response) => {
     
     // Generate document content
     const companyName = req.body.companyName || "SGH Group";
-    const generatedContent = await generateDocument(
+    const generatedContent = generateDocument(
       documentType as DocumentType,
       system,
       assessment,
@@ -242,11 +255,15 @@ router.get('/preview/:id', async (req: Request, res: Response) => {
 
 /**
  * GET /api/document-generation/templates
- * Get available document templates
+ * Get available document templates (both default and custom)
  */
-router.get('/templates', (_req: Request, res: Response) => {
+router.get('/templates', async (_req: Request, res: Response) => {
   try {
-    const templates = [
+    // Get custom templates from the database
+    const customTemplates = await db.select().from(documentTemplates);
+    
+    // Default templates
+    const defaultTemplates = [
       { id: 'technical_documentation', name: 'Technical Documentation', description: 'Detailed technical specifications and architecture.' },
       { id: 'risk_assessment_report', name: 'Risk Assessment Report', description: 'Comprehensive risk analysis with mitigation measures.' },
       { id: 'compliance_report', name: 'Compliance Report', description: 'EU AI Act compliance status and requirements.' },
@@ -254,9 +271,18 @@ router.get('/templates', (_req: Request, res: Response) => {
       { id: 'data_governance', name: 'Data Governance Documentation', description: 'Data sources, processing, and management practices.' }
     ];
     
+    // Convert custom templates to the same format as default templates
+    const formattedCustomTemplates = customTemplates.map(template => ({
+      id: template.templateId,
+      name: template.name,
+      description: template.description || '',
+      isCustom: true,
+      type: template.type
+    }));
+    
     res.json({
       success: true,
-      templates
+      templates: [...defaultTemplates, ...formattedCustomTemplates]
     });
   } catch (error) {
     console.error('Error retrieving templates:', error);
@@ -269,20 +295,112 @@ router.get('/templates', (_req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/document-generation/from-template
+ * Generate document using a custom template
+ */
+router.post('/from-template', async (req: Request, res: Response) => {
+  try {
+    const { 
+      templateId, 
+      variables = {},
+      format = DocumentFormat.PDF,
+      systemName = "Custom AI System"
+    } = req.body;
+    
+    if (!templateId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Template ID is required" 
+      });
+    }
+    
+    // Find the template in the database
+    const [template] = await db.select().from(documentTemplates).where(eq(documentTemplates.templateId, templateId));
+    
+    if (!template) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Template not found" 
+      });
+    }
+    
+    // Generate content by replacing variables in the template
+    let content = template.content;
+    
+    // Replace variables in the content
+    Object.entries(variables).forEach(([key, value]) => {
+      const regex = new RegExp(`\\[${key}\\]`, 'g');
+      content = content.replace(regex, String(value));
+    });
+    
+    // Fill in default placeholders with empty strings to remove them
+    content = content.replace(/\[\w+\]/g, '');
+    
+    // Generate title for the document
+    const title = variables.title || `${template.name} - ${systemName}`;
+    
+    // Create unique filename
+    const timestamp = new Date().toISOString().replace(/:/g, '-').replace(/\..+/, '');
+    const filename = `custom_doc_${timestamp}`;
+    const uploadsDir = path.join(process.cwd(), 'uploads');
+    
+    // Ensure uploads directory exists
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    
+    // Format and store document in requested format
+    const filePath = await formatAndStoreDocument(
+      content,
+      path.join(uploadsDir, filename),
+      format,
+      title
+    );
+    
+    // Create a document object for the response
+    const document = {
+      title,
+      content,
+      filename: path.basename(filePath),
+      filepath: filePath,
+      format,
+      url: `/uploads/${path.basename(filePath)}`,
+      generatedAt: new Date()
+    };
+    
+    res.json({
+      success: true,
+      document
+    });
+  } catch (error) {
+    console.error('Error generating document from template:', error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to generate document from template",
+      error: error.message
+    });
+  }
+});
+
+/**
  * Generate a title for the document
  */
-function generateDocumentTitle(documentType: DocumentType, systemName: string): string {
+function generateDocumentTitle(documentType: DocumentType | string, systemName: string): string {
   const titles = {
     [DocumentType.TECHNICAL_DOCUMENTATION]: `Technical Documentation - ${systemName}`,
     [DocumentType.RISK_ASSESSMENT]: `Risk Assessment Report - ${systemName}`,
-    [DocumentType.COMPLIANCE_REPORT]: `Compliance Report - ${systemName}`,
-    [DocumentType.DATA_GOVERNANCE]: `Data Governance Documentation - ${systemName}`,
-    [DocumentType.EXECUTIVE_SUMMARY]: `Executive Summary - ${systemName}`,
     [DocumentType.CONFORMITY_DECLARATION]: `Declaration of Conformity - ${systemName}`,
-    [DocumentType.PRODUCT_INSTRUCTIONS]: `User Instructions - ${systemName}`
+    [DocumentType.HUMAN_OVERSIGHT_PROTOCOL]: `Human Oversight Protocol - ${systemName}`,
+    [DocumentType.DATA_GOVERNANCE_POLICY]: `Data Governance Policy - ${systemName}`,
+    [DocumentType.INCIDENT_RESPONSE_PLAN]: `Incident Response Plan - ${systemName}`,
+    [DocumentTypeExtended.COMPLIANCE_REPORT]: `Compliance Report - ${systemName}`,
+    [DocumentTypeExtended.DATA_GOVERNANCE]: `Data Governance Documentation - ${systemName}`,
+    [DocumentTypeExtended.EXECUTIVE_SUMMARY]: `Executive Summary - ${systemName}`,
+    [DocumentTypeExtended.PRODUCT_INSTRUCTIONS]: `User Instructions - ${systemName}`
   };
   
-  return titles[documentType] || `${documentType} - ${systemName}`;
+  // Using bracket notation to allow string access to the titles object
+  return titles[documentType as keyof typeof titles] || `${documentType} - ${systemName}`;
 }
 
 /**
