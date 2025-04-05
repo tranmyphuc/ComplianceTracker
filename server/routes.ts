@@ -150,6 +150,7 @@ import { healthCheck, metricsReport } from "./routes/health-check";
 import aiFeaturesRoutes from "./routes/ai-features";
 import regulatoryTermsRoutes from "./routes/regulatory-terms";
 import chatbotRoutes from "./routes/chatbot-routes";
+import aiServiceTestRoutes from "./routes/ai-service-test";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -3404,6 +3405,9 @@ if (isDemoMode) {
 
   // Register AI features routes
   app.use('/api/ai', aiFeaturesRoutes);
+  
+  // Register AI Service test routes
+  app.use('/api/ai-service-test', aiServiceTestRoutes);
   
   // Register EU AI Act routes
   app.use('/api/eu-ai-act', createEuAiActRoutes(storage));
