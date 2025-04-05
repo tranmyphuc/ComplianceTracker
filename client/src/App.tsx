@@ -29,6 +29,7 @@ import LegalReviewsPage from "@/pages/legal-reviews";
 import BusinessPlanPage from "@/pages/business-plan";
 import ImplementationComparisonPage from "@/pages/implementation-comparison";
 import LandingPage from "@/pages/landing-page";
+import RegulatoryTermsDemo from "@/pages/regulatory-terms-demo";
 import { LandingLayout } from "@/components/layout/landing-layout";
 import { AuthProvider, useAuth } from "./components/auth/auth-context";
 import { ToastProvider } from "./components/ui/use-toast";
@@ -39,6 +40,7 @@ import { Button } from "@/components/ui/button";
 import { AppLayout } from "@/components/layout/app-layout";
 import { ComplianceTipProvider } from "@/components/compliance-tips";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+
 import { 
   RiskAssessmentGuides, 
   RiskAssessmentDocumentation as LazyRiskAssessmentDocumentation,
@@ -144,7 +146,8 @@ function Router() {
     "/compliance-report",
     "/pricing",
     "/admin/dashboard", // Added route
-    "/development-mode" // Development mode page
+    "/development-mode", // Development mode page
+    "/regulatory-terms-demo" // Regulatory terms demo page
   ];
 
   useEffect(() => {
@@ -365,6 +368,9 @@ function Router() {
       </Route>
       <Route path="/development-mode">
         {() => renderWithLayout(DevelopmentMode)}
+      </Route>
+      <Route path="/regulatory-terms-demo">
+        {() => renderWithLayout(RegulatoryTermsDemo)}
       </Route>
       <Route>
         {() => renderWithLayout(NotFound)}
