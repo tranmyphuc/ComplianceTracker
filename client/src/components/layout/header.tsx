@@ -8,9 +8,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuLabel, 
   DropdownMenuSeparator, 
-  DropdownMenuTrigger,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { 
   BellIcon, 
@@ -27,7 +25,7 @@ import {
   CheckSquareIcon,
   BarChart3Icon,
   LightbulbIcon,
-  GlobeIcon
+  Globe
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/firebase";
 import { getAuth } from "firebase/auth";
@@ -36,8 +34,8 @@ import { useState } from "react";
 import { AiAssistantDialog } from "@/components/ai-assistant/assistant-dialog";
 import { useAuth } from "@/components/auth/auth-context";
 import { Badge } from "@/components/ui/badge";
-// Temporarily commenting out language context
-// import { useLanguage, LanguageCode } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -50,19 +48,19 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   
-  // Temporarily use static language data
-  const currentLanguage = 'en';
-  const languages = [
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
-    { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
-  ];
-  const setLanguage = (code: string) => {
-    console.log('Language would change to:', code);
-  };
+  // Use our language context with a fallback
+  let language = 'en';
+  let setLanguage = (lang: any) => console.log('Language change to:', lang);
+  let t = (key: string) => key;
   
-  // Define LanguageCode type locally if it's not available from the context
-  type LanguageCode = string;
+  try {
+    const languageContext = useLanguage();
+    language = languageContext.language;
+    setLanguage = languageContext.setLanguage;
+    t = languageContext.t;
+  } catch (error) {
+    console.warn('Language context not available, using fallback');
+  }
 
   const handleSignOut = async () => {
     try {
@@ -144,26 +142,8 @@ export function Header({ onMenuClick }: HeaderProps) {
               <HelpCircleIcon className="h-5 w-5" />
             </Button>
 
-            {/* Language Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/20">
-                  <GlobeIcon className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-36">
-                <DropdownMenuLabel>Language</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup value={currentLanguage} onValueChange={(value) => setLanguage(value as LanguageCode)}>
-                  {languages.map((lang) => (
-                    <DropdownMenuRadioItem key={lang.code} value={lang.code} className="cursor-pointer">
-                      <span className="mr-2">{lang.flag}</span>
-                      {lang.name}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Language Switcher */}
+            <LanguageSwitcher variant="ghost" />
 
             {/* User profile */}
             <DropdownMenu>
