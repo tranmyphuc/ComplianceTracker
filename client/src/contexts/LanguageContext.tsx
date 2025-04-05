@@ -4,11 +4,26 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 export type Language = 'en' | 'de';
 export const DEFAULT_LANGUAGE: Language = 'en';
 
+// Define language information
+export interface LanguageInfo {
+  code: Language;
+  name: string;
+  flag: string;
+}
+
+// Available languages
+export const availableLanguages: LanguageInfo[] = [
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' }
+];
+
 // Language context type definition
 type LanguageContextType = {
   language: Language;
+  currentLanguage: Language; // Alias for language (for backward compatibility)
   setLanguage: (lang: Language) => void;
   t: (key: string) => string; // Simple translation function
+  languages: LanguageInfo[]; // Available languages
 };
 
 // Create the context
@@ -162,8 +177,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   
   const value = {
     language,
+    currentLanguage: language, // Alias for backwards compatibility
     setLanguage,
-    t
+    t,
+    languages: availableLanguages // Make languages available to components
   };
   
   return (
