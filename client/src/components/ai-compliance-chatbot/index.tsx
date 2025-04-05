@@ -59,11 +59,22 @@ export function AiComplianceChatbot() {
     setIsLoading(true);
     
     try {
+      // Format chat history for the API
+      const history = messages.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      }));
+      
       // Call API to get bot response
       const response = await fetch('/api/chatbot/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: userMessage.content }),
+        body: JSON.stringify({ 
+          query: userMessage.content,  // Use 'query' as specified in server API
+          history: history,            // Include conversation history
+          mode: 'general',             // Use general mode for chatbot
+          language: 'en'               // Default to English
+        }),
       });
       
       if (!response.ok) {
@@ -75,7 +86,7 @@ export function AiComplianceChatbot() {
       // Add bot response
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.answer,
+        content: data.response || "I'm sorry, I couldn't generate a response", // Use 'response' as returned by API
         sender: 'bot',
         timestamp: new Date(),
       };

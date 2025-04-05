@@ -84,7 +84,17 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.profile': 'Profile',
     'settings.appearance': 'Appearance',
     'settings.notifications': 'Notifications',
-    'settings.language': 'Language Settings'
+    'settings.language': 'Language Settings',
+    
+    // Chatbot
+    'chatbot.title': 'AI Compliance Assistant',
+    'chatbot.description': 'Ask questions about EU AI Act compliance',
+    'chatbot.inputPlaceholder': 'Type your question...',
+    'complianceChatbot.title': 'AI Compliance Assistant',
+    'complianceChatbot.description': 'Get expert assistance with your EU AI Act compliance questions',
+    'complianceChatbot.infoTitle': 'Interactive Assistance',
+    'complianceChatbot.infoDescription': 'This AI assistant provides guidance on EU AI Act compliance topics. For official legal advice, please consult with a regulatory compliance expert.',
+    'complianceChatbot.disclaimer': 'Disclaimer: This chatbot is designed to provide general guidance and information about EU AI Act compliance. The responses should not be considered legal advice.'
   },
   de: {
     // Common UI elements
@@ -139,7 +149,17 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.profile': 'Profil',
     'settings.appearance': 'Erscheinungsbild',
     'settings.notifications': 'Benachrichtigungen',
-    'settings.language': 'Spracheinstellungen'
+    'settings.language': 'Spracheinstellungen',
+    
+    // Chatbot
+    'chatbot.title': 'KI-Compliance-Assistent',
+    'chatbot.description': 'Stellen Sie Fragen zur EU-KI-Gesetz-Compliance',
+    'chatbot.inputPlaceholder': 'Geben Sie Ihre Frage ein...',
+    'complianceChatbot.title': 'KI-Compliance-Assistent',
+    'complianceChatbot.description': 'Erhalten Sie Expertenunterstützung zu Ihren Fragen zur EU-KI-Gesetz-Compliance',
+    'complianceChatbot.infoTitle': 'Interaktive Unterstützung',
+    'complianceChatbot.infoDescription': 'Dieser KI-Assistent bietet Anleitungen zu Themen der EU-KI-Gesetz-Compliance. Für offizielle Rechtsberatung wenden Sie sich bitte an einen Compliance-Experten.',
+    'complianceChatbot.disclaimer': 'Haftungsausschluss: Dieser Chatbot soll allgemeine Anleitungen und Informationen zur EU-KI-Gesetz-Compliance bieten. Die Antworten sollten nicht als Rechtsberatung betrachtet werden.'
   }
 };
 
