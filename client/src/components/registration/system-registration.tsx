@@ -1485,19 +1485,7 @@ export const SystemRegistration: React.FC<SystemRegistrationProps> = ({ onFormCh
             </TabsContent>
           </Tabs>
 
-          {extractionInProgress && (
-            <div className="py-2">
-              <div className="flex items-center gap-3 justify-end">
-                <span className="text-xs font-medium text-neutral-500 whitespace-nowrap">
-                  {Math.round(extractionProgress)}% Complete
-                </span>
-                <span className="text-xs font-medium text-blue-700 px-2 py-0.5 rounded-full border border-blue-200">
-                  {aiExtractionStatus === 'extracting' && extractionProgress < 95 ? 'Processing...' : 
-                   extractionProgress >= 95 ? 'Complete' : 'Ready'}
-                </span>
-              </div>
-            </div>
-          )}
+          {/* Extraction progress indicator removed as requested */}
 
           {aiResults && aiExtractionStatus === 'success' && (
             <div className="space-y-4 pt-2">
