@@ -149,6 +149,7 @@ import devModeRoutes from "./routes/dev-mode-routes";
 import { healthCheck, metricsReport } from "./routes/health-check";
 import aiFeaturesRoutes from "./routes/ai-features";
 import regulatoryTermsRoutes from "./routes/regulatory-terms";
+import chatbotRoutes from "./routes/chatbot-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -3397,6 +3398,9 @@ if (isDemoMode) {
 
   // Register regulatory terms routes
   app.use('/api/regulatory-terms', regulatoryTermsRoutes);
+
+  // Register chatbot routes
+  app.use('/api/chatbot', chatbotRoutes);
 
   // Register AI features routes
   app.use('/api/ai', aiFeaturesRoutes);

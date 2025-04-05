@@ -154,6 +154,29 @@ export const aiServices = {
     return services.find(service => service.name === name) || null;
   },
   
+  // Generate text using available AI services
+  async generateText(prompt: string, type: string = 'general'): Promise<string> {
+    const service = this.getPrimaryService();
+    if (!service) {
+      throw new Error('No AI service available');
+    }
+    
+    try {
+      const response = await service.complete({
+        messages: [
+          { role: "system", content: `You are an expert in EU AI Act compliance. Provide ${type} analysis.` },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.7
+      });
+      
+      return response?.content || "I'm sorry, I couldn't generate a response at this time.";
+    } catch (error) {
+      console.error(`Error generating text with ${service.name}:`, error);
+      throw error;
+    }
+  },
+  
   // Reset services (useful for testing)
   reset() {
     openaiService.available = false;
