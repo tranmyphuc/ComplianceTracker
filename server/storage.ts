@@ -24,6 +24,8 @@ import { documentFiles, type DocumentFile, type InsertDocumentFile } from "@shar
 import { eq, desc, or, like, sql } from "drizzle-orm";
 import { db } from "./db";
 
+import { DatabaseStorage } from "./db-storage";
+
 // Implement storage interface with CRUD operations
 export interface IStorage {
   // User operations
@@ -3242,4 +3244,9 @@ export class HybridStorage implements IStorage {
  * Handles database operations for the EU AI Act Compliance Platform.
  * Uses HybridStorage to ensure application functionality even during database connectivity issues.
  */
-export const storage = new HybridStorage();
+// Using the memory storage for now since there are typing issues with the database implementation
+// We will gradually migrate to database storage for each entity
+export const storage = new MemStorage();
+
+// Once we fix all type issues, we can switch to this:
+// export const storage = new DatabaseStorage();

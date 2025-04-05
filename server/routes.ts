@@ -147,6 +147,7 @@ import { Router } from "express";
 // import { analyticsRouter } from "./routes/analytics"; // Added import
 import devModeRoutes from "./routes/dev-mode-routes";
 import { healthCheck, metricsReport } from "./routes/health-check";
+import aiFeaturesRoutes from "./routes/ai-features";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Error handling middleware
@@ -3392,6 +3393,9 @@ if (isDemoMode) {
   
   // Register Document Templates API routes
   app.use('/api/document-templates', documentTemplatesRoutes);
+
+  // Register AI features routes
+  app.use('/api/ai', aiFeaturesRoutes);
   
   // Register EU AI Act routes
   app.use('/api/eu-ai-act', createEuAiActRoutes(storage));

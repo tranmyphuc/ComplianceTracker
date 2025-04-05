@@ -370,6 +370,42 @@ export const documentTemplates = pgTable('document_templates', {
   metadata: jsonb('metadata'), // For additional configuration
 });
 
+// Regulatory Updates table for tracking AI Act updates
+export const regulatoryUpdates = pgTable('regulatory_updates', {
+  id: serial('id').primaryKey(),
+  updateId: text('update_id').notNull().unique(),
+  title: text('title').notNull(),
+  source: text('source'),
+  publicationDate: timestamp('publication_date'),
+  summary: text('summary'),
+  content: text('content'),
+  relevance: text('relevance'), // High, Medium, Low
+  impactAreas: text('impact_areas').array(),
+  status: text('status').default('new'), // new, reviewed, archived
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at'),
+  type: text('type').default('regulation'), // regulation, guidance, opinion, news
+  metadata: jsonb('metadata'), // For storing system impact analysis and other details
+});
+
+// Table for system-specific impact assessments of regulatory updates
+export const regulatoryImpacts = pgTable('regulatory_impacts', {
+  id: serial('id').primaryKey(),
+  impactId: text('impact_id').notNull().unique(),
+  updateId: text('update_id').references(() => regulatoryUpdates.updateId),
+  systemId: text('system_id').references(() => aiSystems.systemId),
+  impactLevel: text('impact_level'), // High, Medium, Low
+  summary: text('summary'),
+  affectedAreas: text('affected_areas').array(),
+  requiredActions: text('required_actions').array(),
+  timeline: text('timeline'),
+  complianceRisks: text('compliance_risks').array(),
+  status: text('status').default('pending'), // pending, in-progress, implemented, waived
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at'),
+  createdBy: text('created_by').references(() => users.uid),
+});
+
 export const documentTemplatesRelations = relations(documentTemplates, ({ one }) => ({
   creator: one(users, {
     fields: [documentTemplates.createdBy],
@@ -444,3 +480,13 @@ export type SystemSetting = typeof systemSettings.$inferSelect;
 export const insertDocumentTemplateSchema = createInsertSchema(documentTemplates).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertDocumentTemplate = z.infer<typeof insertDocumentTemplateSchema>;
 export type DocumentTemplate = typeof documentTemplates.$inferSelect;
+
+// Regulatory Updates schema
+export const insertRegulatoryUpdateSchema = createInsertSchema(regulatoryUpdates).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertRegulatoryUpdate = z.infer<typeof insertRegulatoryUpdateSchema>;
+export type RegulatoryUpdate = typeof regulatoryUpdates.$inferSelect;
+
+// Regulatory Impacts schema
+export const insertRegulatoryImpactSchema = createInsertSchema(regulatoryImpacts).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertRegulatoryImpact = z.infer<typeof insertRegulatoryImpactSchema>;
+export type RegulatoryImpact = typeof regulatoryImpacts.$inferSelect;

@@ -239,3 +239,109 @@ export interface TemplateGenerationOptions {
   includePerformanceMetrics?: boolean;
   customSections?: string[];
 }
+
+/**
+ * AI System Type used for AI analyses and assessments
+ */
+export interface AiSystem {
+  id: number;
+  systemId: string;
+  name: string;
+  description?: string;
+  vendor?: string;
+  department?: string;
+  riskLevel?: string;
+  riskScore?: number;
+  purpose?: string;
+  domain?: string;
+  version?: string;
+  capabilities?: any;
+  dataSources?: string;
+  createdBy?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+/**
+ * Risk Assessment Type for AI systems
+ */
+export interface RiskAssessment {
+  id: number;
+  assessmentId: string;
+  systemId?: string;
+  assessmentDate?: Date;
+  createdBy?: string;
+  createdAt?: Date;
+  status?: string;
+  riskLevel: string;
+  score: number;
+  confidence?: number;
+  assessor?: string;
+  risks?: Array<{
+    name: string;
+    category?: string;
+    description?: string;
+    severity?: string;
+    likelihood?: string;
+    impact?: string;
+    mitigation?: string;
+  }>;
+  complianceGaps?: string[];
+  mitigationStrategy?: string;
+  monitoringRecommendations?: string;
+  documentationRequirements?: string[];
+  version?: string;
+  assessmentType?: string;
+  metadata?: Record<string, any>;
+}
+
+/**
+ * Regulatory Update Type for tracking AI Act updates
+ */
+export interface RegulatoryUpdate {
+  id: number;
+  updateId: string;
+  title: string;
+  source?: string;
+  publicationDate?: Date;
+  summary?: string;
+  content?: string;
+  relevance?: string;
+  impactAreas?: string[];
+  status?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  type?: string;
+  metadata?: Record<string, any>;
+}
+
+/**
+ * Regulatory Impact Type for system-specific impact assessments
+ */
+export interface RegulatoryImpact {
+  id: number;
+  impactId: string;
+  updateId: string;
+  systemId: string;
+  impactLevel?: string;
+  summary?: string;
+  affectedAreas?: string[];
+  requiredActions?: string[];
+  timeline?: string;
+  complianceRisks?: string[];
+  status?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  createdBy?: string;
+}
+
+/**
+ * AI Service Types for different AI operations
+ */
+export enum AIServiceOperation {
+  RISK_ASSESSMENT = 'risk_assessment',
+  TEMPLATE_GENERATION = 'template_generation',
+  REGULATORY_MONITORING = 'regulatory_monitoring',
+  COMPLIANCE_ANALYSIS = 'compliance_analysis',
+  IMPACT_ANALYSIS = 'impact_analysis'
+}

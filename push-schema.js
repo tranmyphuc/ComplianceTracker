@@ -1,7 +1,7 @@
-const { migrate } = require('drizzle-orm/postgres-js/migrator');
-const postgres = require('postgres');
-const { drizzle } = require('drizzle-orm/postgres-js');
-const schema = require('./shared/schema');
+import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import * as schema from './shared/schema.js';
 
 async function main() {
   if (!process.env.DATABASE_URL) {
@@ -29,7 +29,7 @@ async function main() {
           if (err.message.includes('already exists')) {
             console.log();
           } else {
-            console.error(, err);
+            console.error('Error creating table:', err);
           }
         }
       }
