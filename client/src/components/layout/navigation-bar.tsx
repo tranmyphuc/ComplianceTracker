@@ -89,14 +89,6 @@ export function NavigationBar({ className, isMobile = false, onItemClick }: Navi
       badgeColor: ''
     },
     { 
-      name: 'Text Analyzer', 
-      path: '/risk-assessment/text-analyzer', 
-      icon: <FileTextIcon className="h-4 w-4 mr-2" />,
-      isPriority: false,
-      isNew: false,
-      badgeColor: ''
-    },
-    { 
       name: 'Legal Review Platform', 
       path: '/legal-reviews', 
       icon: <ShieldIcon className="h-4 w-4 mr-2" />,
